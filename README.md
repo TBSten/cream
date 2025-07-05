@@ -205,30 +205,15 @@ ksp {
 }
 ```
 
-| Option | Description | Default | Examples |
-| ----------------------------- | ------------------------------------------------------------------------------------- | ------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `cream.copyFunNamePrefix`     | Prefix for generated copy function names. Can be set to any
-string. | `copyTo`                  | `copyTo`, `transitionTo`, `mapTo`                          |
-| | | | `copyTo`                                                   | Functions like `copyToHoge`,
-`copyToFuga` will be generated. |
-| `cream.copyFunNamingStrategy` | Method for setting names after `cream.copyFunNamePrefix` in
-generated copy functions. | `under-package`           | `under-package`, `diff-parent`,
-`simple-name`, `full-name` |
-| | | | `under-package`                                            |
-`com.example.ParentClass.ChildClass` -> Functions like prefix + `ParentClassChildClass`(...) will be
-generated |
-| | | | `diff-parent`                                              | Copy from
-`com.example.ParentClass` to `com.example.ParentClass.ChildClass` -> Functions like prefix +
-`ChildClass`(...) will be generated |
-| | | | `simple-name`                                              |
-`com.example.ParentClass.ChildClass` -> Functions like prefix + `ChildClass`(...) will be
-generated |
-| | | | `full-name`                                                |
-`com.example.ParentClass.ChildClass` -> Functions like prefix +
-`com.example.ParentClass.ChildClass`(...) will be generated |
-| `cream.escapeDot`             | Method for escaping `.` in generated copy function names. |
-`"replace-to-underscore"` | `replace-to-underscore`, `pascal-case`                     |
-| | | | `replace-to-underscore`                                    | `.` will be replaced with
-`_`. |
-| | | | `pascal-case`                                              | `.` is treated as word
-boundaries, and each word's first letter is capitalized and concatenated. |
+| Option                        | Description                                                                         | Default value             | Example                                                    |                                                                                                                                               |
+|-------------------------------|-------------------------------------------------------------------------------------|---------------------------|------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| `cream.copyFunNamePrefix`     | Prefix for the name of the generated copy function. You can set any string.         | `copyTo`                  | `copyTo`, `transitionTo`, `mapTo`                          |                                                                                                                                               |
+|                               |                                                                                     |                           | `copyTo`                                                   | Functions such as `copyToHoge` and `copyToFuga` will be generated.                                                                            |
+| `cream.copyFunNamingStrategy` | How to set the name of the copy function generated after `cream.copyFunNamePrefix`. | `under-package`           | `under-package`, `diff-parent`, `simple-name`, `full-name` |                                                                                                                                               |
+|                               |                                                                                     |                           | `under-package`                                            | `com.example.ParentClass.ChildClass` -> A function such as prefix + `ParentClassChildClass`(...) is generated.                                |
+|                               |                                                                                     |                           | `diff-parent`                                              | Copying from `com.example.ParentClass` to `com.example.ParentClass.ChildClass` -> A function such as prefix + `ChildClass`(...) is generated. |
+|                               |                                                                                     |                           | `simple-name`                                              | `com.example.ParentClass.ChildClass` -> A function such as prefix + `ChildClass`(...) is generated.                                           |
+|                               |                                                                                     |                           | `full-name`                                                | `com.example.ParentClass.ChildClass` -> A function such as prefix + `com.example.ParentClass.ChildClass`(...) will be generated.              |
+| `cream.escapeDot`             | How to escape the `.` in the generated copy function name.                          | `"replace-to-underscore"` | `replace-to-underscore`, `pascal-case`                     |                                                                                                                                               |
+|                               |                                                                                     |                           | `replace-to-underscore`                                    | `.` will be replaced with `_`.                                                                                                                |
+|                               |                                                                                     |                           | `pascal-case`                                              | `.` is treated as a word separator, and the string is created by capitalizing the first letter of each word and concatenating them.           |
