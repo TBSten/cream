@@ -1,5 +1,7 @@
 package me.tbsten.cream.ksp.options
 
+import me.tbsten.cream.ksp.InvalidCreamOptionException
+
 internal data class CreamOptions(
     val copyFunNamePrefix: String,
     val copyFunNamingStrategy: CopyFunNamingStrategy,
@@ -14,11 +16,12 @@ internal fun Map<String, String>.toCreamOptions(): CreamOptions {
                 this["cream.copyFunNamingStrategy"] ?: CopyFunNamingStrategy.default.name,
             )
         } catch (e: IllegalArgumentException) {
-            error(
-                "Invalid ksp.arg[\"cream.copyFunNamingStrategy\"] = ${this["cream.copyFunNamingStrategy"]}. It must be on of ${
-                    CopyFunNamingStrategy.entries.joinToString(", ")
-                }",
-                /* TODO cause = e, */
+            throw InvalidCreamOptionException(
+                message = "Invalid ksp.arg[\"cream.copyFunNamingStrategy\"] = ${this["cream.copyFunNamingStrategy"]}." +
+                        " It must be on of ${CopyFunNamingStrategy.entries.joinToString(", ")}",
+                solution = "Set one of the following for ksp.arg: \n" +
+                        CopyFunNamingStrategy.entries.joinToString("") { "- \"${it.name}\"\n" },
+                cause = e,
             )
         },
         escapeDot = try {
@@ -26,11 +29,11 @@ internal fun Map<String, String>.toCreamOptions(): CreamOptions {
                 this["cream.escapeDot"] ?: EscapeDot.default.name
             )
         } catch (e: IllegalArgumentException) {
-            error(
-                "Invalid ksp.arg[\"cream.escapeDot\"] = ${this["cream.escapeDot"]}. It must be on of ${
-                    EscapeDot.entries.joinToString(", ")
-                }",
-                /* TODO cause = e, */
+            throw InvalidCreamOptionException(
+                message = "Invalid ksp.arg[\"cream.escapeDot\"] = ${this["cream.escapeDot"]}",
+                solution = "Set one of the following for ksp.arg: \n" +
+                        EscapeDot.entries.joinToString(", "),
+                cause = e,
             )
         },
     )

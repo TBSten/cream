@@ -2,6 +2,7 @@ package me.tbsten.cream.ksp.transform
 
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.util.fullName
 import me.tbsten.cream.ksp.util.isSealed
@@ -17,14 +18,22 @@ internal fun BufferedWriter.appendCopyFunction(
         ClassKind.OBJECT -> appendCopyToObjectFunction(source, target, options)
         ClassKind.INTERFACE -> {
             if (target.isSealed()) appendCopyToSealedClassFunction(source, target, options)
-            else error(
-                "Unsupported copy target class kind: ${target.classKind} (${target.fullName}). " +
-                        "It must be a sealed interface."
+            else throw InvalidCreamUsageException(
+                message =
+                    "Unsupported copy to ${
+                        target.classKind.name.lowercase().replace("_", " ")
+                    } (${target.fullName})." +
+                            "It must be a sealed interface.",
+                solution = "Please make ${target.fullName} a sealed interface.",
             )
         }
 
-        else -> error(
-            "Unsupported copy target class kind: ${target.classKind} (${target.fullName})"
+        else -> throw InvalidCreamUsageException(
+            message =
+                "Unsupported copy to ${
+                    target.classKind.name.lowercase().replace("_", " ")
+                } (${target.fullName}).",
+            solution = "Please make ${target.fullName} a class or object or sealed interface.",
         )
     }
 }

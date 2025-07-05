@@ -2,12 +2,13 @@ package me.tbsten.cream.ksp.util
 
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.Variance
+import me.tbsten.cream.ksp.UnknownCreamException
 
 internal val KSType.asString: String
     get() = buildString {
         append(
             declaration.qualifiedName?.asString()
-                ?: error("KSTypeReference does not have a qualified name: $this")
+                ?: throw UnknownCreamException("declaration.qualifiedName is null")
         )
 
         // type parameters

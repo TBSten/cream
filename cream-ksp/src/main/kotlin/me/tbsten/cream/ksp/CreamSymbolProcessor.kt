@@ -6,6 +6,7 @@ import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSName
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.validate
@@ -45,7 +46,10 @@ class CreamSymbolProcessor(
         ).partition { it.validate() }
         copyFromTargets.forEach { target ->
             val targetClass = (target as? KSClassDeclaration)
-                ?: error("Expected a class declaration with @CopyFrom annotation, but found: $target")
+                ?: throw InvalidCreamUsageException(
+                    message = "@${CopyFrom::class.simpleName} must be applied to a class or interface.",
+                    solution = "Please apply @${CopyFrom::class.simpleName} to `class or interface`",
+                )
 
             // CopyFrom.sources: List<KClass<*>>
             val sourceClasses = target
@@ -60,7 +64,10 @@ class CreamSymbolProcessor(
                 }.map { it.declaration }
                 .map {
                     it as? KSClassDeclaration
-                        ?: error("${it.fullName} is not class.")
+                        ?: throw InvalidCreamUsageException(
+                            message = "${it.fullName} (Specified in @${CopyFrom::class.simpleName}.sources of ${target.fullName}) must be class.",
+                            solution = "Specify class or interface in @${CopyFrom::class.simpleName}.sources of ${target.fullName}.",
+                        )
                 }
 
             codeGenerator
@@ -89,7 +96,10 @@ class CreamSymbolProcessor(
 
         copyToTargets.forEach { target ->
             val sourceClass = (target as? KSClassDeclaration)
-                ?: error("Expected a class declaration with @CopyTo annotation, but found: $target")
+                ?: throw InvalidCreamUsageException(
+                    message = "@${CopyTo::class.simpleName} must be applied to a class or interface.",
+                    solution = "Please apply @${CopyTo::class.simpleName} to `class or interface`",
+                )
 
             // CopyTo.targets: List<KClass<*>>
             val targetClasses = target
@@ -104,7 +114,10 @@ class CreamSymbolProcessor(
                 }.map { it.declaration }
                 .map {
                     it as? KSClassDeclaration
-                        ?: error("${it.fullName} must be class.")
+                        ?: throw InvalidCreamUsageException(
+                            message = "${it.fullName} (Specified in @${CopyTo::class.simpleName}.sources of ${target.fullName}) must be class.",
+                            solution = "Specify class or interface in @${CopyTo::class.simpleName}.sources of ${target.fullName}.",
+                        )
                 }
 
             codeGenerator
@@ -132,22 +145,39 @@ class CreamSymbolProcessor(
         ).partition { it.validate() }
 
         copyToChildrenTargets.forEach { copyToChildren ->
-            val sourceClass = (copyToChildren as? KSClassDeclaration)
-                ?.takeIf { it.isSealed() }
-                ?: error("Expected a sealed class/interface declaration with @CopyToChildren annotation, but found: $copyToChildren")
+            val sourceSealedClass = run {
+                if (copyToChildren !is KSClassDeclaration)
+                    throw InvalidCreamUsageException(
+                        message =
+                            "@${CopyToChildren::class.simpleName} annotation must be applied to a sealed class/interface."
+                                    + if (copyToChildren is KSDeclaration) copyToChildren.simpleName.asString() + " is not sealed class/interface" else "",
+                        solution = (copyToChildren as? KSDeclaration)?.let { "Make ${it.fullName} a sealed class/interface." },
+                    )
 
-            val targetClasses = sourceClass.getSealedSubclasses()
+                if (!copyToChildren.isSealed())
+                    throw InvalidCreamUsageException(
+                        message = "@${CopyToChildren::class.simpleName} annotation must be applied to a sealed interface, but ${copyToChildren.isSealed()}",
+                        solution = "",
+                    )
+
+                copyToChildren
+            }
+
+            val targetClasses = sourceSealedClass.getSealedSubclasses()
 
             codeGenerator
                 .createNewKotlinFile(
-                    dependencies = Dependencies(aggregating = true, sourceClass.containingFile!!),
-                    packageName = sourceClass.packageName,
-                    fileName = "CopyToChildren__${sourceClass.simpleName.asString()}",
+                    dependencies = Dependencies(
+                        aggregating = true,
+                        sourceSealedClass.containingFile!!
+                    ),
+                    packageName = sourceSealedClass.packageName,
+                    fileName = "CopyToChildren__${sourceSealedClass.simpleName.asString()}",
                 ) {
                     targetClasses.forEach { targetClass ->
                         // generate sourceClass to sourceClass copy function
                         it.appendCopyFunction(
-                            source = sourceClass,
+                            source = sourceSealedClass,
                             target = targetClass,
                             options = options,
                         )
