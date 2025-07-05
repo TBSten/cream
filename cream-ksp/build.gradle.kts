@@ -5,4 +5,5 @@ plugins {
 dependencies {
     implementation(project(":cream-runtime"))
     implementation(libs.kspApi)
+    implementation(kotlin("reflect"))
 }
