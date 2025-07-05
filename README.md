@@ -76,12 +76,12 @@ copying state across classes from .Loading -> .Stable).
 ```kts
 // module/build.gradle.kts
 plugins {
-    alias("com.google.devtools.ksp") version "<ksp-version>"
+    id("com.google.devtools.ksp") version "<ksp-version>"
 }
 
 dependencies {
-    implementation("me.tbsten.cream:cream-runtime:<ksp-version>")
-    ksp("me.tbsten.cream:cream-ksp:<ksp-version>")
+    implementation("me.tbsten.cream:cream-runtime:<cream-version>")
+    ksp("me.tbsten.cream:cream-ksp:<cream-version>")
 }
 ```
 
