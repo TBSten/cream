@@ -9,4 +9,3 @@ internal fun copyToFunctionName(
     options: CreamOptions,
 ) = "${options.copyFunNamePrefix}${options.copyFunNamingStrategy.funName(source, target)}"
     .let { options.escapeDot.escape(it) }
-    .let { it.replaceFirstChar { it.uppercase() } }
