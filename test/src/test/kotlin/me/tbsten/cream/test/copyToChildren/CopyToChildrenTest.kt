@@ -21,5 +21,13 @@ class CopyToChildrenTest {
             grandChildProp2 = 3,
             grandChildProp3 = true,
         )
+
+        val child: ChildSealedInterface = GrandChildDataObject
+        child.copyToGrandChildDataObject()
+        child.copyToGrandChildDataClass(
+            grandChildProp1 = "grandChild",
+            grandChildProp2 = 123,
+            grandChildProp3 = true,
+        )
     }
 }
