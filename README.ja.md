@@ -1,5 +1,7 @@
 # cream.kt
 
+<a href="https://github.com/TBSten/cream/blob/main/README.md">English</a> | 日本語 | <a href="https://deepwiki.com/TBSten/cream">DeepWiki</a>
+
 cream.kt はクラスを跨いだ copy をしやすくする KSP Plugin です。
 
 ## 0. 一言要点
