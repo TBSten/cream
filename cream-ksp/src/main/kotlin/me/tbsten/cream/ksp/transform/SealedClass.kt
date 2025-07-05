@@ -16,4 +16,13 @@ internal fun BufferedWriter.appendCopyToSealedClassFunction(
             options,
         )
     }
+
+    targetClass.getSealedSubclasses().forEach { subclass ->
+        appendCopyFunction(
+            targetClass,
+            subclass,
+            options,
+            generateTargetToSealedSubclasses = false,
+        )
+    }
 }

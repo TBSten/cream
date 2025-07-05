@@ -12,12 +12,22 @@ internal fun BufferedWriter.appendCopyFunction(
     source: KSClassDeclaration,
     target: KSClassDeclaration,
     options: CreamOptions,
+    generateTargetToSealedSubclasses: Boolean = true,
 ) {
     when (target.classKind) {
         ClassKind.CLASS -> appendCopyToClassFunction(source, target, options)
         ClassKind.OBJECT -> appendCopyToObjectFunction(source, target, options)
         ClassKind.INTERFACE -> {
-            if (target.isSealed()) appendCopyToSealedClassFunction(source, target, options)
+            if (target.isSealed())
+                if (generateTargetToSealedSubclasses) {
+                    appendCopyToSealedClassFunction(
+                        source,
+                        target,
+                        options
+                    )
+                } else {
+                    // no op
+                }
             else throw InvalidCreamUsageException(
                 message =
                     "Unsupported copy to ${
