@@ -18,7 +18,7 @@ mavenPublishing {
         signAllPublications()
     }
 
-    coordinates(group.toString(), "cream-runtime", version.toString())
+    coordinates(group.toString(), "cream-ksp", version.toString())
 
     pom {
         name = "cream.kt ksp plugin"
