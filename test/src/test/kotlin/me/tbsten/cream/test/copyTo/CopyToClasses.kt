@@ -2,7 +2,12 @@ package me.tbsten.cream.test.copyTo
 
 import me.tbsten.cream.CopyTo
 
-@CopyTo(ChildDataObject::class, ChildDataClass::class)
+@CopyTo(
+    ChildDataObject::class,
+    ChildDataClass::class,
+    GrandChildDataObject::class,
+    GrandChildDataClass::class,
+)
 sealed interface Parent {
     val parentProp1: String
     val parentProp2: Int
@@ -27,7 +32,7 @@ data class ChildDataClass(
     val childProp3: String,
 ) : Parent
 
-@CopyTo(ChildDataClass::class)
+@CopyTo(GrandChildDataObject::class, GrandChildDataClass::class)
 sealed interface ChildSealedInterface : Parent {
     val childProp1: Double
     val childProp2: Long

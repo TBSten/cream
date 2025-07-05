@@ -1,12 +1,13 @@
-package me.tbsten.cream.test.copyToChildren
+package me.tbsten.cream.test.copyTo
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class CopyToChildrenTest {
+class CopyToTest {
     @Test
     fun parentToChildren() {
-        val parent: Parent = ChildDataObject
+        val parent: Parent =
+            ChildDataObject
 
         mapOf(
             parent.copyToChildDataObject() to ChildDataObject,
@@ -29,7 +30,8 @@ class CopyToChildrenTest {
 
     @Test
     fun parentToChildrenWithOverrideParentProp() {
-        val parent: Parent = ChildDataObject
+        val parent: Parent =
+            ChildDataObject
 
         mapOf(
             parent.copyToChildDataObject() to ChildDataObject,
@@ -55,7 +57,8 @@ class CopyToChildrenTest {
 
     @Test
     fun parentToGrandChildren() {
-        val parent: Parent = ChildDataObject
+        val parent: Parent =
+            ChildDataObject
 
         mapOf(
             parent.copyToGrandChildDataObject() to GrandChildDataObject,
@@ -116,7 +119,8 @@ class CopyToChildrenTest {
 
     @Test
     fun childToGrandChildren() {
-        val child: ChildSealedInterface = GrandChildDataObject
+        val child: ChildSealedInterface =
+            GrandChildDataObject
 
         mapOf(
             child.copyToGrandChildDataObject() to GrandChildDataObject,
