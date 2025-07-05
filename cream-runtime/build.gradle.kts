@@ -1,5 +1,6 @@
 import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -7,9 +8,6 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.vanniktech.mavenPublish)
 }
-
-group = "io.github.kotlin"
-version = "1.0.0"
 
 kotlin {
     jvm()
@@ -24,6 +22,18 @@ kotlin {
     iosArm64()
     iosSimulatorArm64()
     linuxX64()
+
+    js(IR) {
+        browser()
+        nodejs()
+    }
+
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+        nodejs()
+    }
+
 
     sourceSets {
         val commonMain by getting {
@@ -40,7 +50,7 @@ kotlin {
 }
 
 android {
-    namespace = "org.jetbrains.kotlinx.multiplatform.library.template"
+    namespace = "me.tbsten.cream"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
@@ -54,33 +64,35 @@ android {
 mavenPublishing {
     publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
 
-    signAllPublications()
+    if (!(gradle.startParameter.taskNames.contains("publishToMavenLocal"))) {
+        signAllPublications()
+    }
 
-    coordinates(group.toString(), "library", version.toString())
+    coordinates(group.toString(), "cream-runtime", version.toString())
 
     pom {
-        name = "My library"
-        description = "A library."
-        inceptionYear = "2024"
-        url = "https://github.com/kotlin/multiplatform-library-template/"
+        name = "cream.kt runtime"
+        description = "cream.kt is a KSP Plugin that makes it easy to copy across classes."
+        inceptionYear = "2025"
+        url = "https://github.com/TBSten/cream/"
         licenses {
             license {
-                name = "XXX"
-                url = "YYY"
-                distribution = "ZZZ"
+                name.set("MIT")
+                url.set("https://opensource.org/licenses/MIT")
+                distribution.set("https://opensource.org/licenses/MIT")
             }
         }
         developers {
             developer {
-                id = "XXX"
-                name = "YYY"
-                url = "ZZZ"
+                id = "TBSten"
+                name = "TBSten"
+                url = "https://github.com/TBSten/"
             }
         }
         scm {
-            url = "XXX"
-            connection = "YYY"
-            developerConnection = "ZZZ"
+            url.set("https://github.com/TBSten/cream/")
+            connection.set("scm:git:git://github.com/TBSten/cream/.git")
+            developerConnection.set("scm:git:git://github.com/TBSten/cream/.git")
         }
     }
 }
