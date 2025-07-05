@@ -15,3 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "cream"
 include(":cream-runtime")
+include(":cream-ksp")
