@@ -10,3 +10,9 @@ dependencies {
     testImplementation(project(":cream-runtime"))
     ksp(project(":cream-ksp"))
 }
+
+ksp {
+//    arg("cream.copyFunNamePrefix", "transitionTo")
+//    arg("cream.copyFunNamingStrategy", "full-name")
+//    arg("cream.escapeDot", "replace-to-underscore")
+}
