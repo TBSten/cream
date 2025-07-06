@@ -151,15 +151,17 @@ val nextUiState: UiState.Success = uiState.copyToUiStateSuccess(
 Similar to `@CopyTo`, but differs in that the **source** class is specified as an argument.
 
 ```kt
-class UiState {
-    @CopyFrom(UiState::class)
-    data class Success(
-        val data: Data,
-    )
-}
+data class DataModelLayer(
+    val data: Data,
+)
+
+@CopyFrom(DataModelLayer::class)
+data class DomainModelLayer(
+    val data: Data,
+)
 
 // auto generate
-fun UiState.toUiStateSuccess(
+fun DataModelLayer.toDomainModelLayer(
     data: Data,
 ): UiState.Success = /* ... */
 ```

@@ -149,15 +149,17 @@ val nextUiState: UiState.Success = uiState.copyToUiStateSuccess(
 `@CopyTo` と似ていますが、引数に **遷移元** のクラスを指定する点が違います。
 
 ```kt
-class UiState {
-    @CopyFrom(UiState::class)
-    data class Success(
-        val data: Data,
-    )
-}
+data class DataModelLayer(
+    val data: Data,
+)
+
+@CopyFrom(DataModelLayer::class)
+data class DomainModelLayer(
+    val data: Data,
+)
 
 // auto generate
-fun UiState.toUiStateSuccess(
+fun DataModelLayer.toDomainModelLayer(
     data: Data,
 ): UiState.Success = /* ... */
 ```
