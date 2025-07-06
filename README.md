@@ -12,8 +12,8 @@ cream.kt is a KSP Plugin that makes it easy to copy across classes.
 
 - Generates copy functions for classes annotated with `@CopyTo(<target-class>::class)`,
   `@CopyFrom(<source-class>::class)`.
-    - Example of generated copy functions: `fun UiState.toLoading(): Loading`,
-      `fun UiState.toSuccess(data: Data): Success`
+  - Example of generated copy functions: `fun UiState.toLoading(): Loading`,
+    `fun UiState.toSuccess(data: Data): Success`
 - Generates copy functions from classes annotated with `@CopyToChildren` to all their child classes.
 
 ## 1. Motivation
@@ -152,19 +152,19 @@ val nextUiState: UiState.Success = uiState.copyToUiStateSuccess(
 Similar to `@CopyTo`, but differs in that the **source** class is specified as an argument.
 
 ```kt
-data class DataModelLayer(
+data class DataLayerModel(
     val data: Data,
 )
 
-@CopyFrom(DataModelLayer::class)
-data class DomainModelLayer(
+@CopyFrom(DataLayerModel::class)
+data class DomainLayerModel(
     val data: Data,
 )
 
 // auto generate
-fun DataModelLayer.toDomainModelLayer(
+fun DataLayerModel.toDomainLayerModel(
     data: Data,
-): UiState.Success = /* ... */
+): DomainLayerModel = /* ... */
 ```
 
 ### CopyToChildren
@@ -218,7 +218,7 @@ ksp {
 ```
 
 | Option                        | Description                                                                         | Default value             | Example                                                    |                                                                                                                                               |
-|-------------------------------|-------------------------------------------------------------------------------------|---------------------------|------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
+| ----------------------------- | ----------------------------------------------------------------------------------- | ------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | `cream.copyFunNamePrefix`     | Prefix for the name of the generated copy function. You can set any string.         | `copyTo`                  | `copyTo`, `transitionTo`, `mapTo`                          |                                                                                                                                               |
 |                               |                                                                                     |                           | `copyTo`                                                   | Functions such as `copyToHoge` and `copyToFuga` will be generated.                                                                            |
 | `cream.copyFunNamingStrategy` | How to set the name of the copy function generated after `cream.copyFunNamePrefix`. | `under-package`           | `under-package`, `diff-parent`, `simple-name`, `full-name` |                                                                                                                                               |
@@ -229,3 +229,5 @@ ksp {
 | `cream.escapeDot`             | How to escape the `.` in the generated copy function name.                          | `"replace-to-underscore"` | `replace-to-underscore`, `pascal-case`                     |                                                                                                                                               |
 |                               |                                                                                     |                           | `replace-to-underscore`                                    | `.` will be replaced with `_`.                                                                                                                |
 |                               |                                                                                     |                           | `pascal-case`                                              | `.` is treated as a word separator, and the string is created by capitalizing the first letter of each word and concatenating them.           |
+
+For detailed examples of generated copy function names for each option setting, please refer to the test cases in [`@CopyFunctionNameTest.kt`](cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/transform/CopyFunctionNameTest.kt).
