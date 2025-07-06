@@ -7,6 +7,7 @@ import com.google.devtools.ksp.symbol.KSValueParameter
 import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.util.asString
 import me.tbsten.cream.ksp.util.fullName
+import me.tbsten.cream.ksp.util.name
 import me.tbsten.cream.ksp.util.visibilityStr
 import java.io.BufferedWriter
 
@@ -18,14 +19,9 @@ internal fun BufferedWriter.appendCopyToClassFunction(
 ) {
     targetClass.getConstructors().forEach { constructor ->
         appendKDoc(source, targetClass, constructor)
+        val funName = copyToFunctionName(source, targetClass, options)
         appendLine(
-            "${targetClass.visibilityStr} fun ${source.fullName}.${
-                copyToFunctionName(
-                    source,
-                    targetClass,
-                    options,
-                )
-            }("
+            "${targetClass.visibilityStr} fun ${source.fullName}.$funName("
         )
         constructor.parameters.forEach { parameter ->
             append("    ")
@@ -51,10 +47,10 @@ private fun BufferedWriter.appendKDoc(
 ) {
     appendLine("/**")
     appendLine(" * (auto generated)")
+    appendLine(" * [${source.name}] -> [${target.name}] copy function.")
     appendLine(" * ")
-    // TODO @params doc
-    appendLine(" * @see ${source.fullName}")
-    appendLine(" * @see ${target.fullName}")
+    appendLine(" * @see ${source.name}")
+    appendLine(" * @see ${target.name}")
     appendLine(" */")
 }
 
