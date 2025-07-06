@@ -1,5 +1,8 @@
 # cream.kt
 
+![Maven Central Version](https://img.shields.io/maven-central/v/me.tbsten.cream/cream-runtime)
+![GitHub License](https://img.shields.io/github/license/TBSten/cream)
+
 <a href="https://github.com/TBSten/cream/blob/main/README.md">English</a> | 日本語 | <a href="https://deepwiki.com/TBSten/cream">DeepWiki</a>
 
 cream.kt はクラスを跨いだ copy をしやすくする KSP Plugin です。
@@ -73,6 +76,8 @@ copy と違い、**cream.kt では クラスを跨いだ状態遷移** も可能
 へクラスを跨いで状態をコピーしています)。
 
 ## 2. セットアップ
+
+![Maven Central Version](https://img.shields.io/maven-central/v/me.tbsten.cream/cream-runtime)
 
 ```kts
 // module/build.gradle.kts
