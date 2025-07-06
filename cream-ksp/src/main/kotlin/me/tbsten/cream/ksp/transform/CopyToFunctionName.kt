@@ -8,7 +8,7 @@ internal fun copyToFunctionName(
     target: KSClassDeclaration,
     options: CreamOptions,
 ): String {
-    val prefix = options.copyFunNamePrefix.let(options.escapeDot.escape)
+    val prefix = options.copyFunNamePrefix
     val funName =
         options
             .copyFunNamingStrategy

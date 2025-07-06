@@ -11,10 +11,11 @@ internal enum class EscapeDot(
             .joinToString("") { it.replaceFirstChar { it.uppercase() } }
             .replaceFirstChar { it.lowercase() }
     }),
-    `replace-to-underscore`(escapeString = "_"),
+    `replace-to-underscore`({
+        ("_" + it.replace(".", "_"))
+            .replace(Regex("_+"), "_")
+    }),
     ;
-
-    constructor(escapeString: String) : this({ it.replace(".", escapeString) })
 
     companion object {
         val default = `lower-camel-case`
