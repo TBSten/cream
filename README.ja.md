@@ -198,6 +198,8 @@ fun UiState.copyToUiStateSuccessRefreshing(
 ): UiState.Success.Refreshing = /* ... */
 ```
 
+これは各 sealed class/interface に @CopyTo を都度指定するよりも圧倒的に楽です。
+
 ## 4. オプション
 
 挙動をカスタマイズするためのいくつかのオプションが用意されています。

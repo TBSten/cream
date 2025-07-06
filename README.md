@@ -200,6 +200,8 @@ fun UiState.copyToUiStateSuccessRefreshing(
 ): UiState.Success.Refreshing = /* ... */
 ```
 
+This is much easier than specifying @CopyTo for each sealed class/interface.
+
 ## 4. Options
 
 Several options are available to customize behavior.
