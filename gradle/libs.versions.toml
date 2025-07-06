@@ -6,11 +6,13 @@ android-minSdk = "24"
 android-compileSdk = "34"
 ksp = "2.1.21-2.0.1"
 kotest = "5.9.1"
+mockk = "1.14.4"
 
 [libraries]
 kotlinTest = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotest = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 kspApi = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 
 [plugins]
 androidLibrary = { id = "com.android.library", version.ref = "agp" }

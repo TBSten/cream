@@ -9,6 +9,8 @@ dependencies {
     implementation(project(":cream-runtime"))
     implementation(libs.kspApi)
     implementation(kotlin("reflect"))
+    testImplementation(libs.kotlinTest)
+    testImplementation(libs.mockk)
 }
 
 mavenPublishing {
