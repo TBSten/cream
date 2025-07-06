@@ -3,7 +3,8 @@
 ![Maven Central Version](https://img.shields.io/maven-central/v/me.tbsten.cream/cream-runtime)
 ![GitHub License](https://img.shields.io/github/license/TBSten/cream)
 
-English | <a href="https://github.com/TBSten/cream/blob/main/README.ja.md">日本語</a> | <a href="https://deepwiki.com/TBSten/cream">DeepWiki</a>
+English | <a href="https://github.com/TBSten/cream/blob/main/README.ja.md">
+日本語</a> | <a href="https://deepwiki.com/TBSten/cream">DeepWiki</a>
 
 cream.kt is a KSP Plugin that makes it easy to copy across classes.
 
@@ -11,8 +12,8 @@ cream.kt is a KSP Plugin that makes it easy to copy across classes.
 
 - Generates copy functions for classes annotated with `@CopyTo(<target-class>::class)`,
   `@CopyFrom(<source-class>::class)`.
-  - Example of generated copy functions: `fun UiState.toLoading(): Loading`,
-    `fun UiState.toSuccess(data: Data): Success`
+    - Example of generated copy functions: `fun UiState.toLoading(): Loading`,
+      `fun UiState.toSuccess(data: Data): Success`
 - Generates copy functions from classes annotated with `@CopyToChildren` to all their child classes.
 
 ## 1. Motivation
@@ -215,7 +216,7 @@ ksp {
 ```
 
 | Option                        | Description                                                                         | Default value             | Example                                                    |                                                                                                                                               |
-| ----------------------------- | ----------------------------------------------------------------------------------- | ------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+|-------------------------------|-------------------------------------------------------------------------------------|---------------------------|------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|
 | `cream.copyFunNamePrefix`     | Prefix for the name of the generated copy function. You can set any string.         | `copyTo`                  | `copyTo`, `transitionTo`, `mapTo`                          |                                                                                                                                               |
 |                               |                                                                                     |                           | `copyTo`                                                   | Functions such as `copyToHoge` and `copyToFuga` will be generated.                                                                            |
 | `cream.copyFunNamingStrategy` | How to set the name of the copy function generated after `cream.copyFunNamePrefix`. | `under-package`           | `under-package`, `diff-parent`, `simple-name`, `full-name` |                                                                                                                                               |

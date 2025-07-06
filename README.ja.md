@@ -3,7 +3,8 @@
 ![Maven Central Version](https://img.shields.io/maven-central/v/me.tbsten.cream/cream-runtime)
 ![GitHub License](https://img.shields.io/github/license/TBSten/cream)
 
-<a href="https://github.com/TBSten/cream/blob/main/README.md">English</a> | 日本語 | <a href="https://deepwiki.com/TBSten/cream">DeepWiki</a>
+<a href="https://github.com/TBSten/cream/blob/main/README.md">English</a> |
+日本語 | <a href="https://deepwiki.com/TBSten/cream">DeepWiki</a>
 
 cream.kt はクラスを跨いだ copy をしやすくする KSP Plugin です。
 
@@ -11,8 +12,8 @@ cream.kt はクラスを跨いだ copy をしやすくする KSP Plugin です�
 
 - `@CopyTo(<target-class>::class)`, `@CopyFrom(<source-class>::class)` を付与したクラスに copy
   関数を生成します。
-  - 生成される copy 関数の例: `fun UiState.toLoading(): Loading`,
-    `fun UiState.toSuccess(data: Data): Success`
+    - 生成される copy 関数の例: `fun UiState.toLoading(): Loading`,
+      `fun UiState.toSuccess(data: Data): Success`
 - `@CopyToChildren` を付与したクラスからそのすべての子クラスへのコピー関数を生成します。
 
 ## 1. モチベーション
@@ -212,15 +213,15 @@ ksp {
 }
 ```
 
-| オプション                    | 説明                                                                      | デフォルト                | 設定例                                                     |                                                                                                                                               |
-| ----------------------------- | ------------------------------------------------------------------------- | ------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cream.copyFunNamePrefix`     | 生成される copy 関数 の名前のプレフィックス。任意の文字列を設定できます。 | `copyTo`                  | `copyTo`, `transitionTo`, `mapTo`                          |                                                                                                                                               |
-|                               |                                                                           |                           | `copyTo`                                                   | `copyToHoge`, `copyToFuga` のような関数が生成されるようになります。                                                                           |
-| `cream.copyFunNamingStrategy` | 生成される copy 関数 の `cream.copyFunNamePrefix` 以降の名前の設定方法。  | `under-package`           | `under-package`, `diff-parent`, `simple-name`, `full-name` |                                                                                                                                               |
-|                               |                                                                           |                           | `under-package`                                            | `com.example.ParentClass.ChildClass` -> プレフィックス + `ParentClassChildClass`(...) のような関数が生成されます                              |
-|                               |                                                                           |                           | `diff-parent`                                              | `com.example.ParentClass` から `com.example.ParentClass.ChildClass` にコピー -> プレフィックス + `ChildClass`(...) のような関数が生成されます |
-|                               |                                                                           |                           | `simple-name`                                              | `com.example.ParentClass.ChildClass` -> プレフィックス + `ChildClass`(...) のような関数が生成されます                                         |
-|                               |                                                                           |                           | `full-name`                                                | `com.example.ParentClass.ChildClass` -> プレフィックス + `com.example.ParentClass.ChildClass`(...) のような関数が生成されます                 |
-| `cream.escapeDot`             | 生成される copy 関数名の `.` をエスケープする方法。                       | `"replace-to-underscore"` | `replace-to-underscore`, `pascal-case`                     |                                                                                                                                               |
-|                               |                                                                           |                           | `replace-to-underscore`                                    | `.` が `_` に置き換えられます。                                                                                                               |
-|                               |                                                                           |                           | `pascal-case`                                              | `.` を単語区切りとみなし、各単語の先頭を大文字にして連結した文字列になります。                                                                |
+| オプション                         | 説明                                                    | デフォルト                     | 設定例                                                        |                                                                                                                     |
+|-------------------------------|-------------------------------------------------------|---------------------------|------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
+| `cream.copyFunNamePrefix`     | 生成される copy 関数 の名前のプレフィックス。任意の文字列を設定できます。              | `copyTo`                  | `copyTo`, `transitionTo`, `mapTo`                          |                                                                                                                     |
+|                               |                                                       |                           | `copyTo`                                                   | `copyToHoge`, `copyToFuga` のような関数が生成されるようになります。                                                                     |
+| `cream.copyFunNamingStrategy` | 生成される copy 関数 の `cream.copyFunNamePrefix` 以降の名前の設定方法。 | `under-package`           | `under-package`, `diff-parent`, `simple-name`, `full-name` |                                                                                                                     |
+|                               |                                                       |                           | `under-package`                                            | `com.example.ParentClass.ChildClass` -> プレフィックス + `ParentClassChildClass`(...) のような関数が生成されます                        |
+|                               |                                                       |                           | `diff-parent`                                              | `com.example.ParentClass` から `com.example.ParentClass.ChildClass` にコピー -> プレフィックス + `ChildClass`(...) のような関数が生成されます |
+|                               |                                                       |                           | `simple-name`                                              | `com.example.ParentClass.ChildClass` -> プレフィックス + `ChildClass`(...) のような関数が生成されます                                   |
+|                               |                                                       |                           | `full-name`                                                | `com.example.ParentClass.ChildClass` -> プレフィックス + `com.example.ParentClass.ChildClass`(...) のような関数が生成されます           |
+| `cream.escapeDot`             | 生成される copy 関数名の `.` をエスケープする方法。                       | `"replace-to-underscore"` | `replace-to-underscore`, `pascal-case`                     |                                                                                                                     |
+|                               |                                                       |                           | `replace-to-underscore`                                    | `.` が `_` に置き換えられます。                                                                                                |
+|                               |                                                       |                           | `pascal-case`                                              | `.` を単語区切りとみなし、各単語の先頭を大文字にして連結した文字列になります。                                                                           |
