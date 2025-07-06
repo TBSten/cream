@@ -7,5 +7,13 @@ internal fun copyToFunctionName(
     source: KSClassDeclaration,
     target: KSClassDeclaration,
     options: CreamOptions,
-) = "${options.copyFunNamePrefix}${options.copyFunNamingStrategy.funName(source, target)}"
-    .let { options.escapeDot.escape(it) }
+): String {
+    val prefix = options.copyFunNamePrefix.let(options.escapeDot.escape)
+    val funName =
+        options
+            .copyFunNamingStrategy
+            .funName(source, target)
+            .let(options.escapeDot.escape)
+            .let { if (prefix.last().isLetter()) it.replaceFirstChar { it.uppercase() } else it }
+    return "$prefix$funName"
+}
