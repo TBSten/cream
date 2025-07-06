@@ -19,7 +19,7 @@ internal fun BufferedWriter.appendCopyToClassFunction(
 ) {
     targetClass.getConstructors().forEach { constructor ->
         appendKDoc(source, targetClass, constructor)
-        val funName = copyToFunctionName(source, targetClass, options)
+        val funName = copyFunctionName(source, targetClass, options)
         appendLine(
             "${targetClass.visibilityStr} fun ${source.fullName}.$funName("
         )

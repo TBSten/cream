@@ -10,13 +10,13 @@ import me.tbsten.cream.ksp.options.EscapeDot
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-internal class CopyToFunctionNameTest {
+internal class CopyFunctionNameTest {
     private fun testCopyFunctionName(
         options: CreamOptions,
         vararg triples: Triple<KSClassDeclaration, KSClassDeclaration, String>,
     ) {
         triples.forEach { (source, target, expectedFunName) ->
-            val resultFunName = copyToFunctionName(source, target, options)
+            val resultFunName = copyFunctionName(source, target, options)
 
             assertEquals(
                 expectedFunName,

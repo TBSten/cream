@@ -16,7 +16,7 @@ internal fun BufferedWriter.appendCopyToObjectFunction(
     appendKDoc(source, targetObject)
     appendLine(
         "${targetObject.visibilityStr} fun ${source.fullName}.${
-            copyToFunctionName(
+            copyFunctionName(
                 source,
                 targetObject,
                 options,
