@@ -12,9 +12,10 @@ class CopyToTest {
         mapOf(
             parent.copyToChildDataObject() to ChildDataObject,
             parent.copyToChildDataClass(
+                parentOrNull = null,
                 childProp1 = 1.0,
                 childProp2 = 2L,
-                childProp3 = "child"
+                childProp3 = "child",
             ) to ChildDataClass(
                 parentProp1 = parent.parentProp1,
                 parentProp2 = parent.parentProp2,
@@ -36,6 +37,7 @@ class CopyToTest {
         mapOf(
             parent.copyToChildDataObject() to ChildDataObject,
             parent.copyToChildDataClass(
+                parentOrNull = null,
                 parentProp1 = "parent",
                 parentProp2 = 123,
                 parentProp3 = false,
@@ -63,6 +65,7 @@ class CopyToTest {
         mapOf(
             parent.copyToGrandChildDataObject() to GrandChildDataObject,
             parent.copyToGrandChildDataClass(
+                parentOrNull = null,
                 childProp1 = 1.0,
                 childProp2 = 2L,
                 childProp3 = "child",
@@ -95,6 +98,7 @@ class CopyToTest {
                 parentProp1 = "parent",
                 parentProp2 = 123,
                 parentProp3 = false,
+                parentOrNull = null,
                 childProp1 = 1.0,
                 childProp2 = 2L,
                 childProp3 = "child",
@@ -125,6 +129,7 @@ class CopyToTest {
         mapOf(
             child.copyToGrandChildDataObject() to GrandChildDataObject,
             child.copyToGrandChildDataClass(
+                parentOrNull = null,
                 grandChildProp1 = "grandChild",
                 grandChildProp2 = 123,
                 grandChildProp3 = true,
@@ -151,6 +156,7 @@ class CopyToTest {
         mapOf(
             child.copyToGrandChildDataObject() to GrandChildDataObject,
             child.copyToGrandChildDataClass(
+                parentOrNull = null,
                 childProp1 = 1.0,
                 childProp2 = 2L,
                 childProp3 = "child",
