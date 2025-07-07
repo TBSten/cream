@@ -8,7 +8,7 @@
 
 cream.kt はクラスを跨いだ copy をしやすくする KSP Plugin です。
 
-## 0. 一言要点
+## ⭐️ 0. 一言要点
 
 - `@CopyTo(<target-class>::class)`, `@CopyFrom(<source-class>::class)` を付与したクラスに copy
   関数を生成します。
@@ -16,7 +16,7 @@ cream.kt はクラスを跨いだ copy をしやすくする KSP Plugin です�
       `fun UiState.toSuccess(data: Data): Success`
 - `@CopyToChildren` を付与したクラスからそのすべての子クラスへのコピー関数を生成します。
 
-## 1. モチベーション
+## 🤔 1. モチベーション
 
 あなたのプロジェクトに以下のような UiState があったとします。
 
@@ -76,7 +76,7 @@ class の copy メソッド** に似ています。
 copy と違い、**cream.kt では クラスを跨いだ状態遷移** も可能にします(上記の例では .Loading -> .Stable
 へクラスを跨いで状態をコピーしています)。
 
-## 2. セットアップ
+## ⚙️ 2. セットアップ
 
 ![Maven Central Version](https://img.shields.io/maven-central/v/me.tbsten.cream/cream-runtime)
 
@@ -92,7 +92,7 @@ dependencies {
 }
 ```
 
-## 3. 利用方法
+## ❇️ 3. 利用方法
 
 ### CopyTo
 
@@ -200,7 +200,7 @@ fun UiState.copyToUiStateSuccessRefreshing(
 
 これは各 sealed class/interface に @CopyTo を都度指定するよりも圧倒的に楽です。
 
-## 4. オプション
+## 🔨 4. オプション
 
 挙動をカスタマイズするためのいくつかのオプションが用意されています。
 すべてのオプションの設定は任意です。必要に応じて設定してください。
