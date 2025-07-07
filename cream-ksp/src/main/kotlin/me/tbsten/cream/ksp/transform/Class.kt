@@ -60,5 +60,6 @@ private fun KSValueParameter.findMatchedProperty(
     source
         .getAllProperties()
         .firstOrNull {
-            it.simpleName == this.name
+            it.simpleName == this.name &&
+                    this.type.resolve().isAssignableFrom(it.type.resolve())
         }
