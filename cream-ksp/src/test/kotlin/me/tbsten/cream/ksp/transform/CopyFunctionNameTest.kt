@@ -26,37 +26,6 @@ internal class CopyFunctionNameTest {
     }
 
     @Test
-    fun `sample`() = testCopyFunctionName(
-        CreamOptions(
-            copyFunNamePrefix = "copyTo",
-            copyFunNamingStrategy = CopyFunNamingStrategy.`under-package`,
-            escapeDot = EscapeDot.`lower-camel-case`,
-        ),
-        Triple(
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example.source",
-                underPackage = "Source",
-            ),
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example.target",
-                underPackage = "Target",
-            ),
-            "copyToTarget",
-        ),
-        Triple(
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example",
-                underPackage = "State",
-            ),
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example",
-                underPackage = "State.Success",
-            ),
-            "copyToStateSuccess",
-        ),
-    )
-
-    @Test
     fun `under-package, lower-camel-case`() = testCopyFunctionName(
         CreamOptions(
             copyFunNamePrefix = "copyTo",
