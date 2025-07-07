@@ -2,6 +2,7 @@ package me.tbsten.cream.ksp.options
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import me.tbsten.cream.ksp.util.fullName
+import me.tbsten.cream.ksp.util.name
 
 @Suppress("EnumEntryName")
 internal enum class CopyFunNamingStrategy(val funName: (source: KSClassDeclaration, target: KSClassDeclaration) -> String) {
@@ -17,6 +18,20 @@ internal enum class CopyFunNamingStrategy(val funName: (source: KSClassDeclarati
     `full-name`(
         { source, target -> target.fullName }
     ),
+    `inner-name`(
+        { _, target ->
+            target.name
+                .split(".")
+                .let {
+                    if (it.size <= 1) {
+                        it
+                    } else {
+                        it.subList(minOf(it.size, 1), it.size)
+                    }
+                }
+                .joinToString(".")
+        }
+    )
     ;
 
     companion object {
