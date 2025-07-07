@@ -10,6 +10,7 @@ import me.tbsten.cream.ksp.options.EscapeDot
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@Suppress("RemoveRedundantBackticks")
 internal class CopyFunctionNameTest {
     private fun testCopyFunctionName(
         options: CreamOptions,
@@ -60,7 +61,7 @@ internal class CopyFunctionNameTest {
     fun `diff-parent, lower-camel-case`() = testCopyFunctionName(
         CreamOptions(
             copyFunNamePrefix = "copyTo",
-            copyFunNamingStrategy = CopyFunNamingStrategy.`diff-parent`,
+            copyFunNamingStrategy = CopyFunNamingStrategy.`diff`,
             escapeDot = EscapeDot.`lower-camel-case`,
         ),
         Triple(
@@ -72,7 +73,7 @@ internal class CopyFunctionNameTest {
                 dummyPackage = "me.tbsten.example.target",
                 underPackage = "Target",
             ),
-            "copyToMeTbstenExampleTargetTarget",
+            "copyToTargetTarget",
         ),
         Triple(
             mockKSClassDeclaration(
@@ -184,7 +185,7 @@ internal class CopyFunctionNameTest {
     fun `diff-parent, replace-to-underscore`() = testCopyFunctionName(
         CreamOptions(
             copyFunNamePrefix = "copyTo",
-            copyFunNamingStrategy = CopyFunNamingStrategy.`diff-parent`,
+            copyFunNamingStrategy = CopyFunNamingStrategy.`diff`,
             escapeDot = EscapeDot.`replace-to-underscore`,
         ),
         Triple(
@@ -196,7 +197,7 @@ internal class CopyFunctionNameTest {
                 dummyPackage = "me.tbsten.example.target",
                 underPackage = "Target",
             ),
-            "copyTo_me_tbsten_example_target_Target",
+            "copyTo_target_Target",
         ),
         Triple(
             mockKSClassDeclaration(
