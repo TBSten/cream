@@ -32,4 +32,6 @@ internal val KSType.asString: String
             }
             append(">")
         }
+
+        if (isMarkedNullable) append("?")
     }
