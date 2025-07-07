@@ -2,7 +2,7 @@ package me.tbsten.cream.ksp.options
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import me.tbsten.cream.ksp.util.fullName
-import me.tbsten.cream.ksp.util.name
+import me.tbsten.cream.ksp.util.underPackageName
 
 @Suppress("EnumEntryName", "RemoveRedundantBackticks")
 internal enum class CopyFunNamingStrategy(val funName: (source: KSClassDeclaration, target: KSClassDeclaration) -> String) {
@@ -33,7 +33,7 @@ internal enum class CopyFunNamingStrategy(val funName: (source: KSClassDeclarati
     ),
     `inner-name`(
         { _, target ->
-            target.name
+            target.underPackageName
                 .split(".")
                 .let {
                     if (it.size <= 1) {

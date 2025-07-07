@@ -17,7 +17,7 @@ import me.tbsten.cream.ksp.options.toCreamOptions
 import me.tbsten.cream.ksp.transform.appendCopyFunction
 import me.tbsten.cream.ksp.util.fullName
 import me.tbsten.cream.ksp.util.isSealed
-import me.tbsten.cream.ksp.util.name
+import me.tbsten.cream.ksp.util.underPackageName
 import java.io.BufferedWriter
 
 class CreamSymbolProcessor(
@@ -75,7 +75,7 @@ class CreamSymbolProcessor(
                 .createNewKotlinFile(
                     dependencies = Dependencies(aggregating = true, targetClass.containingFile!!),
                     packageName = targetClass.packageName,
-                    fileName = "CopyFrom__${targetClass.name}",
+                    fileName = "CopyFrom__${targetClass.underPackageName}",
                 ) {
                     sourceClasses.forEach { sourceClass ->
                         it.appendCopyFunction(
@@ -125,7 +125,7 @@ class CreamSymbolProcessor(
                 .createNewKotlinFile(
                     dependencies = Dependencies(aggregating = true, sourceClass.containingFile!!),
                     packageName = sourceClass.packageName,
-                    fileName = "CopyTo__${sourceClass.name}",
+                    fileName = "CopyTo__${sourceClass.underPackageName}",
                 ) {
                     targetClasses.forEach { targetClass ->
                         // generate sourceClass to sourceClass copy function
@@ -173,7 +173,7 @@ class CreamSymbolProcessor(
                         sourceSealedClass.containingFile!!
                     ),
                     packageName = sourceSealedClass.packageName,
-                    fileName = "CopyToChildren__${sourceSealedClass.name}",
+                    fileName = "CopyToChildren__${sourceSealedClass.underPackageName}",
                 ) {
                     targetClasses.forEach { targetClass ->
                         // generate sourceClass to sourceClass copy function

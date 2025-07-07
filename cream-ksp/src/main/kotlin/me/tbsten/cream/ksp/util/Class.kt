@@ -13,5 +13,5 @@ internal val KSDeclaration.fullName: String
     get() = qualifiedName?.asString()
         ?: throw UnknownCreamException("qualifiedName is null")
 
-internal val KSClassDeclaration.name: String
+internal val KSClassDeclaration.underPackageName: String
     get() = fullName.replace("${packageName.asString()}.", "")
