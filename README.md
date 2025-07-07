@@ -231,6 +231,8 @@ ksp {
 |                               |                                                                                     |                           | `replace-to-underscore`                                                  | `.` will be replaced with `_`.                                                                                                                                                                                                                                                             |
 |                               |                                                                                     |                           | `pascal-case`                                                            | `.` is treated as a word separator, and the string is created by capitalizing the first letter of each word and concatenating them.                                                                                                                                                        |
 
+<img src="./doc/cream.copyFunNamingStrategy.png" width="800" />
+
 For detailed examples of generated copy function names for each option setting, please refer to the
 test cases in [
 `@CopyFunctionNameTest.kt`](cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/transform/CopyFunctionNameTest.kt).

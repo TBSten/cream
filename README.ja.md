@@ -229,6 +229,8 @@ ksp {
 |                               |                                                       |                           | `replace-to-underscore`                                    | `.` が `_` に置き換えられます。                                                                                                                                                                                        |
 |                               |                                                       |                           | `pascal-case`                                              | `.` を単語区切りとみなし、各単語の先頭を大文字にして連結した文字列になります。                                                                                                                                                                   |
 
+<img src="./doc/cream.copyFunNamingStrategy.png" width="800" />
+
 各オプション設定時の生成されるコピー関数名の詳細な例は、
 [
 `@CopyFunctionNameTest.kt`](cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/transform/CopyFunctionNameTest.kt)
