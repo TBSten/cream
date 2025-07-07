@@ -34,25 +34,13 @@ internal class CopyFunctionNameTest {
             escapeDot = EscapeDot.`lower-camel-case`,
         ),
         Triple(
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example.source",
-                underPackage = "Source",
-            ),
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example.target",
-                underPackage = "Target",
-            ),
+            mockKSClassDeclaration("me.tbsten.example.source", "Source"),
+            mockKSClassDeclaration("me.tbsten.example.target", "Target"),
             "copyToTarget",
         ),
         Triple(
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example",
-                underPackage = "State",
-            ),
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example",
-                underPackage = "State.Success",
-            ),
+            mockKSClassDeclaration("me.tbsten.example", "State"),
+            mockKSClassDeclaration("me.tbsten.example", "State.Success"),
             "copyToStateSuccess",
         ),
     )
@@ -66,23 +54,19 @@ internal class CopyFunctionNameTest {
         ),
         Triple(
             mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example.source",
-                underPackage = "Source",
+                "me.tbsten.example.source", "Source",
             ),
             mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example.target",
-                underPackage = "Target",
+                "me.tbsten.example.target", "Target",
             ),
             "copyToTargetTarget",
         ),
         Triple(
             mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example",
-                underPackage = "State",
+                "me.tbsten.example", "State",
             ),
             mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example",
-                underPackage = "State.Success",
+                "me.tbsten.example", "State.Success",
             ),
             "copyToSuccess",
         ),
@@ -97,23 +81,19 @@ internal class CopyFunctionNameTest {
         ),
         Triple(
             mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example.source",
-                underPackage = "Source",
+                "me.tbsten.example.source", "Source",
             ),
             mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example.target",
-                underPackage = "Target",
+                "me.tbsten.example.target", "Target",
             ),
             "copyToTarget",
         ),
         Triple(
             mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example",
-                underPackage = "State",
+                "me.tbsten.example", "State",
             ),
             mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example",
-                underPackage = "State.Success",
+                "me.tbsten.example", "State.Success",
             ),
             "copyToSuccess",
         ),
@@ -127,24 +107,18 @@ internal class CopyFunctionNameTest {
             escapeDot = EscapeDot.`lower-camel-case`,
         ),
         Triple(
+            mockKSClassDeclaration("me.tbsten.example.source", "Source"),
             mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example.source",
-                underPackage = "Source",
-            ),
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example.target",
-                underPackage = "Target",
+                "me.tbsten.example.target", "Target",
             ),
             "copyToMeTbstenExampleTargetTarget",
         ),
         Triple(
             mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example",
-                underPackage = "State",
+                "me.tbsten.example", "State",
             ),
             mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example",
-                underPackage = "State.Success",
+                "me.tbsten.example", "State.Success",
             ),
             "copyToMeTbstenExampleStateSuccess",
         ),
@@ -158,36 +132,18 @@ internal class CopyFunctionNameTest {
             escapeDot = EscapeDot.`lower-camel-case`,
         ),
         Triple(
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example.source",
-                underPackage = "Source",
-            ),
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example.target",
-                underPackage = "Target",
-            ),
+            mockKSClassDeclaration("me.tbsten.example.source", "Source"),
+            mockKSClassDeclaration("me.tbsten.example.target", "Target"),
             "copyToTarget",
         ),
         Triple(
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example",
-                underPackage = "State",
-            ),
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example",
-                underPackage = "State.Success",
-            ),
+            mockKSClassDeclaration("me.tbsten.example", "State"),
+            mockKSClassDeclaration("me.tbsten.example", "State.Success"),
             "copyToSuccess",
         ),
         Triple(
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example",
-                underPackage = "State",
-            ),
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example",
-                underPackage = "State.Success.MoreLoading",
-            ),
+            mockKSClassDeclaration("me.tbsten.example", "State"),
+            mockKSClassDeclaration("me.tbsten.example", "State.Success.MoreLoading"),
             "copyToSuccessMoreLoading",
         ),
     )
@@ -200,25 +156,13 @@ internal class CopyFunctionNameTest {
             escapeDot = EscapeDot.`replace-to-underscore`,
         ),
         Triple(
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example.source",
-                underPackage = "Source",
-            ),
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example.target",
-                underPackage = "Target",
-            ),
+            mockKSClassDeclaration("me.tbsten.example.source", "Source"),
+            mockKSClassDeclaration("me.tbsten.example.target", "Target"),
             "copyTo_Target",
         ),
         Triple(
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example",
-                underPackage = "State",
-            ),
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example",
-                underPackage = "State.Success",
-            ),
+            mockKSClassDeclaration("me.tbsten.example", "State"),
+            mockKSClassDeclaration("me.tbsten.example", "State.Success"),
             "copyTo_State_Success",
         ),
     )
@@ -231,25 +175,13 @@ internal class CopyFunctionNameTest {
             escapeDot = EscapeDot.`replace-to-underscore`,
         ),
         Triple(
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example.source",
-                underPackage = "Source",
-            ),
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example.target",
-                underPackage = "Target",
-            ),
+            mockKSClassDeclaration("me.tbsten.example.source", "Source"),
+            mockKSClassDeclaration("me.tbsten.example.target", "Target"),
             "copyTo_target_Target",
         ),
         Triple(
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example",
-                underPackage = "State",
-            ),
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example",
-                underPackage = "State.Success",
-            ),
+            mockKSClassDeclaration("me.tbsten.example", "State"),
+            mockKSClassDeclaration("me.tbsten.example", "State.Success"),
             "copyTo_Success",
         ),
     )
@@ -262,25 +194,13 @@ internal class CopyFunctionNameTest {
             escapeDot = EscapeDot.`replace-to-underscore`,
         ),
         Triple(
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example.source",
-                underPackage = "Source",
-            ),
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example.target",
-                underPackage = "Target",
-            ),
+            mockKSClassDeclaration("me.tbsten.example.source", "Source"),
+            mockKSClassDeclaration("me.tbsten.example.target", "Target"),
             "copyTo_Target",
         ),
         Triple(
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example",
-                underPackage = "State",
-            ),
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example",
-                underPackage = "State.Success",
-            ),
+            mockKSClassDeclaration("me.tbsten.example", "State"),
+            mockKSClassDeclaration("me.tbsten.example", "State.Success"),
             "copyTo_Success",
         ),
     )
@@ -293,25 +213,13 @@ internal class CopyFunctionNameTest {
             escapeDot = EscapeDot.`replace-to-underscore`,
         ),
         Triple(
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example.source",
-                underPackage = "Source",
-            ),
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example.target",
-                underPackage = "Target",
-            ),
+            mockKSClassDeclaration("me.tbsten.example.source", "Source"),
+            mockKSClassDeclaration("me.tbsten.example.target", "Target"),
             "copyTo_me_tbsten_example_target_Target",
         ),
         Triple(
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example",
-                underPackage = "State",
-            ),
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example",
-                underPackage = "State.Success",
-            ),
+            mockKSClassDeclaration("me.tbsten.example", "State"),
+            mockKSClassDeclaration("me.tbsten.example", "State.Success"),
             "copyTo_me_tbsten_example_State_Success",
         ),
     )
@@ -324,36 +232,18 @@ internal class CopyFunctionNameTest {
             escapeDot = EscapeDot.`replace-to-underscore`,
         ),
         Triple(
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example.source",
-                underPackage = "Source",
-            ),
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example.target",
-                underPackage = "Target",
-            ),
+            mockKSClassDeclaration("me.tbsten.example.source", "Source"),
+            mockKSClassDeclaration("me.tbsten.example.target", "Target"),
             "copyTo_Target",
         ),
         Triple(
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example",
-                underPackage = "State",
-            ),
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example",
-                underPackage = "State.Success",
-            ),
+            mockKSClassDeclaration("me.tbsten.example", "State"),
+            mockKSClassDeclaration("me.tbsten.example", "State.Success"),
             "copyTo_Success",
         ),
         Triple(
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example",
-                underPackage = "State",
-            ),
-            mockKSClassDeclaration(
-                dummyPackage = "me.tbsten.example",
-                underPackage = "State.Success.MoreLoading",
-            ),
+            mockKSClassDeclaration("me.tbsten.example", "State"),
+            mockKSClassDeclaration("me.tbsten.example", "State.Success.MoreLoading"),
             "copyTo_Success_MoreLoading",
         ),
     )
