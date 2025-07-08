@@ -10,7 +10,10 @@ plugins {
 }
 
 kotlin {
+    // tested on CI
+    iosSimulatorArm64()
     jvm()
+    linuxX64()
     androidTarget {
         publishLibraryVariants("release")
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
@@ -18,10 +21,25 @@ kotlin {
             jvmTarget.set(JvmTarget.JVM_11)
         }
     }
+    // not tested on CI
+    macosX64()
+    macosArm64()
     iosX64()
+    linuxArm64()
+    watchosSimulatorArm64()
+    watchosX64()
+    watchosArm32()
+    watchosArm64()
+    tvosSimulatorArm64()
+    tvosX64()
+    tvosArm64()
     iosArm64()
-    iosSimulatorArm64()
-    linuxX64()
+    androidNativeArm32()
+    androidNativeArm64()
+    androidNativeX86()
+    androidNativeX64()
+    mingwX64()
+    watchosDeviceArm64()
 
     js(IR) {
         browser()
@@ -34,6 +52,10 @@ kotlin {
         nodejs()
     }
 
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmWasi {
+        nodejs()
+    }
 
     sourceSets {
         val commonMain by getting {
