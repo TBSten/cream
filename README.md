@@ -79,7 +79,10 @@ copying state across classes from .Loading -> .Stable).
 
 ## ⚙️ 2. Setup
 
-![Maven Central Version](https://img.shields.io/maven-central/v/me.tbsten.cream/cream-runtime)
+|                   |                                                                                                                                |
+|-------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| `<cream-version>` | ![Maven Central Version](https://img.shields.io/maven-central/v/me.tbsten.cream/cream-runtime)                                 |
+| `<ksp-version>`   | ![Maven Central Version](https://img.shields.io/maven-central/v/com.google.devtools.ksp/com.google.devtools.ksp.gradle.plugin) |
 
 ```kts
 // module/build.gradle.kts

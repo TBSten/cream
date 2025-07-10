@@ -78,7 +78,10 @@ copy と違い、**cream.kt では クラスを跨いだ状態遷移** も可能
 
 ## ⚙️ 2. セットアップ
 
-![Maven Central Version](https://img.shields.io/maven-central/v/me.tbsten.cream/cream-runtime)
+|                   |                                                                                                                                |
+|-------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| `<cream-version>` | ![Maven Central Version](https://img.shields.io/maven-central/v/me.tbsten.cream/cream-runtime)                                 |
+| `<ksp-version>`   | ![Maven Central Version](https://img.shields.io/maven-central/v/com.google.devtools.ksp/com.google.devtools.ksp.gradle.plugin) |
 
 ```kts
 // module/build.gradle.kts
