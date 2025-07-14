@@ -1,5 +1,7 @@
 package me.tbsten.cream.ksp
 
+import me.tbsten.cream.ksp.util.lines
+
 internal abstract class CreamException(
     message: String,
     solution: String? = null,
@@ -34,7 +36,7 @@ internal class InvalidCreamOptionException(
     solution: String?,
     cause: Throwable? = null,
 ) : InvalidCreamUsageException(
-    message = "Invalid cream usage: invalid option: $message",
+    message = "Invalid option: $message",
     solution = solution,
     cause = cause,
 )
@@ -45,6 +47,12 @@ internal class UnknownCreamException(
     cause: Throwable? = null,
 ) : CreamException(
     message = ("Unexpected error" + message?.let { ": $it" }),
-    solution = solution,
+    solution = solution
+        ?: lines(
+            "Please report this issue at:",
+            "",
+            "    https://github.com/TBSten/cream/issues",
+            "",
+        ),
     cause = cause,
 )
