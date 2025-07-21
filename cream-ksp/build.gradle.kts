@@ -1,5 +1,3 @@
-import com.vanniktech.maven.publish.SonatypeHost
-
 plugins {
     alias(libs.plugins.kotlinJvm)
     alias(libs.plugins.vanniktech.mavenPublish)
@@ -14,7 +12,7 @@ dependencies {
 }
 
 mavenPublishing {
-    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
+    publishToMavenCentral()
 
     if (!(gradle.startParameter.taskNames.contains("publishToMavenLocal"))) {
         signAllPublications()
