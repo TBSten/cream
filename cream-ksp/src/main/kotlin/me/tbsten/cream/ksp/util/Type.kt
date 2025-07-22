@@ -14,22 +14,25 @@ internal val KSType.asString: String
         // type parameters
         if (arguments.isNotEmpty()) {
             append("<")
-            arguments.forEach { typeArg ->
-                // type variance
-                when (typeArg.variance) {
-                    Variance.STAR -> append("*")
-                    Variance.INVARIANT,
-                    Variance.COVARIANT,
-                    Variance.CONTRAVARIANT -> {
-                        if (typeArg.variance != Variance.INVARIANT) {
-                            append(typeArg.variance.label)
-                            append(" ")
+
+            append(
+                arguments.joinToString(", ") { typeArg ->
+                    // type variance
+                    when (typeArg.variance) {
+                        Variance.STAR -> "*"
+                        Variance.INVARIANT,
+                        Variance.COVARIANT,
+                        Variance.CONTRAVARIANT,
+                            -> {
+                            if (typeArg.variance != Variance.INVARIANT) {
+                                append(typeArg.variance.label)
+                                append(" ")
+                            }
+                            typeArg.type!!.resolve().asString
                         }
-                        append(typeArg.type!!.resolve().asString)
                     }
                 }
-
-            }
+            )
             append(">")
         }
 
