@@ -4,9 +4,12 @@
 ![GitHub License](https://img.shields.io/github/license/TBSten/cream)
 
 <a href="https://github.com/TBSten/cream/blob/main/README.md">English</a> |
-日本語 | <a href="https://deepwiki.com/TBSten/cream">DeepWiki</a>
+日本語 |
+<a href="https://deepwiki.com/TBSten/cream">DeepWiki</a>
 
-cream.kt はクラスを跨いだ copy をしやすくする KSP Plugin です。
+cream.kt は **クラスを跨いだ copy** をしやすくする KSP Plugin です。
+
+あるオブジェクトをほぼ同じクラスの別インスタンスへコピーする Mapper を自動生成します。
 
 ## ⭐️ 0. 一言要点
 
@@ -78,10 +81,10 @@ copy と違い、**cream.kt では クラスを跨いだ状態遷移** も可能
 
 ## ⚙️ 2. セットアップ
 
-|                   |                                                                                                                                |
-|-------------------|--------------------------------------------------------------------------------------------------------------------------------|
-| `<cream-version>` | ![Maven Central Version](https://img.shields.io/maven-central/v/me.tbsten.cream/cream-runtime)                                 |
-| `<ksp-version>`   | ![Maven Central Version](https://img.shields.io/maven-central/v/com.google.devtools.ksp/com.google.devtools.ksp.gradle.plugin) |
+|                   |                                                                         |
+|-------------------|-------------------------------------------------------------------------|
+| `<cream-version>` | ![GitHub Release](https://img.shields.io/github/v/release/TBSten/cream) |
+| `<ksp-version>`   | ![GitHub Release](https://img.shields.io/github/v/release/google/ksp)   |
 
 ```kts
 // module/build.gradle.kts
@@ -205,8 +208,12 @@ fun UiState.copyToUiStateSuccessRefreshing(
 
 ## 🔨 4. オプション
 
-挙動をカスタマイズするためのいくつかのオプションが用意されています。
+生成される copy 関数の名前をカスタマイズするためのいくつかのオプションが用意されています。
 すべてのオプションの設定は任意です。必要に応じて設定してください。
+
+各オプション設定時の生成されるコピー関数名の詳細な例は、
+[@CopyFunctionNameTest.kt](./cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/transform/CopyFunctionNameTest.kt)
+のテストケースも参考にしてください。
 
 ```kts
 // module/build.gradle.kts
@@ -218,24 +225,55 @@ ksp {
 }
 ```
 
-| オプション                         | 説明                                                    | デフォルト                     | 設定例                                                        |                                                                                                                                                                                                             |
-|-------------------------------|-------------------------------------------------------|---------------------------|------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `cream.copyFunNamePrefix`     | 生成される copy 関数 の名前のプレフィックス。任意の文字列を設定できます。              | `copyTo`                  | `copyTo`, `transitionTo`, `mapTo`                          |                                                                                                                                                                                                             |
-|                               |                                                       |                           | `copyTo`                                                   | `copyToHoge`, `copyToFuga` のような関数が生成されるようになります。                                                                                                                                                             |
-| `cream.copyFunNamingStrategy` | 生成される copy 関数 の `cream.copyFunNamePrefix` 以降の名前の設定方法。 | `under-package`           | `under-package`, `diff-parent`, `simple-name`, `full-name` |                                                                                                                                                                                                             |
-|                               |                                                       |                           | `under-package`                                            | 完全修飾クラス名のパッケージ名より下の部分<br /> 例: `com.example.ParentClass.ChildClass` -> プレフィックス + `ParentClassChildClass`(...) のような関数が生成されます                                                                                 |
-|                               |                                                       |                           | `diff-parent`                                              | コピー元クラスとの差分の部分。ただし先頭の `.` は削除されます。<br /> 例: `com.example.ParentClass.ChildAClass` から `com.example.ParentClass.ChildBClass` にコピー -> プレフィックス + `BClass`(...) のような関数が生成されます                                    |
-|                               |                                                       |                           | `simple-name`                                              | KClass.simpleName と同じ（つまり純粋なクラス名、ネストされたクラスの場合は外のクラスの名前を **含まない** ）。<br /> 例: `com.example.ParentClass.ChildClass` -> プレフィックス + `ChildClass`(...) のような関数が生成されます                                              |
-|                               |                                                       |                           | `full-name`                                                | クラスの完全修飾クラス名。<br />例: `com.example.ParentClass.ChildClass` -> プレフィックス + `com.example.ParentClass.ChildClass`(...) のような関数が生成されます                                                                             |
-|                               |                                                       |                           | `inner-name`                                               | ネストされたクラスの場合、純粋なクラス名（外のクラスの名前を **含む** ）。ネストされていない（つまりパッケージ直下にある）クラスの場合は `simple-name` と同じ。<br />例: `com.example.ParentClass.ChildClass` -> A function such as prefix + `ChildClass`(...) will be generated. |
-| `cream.escapeDot`             | 生成される copy 関数名の `.` をエスケープする方法。                       | `"replace-to-underscore"` | `replace-to-underscore`, `pascal-case`                     |                                                                                                                                                                                                             |
-|                               |                                                       |                           | `replace-to-underscore`                                    | `.` が `_` に置き換えられます。                                                                                                                                                                                        |
-|                               |                                                       |                           | `pascal-case`                                              | `.` を単語区切りとみなし、各単語の先頭を大文字にして連結した文字列になります。                                                                                                                                                                   |
+### オプションの一覧
+
+| オプション名                            | 説明                                                          | 設定例                                                                      | デフォルト              |
+|-----------------------------------|-------------------------------------------------------------|--------------------------------------------------------------------------|--------------------|
+| **`cream.copyFunNamePrefix`**     | 生成されるコピー関数の先頭につく文字列                                         | `copyTo`, `transitionTo`, `to`, `mapTo`                                  | `copyTo`           |
+| **`cream.copyFunNamingStrategy`** | コピー関数の命名方法。                                                 | `under-package`, `diff-parent`, `simple-name`, `full-name`, `inner-name` | `under-package`    |
+| **`cream.escapeDot`**             | `cream.copyFunNamingStrategy` で命名された名前に含まれる `.` をエスケープする方法。 | `replace-to-underscore`, `pascal-case`, `backquote`                      | `lower-camel-case` |
+
+### オプション 1. `cream.copyFunNamePrefix`
+
+| デフォルト  | `copyTo` |
+|--------|----------|
+| 設定可能な値 | 任意の文字列   |
+
+生成されるコピー関数名の先頭につく クラス名を設定します。
+`copyTo` や `to` などのコピーや状態の遷移を表す端的な文字列を設定してください。
+
+### オプション 2. `cream.copyFunNamingStrategy`
+
+| デフォルト  | `under-package`                                                                 |
+|--------|---------------------------------------------------------------------------------|
+| 設定可能な値 | `under-package`, `diff-parent`, `simple-name`, `full-name`, `inner-name`　のいずれか。 |
+
+コピー関数の prefix 以降のクラス名文字列の設定方法です。以下の表に示す設定方法をサポートします。
+これら以外の命名方法が欲しい場合は [issue](https://github.com/TBSten/cream/issues?q=sort%3Aupdated-desc+is%3Aissue+is%3Aopen)
+にリクエストしてください。
+
+| 設定値             | 説明                                                              | `com.example.Aaa.Bbb` -> `com.example.Aaa.Bbb.Ccc.Ddd` に遷移するコピー関数を生成する例 |
+|-----------------|-----------------------------------------------------------------|-------------------------------------------------------------------------|
+| `under-package` | パッケージ階層を反映した名前を使用します。                                           | Hoge.Fuga.copyTo **`Aaa.Bbb.Ccc.Ddd`** (...)                            |
+| `diff-parent`   | 遷移元クラスとの差分のみを含めた名前を使用する。                                        | Hoge.Fuga.copyTo **`CccDdd`** (...)                                     |
+| `simple-name`   | 遷移先クラス::class.simpleName を使用する。                                 | Hoge.Fuga.copyTo **`Ddd`** (...)                                        |
+| `full-name`     | 対象クラス::class.qualifiedName を使用する。                               | Hoge.Fuga.copyTo **`ComExampleAaaBbbCccDdd`** (...)                     |
+| `inner-name`    | ネストされたクラスの2階層目以降のクラス名を使用する。（ネストされていないクラスの場合は `simple-name` と同じ） | Hoge.Fuga.copyTo **`BbbCccDdd`** (...)                                  |
 
 <img src="./doc/cream.copyFunNamingStrategy.png" width="800" />
 
-各オプション設定時の生成されるコピー関数名の詳細な例は、
-[
-`@CopyFunctionNameTest.kt`](cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/transform/CopyFunctionNameTest.kt)
-のテストケースを参考にしてください。
+### オプション 3. `cream.escapeDot`
 
+| デフォルト  | `lower-camel-case`                                         |
+|--------|------------------------------------------------------------|
+| 設定可能な値 | `replace-to-underscore`, `pascal-case`, `backquote`　のいずれか。 |
+
+`cream.copyFunNamingStrategy` で取得したクラス名をエスケープする方法を設定します。
+
+Kotlin の関数名には通常 `.` を含めることはできないため 設定例に示すいずれかの方法で命名可能な文字列に変更する必要があります。
+
+| 設定値                     | 説明                                 | `com.example.Hoge.Fuga` -> `com.example.Hoge.Piyo` に遷移するコピー関数を生成する例 |
+|-------------------------|------------------------------------|---------------------------------------------------------------------|
+| `lower-camel-case`      | ドットで区切られた各要素をキャメルケースで連結し、先頭を小文字にする | Hoge.Fuga.copyTohogePiyo(...)                                       |
+| `replace-to-underscore` | ドットをアンダースコアに置換する                   | Hoge.Fuga.copyTo_hoge_piyo(...)                                     |
+| `backquote`             | ドットを含む完全な名前をバッククォート（\``...`\`）で囲む  | Hoge.Fuga.\`copyTocom.example.Hoge.Piyo`\(...)                      |

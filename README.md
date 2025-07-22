@@ -3,10 +3,14 @@
 ![Maven Central Version](https://img.shields.io/maven-central/v/me.tbsten.cream/cream-runtime)
 ![GitHub License](https://img.shields.io/github/license/TBSten/cream)
 
-English | <a href="https://github.com/TBSten/cream/blob/main/README.ja.md">
-日本語</a> | <a href="https://deepwiki.com/TBSten/cream">DeepWiki</a>
+English |
+<a href="https://github.com/TBSten/cream/blob/main/README.ja.md">日本語</a> |
+<a href="https://deepwiki.com/TBSten/cream">DeepWiki</a>
 
-cream.kt is a KSP Plugin that makes it easy to copy across classes.
+cream.kt is a KSP Plugin that makes it easy to **copy across classes**.
+
+Automatically generates a Mapper that copies an object to another instance of approximately the same
+class.
 
 ## ⭐️ 0. Quick Summary
 
@@ -207,8 +211,16 @@ This is much easier than specifying @CopyTo for each sealed class/interface.
 
 ## 🔨 4. Options
 
-Several options are available to customize behavior.
-All option settings are optional. Configure as needed.
+Several options are provided to customize the name of the generated copy function.
+All options are optional. Set them as needed.
+
+各オプション設定時の生成されるコピー関数名の詳細な例は、[
+`@CopyFunctionNameTest.kt`](./cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/transform/CopyFunctionNameTest.kt)
+のテストケースも参考にしてください。
+
+For a detailed example of the copy function name generated when setting each option, see
+[@CopyFunctionNameTest.kt](./cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/transform/CopyFunctionNameTest.kt)
+See also the test case at .
 
 ```kts
 // module/build.gradle.kts
@@ -220,22 +232,57 @@ ksp {
 }
 ```
 
-| Option                        | Description                                                                         | Default value             | Example                                                                  |                                                                                                                                                                                                                                                                                            |
-|-------------------------------|-------------------------------------------------------------------------------------|---------------------------|--------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `cream.copyFunNamePrefix`     | Prefix for the name of the generated copy function. You can set any string.         | `copyTo`                  | `copyTo`, `transitionTo`, `mapTo`                                        |                                                                                                                                                                                                                                                                                            |
-|                               |                                                                                     |                           | `copyTo`                                                                 | Functions such as `copyToHoge` and `copyToFuga` will be generated.                                                                                                                                                                                                                         |
-| `cream.copyFunNamingStrategy` | How to set the name of the copy function generated after `cream.copyFunNamePrefix`. | `under-package`           | `under-package`, `diff-parent`, `simple-name`, `full-name`, `inner-name` |                                                                                                                                                                                                                                                                                            |
-|                               |                                                                                     |                           | `under-package`                                                          | FQCN below the package name<br /> Example: `com.example.ParentClass.ChildClass` -> プレフィックス + `ParentClassChildClass`(...) のような関数が生成されます                                                                                                                                                    |
-|                               |                                                                                     |                           | `diff-parent`                                                            | The part of the difference from the source class. However, the leading `. ` is deleted.<br /> Example: `com.example.ParentClass.ChildAClass` から `com.example.ParentClass.ChildBClass` にコピー -> プレフィックス + `BClass`(...) のような関数が生成されます                                                        |
-|                               |                                                                                     |                           | `simple-name`                                                            | Same as KClass.simpleName (i.e., pure class name, **not including** the name of the outer class in the case of nested classes).<br /> Example: `com.example.ParentClass.ChildClass` -> プレフィックス + `ChildClass`(...) のような関数が生成されます                                                           |
-|                               |                                                                                     |                           | `full-name`                                                              | FQCN.<br />Example: `com.example.ParentClass.ChildClass` -> プレフィックス + `com.example.ParentClass.ChildClass`(...) のような関数が生成されます                                                                                                                                                              |
-|                               |                                                                                     |                           | `inner-name`                                                             | For nested classes, pure class name (**includes** the name of the outer class). For non-nested classes (i.e., directly under a package), the same as `simple-name`.<br />Example: `com.example.ParentClass.ChildClass` -> A function such as prefix + `ChildClass`(...) will be generated. |
-| `cream.escapeDot`             | How to escape the `.` in the generated copy function name.                          | `"replace-to-underscore"` | `replace-to-underscore`, `pascal-case`                                   |                                                                                                                                                                                                                                                                                            |
-|                               |                                                                                     |                           | `replace-to-underscore`                                                  | `.` will be replaced with `_`.                                                                                                                                                                                                                                                             |
-|                               |                                                                                     |                           | `pascal-case`                                                            | `.` is treated as a word separator, and the string is created by capitalizing the first letter of each word and concatenating them.                                                                                                                                                        |
+### List of options
+
+| Option name                       | Description                                                            | Example                                                                  | Default            |
+|-----------------------------------|------------------------------------------------------------------------|--------------------------------------------------------------------------|--------------------|
+| **`cream.copyFunNamePrefix`**     | String prefixed to the generated copy function                         | `copyTo`, `transitionTo`, `to`, `mapTo`                                  | `copyTo`           |
+| **`cream.copyFunNamingStrategy`** | Copy function naming conventions.                                      | `under-package`, `diff-parent`, `simple-name`, `full-name`, `inner-name` | `under-package`    |
+| **`cream.escapeDot`**             | How to escape `. ` in the name given by `cream.copyFunNamingStrategy`. | `replace-to-underscore`, `pascal-case`, `backquote`                      | `lower-camel-case` |
+
+### Option 1. `cream.copyFunNamePrefix`
+
+| Default         | `copyTo`         |
+|-----------------|------------------|
+| Possible values | Arbitrary string |
+
+Set the class name to be prefixed by the generated copy function name.
+Set a straightforward string that describes the copy or state transition, such as `copyTo` or `to`.
+
+### Option 2. `cream.copyFunNamingStrategy`
+
+| Default         | `under-package`                                                                 |
+|-----------------|---------------------------------------------------------------------------------|
+| Possible values | One of `under-package`, `diff-parent`, `simple-name`, `full-name`, `inner-name` |
+
+How to set the class name string after the prefix of the copy function. The following table shows
+the supported configuration methods.
+If you want a naming scheme other than these, please make a request
+to [issue](https://github.com/TBSten/cream/issues?q=sort%3Aupdated-desc+is%3Aissue+is%3Aopen).
+
+| Value           | Description                                                                                                         | Example of generating a copy function that transitions from `com.example.Aaa.Bbb` -> `com.example.Aaa.Bbb.Ccc.Ddd`. |
+|-----------------|---------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
+| `under-package` | Use names that reflect the package hierarchy.                                                                       | Hoge.Fuga.copyTo **`Aaa.Bbb.Ccc.Ddd`** (...)                                                                        |
+| `diff-parent`   | Use a name that includes only the difference from the transition source class.                                      | Hoge.Fuga.copyTo **`CccDdd`** (...)                                                                                 |
+| `simple-name`   | Transition destination class::class.simpleName.                                                                     | Hoge.Fuga.copyTo **`Ddd`** (...)                                                                                    |
+| `full-name`     | Target class::class.qualifiedName.                                                                                  | Hoge.Fuga.copyTo **`ComExampleAaaBbbCccDdd`** (...)                                                                 |
+| `inner-name`    | Use the class name from the second level of the nested class onward. (Same as `simple-name` for non-nested classes) | Hoge.Fuga.copyTo **`BbbCccDdd`** (...)                                                                              |
 
 <img src="./doc/cream.copyFunNamingStrategy.png" width="800" />
 
-For detailed examples of generated copy function names for each option setting, please refer to the
-test cases in [
-`@CopyFunctionNameTest.kt`](cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/transform/CopyFunctionNameTest.kt).
+### Option 3. `cream.escapeDot`
+
+| Default         | `lower-camel-case`                                         |
+|-----------------|------------------------------------------------------------|
+| Possible values | One of `replace-to-underscore`, `pascal-case`, `backquote` |
+
+Sets the method for escaping class names retrieved with `cream.copyFunNamingStrategy`.
+
+Kotlin function names usually cannot contain `. ` in function names, they must be changed to a
+string that can be named in one of the ways shown in the configuration examples.
+
+| Value                   | Description                                                                        | Example of generating a copy function that transitions from `com.example.Hoge.Fuga` -> `com.example.Hoge.Piyo`. |
+|-------------------------|------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
+| `lower-camel-case`      | Concatenate each dotted element with camelCase, beginning with a lowercase letter. | Hoge.Fuga.copyTohogePiyo(...)                                                                                   |
+| `replace-to-underscore` | Replace dots with underscores                                                      | Hoge.Fuga.copyTo_hoge_piyo(...)                                                                                 |
+| `backquote`             | The full name, including the dot, is enclosed in backquotes (\``...`\`).           | Hoge.Fuga.\`copyTocom.example.Hoge.Piyo`\(...)                                                                  |
