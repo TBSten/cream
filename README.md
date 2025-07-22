@@ -83,10 +83,10 @@ copying state across classes from .Loading -> .Stable).
 
 ## ⚙️ 2. Setup
 
-|                   |                                                                                                                                |
-|-------------------|--------------------------------------------------------------------------------------------------------------------------------|
-| `<cream-version>` | ![Maven Central Version](https://img.shields.io/maven-central/v/me.tbsten.cream/cream-runtime)                                 |
-| `<ksp-version>`   | ![Maven Central Version](https://img.shields.io/maven-central/v/com.google.devtools.ksp/com.google.devtools.ksp.gradle.plugin) |
+|                   |                                                                         |
+|-------------------|-------------------------------------------------------------------------|
+| `<cream-version>` | ![GitHub Release](https://img.shields.io/github/v/release/TBSten/cream) |
+| `<ksp-version>`   | ![GitHub Release](https://img.shields.io/github/v/release/google/ksp)   |
 
 ```kts
 // module/build.gradle.kts
@@ -213,10 +213,6 @@ This is much easier than specifying @CopyTo for each sealed class/interface.
 
 Several options are provided to customize the name of the generated copy function.
 All options are optional. Set them as needed.
-
-各オプション設定時の生成されるコピー関数名の詳細な例は、[
-`@CopyFunctionNameTest.kt`](./cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/transform/CopyFunctionNameTest.kt)
-のテストケースも参考にしてください。
 
 For a detailed example of the copy function name generated when setting each option, see
 [@CopyFunctionNameTest.kt](./cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/transform/CopyFunctionNameTest.kt)

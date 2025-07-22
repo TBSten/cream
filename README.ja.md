@@ -168,7 +168,7 @@ data class DomainLayerModel(
 // auto generate
 fun DataLayerModel.toDomainLayerModel(
     data: Data,
-): DataLayerModel = /* ... */
+): DomainLayerModel = /* ... */
 ```
 
 ### CopyToChildren
