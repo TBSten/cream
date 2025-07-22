@@ -11,13 +11,29 @@ cream.kt は **クラスを跨いだ copy** をしやすくする KSP Plugin で
 
 あるオブジェクトをほぼ同じクラスの別インスタンスへコピーする Mapper を自動生成します。
 
-## ⭐️ 0. 一言要点
+## ⭐️ 0. 要点
 
-- `@CopyTo(<target-class>::class)`, `@CopyFrom(<source-class>::class)` を付与したクラスに copy
-  関数を生成します。
-    - 生成される copy 関数の例: `fun UiState.toLoading(): Loading`,
-      `fun UiState.toSuccess(data: Data): Success`
-- `@CopyToChildren` を付与したクラスからそのすべての子クラスへのコピー関数を生成します。
+**クラスを跨いだ copy を自動生成する KSP Plugin**
+
+- **Before**: 手動でプロパティを一つずつコピー
+- **After**: `prevState.toNextState(data = newData)` で変換。自明なデータの引き継ぎを省略できるため、可読性が向上します。
+
+```kt
+// 従来の書き方
+// ❌ 具体的のどのデータが追加・変更されたかがパッと分かりずらい
+MyUiState.Success(
+    userName = prevState.userName,    // 手動コピー
+    password = prevState.password,    // 手動コピー
+    data = newData
+)
+
+// cream.kt を使った書き方
+// (toSuccess が自動生成される)
+// ✅ data が追加されたことがパッとわかる
+prevState.toSuccess(data = newData)  // 自動コピー
+```
+
+アノテーション
 
 ## 🤔 1. モチベーション
 

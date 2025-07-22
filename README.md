@@ -14,11 +14,27 @@ class.
 
 ## ⭐️ 0. Quick Summary
 
-- Generates copy functions for classes annotated with `@CopyTo(<target-class>::class)`,
-  `@CopyFrom(<source-class>::class)`.
-    - Example of generated copy functions: `fun UiState.toLoading(): Loading`,
-      `fun UiState.toSuccess(data: Data): Success`
-- Generates copy functions from classes annotated with `@CopyToChildren` to all their child classes.
+**KSP Plugin that automatically generates cross-class copy functions**
+
+- **Before**: Manually copy properties one by one
+- **After**: One-line conversion with `prevState.toNextState(data = newData)`. Readability is improved by eliminating the need to hand over non-trivial data.
+
+```kt
+// Traditional approach
+// ❌ It is difficult to see which specific data has been added or changed.
+MyUiState.Success(
+    userName = prevState.userName,    // manual copy
+    password = prevState.password,    // manual copy
+    data = newData
+)
+
+// With cream.kt
+// (toSuccess is generated automatically)
+// ✅ A quick glance at the data added
+prevState.toSuccess(data = newData)  // automatic copy
+```
+
+
 
 ## 🤔 1. Motivation
 
