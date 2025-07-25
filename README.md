@@ -337,3 +337,18 @@ string that can be named in one of the ways shown in the configuration examples.
 | `lower-camel-case`      | Concatenate each dotted element with camelCase, beginning with a lowercase letter. | Hoge.Fuga.copyTohogePiyo(...)                                                                                   |
 | `replace-to-underscore` | Replace dots with underscores                                                      | Hoge.Fuga.copyTo_hoge_piyo(...)                                                                                 |
 | `backquote`             | The full name, including the dot, is enclosed in backquotes (\``...`\`).           | Hoge.Fuga.\`copyTocom.example.Hoge.Piyo`\(...)                                                                  |
+
+### Option 4. `cream.notCopyToObject`
+
+| Default | `false`         |
+|---------|-----------------|
+| Values  | `true`, `false` |
+
+If set to `true`, copy functions from a class to an `object` will not be generated.
+
+Copy functions to an `object` do not actually copy, but simply return the instance of the object
+itself. If you prefer not to generate copy functions to data objects, set this option to `true` to
+suppress them.
+
+This option affects the entire module, but you can also limit it to a specific class by setting the
+`notCopyToObject` property of the `@CopyToChildren` annotation to `true`.

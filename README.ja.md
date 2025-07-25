@@ -332,3 +332,17 @@ Kotlin の関数名には通常 `.` を含めることはできないため 設�
 | `lower-camel-case`      | ドットで区切られた各要素をキャメルケースで連結し、先頭を小文字にする | Hoge.Fuga.copyTohogePiyo(...)                                       |
 | `replace-to-underscore` | ドットをアンダースコアに置換する                   | Hoge.Fuga.copyTo_hoge_piyo(...)                                     |
 | `backquote`             | ドットを含む完全な名前をバッククォート（\``...`\`）で囲む  | Hoge.Fuga.\`copyTocom.example.Hoge.Piyo`\(...)                      |
+
+### Option 4. `cream.notCopyToObject`
+
+| デフォルト  | `false`               |
+|--------|-----------------------|
+| 設定可能な値 | `true`,`false` のいずれか。 |
+
+true を設定すると、あるクラスから object へのコピー関数を生成しなくなります。
+
+object へのコピー関数は、実際にはコピーではなく object のインスタンスをそのまま返します。
+これがあなたの好みに合わない場合、このオプションに `true` を設定して data object へのコピーを抑止できます。
+
+またこのオプションはモジュール全体に影響しますが、 `@CopyToChildren` の notCopyToObject プロパティを
+true にすることで アノテーションをつけたクラスのみに絞ることも可能です。
