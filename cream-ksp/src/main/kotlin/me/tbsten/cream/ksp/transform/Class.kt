@@ -63,33 +63,45 @@ private fun BufferedWriter.appendKDoc(
 private fun KSValueParameter.findMatchedProperty(
     source: KSClassDeclaration,
 ): KSPropertyDeclaration? {
-    val targetParameter = this
+    val parameterName = this.name?.asString()
+    if (parameterName == null) return null
+    
+    // Try @CopyTo.Property annotation matching first
+    findSourcePropertyWithCopyToAnnotation(source, parameterName)?.let { return it }
+    
+    // Try @CopyFrom.Property annotation matching
+    findSourcePropertyWithCopyFromAnnotation(source, parameterName)?.let { return it }
+    
+    // Fall back to original name-based matching
+    return findSourcePropertyByName(source, parameterName)
+}
 
-    // @CopyTo.Property
-    val sourcePropertyWithCopyToAnnotation = source.getAllProperties()
+private fun KSValueParameter.findSourcePropertyWithCopyToAnnotation(
+    source: KSClassDeclaration,
+    parameterName: String,
+): KSPropertyDeclaration? {
+    return source.getAllProperties()
         .firstOrNull { sourceProperty ->
             val copyToPropertyAnnotation = sourceProperty
                 .getAnnotationsByType(CopyTo.Property::class)
                 .firstOrNull()
 
             if (copyToPropertyAnnotation != null) {
-                copyToPropertyAnnotation.value == targetParameter.name?.asString() &&
-                        targetParameter.type.resolve()
-                            .isAssignableFrom(sourceProperty.type.resolve())
+                copyToPropertyAnnotation.value == parameterName &&
+                        this.type.resolve().isAssignableFrom(sourceProperty.type.resolve())
             } else {
                 false
             }
         }
+}
 
-    if (sourcePropertyWithCopyToAnnotation != null) {
-        return sourcePropertyWithCopyToAnnotation
-    }
-
-    // @CopyFrom.Property
-    val copyFromPropertyAnnotation =
-        targetParameter
-            .getAnnotationsByType(CopyFrom.Property::class)
-            .firstOrNull()
+private fun KSValueParameter.findSourcePropertyWithCopyFromAnnotation(
+    source: KSClassDeclaration,
+    parameterName: String,
+): KSPropertyDeclaration? {
+    val copyFromPropertyAnnotation = this
+        .getAnnotationsByType(CopyFrom.Property::class)
+        .firstOrNull()
 
     if (copyFromPropertyAnnotation != null) {
         val sourcePropertyName = copyFromPropertyAnnotation.value
@@ -97,15 +109,21 @@ private fun KSValueParameter.findMatchedProperty(
         return source.getAllProperties()
             .firstOrNull {
                 it.simpleName.asString() == sourcePropertyName &&
-                        targetParameter.type.resolve().isAssignableFrom(it.type.resolve())
+                        this.type.resolve().isAssignableFrom(it.type.resolve())
             }
     }
+    
+    return null
+}
 
-    // Fall back to original name-based matching
+private fun KSValueParameter.findSourcePropertyByName(
+    source: KSClassDeclaration,
+    parameterName: String,
+): KSPropertyDeclaration? {
     return source
         .getAllProperties()
         .firstOrNull {
-            it.simpleName == targetParameter.name &&
-                    targetParameter.type.resolve().isAssignableFrom(it.type.resolve())
+            it.simpleName.asString() == parameterName &&
+                    this.type.resolve().isAssignableFrom(it.type.resolve())
         }
 }
