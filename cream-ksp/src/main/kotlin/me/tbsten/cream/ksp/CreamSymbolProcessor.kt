@@ -1,5 +1,7 @@
 package me.tbsten.cream.ksp
 
+import com.google.devtools.ksp.KspExperimental
+import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.Resolver
@@ -82,6 +84,7 @@ class CreamSymbolProcessor(
                             source = sourceClass,
                             target = targetClass,
                             options = options,
+                            notCopyToObject = false,
                         )
                     }
                 }
@@ -133,6 +136,7 @@ class CreamSymbolProcessor(
                             source = sourceClass,
                             target = targetClass,
                             options = options,
+                            notCopyToObject = false,
                         )
                     }
                 }
@@ -140,6 +144,7 @@ class CreamSymbolProcessor(
         return invalidCopyToTargets
     }
 
+    @OptIn(KspExperimental::class)
     private fun processCopyToChildren(resolver: Resolver): List<KSAnnotated> {
         val (copyToChildrenTargets, invalidCopyToChildrenTargets) = resolver.getSymbolsWithAnnotation(
             annotationName = CopyToChildren::class.qualifiedName!!,
@@ -157,12 +162,17 @@ class CreamSymbolProcessor(
 
                 if (!copyToChildren.isSealed())
                     throw InvalidCreamUsageException(
-                        message = "@${CopyToChildren::class.simpleName} annotation must be applied to a sealed interface, but ${copyToChildren.isSealed()}",
+                        message = "@${CopyToChildren::class.simpleName} annotation must be applied to a sealed class/interface, but ${copyToChildren.isSealed()}",
                         solution = "",
                     )
 
                 copyToChildren
             }
+            val copyToChildrenAnnotation =
+                sourceSealedClass.getAnnotationsByType(CopyToChildren::class).firstOrNull()
+            val notCopyToObject = copyToChildrenAnnotation
+                ?.notCopyToObject
+                ?: options.notCopyToObject
 
             val targetClasses = sourceSealedClass.getSealedSubclasses()
 
@@ -181,6 +191,7 @@ class CreamSymbolProcessor(
                             source = sourceSealedClass,
                             target = targetClass,
                             options = options,
+                            notCopyToObject = notCopyToObject,
                         )
                     }
                 }

@@ -12,6 +12,7 @@ internal fun BufferedWriter.appendCopyFunction(
     source: KSClassDeclaration,
     target: KSClassDeclaration,
     options: CreamOptions,
+    notCopyToObject: Boolean,
     generateTargetToSealedSubclasses: Boolean = true,
 ) {
     when (target.classKind) {
@@ -19,7 +20,7 @@ internal fun BufferedWriter.appendCopyFunction(
             appendCopyToClassFunction(source, target, options)
 
         ClassKind.OBJECT ->
-            if (!(options.notCopyToObject))
+            if (!notCopyToObject)
                 appendCopyToObjectFunction(source, target, options)
 
         ClassKind.INTERFACE -> {
@@ -28,7 +29,8 @@ internal fun BufferedWriter.appendCopyFunction(
                     appendCopyToSealedClassFunction(
                         source,
                         target,
-                        options
+                        options,
+                        notCopyToObject,
                     )
                 } else {
                     // no op

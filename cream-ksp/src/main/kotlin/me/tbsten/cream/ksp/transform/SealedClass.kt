@@ -8,12 +8,14 @@ internal fun BufferedWriter.appendCopyToSealedClassFunction(
     source: KSClassDeclaration,
     targetClass: KSClassDeclaration,
     options: CreamOptions,
+    notCopyToObject: Boolean,
 ) {
     targetClass.getSealedSubclasses().forEach { subclass ->
         appendCopyFunction(
             source,
             subclass,
             options,
+            notCopyToObject,
         )
     }
 
@@ -22,6 +24,7 @@ internal fun BufferedWriter.appendCopyToSealedClassFunction(
             targetClass,
             subclass,
             options,
+            notCopyToObject,
             generateTargetToSealedSubclasses = false,
         )
     }
