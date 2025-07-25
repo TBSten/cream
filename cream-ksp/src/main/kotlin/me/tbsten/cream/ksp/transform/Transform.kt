@@ -2,6 +2,7 @@ package me.tbsten.cream.ksp.transform
 
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.util.fullName
@@ -11,17 +12,18 @@ import java.io.BufferedWriter
 internal fun BufferedWriter.appendCopyFunction(
     source: KSClassDeclaration,
     target: KSClassDeclaration,
+    generateSourceAnnotation: GenerateSourceAnnotation<*>,
     options: CreamOptions,
     notCopyToObject: Boolean,
     generateTargetToSealedSubclasses: Boolean = true,
 ) {
     when (target.classKind) {
         ClassKind.CLASS ->
-            appendCopyToClassFunction(source, target, options)
+            appendCopyToClassFunction(source, target, generateSourceAnnotation, options)
 
         ClassKind.OBJECT ->
             if (!notCopyToObject)
-                appendCopyToObjectFunction(source, target, options)
+                appendCopyToObjectFunction(source, target, generateSourceAnnotation, options)
 
         ClassKind.INTERFACE -> {
             if (target.isSealed())
@@ -30,6 +32,7 @@ internal fun BufferedWriter.appendCopyFunction(
                         source,
                         target,
                         options,
+                        generateSourceAnnotation,
                         notCopyToObject,
                     )
                 } else {

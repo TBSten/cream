@@ -9,6 +9,7 @@ import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
 import me.tbsten.cream.CopyFrom
 import me.tbsten.cream.CopyTo
+import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.util.asString
 import me.tbsten.cream.ksp.util.fullName
@@ -20,10 +21,11 @@ import java.io.BufferedWriter
 internal fun BufferedWriter.appendCopyToClassFunction(
     source: KSClassDeclaration,
     targetClass: KSClassDeclaration,
+    generateSourceAnnotation: GenerateSourceAnnotation<*>,
     options: CreamOptions,
 ) {
     targetClass.getConstructors().forEach { constructor ->
-        appendKDoc(source, targetClass, constructor)
+        appendKDoc(source, targetClass, constructor, generateSourceAnnotation)
         val funName = copyFunctionName(source, targetClass, options)
         appendLine(
             "${targetClass.visibilityStr} fun ${source.fullName}.$funName("
@@ -49,9 +51,11 @@ private fun BufferedWriter.appendKDoc(
     source: KSClassDeclaration,
     target: KSClassDeclaration,
     constructor: KSFunctionDeclaration,
+    generateSourceAnnotation: GenerateSourceAnnotation<*>,
 ) {
     appendLine("/**")
-    appendLine(" * (auto generated)")
+    appendLine(" * (${autoGenerateKDoc(generateSourceAnnotation)})")
+    appendLine(" * ")
     appendLine(" * [${source.underPackageName}] -> [${target.underPackageName}] copy function.")
     appendLine(" * ")
     appendLine(" * @see ${source.underPackageName}")
