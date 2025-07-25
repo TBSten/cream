@@ -280,6 +280,7 @@ ksp {
     arg("cream.copyFunNamePrefix", "copyTo")
     arg("cream.copyFunNamingStrategy", "under-package")
     arg("cream.escapeDot", "replace-to-underscore")
+    arg("cream.notCopyToObject", "false")
 }
 ```
 
