@@ -80,4 +80,4 @@ data class DomainModel(
 data class DataModel(
     val dataId: String,
     val name: String,
-)   
+)

@@ -62,50 +62,50 @@ private fun KSValueParameter.findMatchedProperty(
     val sourcePropertyWithCopyToAnnotation = source.getAllProperties()
         .firstOrNull { sourceProperty ->
             val copyToPropertyAnnotation = sourceProperty.annotations
-                .firstOrNull { 
+                .firstOrNull {
                     it.annotationType.resolve().declaration.qualifiedName?.asString() == "me.tbsten.cream.CopyTo.Property"
                 }
-            
+
             if (copyToPropertyAnnotation != null) {
                 val targetPropertyName = copyToPropertyAnnotation.arguments
                     .firstOrNull { it.name?.asString() == "value" }
                     ?.value as? String
-                
+
                 targetPropertyName == this.name?.asString() &&
-                this.type.resolve().isAssignableFrom(sourceProperty.type.resolve())
+                        this.type.resolve().isAssignableFrom(sourceProperty.type.resolve())
             } else {
                 false
             }
         }
-    
+
     if (sourcePropertyWithCopyToAnnotation != null) {
         return sourcePropertyWithCopyToAnnotation
     }
-    
+
     // Find the corresponding property in the target class (for @CopyFrom.Property)
     val targetProperty = targetClass.getAllProperties()
         .firstOrNull { it.simpleName.asString() == this.name?.asString() }
-    
+
     // Check if the target property has @CopyFrom.Property annotation
     val copyFromPropertyAnnotation = targetProperty?.annotations
-        ?.firstOrNull { 
+        ?.firstOrNull {
             it.annotationType.resolve().declaration.qualifiedName?.asString() == "me.tbsten.cream.CopyFrom.Property"
         }
-    
+
     if (copyFromPropertyAnnotation != null) {
         val sourcePropertyName = copyFromPropertyAnnotation.arguments
             .firstOrNull { it.name?.asString() == "value" }
             ?.value as? String
-        
+
         if (sourcePropertyName != null) {
             return source.getAllProperties()
-                .firstOrNull { 
+                .firstOrNull {
                     it.simpleName.asString() == sourcePropertyName &&
-                    this.type.resolve().isAssignableFrom(it.type.resolve())
+                            this.type.resolve().isAssignableFrom(it.type.resolve())
                 }
         }
     }
-    
+
     // Fall back to original name-based matching
     return source
         .getAllProperties()

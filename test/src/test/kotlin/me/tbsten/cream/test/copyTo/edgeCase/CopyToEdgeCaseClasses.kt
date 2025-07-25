@@ -80,4 +80,4 @@ data class DomainSourceModel(
 data class DataTargetModel(
     val dataId: String,
     val name: String,
-) 
+)
