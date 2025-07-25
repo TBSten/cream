@@ -47,6 +47,7 @@ class CreamSymbolProcessor(
         val (copyFromTargets, invalidCopyFromTargets) = resolver.getSymbolsWithAnnotation(
             annotationName = CopyFrom::class.qualifiedName!!,
         ).partition { it.validate() }
+
         copyFromTargets.forEach { target ->
             val targetClass = (target as? KSClassDeclaration)
                 ?: throw InvalidCreamUsageException(
@@ -79,11 +80,16 @@ class CreamSymbolProcessor(
                     packageName = targetClass.packageName,
                     fileName = "CopyFrom__${targetClass.underPackageName}",
                 ) {
+                    it.appendLine("import me.tbsten.cream.*")
+                    it.appendLine()
+
                     sourceClasses.forEach { sourceClass ->
                         it.appendCopyFunction(
                             source = sourceClass,
                             target = targetClass,
                             options = options,
+                            generateSourceAnnotation =
+                                GenerateSourceAnnotation.CopyFrom(annotationTarget = target),
                             notCopyToObject = false,
                         )
                     }
@@ -130,12 +136,17 @@ class CreamSymbolProcessor(
                     packageName = sourceClass.packageName,
                     fileName = "CopyTo__${sourceClass.underPackageName}",
                 ) {
+                    it.appendLine("import me.tbsten.cream.*")
+                    it.appendLine()
+
                     targetClasses.forEach { targetClass ->
                         // generate sourceClass to sourceClass copy function
                         it.appendCopyFunction(
                             source = sourceClass,
                             target = targetClass,
                             options = options,
+                            generateSourceAnnotation =
+                                GenerateSourceAnnotation.CopyTo(annotationTarget = target),
                             notCopyToObject = false,
                         )
                     }
@@ -185,12 +196,17 @@ class CreamSymbolProcessor(
                     packageName = sourceSealedClass.packageName,
                     fileName = "CopyToChildren__${sourceSealedClass.underPackageName}",
                 ) {
+                    it.appendLine("import me.tbsten.cream.*")
+                    it.appendLine()
+
                     targetClasses.forEach { targetClass ->
                         // generate sourceClass to sourceClass copy function
                         it.appendCopyFunction(
                             source = sourceSealedClass,
                             target = targetClass,
                             options = options,
+                            generateSourceAnnotation =
+                                GenerateSourceAnnotation.CopyToChildren(annotationTarget = sourceSealedClass),
                             notCopyToObject = notCopyToObject,
                         )
                     }
