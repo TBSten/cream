@@ -58,7 +58,31 @@ private fun KSValueParameter.findMatchedProperty(
     source: KSClassDeclaration,
     targetClass: KSClassDeclaration,
 ): com.google.devtools.ksp.symbol.KSPropertyDeclaration? {
-    // Find the corresponding property in the target class
+    // For @CopyTo.Property: find source property that maps to this target parameter
+    val sourcePropertyWithCopyToAnnotation = source.getAllProperties()
+        .firstOrNull { sourceProperty ->
+            val copyToPropertyAnnotation = sourceProperty.annotations
+                .firstOrNull { 
+                    it.annotationType.resolve().declaration.qualifiedName?.asString() == "me.tbsten.cream.CopyTo.Property"
+                }
+            
+            if (copyToPropertyAnnotation != null) {
+                val targetPropertyName = copyToPropertyAnnotation.arguments
+                    .firstOrNull { it.name?.asString() == "value" }
+                    ?.value as? String
+                
+                targetPropertyName == this.name?.asString() &&
+                this.type.resolve().isAssignableFrom(sourceProperty.type.resolve())
+            } else {
+                false
+            }
+        }
+    
+    if (sourcePropertyWithCopyToAnnotation != null) {
+        return sourcePropertyWithCopyToAnnotation
+    }
+    
+    // Find the corresponding property in the target class (for @CopyFrom.Property)
     val targetProperty = targetClass.getAllProperties()
         .firstOrNull { it.simpleName.asString() == this.name?.asString() }
     
