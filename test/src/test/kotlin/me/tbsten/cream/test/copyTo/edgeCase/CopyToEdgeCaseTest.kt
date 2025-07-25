@@ -113,4 +113,19 @@ class CopyToEdgeCaseTest {
 
         assertEquals(VisibilityTarget("public", "new"), target)
     }
-} 
+
+    @Test
+    fun propertyMapping() {
+        val domainSource = DomainSourceModel(
+            domainId = "test-id",
+            name = "test-name"
+        )
+
+        val dataTarget = domainSource.copyToDataTargetModel()
+
+        assertEquals(
+            DataTargetModel(dataId = "test-id", name = "test-name"),
+            dataTarget
+        )
+    }
+}

@@ -67,4 +67,17 @@ data class VisibilitySource(
     val publicProp: String,
     internal val internalProp: Int,
     private val privateProp: Boolean,
-) 
+)
+
+// 6. Property mapping with @CopyFrom.Property
+@CopyFrom(DataModel::class)
+data class DomainModel(
+    @CopyFrom.Property("dataId")
+    val domainId: String,
+    val name: String,
+)
+
+data class DataModel(
+    val dataId: String,
+    val name: String,
+)

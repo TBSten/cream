@@ -1,9 +1,14 @@
 package me.tbsten.cream.ksp.transform
 
+import com.google.devtools.ksp.KspExperimental
+import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
+import me.tbsten.cream.CopyFrom
+import me.tbsten.cream.CopyTo
 import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.util.asString
 import me.tbsten.cream.ksp.util.fullName
@@ -54,12 +59,75 @@ private fun BufferedWriter.appendKDoc(
     appendLine(" */")
 }
 
+@OptIn(KspExperimental::class)
 private fun KSValueParameter.findMatchedProperty(
     source: KSClassDeclaration,
-) =
-    source
+): KSPropertyDeclaration? {
+    val parameterName = this.name?.asString()
+    if (parameterName == null) return null
+
+    // Try @CopyTo.Property annotation matching first
+    findSourcePropertyWithCopyToAnnotation(source, parameterName)
+        ?.let { return it }
+
+    // Try @CopyFrom.Property annotation matching
+    findSourcePropertyWithCopyFromAnnotation(source, parameterName)
+        ?.let { return it }
+
+    // Fall back to original name-based matching
+    return findSourcePropertyByName(source, parameterName)
+}
+
+@OptIn(KspExperimental::class)
+private fun KSValueParameter.findSourcePropertyWithCopyToAnnotation(
+    source: KSClassDeclaration,
+    parameterName: String,
+): KSPropertyDeclaration? {
+    return source.getAllProperties()
+        .firstOrNull { sourceProperty ->
+            val copyToPropertyAnnotation = sourceProperty
+                .getAnnotationsByType(CopyTo.Property::class)
+                .firstOrNull()
+
+            if (copyToPropertyAnnotation != null) {
+                copyToPropertyAnnotation.value == parameterName &&
+                        this.type.resolve().isAssignableFrom(sourceProperty.type.resolve())
+            } else {
+                false
+            }
+        }
+}
+
+@OptIn(KspExperimental::class)
+private fun KSValueParameter.findSourcePropertyWithCopyFromAnnotation(
+    source: KSClassDeclaration,
+    parameterName: String,
+): KSPropertyDeclaration? {
+    val copyFromPropertyAnnotation = this
+        .getAnnotationsByType(CopyFrom.Property::class)
+        .firstOrNull()
+
+    if (copyFromPropertyAnnotation != null) {
+        val sourcePropertyName = copyFromPropertyAnnotation.value
+
+        return source.getAllProperties()
+            .firstOrNull {
+                it.simpleName.asString() == sourcePropertyName &&
+                        this.type.resolve().isAssignableFrom(it.type.resolve())
+            }
+    }
+
+    return null
+}
+
+private fun KSValueParameter.findSourcePropertyByName(
+    source: KSClassDeclaration,
+    parameterName: String,
+): KSPropertyDeclaration? {
+    return source
         .getAllProperties()
         .firstOrNull {
-            it.simpleName == this.name &&
+            it.simpleName.asString() == parameterName &&
                     this.type.resolve().isAssignableFrom(it.type.resolve())
         }
+}
