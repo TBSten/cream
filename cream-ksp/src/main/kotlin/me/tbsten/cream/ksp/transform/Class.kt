@@ -76,6 +76,7 @@ private fun KSValueParameter.findMatchedProperty(
     return findSourcePropertyByName(source, parameterName)
 }
 
+@OptIn(KspExperimental::class)
 private fun KSValueParameter.findSourcePropertyWithCopyToAnnotation(
     source: KSClassDeclaration,
     parameterName: String,
@@ -95,6 +96,7 @@ private fun KSValueParameter.findSourcePropertyWithCopyToAnnotation(
         }
 }
 
+@OptIn(KspExperimental::class)
 private fun KSValueParameter.findSourcePropertyWithCopyFromAnnotation(
     source: KSClassDeclaration,
     parameterName: String,
