@@ -1,9 +1,14 @@
 package me.tbsten.cream.ksp.transform
 
+import com.google.devtools.ksp.KspExperimental
+import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
+import me.tbsten.cream.CopyFrom
+import me.tbsten.cream.CopyTo
 import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.util.asString
 import me.tbsten.cream.ksp.util.fullName
@@ -26,7 +31,7 @@ internal fun BufferedWriter.appendCopyToClassFunction(
         constructor.parameters.forEach { parameter ->
             append("    ")
             append("${parameter.name!!.asString()}: ${parameter.type.resolve().asString}")
-            parameter.findMatchedProperty(source, targetClass)?.let {
+            parameter.findMatchedProperty(source)?.let {
                 append(" = this.${it.simpleName.asString()}")
             }
             append(",\n")
@@ -54,25 +59,23 @@ private fun BufferedWriter.appendKDoc(
     appendLine(" */")
 }
 
+@OptIn(KspExperimental::class)
 private fun KSValueParameter.findMatchedProperty(
     source: KSClassDeclaration,
-    targetClass: KSClassDeclaration,
-): com.google.devtools.ksp.symbol.KSPropertyDeclaration? {
-    // For @CopyTo.Property: find source property that maps to this target parameter
+): KSPropertyDeclaration? {
+    val targetParameter = this
+
+    // @CopyTo.Property
     val sourcePropertyWithCopyToAnnotation = source.getAllProperties()
         .firstOrNull { sourceProperty ->
-            val copyToPropertyAnnotation = sourceProperty.annotations
-                .firstOrNull {
-                    it.annotationType.resolve().declaration.qualifiedName?.asString() == "me.tbsten.cream.CopyTo.Property"
-                }
+            val copyToPropertyAnnotation = sourceProperty
+                .getAnnotationsByType(CopyTo.Property::class)
+                .firstOrNull()
 
             if (copyToPropertyAnnotation != null) {
-                val targetPropertyName = copyToPropertyAnnotation.arguments
-                    .firstOrNull { it.name?.asString() == "value" }
-                    ?.value as? String
-
-                targetPropertyName == this.name?.asString() &&
-                        this.type.resolve().isAssignableFrom(sourceProperty.type.resolve())
+                copyToPropertyAnnotation.value == targetParameter.name?.asString() &&
+                        targetParameter.type.resolve()
+                            .isAssignableFrom(sourceProperty.type.resolve())
             } else {
                 false
             }
@@ -82,35 +85,27 @@ private fun KSValueParameter.findMatchedProperty(
         return sourcePropertyWithCopyToAnnotation
     }
 
-    // Find the corresponding property in the target class (for @CopyFrom.Property)
-    val targetProperty = targetClass.getAllProperties()
-        .firstOrNull { it.simpleName.asString() == this.name?.asString() }
-
-    // Check if the target property has @CopyFrom.Property annotation
-    val copyFromPropertyAnnotation = targetProperty?.annotations
-        ?.firstOrNull {
-            it.annotationType.resolve().declaration.qualifiedName?.asString() == "me.tbsten.cream.CopyFrom.Property"
-        }
+    // @CopyFrom.Property
+    val copyFromPropertyAnnotation =
+        targetParameter
+            .getAnnotationsByType(CopyFrom.Property::class)
+            .firstOrNull()
 
     if (copyFromPropertyAnnotation != null) {
-        val sourcePropertyName = copyFromPropertyAnnotation.arguments
-            .firstOrNull { it.name?.asString() == "value" }
-            ?.value as? String
+        val sourcePropertyName = copyFromPropertyAnnotation.value
 
-        if (sourcePropertyName != null) {
-            return source.getAllProperties()
-                .firstOrNull {
-                    it.simpleName.asString() == sourcePropertyName &&
-                            this.type.resolve().isAssignableFrom(it.type.resolve())
-                }
-        }
+        return source.getAllProperties()
+            .firstOrNull {
+                it.simpleName.asString() == sourcePropertyName &&
+                        targetParameter.type.resolve().isAssignableFrom(it.type.resolve())
+            }
     }
 
     // Fall back to original name-based matching
     return source
         .getAllProperties()
         .firstOrNull {
-            it.simpleName == this.name &&
-                    this.type.resolve().isAssignableFrom(it.type.resolve())
+            it.simpleName == targetParameter.name &&
+                    targetParameter.type.resolve().isAssignableFrom(it.type.resolve())
         }
 }
