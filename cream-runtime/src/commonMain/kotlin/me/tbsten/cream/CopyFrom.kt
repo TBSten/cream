@@ -30,4 +30,7 @@ import kotlin.reflect.KClass
 @Target(AnnotationTarget.CLASS)
 annotation class CopyFrom(
     vararg val sources: KClass<*>,
-)
+) {
+    @Target(AnnotationTarget.PROPERTY)
+    annotation class Property(val value: String)
+}

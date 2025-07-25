@@ -26,7 +26,7 @@ internal fun BufferedWriter.appendCopyToClassFunction(
         constructor.parameters.forEach { parameter ->
             append("    ")
             append("${parameter.name!!.asString()}: ${parameter.type.resolve().asString}")
-            parameter.findMatchedProperty(source)?.let {
+            parameter.findMatchedProperty(source, targetClass)?.let {
                 append(" = this.${it.simpleName.asString()}")
             }
             append(",\n")
@@ -56,10 +56,37 @@ private fun BufferedWriter.appendKDoc(
 
 private fun KSValueParameter.findMatchedProperty(
     source: KSClassDeclaration,
-) =
-    source
+    targetClass: KSClassDeclaration,
+): com.google.devtools.ksp.symbol.KSPropertyDeclaration? {
+    // Find the corresponding property in the target class
+    val targetProperty = targetClass.getAllProperties()
+        .firstOrNull { it.simpleName.asString() == this.name?.asString() }
+    
+    // Check if the target property has @CopyFrom.Property annotation
+    val copyFromPropertyAnnotation = targetProperty?.annotations
+        ?.firstOrNull { 
+            it.annotationType.resolve().declaration.qualifiedName?.asString() == "me.tbsten.cream.CopyFrom.Property"
+        }
+    
+    if (copyFromPropertyAnnotation != null) {
+        val sourcePropertyName = copyFromPropertyAnnotation.arguments
+            .firstOrNull { it.name?.asString() == "value" }
+            ?.value as? String
+        
+        if (sourcePropertyName != null) {
+            return source.getAllProperties()
+                .firstOrNull { 
+                    it.simpleName.asString() == sourcePropertyName &&
+                    this.type.resolve().isAssignableFrom(it.type.resolve())
+                }
+        }
+    }
+    
+    // Fall back to original name-based matching
+    return source
         .getAllProperties()
         .firstOrNull {
             it.simpleName == this.name &&
                     this.type.resolve().isAssignableFrom(it.type.resolve())
         }
+}
