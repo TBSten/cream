@@ -65,13 +65,15 @@ private fun KSValueParameter.findMatchedProperty(
 ): KSPropertyDeclaration? {
     val parameterName = this.name?.asString()
     if (parameterName == null) return null
-    
+
     // Try @CopyTo.Property annotation matching first
-    findSourcePropertyWithCopyToAnnotation(source, parameterName)?.let { return it }
-    
+    findSourcePropertyWithCopyToAnnotation(source, parameterName)
+        ?.let { return it }
+
     // Try @CopyFrom.Property annotation matching
-    findSourcePropertyWithCopyFromAnnotation(source, parameterName)?.let { return it }
-    
+    findSourcePropertyWithCopyFromAnnotation(source, parameterName)
+        ?.let { return it }
+
     // Fall back to original name-based matching
     return findSourcePropertyByName(source, parameterName)
 }
@@ -114,7 +116,7 @@ private fun KSValueParameter.findSourcePropertyWithCopyFromAnnotation(
                         this.type.resolve().isAssignableFrom(it.type.resolve())
             }
     }
-    
+
     return null
 }
 
