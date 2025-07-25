@@ -32,6 +32,7 @@ internal class CopyFunctionNameTest {
             copyFunNamePrefix = "copyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`under-package`,
             escapeDot = EscapeDot.`lower-camel-case`,
+            notCopyToObject = false,
         ),
         Triple(
             mockKSClassDeclaration("me.tbsten.example.source", "Source"),
@@ -51,6 +52,7 @@ internal class CopyFunctionNameTest {
             copyFunNamePrefix = "copyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`diff`,
             escapeDot = EscapeDot.`lower-camel-case`,
+            notCopyToObject = false,
         ),
         Triple(
             mockKSClassDeclaration(
@@ -78,6 +80,7 @@ internal class CopyFunctionNameTest {
             copyFunNamePrefix = "copyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`simple-name`,
             escapeDot = EscapeDot.`lower-camel-case`,
+            notCopyToObject = false,
         ),
         Triple(
             mockKSClassDeclaration(
@@ -105,6 +108,7 @@ internal class CopyFunctionNameTest {
             copyFunNamePrefix = "copyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`full-name`,
             escapeDot = EscapeDot.`lower-camel-case`,
+            notCopyToObject = false,
         ),
         Triple(
             mockKSClassDeclaration("me.tbsten.example.source", "Source"),
@@ -130,6 +134,7 @@ internal class CopyFunctionNameTest {
             copyFunNamePrefix = "copyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`inner-name`,
             escapeDot = EscapeDot.`lower-camel-case`,
+            notCopyToObject = false,
         ),
         Triple(
             mockKSClassDeclaration("me.tbsten.example.source", "Source"),
@@ -154,6 +159,7 @@ internal class CopyFunctionNameTest {
             copyFunNamePrefix = "copyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`under-package`,
             escapeDot = EscapeDot.`replace-to-underscore`,
+            notCopyToObject = false,
         ),
         Triple(
             mockKSClassDeclaration("me.tbsten.example.source", "Source"),
@@ -173,6 +179,7 @@ internal class CopyFunctionNameTest {
             copyFunNamePrefix = "copyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`diff`,
             escapeDot = EscapeDot.`replace-to-underscore`,
+            notCopyToObject = false,
         ),
         Triple(
             mockKSClassDeclaration("me.tbsten.example.source", "Source"),
@@ -192,6 +199,7 @@ internal class CopyFunctionNameTest {
             copyFunNamePrefix = "copyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`simple-name`,
             escapeDot = EscapeDot.`replace-to-underscore`,
+            notCopyToObject = false,
         ),
         Triple(
             mockKSClassDeclaration("me.tbsten.example.source", "Source"),
@@ -211,6 +219,7 @@ internal class CopyFunctionNameTest {
             copyFunNamePrefix = "copyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`full-name`,
             escapeDot = EscapeDot.`replace-to-underscore`,
+            notCopyToObject = false,
         ),
         Triple(
             mockKSClassDeclaration("me.tbsten.example.source", "Source"),
@@ -230,6 +239,7 @@ internal class CopyFunctionNameTest {
             copyFunNamePrefix = "copyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`inner-name`,
             escapeDot = EscapeDot.`replace-to-underscore`,
+            notCopyToObject = false,
         ),
         Triple(
             mockKSClassDeclaration("me.tbsten.example.source", "Source"),
@@ -254,6 +264,7 @@ internal class CopyFunctionNameTest {
             copyFunNamePrefix = "copyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`under-package`,
             escapeDot = EscapeDot.`backquote`,
+            notCopyToObject = false,
         ),
         Triple(
             mockKSClassDeclaration("me.tbsten.example.source", "Source"),
@@ -273,6 +284,7 @@ internal class CopyFunctionNameTest {
             copyFunNamePrefix = "copyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`diff`,
             escapeDot = EscapeDot.`backquote`,
+            notCopyToObject = false,
         ),
         Triple(
             mockKSClassDeclaration("me.tbsten.example.source", "Source"),
@@ -292,6 +304,7 @@ internal class CopyFunctionNameTest {
             copyFunNamePrefix = "copyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`simple-name`,
             escapeDot = EscapeDot.`backquote`,
+            notCopyToObject = false,
         ),
         Triple(
             mockKSClassDeclaration("me.tbsten.example.source", "Source"),
@@ -311,6 +324,7 @@ internal class CopyFunctionNameTest {
             copyFunNamePrefix = "copyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`full-name`,
             escapeDot = EscapeDot.`backquote`,
+            notCopyToObject = false,
         ),
         Triple(
             mockKSClassDeclaration("me.tbsten.example.source", "Source"),
@@ -330,6 +344,7 @@ internal class CopyFunctionNameTest {
             copyFunNamePrefix = "copyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`inner-name`,
             escapeDot = EscapeDot.`backquote`,
+            notCopyToObject = false,
         ),
         Triple(
             mockKSClassDeclaration("me.tbsten.example.source", "Source"),
