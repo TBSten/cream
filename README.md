@@ -17,7 +17,8 @@ class.
 **KSP Plugin that automatically generates cross-class copy functions**
 
 - **Before**: Manually copy properties one by one
-- **After**: One-line conversion with `prevState.toNextState(data = newData)`. Readability is improved by eliminating the need to hand over non-trivial data.
+- **After**: One-line conversion with `prevState.toNextState(data = newData)`. Readability is
+  improved by eliminating the need to hand over non-trivial data.
 
 ```kt
 // Traditional approach
@@ -33,8 +34,6 @@ MyUiState.Success(
 // ✅ A quick glance at the data added
 prevState.toSuccess(data = newData)  // automatic copy
 ```
-
-
 
 ## 🤔 1. Motivation
 
@@ -224,6 +223,46 @@ fun UiState.copyToUiStateSuccessRefreshing(
 ```
 
 This is much easier than specifying @CopyTo for each sealed class/interface.
+
+### CopyTo.Property, CopyFrom.Property
+
+You can use `@CopyTo.Property` and `@CopyFrom.Property` to map properties between source and target
+classes when their property names differ. This is useful for cases where the property names are not
+the same but you want to copy values between them.
+
+```kt
+@CopyTo(DataModel::class)
+data class DomainModel(
+    @CopyTo.Property("dataId")
+    val domainId: String,
+)
+
+data class DataModel(
+    val dataId: String,
+)
+
+// auto generate
+fun DomainModel.copyToDataModel(
+    dataId: String = this.domainId, // domainId is mapped to dataId
+): DataModel = ...
+```
+
+```kt
+@CopyFrom(DataModel::class)
+data class DomainModel(
+    @CopyFrom.Property("dataId")
+    val domainId: String,
+)
+
+data class DataModel(
+    val dataId: String,
+)
+
+// auto generate
+fun DataModel.copyToDomainModel(
+    domainId: String = this.dataId, // dataId is mapped to domainId
+)
+```
 
 ## 🔨 4. Options
 

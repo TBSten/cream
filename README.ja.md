@@ -222,6 +222,45 @@ fun UiState.copyToUiStateSuccessRefreshing(
 
 これは各 sealed class/interface に @CopyTo を都度指定するよりも圧倒的に楽です。
 
+### CopyTo.Property, CopyFrom.Property
+
+`@CopyTo.Property` および `@CopyFrom.Property` を使用してプロパティごとに対応するプロパティを指定できます。
+これはコピー元とコピー先でプロパティ名が違う時にマッピングするのに便利です。
+
+```kt
+@CopyTo(DataModel::class)
+data class DomainModel(
+    @CopyTo.Property("dataId")
+    val domainId: String,
+)
+
+data class DataModel(
+    val dataId: String,
+)
+
+// auto genarate
+fun DomainModel.copyToDataModel(
+    dataId: String = this.domainId, // domainId と dataId がマッピングされます
+): DataModel = ...
+```
+
+```kt
+@CopyFrom(DataModel::class)
+data class DomainModel(
+    @CopyFrom.Property("dataId")
+    val domainId: String,
+)
+
+data class DataModel(
+    val dataId: String,
+)
+
+// auto generate
+fun DataModel.copyToDomainModel(
+    domainId: String = this.dataId, // dataId と domainId がマッピングされます
+)
+```
+
 ## 🔨 4. オプション
 
 生成される copy 関数の名前をカスタマイズするためのいくつかのオプションが用意されています。
@@ -268,13 +307,13 @@ ksp {
 これら以外の命名方法が欲しい場合は [issue](https://github.com/TBSten/cream/issues?q=sort%3Aupdated-desc+is%3Aissue+is%3Aopen)
 にリクエストしてください。
 
-| 設定値             | 説明                                                              | `com.example.Aaa.Bbb` -> `com.example.Aaa.Bbb.Ccc.Ddd` に遷移するコピー関数を生成する例 |
-|-----------------|-----------------------------------------------------------------|-------------------------------------------------------------------------|
-| `under-package` | パッケージ階層を反映した名前を使用します。                                           | Hoge.Fuga.copyTo **`Aaa.Bbb.Ccc.Ddd`** (...)                            |
-| `diff-parent`   | 遷移元クラスとの差分のみを含めた名前を使用する。                                        | Hoge.Fuga.copyTo **`CccDdd`** (...)                                     |
-| `simple-name`   | 遷移先クラス::class.simpleName を使用する。                                 | Hoge.Fuga.copyTo **`Ddd`** (...)                                        |
-| `full-name`     | 対象クラス::class.qualifiedName を使用する。                               | Hoge.Fuga.copyTo **`ComExampleAaaBbbCccDdd`** (...)                     |
-| `inner-name`    | ネストされたクラスの2階層目以降のクラス名を使用する。（ネストされていないクラスの場合は `simple-name` と同じ） | Hoge.Fuga.copyTo **`BbbCccDdd`** (...)                                  |
+| 設定値             | 説明                                                                | `com.example.Aaa.Bbb` -> `com.example.Aaa.Bbb.Ccc.Ddd` に遷移するコピー関数を生成する例 |
+|-----------------|-------------------------------------------------------------------|-------------------------------------------------------------------------|
+| `under-package` | パッケージ階層を反映した名前を使用します。                                             | Hoge.Fuga.copyTo **`Aaa.Bbb.Ccc.Ddd`** (...)                            |
+| `diff-parent`   | 遷移元クラスとの差分のみを含めた名前を使用する。                                          | Hoge.Fuga.copyTo **`CccDdd`** (...)                                     |
+| `simple-name`   | 遷移先クラス::class.simpleName を使用する。                                   | Hoge.Fuga.copyTo **`Ddd`** (...)                                        |
+| `full-name`     | 対象クラス::class.qualifiedName を使用する。                                 | Hoge.Fuga.copyTo **`ComExampleAaaBbbCccDdd`** (...)                     |
+| `inner-name`    | ネストされたクラスの 2 階層目以降のクラス名を使用する。（ネストされていないクラスの場合は `simple-name` と同じ） | Hoge.Fuga.copyTo **`BbbCccDdd`** (...)                                  |
 
 <img src="./doc/cream.copyFunNamingStrategy.png" width="800" />
 
