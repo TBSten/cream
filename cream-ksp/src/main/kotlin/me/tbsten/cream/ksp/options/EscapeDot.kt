@@ -15,6 +15,9 @@ internal enum class EscapeDot(
         ("_" + it.replace(".", "_"))
             .replace(Regex("_+"), "_")
     }),
+    `backquote`({
+        "`$it`"
+    }),
     ;
 
     companion object {

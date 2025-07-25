@@ -247,6 +247,106 @@ internal class CopyFunctionNameTest {
             "copyTo_Success_MoreLoading",
         ),
     )
+
+    @Test
+    fun `under-package, backquote`() = testCopyFunctionName(
+        CreamOptions(
+            copyFunNamePrefix = "copyTo",
+            copyFunNamingStrategy = CopyFunNamingStrategy.`under-package`,
+            escapeDot = EscapeDot.`backquote`,
+        ),
+        Triple(
+            mockKSClassDeclaration("me.tbsten.example.source", "Source"),
+            mockKSClassDeclaration("me.tbsten.example.target", "Target"),
+            "copyTo`Target`",
+        ),
+        Triple(
+            mockKSClassDeclaration("me.tbsten.example", "State"),
+            mockKSClassDeclaration("me.tbsten.example", "State.Success"),
+            "copyTo`State.Success`",
+        ),
+    )
+
+    @Test
+    fun `diff-parent, backquote`() = testCopyFunctionName(
+        CreamOptions(
+            copyFunNamePrefix = "copyTo",
+            copyFunNamingStrategy = CopyFunNamingStrategy.`diff`,
+            escapeDot = EscapeDot.`backquote`,
+        ),
+        Triple(
+            mockKSClassDeclaration("me.tbsten.example.source", "Source"),
+            mockKSClassDeclaration("me.tbsten.example.target", "Target"),
+            "copyTo`target.Target`",
+        ),
+        Triple(
+            mockKSClassDeclaration("me.tbsten.example", "State"),
+            mockKSClassDeclaration("me.tbsten.example", "State.Success"),
+            "copyTo`.Success`",
+        ),
+    )
+
+    @Test
+    fun `simple-name, backquote`() = testCopyFunctionName(
+        CreamOptions(
+            copyFunNamePrefix = "copyTo",
+            copyFunNamingStrategy = CopyFunNamingStrategy.`simple-name`,
+            escapeDot = EscapeDot.`backquote`,
+        ),
+        Triple(
+            mockKSClassDeclaration("me.tbsten.example.source", "Source"),
+            mockKSClassDeclaration("me.tbsten.example.target", "Target"),
+            "copyTo`Target`",
+        ),
+        Triple(
+            mockKSClassDeclaration("me.tbsten.example", "State"),
+            mockKSClassDeclaration("me.tbsten.example", "State.Success"),
+            "copyTo`Success`",
+        ),
+    )
+
+    @Test
+    fun `full-name, backquote`() = testCopyFunctionName(
+        CreamOptions(
+            copyFunNamePrefix = "copyTo",
+            copyFunNamingStrategy = CopyFunNamingStrategy.`full-name`,
+            escapeDot = EscapeDot.`backquote`,
+        ),
+        Triple(
+            mockKSClassDeclaration("me.tbsten.example.source", "Source"),
+            mockKSClassDeclaration("me.tbsten.example.target", "Target"),
+            "copyTo`me.tbsten.example.target.Target`",
+        ),
+        Triple(
+            mockKSClassDeclaration("me.tbsten.example", "State"),
+            mockKSClassDeclaration("me.tbsten.example", "State.Success"),
+            "copyTo`me.tbsten.example.State.Success`",
+        ),
+    )
+
+    @Test
+    fun `inner-name, backquote`() = testCopyFunctionName(
+        CreamOptions(
+            copyFunNamePrefix = "copyTo",
+            copyFunNamingStrategy = CopyFunNamingStrategy.`inner-name`,
+            escapeDot = EscapeDot.`backquote`,
+        ),
+        Triple(
+            mockKSClassDeclaration("me.tbsten.example.source", "Source"),
+            mockKSClassDeclaration("me.tbsten.example.target", "Target"),
+            "copyTo`Target`",
+        ),
+        Triple(
+            mockKSClassDeclaration("me.tbsten.example", "State"),
+            mockKSClassDeclaration("me.tbsten.example", "State.Success"),
+            "copyTo`Success`",
+        ),
+        Triple(
+            mockKSClassDeclaration("me.tbsten.example", "State"),
+            mockKSClassDeclaration("me.tbsten.example", "State.Success.MoreLoading"),
+            "copyTo`Success.MoreLoading`",
+        ),
+    )
 }
 
 private fun mockKSClassDeclaration(
