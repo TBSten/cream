@@ -7,6 +7,7 @@ internal data class CreamOptions(
     val copyFunNamePrefix: String,
     val copyFunNamingStrategy: CopyFunNamingStrategy,
     val escapeDot: EscapeDot,
+    val notCopyToObject: Boolean,
 )
 
 internal fun Map<String, String>.toCreamOptions(): CreamOptions {
@@ -35,6 +36,8 @@ internal fun Map<String, String>.toCreamOptions(): CreamOptions {
                     cause = e,
                 )
             },
+        notCopyToObject =
+            this["cream.notCopyToObject"]?.lowercase() == "true"
     )
 }
 

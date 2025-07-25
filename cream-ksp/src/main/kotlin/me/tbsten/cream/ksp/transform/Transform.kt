@@ -15,8 +15,13 @@ internal fun BufferedWriter.appendCopyFunction(
     generateTargetToSealedSubclasses: Boolean = true,
 ) {
     when (target.classKind) {
-        ClassKind.CLASS -> appendCopyToClassFunction(source, target, options)
-        ClassKind.OBJECT -> appendCopyToObjectFunction(source, target, options)
+        ClassKind.CLASS ->
+            appendCopyToClassFunction(source, target, options)
+
+        ClassKind.OBJECT ->
+            if (!(options.notCopyToObject))
+                appendCopyToObjectFunction(source, target, options)
+
         ClassKind.INTERFACE -> {
             if (target.isSealed())
                 if (generateTargetToSealedSubclasses) {

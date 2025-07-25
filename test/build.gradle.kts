@@ -15,4 +15,5 @@ ksp {
 //    arg("cream.copyFunNamePrefix", "transitionTo")
 //    arg("cream.copyFunNamingStrategy", "full-name")
 //    arg("cream.escapeDot", "replace-to-underscore")
+//    arg("cream.notCopyToObject", "true")
 }
