@@ -70,11 +70,11 @@ private fun KSValueParameter.findMatchedProperty(
     val parameterName = this.name?.asString()
     if (parameterName == null) return null
 
-    // Try @CopyTo.Property annotation matching first
+    // Try @CopyTo.Map annotation matching first
     findSourcePropertyWithCopyToAnnotation(source, parameterName)
         ?.let { return it }
 
-    // Try @CopyFrom.Property annotation matching
+    // Try @CopyFrom.Map annotation matching
     findSourcePropertyWithCopyFromAnnotation(source, parameterName)
         ?.let { return it }
 
@@ -90,7 +90,7 @@ private fun KSValueParameter.findSourcePropertyWithCopyToAnnotation(
     return source.getAllProperties()
         .firstOrNull { sourceProperty ->
             val copyToPropertyAnnotation = sourceProperty
-                .getAnnotationsByType(CopyTo.Property::class)
+                .getAnnotationsByType(CopyTo.Map::class)
                 .firstOrNull()
 
             if (copyToPropertyAnnotation != null) {
@@ -108,7 +108,7 @@ private fun KSValueParameter.findSourcePropertyWithCopyFromAnnotation(
     parameterName: String,
 ): KSPropertyDeclaration? {
     val copyFromPropertyAnnotation = this
-        .getAnnotationsByType(CopyFrom.Property::class)
+        .getAnnotationsByType(CopyFrom.Map::class)
         .firstOrNull()
 
     if (copyFromPropertyAnnotation != null) {

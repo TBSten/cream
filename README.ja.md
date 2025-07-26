@@ -222,15 +222,15 @@ fun UiState.copyToUiStateSuccessRefreshing(
 
 これは各 sealed class/interface に @CopyTo を都度指定するよりも圧倒的に楽です。
 
-### CopyTo.Property, CopyFrom.Property
+### CopyTo.Map, CopyFrom.Map
 
-`@CopyTo.Property` および `@CopyFrom.Property` を使用してプロパティごとに対応するプロパティを指定できます。
+`@CopyTo.Map` および `@CopyFrom.Map` を使用してプロパティごとに対応するプロパティを指定できます。
 これはコピー元とコピー先でプロパティ名が違う時にマッピングするのに便利です。
 
 ```kt
 @CopyTo(DataModel::class)
 data class DomainModel(
-    @CopyTo.Property("dataId")
+    @CopyTo.Map("dataId")
     val domainId: String,
 )
 
@@ -247,7 +247,7 @@ fun DomainModel.copyToDataModel(
 ```kt
 @CopyFrom(DataModel::class)
 data class DomainModel(
-    @CopyFrom.Property("dataId")
+    @CopyFrom.Map("dataId")
     val domainId: String,
 )
 

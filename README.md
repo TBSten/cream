@@ -224,16 +224,16 @@ fun UiState.copyToUiStateSuccessRefreshing(
 
 This is much easier than specifying @CopyTo for each sealed class/interface.
 
-### CopyTo.Property, CopyFrom.Property
+### CopyTo.Map, CopyFrom.Map
 
-You can use `@CopyTo.Property` and `@CopyFrom.Property` to map properties between source and target
+You can use `@CopyTo.Map` and `@CopyFrom.Map` to map properties between source and target
 classes when their property names differ. This is useful for cases where the property names are not
 the same but you want to copy values between them.
 
 ```kt
 @CopyTo(DataModel::class)
 data class DomainModel(
-    @CopyTo.Property("dataId")
+    @CopyTo.Map("dataId")
     val domainId: String,
 )
 
@@ -250,7 +250,7 @@ fun DomainModel.copyToDataModel(
 ```kt
 @CopyFrom(DataModel::class)
 data class DomainModel(
-    @CopyFrom.Property("dataId")
+    @CopyFrom.Map("dataId")
     val domainId: String,
 )
 
