@@ -41,7 +41,11 @@ internal fun BufferedWriter.appendCopyToClassFunction(
                 typeParameters.entries.joinToString(", ") { (name, typeParam) ->
                     buildString {
                         append(name)
-                        val bound = typeParam.bounds.singleOrNull()?.resolve()?.asString()
+                        val bound = typeParam
+                            .bounds
+                            .singleOrNull()
+                            ?.resolve()
+                            ?.asString(omitPackages = omitPackages)
                         if (bound != null && bound != "kotlin.Any?") {
                             append(" : ")
                             append(bound)
@@ -81,6 +85,7 @@ internal fun BufferedWriter.appendCopyToClassFunction(
             val paramName = parameter.name!!.asString()
             val paramType = parameter.type.resolve()
                 .asString(
+                    omitPackages = omitPackages,
                     typeParameterToString = {
                         val typeParameter = it.declaration as KSTypeParameter
                         typeParameters.getNameFromTargetConstructorTypeParameters(typeParameter)
@@ -141,7 +146,7 @@ internal fun BufferedWriter.appendCopyToClassFunction(
                         }
                     }
                     .joinToString(", ") { (name, bound) ->
-                        "$name : ${bound.resolve().asString()}"
+                        "$name : ${bound.resolve().asString(omitPackages = omitPackages)}"
                     }
             )
         }

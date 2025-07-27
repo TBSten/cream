@@ -12,6 +12,7 @@ import java.io.BufferedWriter
 internal fun BufferedWriter.appendCopyFunction(
     source: KSClassDeclaration,
     target: KSClassDeclaration,
+    omitPackages: List<String>,
     generateSourceAnnotation: GenerateSourceAnnotation<*>,
     options: CreamOptions,
     notCopyToObject: Boolean,
@@ -19,7 +20,13 @@ internal fun BufferedWriter.appendCopyFunction(
 ) {
     when (target.classKind) {
         ClassKind.CLASS ->
-            appendCopyToClassFunction(source, target, generateSourceAnnotation, options)
+            appendCopyToClassFunction(
+                source,
+                target,
+                generateSourceAnnotation,
+                omitPackages,
+                options
+            )
 
         ClassKind.OBJECT ->
             if (!notCopyToObject)
@@ -31,6 +38,7 @@ internal fun BufferedWriter.appendCopyFunction(
                     appendCopyToSealedClassFunction(
                         source,
                         target,
+                        omitPackages,
                         options,
                         generateSourceAnnotation,
                         notCopyToObject,

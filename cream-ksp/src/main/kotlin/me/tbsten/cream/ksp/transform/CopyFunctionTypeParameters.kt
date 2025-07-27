@@ -98,7 +98,8 @@ internal data class CopyFunctionTypeParameter(
         get() {
             val sourceBounds = source?.bounds ?: emptySequence()
             val targetBounds = target?.bounds ?: emptySequence()
-            return (sourceBounds + targetBounds).distinctBy { it.resolve().asString() }
+            return (sourceBounds + targetBounds)
+                .distinctBy { it.resolve().asString(omitPackages = emptyList()) }
         }
 
     val name: String

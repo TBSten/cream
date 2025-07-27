@@ -8,6 +8,7 @@ import java.io.BufferedWriter
 internal fun BufferedWriter.appendCopyToSealedClassFunction(
     source: KSClassDeclaration,
     targetClass: KSClassDeclaration,
+    omitPackages: List<String>,
     options: CreamOptions,
     generateSourceAnnotation: GenerateSourceAnnotation<*>,
     notCopyToObject: Boolean,
@@ -16,6 +17,7 @@ internal fun BufferedWriter.appendCopyToSealedClassFunction(
         appendCopyFunction(
             source,
             subclass,
+            omitPackages,
             generateSourceAnnotation,
             options,
             notCopyToObject,
@@ -26,6 +28,7 @@ internal fun BufferedWriter.appendCopyToSealedClassFunction(
         appendCopyFunction(
             targetClass,
             subclass,
+            omitPackages,
             generateSourceAnnotation,
             options,
             notCopyToObject,

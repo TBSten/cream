@@ -87,6 +87,7 @@ class CreamSymbolProcessor(
                             source = sourceClass,
                             target = targetClass,
                             options = options,
+                            omitPackages = listOf("kotlin", targetClass.packageName.asString()),
                             generateSourceAnnotation =
                                 GenerateSourceAnnotation.CopyFrom(annotationTarget = target),
                             notCopyToObject = false,
@@ -144,6 +145,7 @@ class CreamSymbolProcessor(
                             source = sourceClass,
                             target = targetClass,
                             options = options,
+                            omitPackages = listOf("kotlin", sourceClass.packageName.asString()),
                             generateSourceAnnotation =
                                 GenerateSourceAnnotation.CopyTo(annotationTarget = target),
                             notCopyToObject = false,
@@ -202,6 +204,10 @@ class CreamSymbolProcessor(
                         it.appendCopyFunction(
                             source = sourceSealedClass,
                             target = targetClass,
+                            omitPackages = listOf(
+                                "kotlin",
+                                sourceSealedClass.packageName.asString()
+                            ),
                             options = options,
                             generateSourceAnnotation =
                                 GenerateSourceAnnotation.CopyToChildren(annotationTarget = sourceSealedClass),

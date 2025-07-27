@@ -5,15 +5,24 @@ import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.Variance
 
 internal fun KSType.asString(
+    omitPackages: List<String> = listOf("kotlin"),
     typeParameterToString: (KSType) -> String = { it.declaration.simpleName.asString() },
 ): String =
     buildString {
         val type = this@asString
         append(
             when (type.declaration) {
-//                is KSTypeParameter -> type.declaration.simpleName.asString()
                 is KSTypeParameter -> typeParameterToString(type)
-                else -> type.declaration.fullName
+                else -> type.declaration
+                    .let {
+                        // remove package in omitPackages
+                        if (it.packageName.asString() in omitPackages) {
+                            it.qualifiedName!!.asString()
+                                .removePrefix("${it.packageName.asString()}.")
+                        } else {
+                            it.qualifiedName!!.asString()
+                        }
+                    }
             }
         )
 
@@ -35,6 +44,7 @@ internal fun KSType.asString(
                                 append(" ")
                             }
                             typeArg.type!!.resolve().asString(
+                                omitPackages = omitPackages,
                                 typeParameterToString = typeParameterToString,
                             )
                         }
