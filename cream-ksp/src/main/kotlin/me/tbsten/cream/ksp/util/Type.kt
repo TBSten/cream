@@ -4,12 +4,9 @@ import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.Variance
 
-internal val KSType.asString: String
-    get() = asString(
-        typeParameterToString = { it.declaration.simpleName.asString() },
-    )
-
-internal fun KSType.asString(typeParameterToString: (KSType) -> String): String =
+internal fun KSType.asString(
+    typeParameterToString: (KSType) -> String = { it.declaration.simpleName.asString() },
+): String =
     buildString {
         val type = this@asString
         append(
