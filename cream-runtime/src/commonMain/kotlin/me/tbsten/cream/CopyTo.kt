@@ -31,6 +31,6 @@ import kotlin.reflect.KClass
 annotation class CopyTo(
     vararg val targets: KClass<*>,
 ) {
-    @Target(AnnotationTarget.PROPERTY)
+    @Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE_PARAMETER)
     annotation class Map(val value: String)
 }

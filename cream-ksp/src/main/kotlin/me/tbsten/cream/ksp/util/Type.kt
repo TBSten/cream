@@ -1,14 +1,23 @@
 package me.tbsten.cream.ksp.util
 
 import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.Variance
-import me.tbsten.cream.ksp.UnknownCreamException
 
 internal val KSType.asString: String
-    get() = buildString {
+    get() = asString(
+        typeParameterToString = { it.declaration.simpleName.asString() },
+    )
+
+internal fun KSType.asString(typeParameterToString: (KSType) -> String): String =
+    buildString {
+        val type = this@asString
         append(
-            declaration.qualifiedName?.asString()
-                ?: throw UnknownCreamException("declaration.qualifiedName is null")
+            when (type.declaration) {
+//                is KSTypeParameter -> type.declaration.simpleName.asString()
+                is KSTypeParameter -> typeParameterToString(type)
+                else -> type.declaration.fullName
+            }
         )
 
         // type parameters
@@ -28,7 +37,9 @@ internal val KSType.asString: String
                                 append(typeArg.variance.label)
                                 append(" ")
                             }
-                            typeArg.type!!.resolve().asString
+                            typeArg.type!!.resolve().asString(
+                                typeParameterToString = typeParameterToString,
+                            )
                         }
                     }
                 }

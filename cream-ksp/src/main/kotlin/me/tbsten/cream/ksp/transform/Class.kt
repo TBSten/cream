@@ -1,18 +1,16 @@
 package me.tbsten.cream.ksp.transform
 
-import com.google.devtools.ksp.KspExperimental
-import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.google.devtools.ksp.symbol.KSPropertyDeclaration
-import com.google.devtools.ksp.symbol.KSValueParameter
-import me.tbsten.cream.CopyFrom
-import me.tbsten.cream.CopyTo
+import com.google.devtools.ksp.symbol.KSTypeParameter
 import me.tbsten.cream.ksp.GenerateSourceAnnotation
+import me.tbsten.cream.ksp.UnknownCreamException
 import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.util.asString
 import me.tbsten.cream.ksp.util.fullName
+import me.tbsten.cream.ksp.util.isCountMoreThan
+import me.tbsten.cream.ksp.util.lines
 import me.tbsten.cream.ksp.util.underPackageName
 import me.tbsten.cream.ksp.util.visibilityStr
 import java.io.BufferedWriter
@@ -22,26 +20,138 @@ internal fun BufferedWriter.appendCopyToClassFunction(
     source: KSClassDeclaration,
     targetClass: KSClassDeclaration,
     generateSourceAnnotation: GenerateSourceAnnotation<*>,
+    omitPackages: List<String>,
     options: CreamOptions,
 ) {
     targetClass.getConstructors().forEach { constructor ->
+        val typeParameters =
+            getCopyFunctionTypeParameters(
+                sourceClass = source,
+                targetConstructor = constructor,
+            )
+
+        // Generate copy function
         appendKDoc(source, targetClass, constructor, generateSourceAnnotation)
         val funName = copyFunctionName(source, targetClass, options)
-        appendLine(
-            "${targetClass.visibilityStr} fun ${source.fullName}.$funName("
-        )
+
+        append("${targetClass.visibilityStr} fun ")
+        if (typeParameters.isNotEmpty()) {
+            append("<")
+            append(
+                typeParameters.entries.joinToString(", ") { (name, typeParam) ->
+                    buildString {
+                        append(name)
+                        val bound = typeParam.bounds.singleOrNull()?.resolve()?.asString
+                        if (bound != null && bound != "kotlin.Any?") {
+                            append(" : ")
+                            append(bound)
+                        }
+                    }
+                }
+            )
+            append(">")
+        }
+        append(" ")
+        append(source.fullName)
+        if (source.typeParameters.isNotEmpty()) {
+            append("<")
+            append(
+                source.typeParameters
+                    .joinToString(", ") { typeParam ->
+                        typeParameters.getNameFromSourceClassTypeParameters(typeParam)
+                            ?: throw UnknownCreamException(
+                                message = lines(
+                                    "Can not find type parameter ${typeParam.name.asString()} in ${source.fullName}'s type parameters.",
+                                    "  find type parameter: ${typeParam.name.asString()}",
+                                    "  ${source.fullName}'s type parameters: ${
+                                        source.typeParameters.joinToString(", ") { it.simpleName.asString() }
+                                    }",
+                                    // TODO solution = report(with = listOf("${targetClass.fullName} and related definitions", "${source.fullName} and related definitions"))
+                                ),
+                            )
+                    }
+            )
+            append(">")
+        }
+        append(".")
+        append("$funName(")
+        appendLine()
+
         constructor.parameters.forEach { parameter ->
-            append("    ")
-            append("${parameter.name!!.asString()}: ${parameter.type.resolve().asString}")
-            parameter.findMatchedProperty(source)?.let {
-                append(" = this.${it.simpleName.asString()}")
-            }
+            val paramName = parameter.name!!.asString()
+            val paramType = parameter.type.resolve()
+                .asString(
+                    typeParameterToString = {
+                        val typeParameter = it.declaration as KSTypeParameter
+                        typeParameters.getNameFromTargetConstructorTypeParameters(typeParameter)
+                            ?: typeParameters.getNameFromSourceClassTypeParameters(typeParameter)
+                            ?: throw UnknownCreamException(
+                                message = lines(
+                                    "Can not find type parameter ${typeParameter.name.asString()} in ${source.fullName}'s type parameters.",
+                                    "  find type parameter: ${typeParameter.name.asString()}",
+                                    "  ${source.fullName}'s type parameters: ${
+                                        source.typeParameters.joinToString(", ") { it.simpleName.asString() }
+                                    }",
+                                    // TODO solution = report(with = listOf("${targetClass.fullName} and related definitions", "${source.fullName} and related definitions"))
+                                ),
+                            )
+                    },
+                )
+            append("    ${paramName}: $paramType")
+            parameter.findMatchedProperty(source)
+                ?.let { " = this.${it.simpleName.asString()}" }
+                ?.let(::append)
             append(",\n")
         }
-        appendLine(") : ${targetClass.fullName} = ${targetClass.fullName}(")
+        append(") : ")
+        append(targetClass.fullName)
+        if (targetClass.typeParameters.isNotEmpty()) {
+            append("<")
+            append(
+                targetClass.typeParameters
+                    .joinToString(", ") { typeParam ->
+                        typeParameters.getNameFromTargetConstructorTypeParameters(typeParam)
+                            ?: throw UnknownCreamException(
+                                message = lines(
+                                    "Can not find type parameter ${typeParam.name.asString()} in ${source.fullName}'s type parameters.",
+                                    "  find type parameter: ${typeParam.name.asString()}",
+                                    "  ${targetClass.fullName}'s type parameters: ${
+                                        targetClass.typeParameters.joinToString(", ") { it.simpleName.asString() }
+                                    }",
+                                ),
+                                // TODO solution = report(with = listOf("${targetClass.fullName} and related definitions", "${source.fullName} and related definitions"))
+                            )
+                    }
+            )
+            append(">")
+        }
+        val whereTypeParameters =
+            typeParameters
+                .filter { (_, typeParam) -> typeParam.bounds.isCountMoreThan(2, include = true) }
+        if (whereTypeParameters.isNotEmpty()) {
+            append(" where ")
+            append(
+                whereTypeParameters
+                    .flatMap { (name, typeParam) ->
+                        typeParam.bounds.map {
+                            Pair(
+                                name,
+                                it
+                            )
+                        }
+                    }
+                    .joinToString(", ") { (name, bound) ->
+                        "$name : ${bound.resolve().asString}"
+                    }
+            )
+        }
+        append(" = ${targetClass.fullName}(")
+        appendLine()
+
         constructor.parameters.forEach { param ->
             appendLine("    ${param.name!!.asString()} = ${param.name!!.asString()},")
         }
+
         appendLine(")")
         appendLine()
     }
@@ -63,75 +173,3 @@ private fun BufferedWriter.appendKDoc(
     appendLine(" */")
 }
 
-@OptIn(KspExperimental::class)
-private fun KSValueParameter.findMatchedProperty(
-    source: KSClassDeclaration,
-): KSPropertyDeclaration? {
-    val parameterName = this.name?.asString()
-    if (parameterName == null) return null
-
-    // Try @CopyTo.Map annotation matching first
-    findSourcePropertyWithCopyToAnnotation(source, parameterName)
-        ?.let { return it }
-
-    // Try @CopyFrom.Map annotation matching
-    findSourcePropertyWithCopyFromAnnotation(source, parameterName)
-        ?.let { return it }
-
-    // Fall back to original name-based matching
-    return findSourcePropertyByName(source, parameterName)
-}
-
-@OptIn(KspExperimental::class)
-private fun KSValueParameter.findSourcePropertyWithCopyToAnnotation(
-    source: KSClassDeclaration,
-    parameterName: String,
-): KSPropertyDeclaration? {
-    return source.getAllProperties()
-        .firstOrNull { sourceProperty ->
-            val copyToPropertyAnnotation = sourceProperty
-                .getAnnotationsByType(CopyTo.Map::class)
-                .firstOrNull()
-
-            if (copyToPropertyAnnotation != null) {
-                copyToPropertyAnnotation.value == parameterName &&
-                        this.type.resolve().isAssignableFrom(sourceProperty.type.resolve())
-            } else {
-                false
-            }
-        }
-}
-
-@OptIn(KspExperimental::class)
-private fun KSValueParameter.findSourcePropertyWithCopyFromAnnotation(
-    source: KSClassDeclaration,
-    parameterName: String,
-): KSPropertyDeclaration? {
-    val copyFromPropertyAnnotation = this
-        .getAnnotationsByType(CopyFrom.Map::class)
-        .firstOrNull()
-
-    if (copyFromPropertyAnnotation != null) {
-        val sourcePropertyName = copyFromPropertyAnnotation.value
-
-        return source.getAllProperties()
-            .firstOrNull {
-                it.simpleName.asString() == sourcePropertyName &&
-                        this.type.resolve().isAssignableFrom(it.type.resolve())
-            }
-    }
-
-    return null
-}
-
-private fun KSValueParameter.findSourcePropertyByName(
-    source: KSClassDeclaration,
-    parameterName: String,
-): KSPropertyDeclaration? {
-    return source
-        .getAllProperties()
-        .firstOrNull {
-            it.simpleName.asString() == parameterName &&
-                    this.type.resolve().isAssignableFrom(it.type.resolve())
-        }
-}

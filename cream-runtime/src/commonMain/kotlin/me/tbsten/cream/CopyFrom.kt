@@ -33,4 +33,7 @@ annotation class CopyFrom(
 ) {
     @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE_PARAMETER)
     annotation class Map(val value: String)
+
+    @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE_PARAMETER)
+    annotation class Exclude(val value: String)
 }
