@@ -3,6 +3,10 @@ plugins {
     alias(libs.plugins.vanniktech.mavenPublish)
 }
 
+kotlin {
+    compilerOptions.optIn.add("com.google.devtools.ksp.KspExperimental")
+}
+
 dependencies {
     implementation(project(":cream-runtime"))
     implementation(libs.kspApi)

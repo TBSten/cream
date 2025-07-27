@@ -1,6 +1,5 @@
 package me.tbsten.cream.ksp
 
-import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
@@ -155,7 +154,6 @@ class CreamSymbolProcessor(
         return invalidCopyToTargets
     }
 
-    @OptIn(KspExperimental::class)
     private fun processCopyToChildren(resolver: Resolver): List<KSAnnotated> {
         val (copyToChildrenTargets, invalidCopyToChildrenTargets) = resolver.getSymbolsWithAnnotation(
             annotationName = CopyToChildren::class.qualifiedName!!,
