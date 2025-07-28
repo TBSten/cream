@@ -1,12 +1,12 @@
 [versions]
 cream = "0.6.0"
-agp = "8.11.0"
-kotlin = "2.1.21"
+agp = "8.11.1"
+kotlin = "2.2.0"
 android-minSdk = "24"
 android-compileSdk = "36"
-ksp = "2.1.21-2.0.1"
+ksp = "2.2.0-2.0.2"
 kotest = "5.9.1"
-mockk = "1.14.4"
+mockk = "1.14.5"
 
 [libraries]
 kotlinTest = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -18,5 +18,5 @@ mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-vanniktech-mavenPublish = { id = "com.vanniktech.maven.publish", version = "0.33.0" }
+vanniktech-mavenPublish = { id = "com.vanniktech.maven.publish", version = "0.34.0" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
