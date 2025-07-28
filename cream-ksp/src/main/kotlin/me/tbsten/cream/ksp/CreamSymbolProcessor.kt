@@ -44,7 +44,7 @@ class CreamSymbolProcessor(
 
     private fun processCopyFrom(resolver: Resolver): List<KSAnnotated> {
         val (copyFromTargets, invalidCopyFromTargets) = resolver.getSymbolsWithAnnotation(
-            annotationName = CopyFrom::class.qualifiedName!!,
+            annotationName = CopyFrom::class.fullName,
         ).partition { it.validate() }
 
         copyFromTargets.forEach { target ->
@@ -101,7 +101,7 @@ class CreamSymbolProcessor(
 
     private fun processCopyTo(resolver: Resolver): List<KSAnnotated> {
         val (copyToTargets, invalidCopyToTargets) = resolver.getSymbolsWithAnnotation(
-            annotationName = CopyTo::class.qualifiedName!!,
+            annotationName = CopyTo::class.fullName,
         ).partition { it.validate() }
 
         copyToTargets.forEach { target ->
@@ -158,7 +158,7 @@ class CreamSymbolProcessor(
 
     private fun processCopyToChildren(resolver: Resolver): List<KSAnnotated> {
         val (copyToChildrenTargets, invalidCopyToChildrenTargets) = resolver.getSymbolsWithAnnotation(
-            annotationName = CopyToChildren::class.qualifiedName!!,
+            annotationName = CopyToChildren::class.fullName,
         ).partition { it.validate() }
 
         copyToChildrenTargets.forEach { copyToChildren ->
