@@ -1,6 +1,6 @@
 package me.tbsten.cream.ksp
 
-import me.tbsten.cream.ksp.util.lines
+import me.tbsten.cream.ksp.util.appendLines
 
 internal abstract class CreamException(
     message: String,
@@ -47,12 +47,26 @@ internal class UnknownCreamException(
     cause: Throwable? = null,
 ) : CreamException(
     message = ("Unexpected error" + message?.let { ": $it" }),
-    solution = solution
-        ?: lines(
+    solution = solution ?: reportToGithub(),
+    cause = cause,
+)
+
+internal fun reportToGithub(vararg with: String) =
+    buildString {
+        appendLines(
             "Please report this issue at:",
             "",
             "    https://github.com/TBSten/cream/issues",
             "",
-        ),
-    cause = cause,
-)
+        )
+
+        if (with.isNotEmpty()) {
+            appendLines("  and report problems with:")
+
+            with.forEach {
+                appendLines("    - $it")
+            }
+
+            appendLine()
+        }
+    }

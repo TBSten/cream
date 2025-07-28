@@ -7,6 +7,7 @@ import com.google.devtools.ksp.symbol.KSTypeParameter
 import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.UnknownCreamException
 import me.tbsten.cream.ksp.options.CreamOptions
+import me.tbsten.cream.ksp.reportToGithub
 import me.tbsten.cream.ksp.util.asString
 import me.tbsten.cream.ksp.util.fullName
 import me.tbsten.cream.ksp.util.isCountMoreThan
@@ -70,7 +71,10 @@ internal fun BufferedWriter.appendCopyToClassFunction(
                                     "  ${source.fullName}'s type parameters: ${
                                         source.typeParameters.joinToString(", ") { it.simpleName.asString() }
                                     }",
-                                    // TODO solution = report(with = listOf("${targetClass.fullName} and related definitions", "${source.fullName} and related definitions"))
+                                ),
+                                solution = reportToGithub(
+                                    "${targetClass.fullName} and related definitions",
+                                    "${source.fullName} and related definitions",
                                 ),
                             )
                     }
@@ -97,7 +101,10 @@ internal fun BufferedWriter.appendCopyToClassFunction(
                                     "  ${source.fullName}'s type parameters: ${
                                         source.typeParameters.joinToString(", ") { it.simpleName.asString() }
                                     }",
-                                    // TODO solution = report(with = listOf("${targetClass.fullName} and related definitions", "${source.fullName} and related definitions"))
+                                ),
+                                solution = reportToGithub(
+                                    "${targetClass.fullName} and related definitions",
+                                    "${source.fullName} and related definitions",
                                 ),
                             )
                     },
@@ -124,7 +131,10 @@ internal fun BufferedWriter.appendCopyToClassFunction(
                                         targetClass.typeParameters.joinToString(", ") { it.simpleName.asString() }
                                     }",
                                 ),
-                                // TODO solution = report(with = listOf("${targetClass.fullName} and related definitions", "${source.fullName} and related definitions"))
+                                solution = reportToGithub(
+                                    "${targetClass.fullName} and related definitions",
+                                    "${source.fullName} and related definitions",
+                                ),
                             )
                     }
             )
