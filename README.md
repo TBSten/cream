@@ -286,17 +286,18 @@ ksp {
 
 ### List of options
 
-| Option name                       | Description                                                            | Example                                                                  | Default            |
-|-----------------------------------|------------------------------------------------------------------------|--------------------------------------------------------------------------|--------------------|
-| **`cream.copyFunNamePrefix`**     | String prefixed to the generated copy function                         | `copyTo`, `transitionTo`, `to`, `mapTo`                                  | `copyTo`           |
-| **`cream.copyFunNamingStrategy`** | Copy function naming conventions.                                      | `under-package`, `diff-parent`, `simple-name`, `full-name`, `inner-name` | `under-package`    |
-| **`cream.escapeDot`**             | How to escape `. ` in the name given by `cream.copyFunNamingStrategy`. | `replace-to-underscore`, `pascal-case`, `backquote`                      | `lower-camel-case` |
+| Option name                       | Description                                                                 | Example                                                                  | Default            |
+|-----------------------------------|-----------------------------------------------------------------------------|--------------------------------------------------------------------------|--------------------|
+| **`cream.copyFunNamePrefix`**     | String prefixed to the generated copy function                              | `copyTo`, `transitionTo`, `to`, `mapTo`                                  | `copyTo`           |
+| **`cream.copyFunNamingStrategy`** | Copy function naming conventions.                                           | `under-package`, `diff-parent`, `simple-name`, `full-name`, `inner-name` | `under-package`    |
+| **`cream.escapeDot`**             | How to escape `. ` in the name given by `cream.copyFunNamingStrategy`.      | `replace-to-underscore`, `pascal-case`, `backquote`                      | `lower-camel-case` |
+| **`cream.notCopyToObject`**       | If `true`, @CopyToChildren will not generate a copy function to the object. | `true` , `false`                                                         | `false`            |
 
 ### Option 1. `cream.copyFunNamePrefix`
 
-| Default         | `copyTo`         |
-|-----------------|------------------|
-| Possible values | Arbitrary string |
+| Default  | Possible values  |
+|----------|------------------|
+| `copyTo` | Arbitrary string |
 
 Set the class name to be prefixed by the generated copy function name.
 Set a straightforward string that describes the copy or state transition, such as `copyTo` or `to`.
@@ -324,9 +325,9 @@ to [issue](https://github.com/TBSten/cream/issues?q=sort%3Aupdated-desc+is%3Aiss
 
 ### Option 3. `cream.escapeDot`
 
-| Default         | `lower-camel-case`                                         |
-|-----------------|------------------------------------------------------------|
-| Possible values | One of `replace-to-underscore`, `pascal-case`, `backquote` |
+| Default            | Possible values                                            |
+|--------------------|------------------------------------------------------------|
+| `lower-camel-case` | One of `replace-to-underscore`, `pascal-case`, `backquote` |
 
 Sets the method for escaping class names retrieved with `cream.copyFunNamingStrategy`.
 
@@ -341,9 +342,9 @@ string that can be named in one of the ways shown in the configuration examples.
 
 ### Option 4. `cream.notCopyToObject`
 
-| Default | `false`         |
+| Default | Possible values |
 |---------|-----------------|
-| Values  | `true`, `false` |
+| `false` | `true`, `false` |
 
 If set to `true`, copy functions from a class to an `object` will not be generated.
 
