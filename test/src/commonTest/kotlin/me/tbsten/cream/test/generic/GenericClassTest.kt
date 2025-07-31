@@ -1,6 +1,6 @@
 package me.tbsten.cream.test.generic
 
-import org.junit.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class GenericClassTest {
