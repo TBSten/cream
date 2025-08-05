@@ -36,7 +36,7 @@ private fun KSValueParameter.findSourcePropertyWithCopyToAnnotation(
                 .firstOrNull()
 
             if (copyToPropertyAnnotation != null) {
-                copyToPropertyAnnotation.value == parameterName &&
+                parameterName in copyToPropertyAnnotation.value &&
                         this.type.resolve().isAssignableFrom(sourceProperty.type.resolve())
             } else {
                 false
@@ -56,7 +56,7 @@ private fun KSValueParameter.findSourcePropertyWithCopyFromAnnotation(
 
         return source.getAllProperties()
             .firstOrNull {
-                it.simpleName.asString() == sourcePropertyName &&
+                it.simpleName.asString() in sourcePropertyName &&
                         this.type.resolve().isAssignableFrom(it.type.resolve())
             }
     }

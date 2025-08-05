@@ -70,23 +70,31 @@ private fun copyFunctionTypeParametersMap(
     }
 
     sourceClass.typeParameters.forEach { typeParameter ->
-        val name =
+        val names =
             typeParameter
                 .getAnnotationsByType(CopyFrom.Map::class)
                 .firstOrNull()
                 ?.value
-                ?: typeParameter.name.asString()
-        val prevTypeParameter = get(name)
+                ?: arrayOf(typeParameter.name.asString())
+        val prevTypeParameters = this.filter { (key, _) -> key in names }
 
-        put(
-            key = name,
-            value = prevTypeParameter?.copy(
-                source = typeParameter,
-            ) ?: CopyFunctionTypeParameter(
-                source = typeParameter,
-                target = null,
-            ),
-        )
+        if (prevTypeParameters.isEmpty()) {
+            put(
+                key = typeParameter.name.asString(),
+                value = CopyFunctionTypeParameter(
+                    source = typeParameter,
+                    target = null,
+                ),
+            )
+        }
+        prevTypeParameters.forEach { (name, prevTypeParameter) ->
+            put(
+                key = name,
+                value = prevTypeParameter.copy(
+                    source = typeParameter,
+                ),
+            )
+        }
     }
 }
 
