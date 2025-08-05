@@ -52,11 +52,11 @@ private fun KSValueParameter.findSourcePropertyWithCopyFromAnnotation(
         .firstOrNull()
 
     if (copyFromPropertyAnnotation != null) {
-        val sourcePropertyName = copyFromPropertyAnnotation.value
+        val sourcePropertyNames = copyFromPropertyAnnotation.value
 
         return source.getAllProperties()
             .firstOrNull {
-                it.simpleName.asString() in sourcePropertyName &&
+                it.simpleName.asString() in sourcePropertyNames &&
                         this.type.resolve().isAssignableFrom(it.type.resolve())
             }
     }
