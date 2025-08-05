@@ -6,8 +6,8 @@ import me.tbsten.cream.CopyTo
 @CopyTo(GenericTargetWithThreeTypeArg::class)
 @CopyFrom(GenericTargetWithThreeTypeArg::class)
 data class GenericSourceWithTwoTypeArg<
-        @CopyFrom.Map("Aaa") @CopyTo.Map("Aaa") A,
-        @CopyFrom.Map("Bbb") @CopyTo.Map("Bbb") B,
+        @CopyFrom.Map(propertyNames = "Aaa") @CopyTo.Map(propertyNames = "Aaa") A,
+        @CopyFrom.Map(propertyNames = "Bbb") @CopyTo.Map(propertyNames = "Bbb") B,
         >(
     val a: A?,
     val b: List<B>,
@@ -24,9 +24,9 @@ data class GenericTargetWithThreeTypeArg<Aaa, Bbb, Ccc>(
 @CopyTo(GenericTargetWithTwoTypeArg::class)
 @CopyFrom(GenericTargetWithTwoTypeArg::class)
 data class GenericSourceWithThreeTypeArg<
-        @CopyFrom.Map("Aaa")
+        @CopyFrom.Map(propertyNames = "Aaa")
         A,
-        @CopyFrom.Map("Bbb")
+        @CopyFrom.Map(propertyNames = "Bbb")
         B,
         C>(
     val a: A?,

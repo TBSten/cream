@@ -52,7 +52,7 @@ private fun copyFunctionTypeParametersMap(
             typeParameter
                 .getAnnotationsByType(CopyTo.Map::class)
                 .firstOrNull()
-                ?.value
+                ?.propertyNames
                 ?: typeParameter.name.asString()
         val prevTypeParameter = get(name)
         val newTypeParameter =
@@ -74,7 +74,7 @@ private fun copyFunctionTypeParametersMap(
             typeParameter
                 .getAnnotationsByType(CopyFrom.Map::class)
                 .firstOrNull()
-                ?.value
+                ?.propertyNames
                 ?: arrayOf(typeParameter.name.asString())
         val prevTypeParameters = this.filter { (key, _) -> key in names }
 
