@@ -32,5 +32,5 @@ annotation class CopyTo(
     vararg val targets: KClass<*>,
 ) {
     @Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE_PARAMETER)
-    annotation class Map(val value: String)
+    annotation class Map(vararg val propertyNames: String)
 }

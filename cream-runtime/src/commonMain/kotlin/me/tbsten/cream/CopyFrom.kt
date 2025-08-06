@@ -32,7 +32,7 @@ annotation class CopyFrom(
     vararg val sources: KClass<*>,
 ) {
     @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE_PARAMETER)
-    annotation class Map(val value: String)
+    annotation class Map(vararg val propertyNames: String)
 
     @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE_PARAMETER)
     annotation class Exclude(val value: String)

@@ -70,14 +70,19 @@ data class VisibilityTarget(
 )
 
 // 6. Property mapping with @CopyTo.Map
-@CopyTo(DataTargetModel::class)
+@CopyTo(DataTargetModel::class, UiTargetModel::class)
 data class DomainSourceModel(
-    @CopyTo.Map("dataId")
+    @CopyTo.Map("dataId", "uiId")
     val domainId: String,
     val name: String,
 )
 
 data class DataTargetModel(
     val dataId: String,
+    val name: String,
+)
+
+data class UiTargetModel(
+    val uiId: String,
     val name: String,
 )
