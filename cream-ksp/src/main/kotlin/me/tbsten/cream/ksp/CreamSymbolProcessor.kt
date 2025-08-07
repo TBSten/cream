@@ -179,11 +179,14 @@ class CreamSymbolProcessor(
 
                 copyToChildren
             }
-            val copyToChildrenAnnotation =
-                sourceSealedClass.getAnnotationsByType(CopyToChildren::class).firstOrNull()
-            val notCopyToObject = copyToChildrenAnnotation
-                ?.notCopyToObject
-                ?: options.notCopyToObject
+            // Enclose notCopyToObject in runCatching because it may cause an error if notCopyToObject cannot be obtained.
+            val notCopyToObject = runCatching {
+                val copyToChildrenAnnotation =
+                    sourceSealedClass.getAnnotationsByType(CopyToChildren::class).firstOrNull()
+                copyToChildrenAnnotation
+                    ?.notCopyToObject
+                    ?: options.notCopyToObject
+            }.getOrDefault(false)
 
             val targetClasses = sourceSealedClass.getSealedSubclasses()
 
