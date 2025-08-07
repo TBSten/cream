@@ -26,34 +26,42 @@ kotlin {
     }
 
     sourceSets {
+        commonMain.dependencies {
+            implementation(project(":cream-runtime"))
+        }
         commonTest.dependencies {
             implementation(libs.kotest)
             implementation(libs.kotlinTest)
-            implementation(project(":cream-runtime"))
         }
     }
 }
 
 dependencies {
-    add("kspCommonMainMetadata", project(":cream-ksp"))
-    add("kspAndroid", project(":cream-ksp"))
-    add("kspJvm", project(":cream-ksp"))
-    add("kspJvmTest", project(":cream-ksp"))
+    listOf(
+        "kspCommonMainMetadata",
+        "kspJvm",
+        "kspJvmTest",
+    ).forEach { it(project(":cream-ksp")) }
 }
 
-fun Project.setupKspForMultiplatformWorkaround() {
-    kotlin {
-        sourceSets.named("commonMain").configure {
-            kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
-        }
-    }
-}
-setupKspForMultiplatformWorkaround()
-
-ksp {
+//ksp {
 //    arg("cream.copyFunNamePrefix", "transitionTo")
 //    arg("cream.copyFunNamingStrategy", "full-name")
 //    arg("cream.escapeDot", "replace-to-underscore")
 //    arg("cream.notCopyToObject", "true")
-    useKsp2 = false
+//}
+
+fun Project.setupKspForMultiplatformWorkaround() {
+    kotlin.sourceSets.commonMain {
+        kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
+    }
+
+    tasks.configureEach {
+        if(name.startsWith("ksp")) println("ksp task: $name")
+        if(name.startsWith("ksp") && name != "kspCommonMainKotlinMetadata") {
+            dependsOn(tasks.named("kspCommonMainKotlinMetadata"))
+            enabled = false
+        }
+    }
 }
+setupKspForMultiplatformWorkaround()
