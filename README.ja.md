@@ -112,6 +112,16 @@ dependencies {
 }
 ```
 
+<details>
+
+<summary> Kotlin Multiplatform プロジェクト </summary>
+
+現在 KSP は Kotlin Multiplatform の commonMain
+のような中間ソースセットにコードを生成することをサポートしていません。 ([参照](https://github.com/google/ksp/issues/567))
+この制限により現在 cream.kt では commonMain などのクラスからコピー関数を生成することはできません。
+
+</details>
+
 ## ❇️ 3. 利用方法
 
 ### CopyTo

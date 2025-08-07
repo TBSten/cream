@@ -115,6 +115,18 @@ dependencies {
 }
 ```
 
+<details>
+
+<summary> Kotlin Multiplatform project </summary>
+
+Currently KSP does not support generating code in intermediate source sets such as Kotlin
+Multiplatform's commonMain .
+([reference](https://github.com/google/ksp/issues/567))
+This limitation currently prevents cream.kt from generating copy functions from classes such as
+commonMain.
+
+</details>
+
 ## ❇️ 3. Usage
 
 ### CopyTo
