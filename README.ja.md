@@ -230,6 +230,71 @@ fun UiState.copyToUiStateSuccessRefreshing(
 
 これは各 sealed class/interface に @CopyTo を都度指定するよりも圧倒的に楽です。
 
+### MutableCopyTo
+
+ソースオブジェクトのプロパティを既存のmutableなターゲットオブジェクトに明示的なパラメータ値でコピーするmutableなコピー関数を生成します。名前と型が一致するプロパティはソースの値をデフォルト値として使用します。
+
+これは特に、既存のmutableなオブジェクトを更新する必要があるComposeのModifier.Node実装時に有用です。
+
+```kt
+@MutableCopyTo(MutableTarget::class)
+data class Source(
+    val prop1: String,
+    val prop2: Int,
+    val sharedProp: String,
+)
+
+data class MutableTarget(
+    var prop1: String,
+    var prop2: Int,
+    var sharedProp: String,
+    var targetOnlyProp: String,
+)
+
+// auto generate
+fun Source.copyToMutableTarget(
+    mutableTarget: MutableTarget,
+    prop1: String = this.prop1,
+    prop2: Int = this.prop2,
+    sharedProp: String = this.sharedProp,
+    targetOnlyProp: String,
+): MutableTarget {
+    mutableTarget.prop1 = prop1
+    mutableTarget.prop2 = prop2
+    mutableTarget.sharedProp = sharedProp
+    mutableTarget.targetOnlyProp = targetOnlyProp
+    return mutableTarget
+}
+
+// usage
+val source = Source("test1", 42, "shared")
+val target = MutableTarget("old1", 0, "old_shared", "target_only")
+
+val result = source.copyToMutableTarget(
+    mutableTarget = target,
+    targetOnlyProp = "customized_target"
+)
+
+// result.prop1 == "test1" (ソースのデフォルト値)
+// result.prop2 == 42 (ソースのデフォルト値)
+// result.sharedProp == "shared" (ソースのデフォルト値)
+// result.targetOnlyProp == "customized_target" (明示的に設定)
+// result === target (同じインスタンス)
+```
+
+#### オプションサポート
+
+MutableCopyToは`copyFunNamePrefix`パラメータを通じてカスタム関数名をサポートします：
+
+```kt
+@MutableCopyTo(Target::class, copyFunNamePrefix = "updateWith")
+data class Source(val prop: String)
+
+data class Target(var prop: String, var extra: String)
+
+// 生成される関数: source.updateWithTarget(mutableTarget = target, extra = "value")
+```
+
 ### CopyTo.Map, CopyFrom.Map
 
 `@CopyTo.Map` および `@CopyFrom.Map` を使用してプロパティごとに対応するプロパティを指定できます。
