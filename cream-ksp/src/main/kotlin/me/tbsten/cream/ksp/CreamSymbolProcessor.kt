@@ -240,17 +240,18 @@ class CreamSymbolProcessor(
                     solution = "Please apply @${MutableCopyTo::class.simpleName} to `class or interface`",
                 )
 
-            // MutableCopyTo.targets: List<KClass<*>>
-            val targetClasses = target
+            // Get annotation details
+            val mutableCopyToAnnotation = target
                 .annotations
-                .filter { it.annotationType.resolve().declaration.fullName == MutableCopyTo::class.qualifiedName }
-                .flatMap {
-                    it.arguments
-                        .filter { it.name?.asString() == "targets" }
-                        .map { it.value }
-                        .filterIsInstance<List<KSType>>()
-                        .flatten()
-                }.map { it.declaration }
+                .first { it.annotationType.resolve().declaration.fullName == MutableCopyTo::class.qualifiedName }
+            
+            // MutableCopyTo.targets: List<KClass<*>>
+            val targetClasses = mutableCopyToAnnotation.arguments
+                .filter { it.name?.asString() == "targets" }
+                .map { it.value }
+                .filterIsInstance<List<KSType>>()
+                .flatten()
+                .map { it.declaration }
                 .map {
                     it as? KSClassDeclaration
                         ?: throw InvalidCreamUsageException(
@@ -258,6 +259,18 @@ class CreamSymbolProcessor(
                             solution = "Specify class or interface in @${MutableCopyTo::class.simpleName}.targets of ${target.fullName}.",
                         )
                 }
+            
+            // MutableCopyTo.copyFunNamePrefix: String
+            val copyFunNamePrefix = mutableCopyToAnnotation.arguments
+                .find { it.name?.asString() == "copyFunNamePrefix" }
+                ?.value as? String ?: ""
+            
+            // Create options with annotation-specific prefix
+            val mutableCopyOptions = if (copyFunNamePrefix.isNotEmpty()) {
+                options.copy(copyFunNamePrefix = copyFunNamePrefix)
+            } else {
+                options
+            }
 
             codeGenerator
                 .createNewKotlinFile(
@@ -273,7 +286,7 @@ class CreamSymbolProcessor(
                         it.appendMutableCopyFunction(
                             source = sourceClass,
                             target = targetClass,
-                            options = options,
+                            options = mutableCopyOptions,
                             omitPackages = listOf("kotlin", sourceClass.packageName.asString()),
                             generateSourceAnnotation =
                                 GenerateSourceAnnotation.MutableCopyTo(annotationTarget = target),

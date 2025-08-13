@@ -21,13 +21,19 @@ class MutableCopyToTest {
         )
 
         // Act
-        source.copyToMutableTarget(target)
+        val result = source.copyToMutableTarget(
+            mutableTarget = target,
+            targetOnlyProp = "new_target_only"
+        )
 
         // Assert
-        assertEquals("test1", target.sourceProp1)
-        assertEquals(42, target.sourceProp2)
-        assertEquals("shared", target.sharedProp)
-        assertEquals("target_only", target.targetOnlyProp) // Should remain unchanged
+        assertEquals("test1", result.sourceProp1)
+        assertEquals(42, result.sourceProp2)
+        assertEquals("shared", result.sharedProp)
+        assertEquals("new_target_only", result.targetOnlyProp)
+        
+        // Verify that the returned object is the same instance as the target
+        assertEquals(target, result)
     }
 
     @Test
@@ -46,16 +52,18 @@ class MutableCopyToTest {
         )
 
         // Act
-        source.copyToMutableTarget(target) {
-            sourceProp1 = "customized1"
+        val result = source.copyToMutableTarget(
+            mutableTarget = target,
+            sourceProp1 = "customized1",
             targetOnlyProp = "customized_target"
-        }
+        )
 
         // Assert
-        assertEquals("customized1", target.sourceProp1)
-        assertEquals(42, target.sourceProp2) // From source
-        assertEquals("shared", target.sharedProp) // From source
-        assertEquals("customized_target", target.targetOnlyProp) // Customized
+        assertEquals("customized1", result.sourceProp1)
+        assertEquals(42, result.sourceProp2) // From source (default)
+        assertEquals("shared", result.sharedProp) // From source (default)
+        assertEquals("customized_target", result.targetOnlyProp) // Customized
+        assertEquals(target, result)
     }
 
     @Test
@@ -75,16 +83,18 @@ class MutableCopyToTest {
         )
 
         // Act
-        source.copyToComplexMutableTarget(target) {
-            description = "Updated Description"
+        val result = source.copyToComplexMutableTarget(
+            mutableTarget = target,
+            description = "Updated Description",
             metadata = mapOf("key" to "value")
-        }
+        )
 
         // Assert
-        assertEquals("Test Name", target.name)
-        assertEquals(100, target.count)
-        assertEquals(true, target.enabled)
-        assertEquals("Updated Description", target.description)
-        assertEquals(mapOf("key" to "value"), target.metadata)
+        assertEquals("Test Name", result.name)
+        assertEquals(100, result.count)
+        assertEquals(true, result.enabled)
+        assertEquals("Updated Description", result.description)
+        assertEquals(mapOf("key" to "value"), result.metadata)
+        assertEquals(target, result)
     }
 }

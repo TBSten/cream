@@ -20,14 +20,16 @@ class MutableCopyToEdgeCaseTest {
         )
 
         // Act
-        source.copyToNullableMutableTarget(target) {
+        val result = source.copyToNullableMutableTarget(
+            mutableTarget = target,
             additionalProp = null
-        }
+        )
 
         // Assert
-        assertEquals("not_null", target.nullableProp)
-        assertEquals("non_null_value", target.nonNullProp)
-        assertNull(target.additionalProp)
+        assertEquals("not_null", result.nullableProp)
+        assertEquals("non_null_value", result.nonNullProp)
+        assertNull(result.additionalProp)
+        assertEquals(target, result)
     }
 
     @Test
@@ -44,12 +46,16 @@ class MutableCopyToEdgeCaseTest {
         )
 
         // Act
-        source.copyToNullableMutableTarget(target)
+        val result = source.copyToNullableMutableTarget(
+            mutableTarget = target,
+            additionalProp = 99
+        )
 
         // Assert
-        assertNull(target.nullableProp)
-        assertEquals("non_null_value", target.nonNullProp)
-        assertEquals(42, target.additionalProp) // Unchanged
+        assertNull(result.nullableProp)
+        assertEquals("non_null_value", result.nonNullProp)
+        assertEquals(99, result.additionalProp)
+        assertEquals(target, result)
     }
 
     @Test
@@ -67,13 +73,15 @@ class MutableCopyToEdgeCaseTest {
         )
 
         // Act
-        source.copyToPartialMatchTarget(target) {
+        val result = source.copyToPartialMatchTarget(
+            mutableTarget = target,
             targetOnlyProp = 3.14
-        }
+        )
 
         // Assert
-        assertEquals("matched1", target.matchingProp1)
-        assertEquals(123, target.matchingProp2)
-        assertEquals(3.14, target.targetOnlyProp)
+        assertEquals("matched1", result.matchingProp1)
+        assertEquals(123, result.matchingProp2)
+        assertEquals(3.14, result.targetOnlyProp)
+        assertEquals(target, result)
     }
 }

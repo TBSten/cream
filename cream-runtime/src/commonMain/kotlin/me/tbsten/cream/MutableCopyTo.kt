@@ -3,10 +3,10 @@ package me.tbsten.cream
 import kotlin.reflect.KClass
 
 /**
- * Generate `<annotated by MutableCopyTo class>.copyTo<targets class>()` mutable copy functions.
+ * Generate `<annotated by MutableCopyTo class>.mutableCopyTo<targets class>()` mutable copy functions.
  *
- * This generates a function that copies properties from the source object to a mutable target object,
- * and provides a scope for customizing the copied values.
+ * This generates a function that copies properties from the source object to a mutable target object
+ * with explicit parameter values. Properties with matching names and types use source values as defaults.
  *
  * # Example
  *
@@ -25,27 +25,33 @@ import kotlin.reflect.KClass
  *
  * // Auto generate
  *
- * fun Hoge.copyToFuga(
- *   fuga: Fuga,
- *   block: CopyToFugaScope.() -> Unit = {},
- * ) {
- *   fuga.hogeProp1 = hogeProp1
- *   fuga.hogeProp2 = hogeProp2
- *   // Apply customizations
- *   CopyToFugaScope(this, fuga).block()
+ * fun Hoge.mutableCopyToFuga(
+ *   mutableTarget: Fuga,
+ *   hogeProp1: String = this.hogeProp1,
+ *   hogeProp2: Int = this.hogeProp2,
+ *   fugaProp1: String,
+ * ): Fuga {
+ *   mutableTarget.hogeProp1 = hogeProp1
+ *   mutableTarget.hogeProp2 = hogeProp2
+ *   mutableTarget.fugaProp1 = fugaProp1
+ *   return mutableTarget
  * }
+ * ```
  *
- * class CopyToFugaScope(val hoge: Hoge, val fuga: Fuga) {
- *   var hogeProp1: String
- *     get() = fuga.hogeProp1
- *     set(value) { fuga.hogeProp1 = value }
- *   var hogeProp2: Int
- *     get() = fuga.hogeProp2
- *     set(value) { fuga.hogeProp2 = value }
- *   var fugaProp1: String
- *     get() = fuga.fugaProp1
- *     set(value) { fuga.fugaProp1 = value }
- * }
+ * # Usage
+ *
+ * ```kt
+ * val source = Hoge("test1", 42)
+ * val target = Fuga("old1", 0, "old_fuga")
+ *
+ * val result = source.mutableCopyToFuga(
+ *   mutableTarget = target,
+ *   fugaProp1 = "new_fuga"
+ * )
+ * // result.hogeProp1 == "test1" (from source)
+ * // result.hogeProp2 == 42 (from source)
+ * // result.fugaProp1 == "new_fuga" (explicitly set)
+ * // result === target (same instance)
  * ```
  *
  * @see CopyTo
@@ -53,6 +59,7 @@ import kotlin.reflect.KClass
 @Target(AnnotationTarget.CLASS)
 annotation class MutableCopyTo(
     vararg val targets: KClass<*>,
+    val copyFunNamePrefix: String = "",
 ) {
     @Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE_PARAMETER)
     annotation class Map(vararg val propertyNames: String)

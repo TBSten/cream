@@ -18,69 +18,67 @@ internal fun BufferedWriter.appendMutableCopyFunction(
     omitPackages: List<String>,
     generateSourceAnnotation: GenerateSourceAnnotation<*>,
 ) {
-    val funName = copyFunctionName(source, target, options)
-    val scopeClassName = "CopyTo${target.simpleName.asString()}Scope"
+    val funName = getMutableCopyFunctionName(source, target, options)
 
     // Generate the mutable copy function
     appendMutableCopyFunctionKDoc(source, target, generateSourceAnnotation)
     appendLine("${target.visibilityStr} fun ${source.fullName}.$funName(")
-    appendLine("    ${target.simpleName.asString().lowercase()}: ${target.fullName},")
-    appendLine("    block: $scopeClassName.() -> Unit = {},")
-    appendLine(") {")
-
-    // Copy matching properties from source to target
+    
+    // Add mutableTarget parameter
+    appendLine("    mutableTarget: ${target.fullName},")
+    
+    // Add parameters for each target mutable property
     val sourceProperties = source.getAllProperties().toList()
     val targetProperties = target.getAllProperties().filter { it.isMutable }.toList()
 
     targetProperties.forEach { targetProp ->
+        val propName = targetProp.simpleName.asString()
+        val propType = targetProp.type.resolve().asString(omitPackages)
         val matchingSourceProp = sourceProperties.find { sourceProp ->
             sourceProp.simpleName.asString() == targetProp.simpleName.asString() &&
             sourceProp.type.resolve().asString(omitPackages) == targetProp.type.resolve().asString(omitPackages)
         }
         
         if (matchingSourceProp != null) {
-            appendLine("    ${target.simpleName.asString().lowercase()}.${targetProp.simpleName.asString()} = this.${matchingSourceProp.simpleName.asString()}")
+            // Property has matching source property, use it as default value
+            appendLine("    $propName: $propType = this.${matchingSourceProp.simpleName.asString()},")
+        } else {
+            // Property has no matching source property, require explicit value
+            appendLine("    $propName: $propType,")
         }
     }
-
-    // Apply the customization block
-    appendLine("    $scopeClassName(this, ${target.simpleName.asString().lowercase()}).block()")
-    appendLine("}")
+    
+    append("): ${target.fullName} {")
     appendLine()
 
-    // Generate the scope class
-    appendMutableCopyScopeClass(source, target, scopeClassName, omitPackages)
-}
-
-private fun BufferedWriter.appendMutableCopyScopeClass(
-    source: KSClassDeclaration,
-    target: KSClassDeclaration,
-    scopeClassName: String,
-    omitPackages: List<String>,
-) {
-    appendLine("/**")
-    appendLine(" * Scope class for customizing mutable copy from ${source.underPackageName} to ${target.underPackageName}.")
-    appendLine(" */")
-    appendLine("class $scopeClassName(")
-    appendLine("    val ${source.simpleName.asString().lowercase()}: ${source.fullName},")
-    appendLine("    val ${target.simpleName.asString().lowercase()}: ${target.fullName},")
-    appendLine(") {")
-
-    // Generate properties for all target mutable properties
-    val targetProperties = target.getAllProperties().filter { it.isMutable }.toList()
-    
+    // Assign all parameters to target properties
     targetProperties.forEach { targetProp ->
         val propName = targetProp.simpleName.asString()
-        val propType = targetProp.type.resolve().asString(omitPackages)
-        
-        appendLine("    var $propName: $propType")
-        appendLine("        get() = ${target.simpleName.asString().lowercase()}.$propName")
-        appendLine("        set(value) { ${target.simpleName.asString().lowercase()}.$propName = value }")
-        appendLine()
+        appendLine("    mutableTarget.$propName = $propName")
     }
 
+    appendLine("    return mutableTarget")
     appendLine("}")
     appendLine()
+}
+
+private fun getMutableCopyFunctionName(
+    source: KSClassDeclaration,
+    target: KSClassDeclaration,
+    options: CreamOptions,
+): String {
+    // Use the provided prefix, or default to "mutableCopyTo"
+    val prefix = options.copyFunNamePrefix.takeIf { it.isNotEmpty() } ?: "mutableCopyTo"
+    
+    // Get the target name part using the copyFunctionName logic
+    val fullCopyFunctionName = copyFunctionName(source, target, options.copy(copyFunNamePrefix = "copyTo"))
+    val targetSuffix = if (fullCopyFunctionName.startsWith("copyTo")) {
+        fullCopyFunctionName.removePrefix("copyTo")
+    } else {
+        fullCopyFunctionName
+    }
+    
+    return "$prefix$targetSuffix"
 }
 
 private fun BufferedWriter.appendMutableCopyFunctionKDoc(
@@ -93,10 +91,15 @@ private fun BufferedWriter.appendMutableCopyFunctionKDoc(
     appendLine(" * ")
     appendLine(" * [${source.underPackageName}] -> [${target.underPackageName}] mutable copy function.")
     appendLine(" * ")
-    appendLine(" * Copies properties from source to target and provides a scope for customization.")
+    appendLine(" * Copies properties from source to target with explicit parameter values.")
+    appendLine(" * Properties with matching names and types use source values as defaults.")
     appendLine(" * ")
-    appendLine(" * @param ${target.simpleName.asString().lowercase()} The target object to copy properties to")
-    appendLine(" * @param block Lambda with receiver for customizing the copied values")
+    appendLine(" * @param mutableTarget The target object to copy properties to")
+    target.getAllProperties().filter { it.isMutable }.forEach { targetProp ->
+        val propName = targetProp.simpleName.asString()
+        appendLine(" * @param $propName Value for target.$propName property")
+    }
+    appendLine(" * @return The modified target object")
     appendLine(" * ")
     appendLine(" * @see ${source.underPackageName}")
     appendLine(" * @see ${target.underPackageName}")

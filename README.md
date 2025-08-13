@@ -238,7 +238,7 @@ This is much easier than specifying @CopyTo for each sealed class/interface.
 
 ### MutableCopyTo
 
-Generates mutable copy functions that copy properties from the source object to an existing mutable target object, with the ability to customize the copied values through a scope function.
+Generates mutable copy functions that copy properties from the source object to an existing mutable target object with explicit parameter values. Properties with matching names and types use source values as defaults.
 
 This is particularly useful when implementing Modifier.Node in Compose, where you need to update existing mutable objects.
 
@@ -259,45 +259,46 @@ data class MutableTarget(
 
 // auto generate
 fun Source.copyToMutableTarget(
-    mutabletarget: MutableTarget,
-    block: CopyToMutableTargetScope.() -> Unit = {},
-) {
-    mutabletarget.prop1 = this.prop1
-    mutabletarget.prop2 = this.prop2
-    mutabletarget.sharedProp = this.sharedProp
-    CopyToMutableTargetScope(this, mutabletarget).block()
-}
-
-class CopyToMutableTargetScope(
-    val source: Source,
-    val mutabletarget: MutableTarget,
-) {
-    var prop1: String
-        get() = mutabletarget.prop1
-        set(value) { mutabletarget.prop1 = value }
-    var prop2: Int
-        get() = mutabletarget.prop2
-        set(value) { mutabletarget.prop2 = value }
-    var sharedProp: String
-        get() = mutabletarget.sharedProp
-        set(value) { mutabletarget.sharedProp = value }
-    var targetOnlyProp: String
-        get() = mutabletarget.targetOnlyProp
-        set(value) { mutabletarget.targetOnlyProp = value }
+    mutableTarget: MutableTarget,
+    prop1: String = this.prop1,
+    prop2: Int = this.prop2,
+    sharedProp: String = this.sharedProp,
+    targetOnlyProp: String,
+): MutableTarget {
+    mutableTarget.prop1 = prop1
+    mutableTarget.prop2 = prop2
+    mutableTarget.sharedProp = sharedProp
+    mutableTarget.targetOnlyProp = targetOnlyProp
+    return mutableTarget
 }
 
 // usage
 val source = Source("test1", 42, "shared")
 val target = MutableTarget("old1", 0, "old_shared", "target_only")
 
-source.copyToMutableTarget(target) {
+val result = source.copyToMutableTarget(
+    mutableTarget = target,
     targetOnlyProp = "customized_target"
-}
+)
 
-// target.prop1 == "test1" (copied from source)
-// target.prop2 == 42 (copied from source)
-// target.sharedProp == "shared" (copied from source)
-// target.targetOnlyProp == "customized_target" (customized in block)
+// result.prop1 == "test1" (from source default)
+// result.prop2 == 42 (from source default)
+// result.sharedProp == "shared" (from source default)
+// result.targetOnlyProp == "customized_target" (explicitly set)
+// result === target (same instance)
+```
+
+#### Options Support
+
+MutableCopyTo supports custom function naming through the `copyFunNamePrefix` parameter:
+
+```kt
+@MutableCopyTo(Target::class, copyFunNamePrefix = "updateWith")
+data class Source(val prop: String)
+
+data class Target(var prop: String, var extra: String)
+
+// generates: source.updateWithTarget(mutableTarget = target, extra = "value")
 ```
 
 ### CopyTo.Map, CopyFrom.Map
