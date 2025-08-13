@@ -230,6 +230,70 @@ fun UiState.copyToUiStateSuccessRefreshing(
 
 これは各 sealed class/interface に @CopyTo を都度指定するよりも圧倒的に楽です。
 
+### MutableCopyTo
+
+ソースオブジェクトのプロパティを既存のmutableなターゲットオブジェクトにコピーし、スコープ関数を通じてコピーされた値をカスタマイズできるmutableなコピー関数を生成します。
+
+これは特に、既存のmutableなオブジェクトを更新する必要があるComposeのModifier.Node実装時に有用です。
+
+```kt
+@MutableCopyTo(MutableTarget::class)
+data class Source(
+    val prop1: String,
+    val prop2: Int,
+    val sharedProp: String,
+)
+
+data class MutableTarget(
+    var prop1: String,
+    var prop2: Int,
+    var sharedProp: String,
+    var targetOnlyProp: String,
+)
+
+// auto generate
+fun Source.copyToMutableTarget(
+    mutabletarget: MutableTarget,
+    block: CopyToMutableTargetScope.() -> Unit = {},
+) {
+    mutabletarget.prop1 = this.prop1
+    mutabletarget.prop2 = this.prop2
+    mutabletarget.sharedProp = this.sharedProp
+    CopyToMutableTargetScope(this, mutabletarget).block()
+}
+
+class CopyToMutableTargetScope(
+    val source: Source,
+    val mutabletarget: MutableTarget,
+) {
+    var prop1: String
+        get() = mutabletarget.prop1
+        set(value) { mutabletarget.prop1 = value }
+    var prop2: Int
+        get() = mutabletarget.prop2
+        set(value) { mutabletarget.prop2 = value }
+    var sharedProp: String
+        get() = mutabletarget.sharedProp
+        set(value) { mutabletarget.sharedProp = value }
+    var targetOnlyProp: String
+        get() = mutabletarget.targetOnlyProp
+        set(value) { mutabletarget.targetOnlyProp = value }
+}
+
+// usage
+val source = Source("test1", 42, "shared")
+val target = MutableTarget("old1", 0, "old_shared", "target_only")
+
+source.copyToMutableTarget(target) {
+    targetOnlyProp = "customized_target"
+}
+
+// target.prop1 == "test1" (ソースからコピー)
+// target.prop2 == 42 (ソースからコピー)
+// target.sharedProp == "shared" (ソースからコピー)
+// target.targetOnlyProp == "customized_target" (ブロック内でカスタマイズ)
+```
+
 ### CopyTo.Map, CopyFrom.Map
 
 `@CopyTo.Map` および `@CopyFrom.Map` を使用してプロパティごとに対応するプロパティを指定できます。

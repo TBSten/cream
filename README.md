@@ -236,6 +236,70 @@ fun UiState.copyToUiStateSuccessRefreshing(
 
 This is much easier than specifying @CopyTo for each sealed class/interface.
 
+### MutableCopyTo
+
+Generates mutable copy functions that copy properties from the source object to an existing mutable target object, with the ability to customize the copied values through a scope function.
+
+This is particularly useful when implementing Modifier.Node in Compose, where you need to update existing mutable objects.
+
+```kt
+@MutableCopyTo(MutableTarget::class)
+data class Source(
+    val prop1: String,
+    val prop2: Int,
+    val sharedProp: String,
+)
+
+data class MutableTarget(
+    var prop1: String,
+    var prop2: Int,
+    var sharedProp: String,
+    var targetOnlyProp: String,
+)
+
+// auto generate
+fun Source.copyToMutableTarget(
+    mutabletarget: MutableTarget,
+    block: CopyToMutableTargetScope.() -> Unit = {},
+) {
+    mutabletarget.prop1 = this.prop1
+    mutabletarget.prop2 = this.prop2
+    mutabletarget.sharedProp = this.sharedProp
+    CopyToMutableTargetScope(this, mutabletarget).block()
+}
+
+class CopyToMutableTargetScope(
+    val source: Source,
+    val mutabletarget: MutableTarget,
+) {
+    var prop1: String
+        get() = mutabletarget.prop1
+        set(value) { mutabletarget.prop1 = value }
+    var prop2: Int
+        get() = mutabletarget.prop2
+        set(value) { mutabletarget.prop2 = value }
+    var sharedProp: String
+        get() = mutabletarget.sharedProp
+        set(value) { mutabletarget.sharedProp = value }
+    var targetOnlyProp: String
+        get() = mutabletarget.targetOnlyProp
+        set(value) { mutabletarget.targetOnlyProp = value }
+}
+
+// usage
+val source = Source("test1", 42, "shared")
+val target = MutableTarget("old1", 0, "old_shared", "target_only")
+
+source.copyToMutableTarget(target) {
+    targetOnlyProp = "customized_target"
+}
+
+// target.prop1 == "test1" (copied from source)
+// target.prop2 == 42 (copied from source)
+// target.sharedProp == "shared" (copied from source)
+// target.targetOnlyProp == "customized_target" (customized in block)
+```
+
 ### CopyTo.Map, CopyFrom.Map
 
 You can use `@CopyTo.Map` and `@CopyFrom.Map` to map properties between source and target
