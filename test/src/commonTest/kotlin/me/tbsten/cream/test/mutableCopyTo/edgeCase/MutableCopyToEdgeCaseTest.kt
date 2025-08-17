@@ -20,7 +20,7 @@ class MutableCopyToEdgeCaseTest {
         )
 
         // Act
-        val result = source.copyToNullableMutableTarget(
+        val result = source.mutableCopyToNullableMutableTarget(
             mutableTarget = target,
             additionalProp = null
         )
@@ -46,7 +46,7 @@ class MutableCopyToEdgeCaseTest {
         )
 
         // Act
-        val result = source.copyToNullableMutableTarget(
+        val result = source.mutableCopyToNullableMutableTarget(
             mutableTarget = target,
             additionalProp = 99
         )
@@ -73,7 +73,7 @@ class MutableCopyToEdgeCaseTest {
         )
 
         // Act
-        val result = source.copyToPartialMatchTarget(
+        val result = source.mutableCopyToPartialMatchTarget(
             mutableTarget = target,
             targetOnlyProp = 3.14
         )

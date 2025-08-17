@@ -21,7 +21,7 @@ class MutableCopyToTest {
         )
 
         // Act
-        val result = source.copyToMutableTarget(
+        val result = source.mutableCopyToMutableTarget(
             mutableTarget = target,
             targetOnlyProp = "new target only"
         )
@@ -52,7 +52,7 @@ class MutableCopyToTest {
         )
 
         // Act
-        val result = source.copyToMutableTarget(
+        val result = source.mutableCopyToMutableTarget(
             mutableTarget = target,
             sourceProp1 = "customized value",
             targetOnlyProp = "customized target"
@@ -83,7 +83,7 @@ class MutableCopyToTest {
         )
 
         // Act
-        val result = source.copyToComplexMutableTarget(
+        val result = source.mutableCopyToComplexMutableTarget(
             mutableTarget = target,
             description = "Updated Description",
             metadata = mapOf("key" to "value")
