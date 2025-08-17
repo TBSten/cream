@@ -9,28 +9,28 @@ class MutableCopyToTest {
     fun testBasicMutableCopyTo() {
         // Arrange
         val source = MutableSource(
-            sourceProp1 = "test1",
+            sourceProp1 = "test string",
             sourceProp2 = 42,
-            sharedProp = "shared",
+            sharedProp = "shared value",
         )
         val target = MutableTarget(
-            sourceProp1 = "old1",
+            sourceProp1 = "old value",
             sourceProp2 = 0,
-            sharedProp = "old_shared",
-            targetOnlyProp = "target_only",
+            sharedProp = "old shared",
+            targetOnlyProp = "target only",
         )
 
         // Act
         val result = source.copyToMutableTarget(
             mutableTarget = target,
-            targetOnlyProp = "new_target_only"
+            targetOnlyProp = "new target only"
         )
 
         // Assert
-        assertEquals("test1", result.sourceProp1)
+        assertEquals("test string", result.sourceProp1)
         assertEquals(42, result.sourceProp2)
-        assertEquals("shared", result.sharedProp)
-        assertEquals("new_target_only", result.targetOnlyProp)
+        assertEquals("shared value", result.sharedProp)
+        assertEquals("new target only", result.targetOnlyProp)
         
         // Verify that the returned object is the same instance as the target
         assertEquals(target, result)
@@ -40,29 +40,29 @@ class MutableCopyToTest {
     fun testMutableCopyToWithCustomization() {
         // Arrange
         val source = MutableSource(
-            sourceProp1 = "test1",
+            sourceProp1 = "test string",
             sourceProp2 = 42,
-            sharedProp = "shared",
+            sharedProp = "shared value",
         )
         val target = MutableTarget(
-            sourceProp1 = "old1",
+            sourceProp1 = "old value",
             sourceProp2 = 0,
-            sharedProp = "old_shared",
-            targetOnlyProp = "target_only",
+            sharedProp = "old shared",
+            targetOnlyProp = "target only",
         )
 
         // Act
         val result = source.copyToMutableTarget(
             mutableTarget = target,
-            sourceProp1 = "customized1",
-            targetOnlyProp = "customized_target"
+            sourceProp1 = "customized value",
+            targetOnlyProp = "customized target"
         )
 
         // Assert
-        assertEquals("customized1", result.sourceProp1)
+        assertEquals("customized value", result.sourceProp1)
         assertEquals(42, result.sourceProp2) // From source (default)
-        assertEquals("shared", result.sharedProp) // From source (default)
-        assertEquals("customized_target", result.targetOnlyProp) // Customized
+        assertEquals("shared value", result.sharedProp) // From source (default)
+        assertEquals("customized target", result.targetOnlyProp) // Customized
         assertEquals(target, result)
     }
 
