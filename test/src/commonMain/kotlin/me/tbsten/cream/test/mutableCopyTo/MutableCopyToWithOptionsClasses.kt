@@ -2,7 +2,7 @@ package me.tbsten.cream.test.mutableCopyTo
 
 import me.tbsten.cream.MutableCopyTo
 
-@MutableCopyTo(MutableTargetWithOptions::class, copyFunNamePrefix = "updateWith")
+@MutableCopyTo(MutableTargetWithOptions::class, mutableCopyFunNamePrefix = "updateWith")
 data class MutableSourceWithOptions(
     val prop1: String,
     val prop2: Int,
