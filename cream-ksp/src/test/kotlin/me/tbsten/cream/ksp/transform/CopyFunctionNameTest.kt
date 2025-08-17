@@ -30,7 +30,7 @@ internal class CopyFunctionNameTest {
     fun `under-package, lower-camel-case`() = testCopyFunctionName(
         CreamOptions(
             copyFunNamePrefix = "copyTo",
-            mutableCopyFunNamePrefix = "copyTo",
+            mutableCopyFunNamePrefix = "mutableCopyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`under-package`,
             escapeDot = EscapeDot.`lower-camel-case`,
             notCopyToObject = false,
@@ -51,7 +51,7 @@ internal class CopyFunctionNameTest {
     fun `diff-parent, lower-camel-case`() = testCopyFunctionName(
         CreamOptions(
             copyFunNamePrefix = "copyTo",
-            mutableCopyFunNamePrefix = "copyTo",
+            mutableCopyFunNamePrefix = "mutableCopyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`diff`,
             escapeDot = EscapeDot.`lower-camel-case`,
             notCopyToObject = false,
@@ -80,7 +80,7 @@ internal class CopyFunctionNameTest {
     fun `simple-name, lower-camel-case`() = testCopyFunctionName(
         CreamOptions(
             copyFunNamePrefix = "copyTo",
-            mutableCopyFunNamePrefix = "copyTo",
+            mutableCopyFunNamePrefix = "mutableCopyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`simple-name`,
             escapeDot = EscapeDot.`lower-camel-case`,
             notCopyToObject = false,
@@ -109,7 +109,7 @@ internal class CopyFunctionNameTest {
     fun `full-name, lower-camel-case`() = testCopyFunctionName(
         CreamOptions(
             copyFunNamePrefix = "copyTo",
-            mutableCopyFunNamePrefix = "copyTo",
+            mutableCopyFunNamePrefix = "mutableCopyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`full-name`,
             escapeDot = EscapeDot.`lower-camel-case`,
             notCopyToObject = false,
@@ -136,7 +136,7 @@ internal class CopyFunctionNameTest {
     fun `inner-name, lower-camel-case`() = testCopyFunctionName(
         CreamOptions(
             copyFunNamePrefix = "copyTo",
-            mutableCopyFunNamePrefix = "copyTo",
+            mutableCopyFunNamePrefix = "mutableCopyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`inner-name`,
             escapeDot = EscapeDot.`lower-camel-case`,
             notCopyToObject = false,
@@ -162,7 +162,7 @@ internal class CopyFunctionNameTest {
     fun `under-package, replace-to-underscore`() = testCopyFunctionName(
         CreamOptions(
             copyFunNamePrefix = "copyTo",
-            mutableCopyFunNamePrefix = "copyTo",
+            mutableCopyFunNamePrefix = "mutableCopyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`under-package`,
             escapeDot = EscapeDot.`replace-to-underscore`,
             notCopyToObject = false,
@@ -183,7 +183,7 @@ internal class CopyFunctionNameTest {
     fun `diff-parent, replace-to-underscore`() = testCopyFunctionName(
         CreamOptions(
             copyFunNamePrefix = "copyTo",
-            mutableCopyFunNamePrefix = "copyTo",
+            mutableCopyFunNamePrefix = "mutableCopyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`diff`,
             escapeDot = EscapeDot.`replace-to-underscore`,
             notCopyToObject = false,
@@ -204,7 +204,7 @@ internal class CopyFunctionNameTest {
     fun `simple-name, replace-to-underscore`() = testCopyFunctionName(
         CreamOptions(
             copyFunNamePrefix = "copyTo",
-            mutableCopyFunNamePrefix = "copyTo",
+            mutableCopyFunNamePrefix = "mutableCopyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`simple-name`,
             escapeDot = EscapeDot.`replace-to-underscore`,
             notCopyToObject = false,
@@ -225,7 +225,7 @@ internal class CopyFunctionNameTest {
     fun `full-name, replace-to-underscore`() = testCopyFunctionName(
         CreamOptions(
             copyFunNamePrefix = "copyTo",
-            mutableCopyFunNamePrefix = "copyTo",
+            mutableCopyFunNamePrefix = "mutableCopyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`full-name`,
             escapeDot = EscapeDot.`replace-to-underscore`,
             notCopyToObject = false,
@@ -246,7 +246,7 @@ internal class CopyFunctionNameTest {
     fun `inner-name, replace-to-underscore`() = testCopyFunctionName(
         CreamOptions(
             copyFunNamePrefix = "copyTo",
-            mutableCopyFunNamePrefix = "copyTo",
+            mutableCopyFunNamePrefix = "mutableCopyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`inner-name`,
             escapeDot = EscapeDot.`replace-to-underscore`,
             notCopyToObject = false,
@@ -272,7 +272,7 @@ internal class CopyFunctionNameTest {
     fun `under-package, backquote`() = testCopyFunctionName(
         CreamOptions(
             copyFunNamePrefix = "copyTo",
-            mutableCopyFunNamePrefix = "copyTo",
+            mutableCopyFunNamePrefix = "mutableCopyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`under-package`,
             escapeDot = EscapeDot.`backquote`,
             notCopyToObject = false,
@@ -293,7 +293,7 @@ internal class CopyFunctionNameTest {
     fun `diff-parent, backquote`() = testCopyFunctionName(
         CreamOptions(
             copyFunNamePrefix = "copyTo",
-            mutableCopyFunNamePrefix = "copyTo",
+            mutableCopyFunNamePrefix = "mutableCopyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`diff`,
             escapeDot = EscapeDot.`backquote`,
             notCopyToObject = false,
@@ -314,7 +314,7 @@ internal class CopyFunctionNameTest {
     fun `simple-name, backquote`() = testCopyFunctionName(
         CreamOptions(
             copyFunNamePrefix = "copyTo",
-            mutableCopyFunNamePrefix = "copyTo",
+            mutableCopyFunNamePrefix = "mutableCopyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`simple-name`,
             escapeDot = EscapeDot.`backquote`,
             notCopyToObject = false,
@@ -335,7 +335,7 @@ internal class CopyFunctionNameTest {
     fun `full-name, backquote`() = testCopyFunctionName(
         CreamOptions(
             copyFunNamePrefix = "copyTo",
-            mutableCopyFunNamePrefix = "copyTo",
+            mutableCopyFunNamePrefix = "mutableCopyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`full-name`,
             escapeDot = EscapeDot.`backquote`,
             notCopyToObject = false,
@@ -356,7 +356,7 @@ internal class CopyFunctionNameTest {
     fun `inner-name, backquote`() = testCopyFunctionName(
         CreamOptions(
             copyFunNamePrefix = "copyTo",
-            mutableCopyFunNamePrefix = "copyTo",
+            mutableCopyFunNamePrefix = "mutableCopyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.`inner-name`,
             escapeDot = EscapeDot.`backquote`,
             notCopyToObject = false,

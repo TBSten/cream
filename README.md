@@ -355,7 +355,7 @@ See also the test case at .
 
 ksp {
     arg("cream.copyFunNamePrefix", "copyTo")
-    arg("cream.mutableCopyFunNamePrefix", "copyTo")
+    arg("cream.mutableCopyFunNamePrefix", "mutableCopyTo")
     arg("cream.copyFunNamingStrategy", "under-package")
     arg("cream.escapeDot", "replace-to-underscore")
     arg("cream.notCopyToObject", "false")
@@ -367,7 +367,7 @@ ksp {
 | Option name                           | Description                                                                 | Example                                                                  | Default            |
 |---------------------------------------|-----------------------------------------------------------------------------|--------------------------------------------------------------------------|--------------------|
 | **`cream.copyFunNamePrefix`**         | String prefixed to the generated copy function                              | `copyTo`, `transitionTo`, `to`, `mapTo`                                  | `copyTo`           |
-| **`cream.mutableCopyFunNamePrefix`**  | String prefixed to the generated mutable copy function                     | `copyTo`, `updateWith`, `to`, `mapTo`                                    | `copyTo`           |
+| **`cream.mutableCopyFunNamePrefix`**  | String prefixed to the generated mutable copy function                     | `copyTo`, `updateWith`, `to`, `mapTo`                                    | `mutableCopyTo`    |
 | **`cream.copyFunNamingStrategy`**     | Copy function naming conventions.                                           | `under-package`, `diff-parent`, `simple-name`, `full-name`, `inner-name` | `under-package`    |
 | **`cream.escapeDot`**                 | How to escape `. ` in the name given by `cream.copyFunNamingStrategy`.      | `replace-to-underscore`, `pascal-case`, `backquote`                      | `lower-camel-case` |
 | **`cream.notCopyToObject`**           | If `true`, @CopyToChildren will not generate a copy function to the object. | `true` , `false`                                                         | `false`            |
@@ -383,12 +383,12 @@ Set a straightforward string that describes the copy or state transition, such a
 
 ### Option 2. `cream.mutableCopyFunNamePrefix`
 
-| Default  | Possible values  |
-|----------|------------------|
-| `copyTo` | Arbitrary string |
+| Default         | Possible values  |
+|-----------------|------------------|
+| `mutableCopyTo` | Arbitrary string |
 
 Set the class name to be prefixed by the generated mutable copy function name.
-Set a straightforward string that describes the copy or state transition, such as `copyTo` or `updateWith`.
+Set a straightforward string that describes the copy or state transition, such as `mutableCopyTo` or `updateWith`.
 
 ### Option 3. `cream.copyFunNamingStrategy`
 

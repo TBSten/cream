@@ -348,7 +348,7 @@ fun DataModel.copyToDomainModel(
 
 ksp {
     arg("cream.copyFunNamePrefix", "copyTo")
-    arg("cream.mutableCopyFunNamePrefix", "copyTo")
+    arg("cream.mutableCopyFunNamePrefix", "mutableCopyTo")
     arg("cream.copyFunNamingStrategy", "under-package")
     arg("cream.escapeDot", "replace-to-underscore")
     arg("cream.notCopyToObject", "false")
@@ -360,7 +360,7 @@ ksp {
 | オプション名                                | 説明                                                          | 設定例                                                                      | デフォルト              |
 |---------------------------------------|-------------------------------------------------------------|--------------------------------------------------------------------------|--------------------|
 | **`cream.copyFunNamePrefix`**         | 生成されるコピー関数の先頭につく文字列                                         | `copyTo`, `transitionTo`, `to`, `mapTo`                                  | `copyTo`           |
-| **`cream.mutableCopyFunNamePrefix`**  | 生成される可変コピー関数の先頭につく文字列                                     | `copyTo`, `updateWith`, `to`, `mapTo`                                    | `copyTo`           |
+| **`cream.mutableCopyFunNamePrefix`**  | 生成される可変コピー関数の先頭につく文字列                                     | `copyTo`, `updateWith`, `to`, `mapTo`                                    | `mutableCopyTo`    |
 | **`cream.copyFunNamingStrategy`**     | コピー関数の命名方法。                                                 | `under-package`, `diff-parent`, `simple-name`, `full-name`, `inner-name` | `under-package`    |
 | **`cream.escapeDot`**                 | `cream.copyFunNamingStrategy` で命名された名前に含まれる `.` をエスケープする方法。 | `replace-to-underscore`, `pascal-case`, `backquote`                      | `lower-camel-case` |
 | **`cream.notCopyToObject`**           | `true` の場合 @CopyToChildren で object へのコピー関数を生成しないようにします。    | `true` , `false`                                                         | `false`            |
@@ -376,12 +376,12 @@ ksp {
 
 ### オプション 2. `cream.mutableCopyFunNamePrefix`
 
-| デフォルト    | 設定可能な値 |
-|----------|--------|
-| `copyTo` | 任意の文字列 |
+| デフォルト         | 設定可能な値 |
+|-----------------|--------|
+| `mutableCopyTo` | 任意の文字列 |
 
 生成される可変コピー関数名の先頭につく クラス名を設定します。
-`copyTo` や `updateWith` などのコピーや状態の遷移を表す端的な文字列を設定してください。
+`mutableCopyTo` や `updateWith` などのコピーや状態の遷移を表す端的な文字列を設定してください。
 
 ### オプション 3. `cream.copyFunNamingStrategy`
 
