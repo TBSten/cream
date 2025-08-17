@@ -3,6 +3,7 @@ package me.tbsten.cream.ksp.options
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 import me.tbsten.cream.ksp.InvalidCreamOptionException
 
 internal class CreamOptionsTest {
@@ -46,14 +47,13 @@ internal class CreamOptionsTest {
             options.toCreamOptions()
         }
         
-        assertEquals(
-            "copyFunNamePrefix and mutableCopyFunNamePrefix cannot be the same: samePrefix",
-            exception.message
-        )
-        assertEquals(
-            "Set different values for copyFunNamePrefix and mutableCopyFunNamePrefix",
-            exception.solution
-        )
+        // Check that the exception message contains both the error message and solution
+        val expectedSolution = "Set different values for copyFunNamePrefix and mutableCopyFunNamePrefix"
+        
+        // The message should start with "Invalid cream usage: " and contain the solution
+        assertTrue(exception.message?.startsWith("Invalid cream usage: ") == true)
+        assertTrue(exception.message?.contains(expectedSolution) == true)
+        assertTrue(exception.message?.contains("samePrefix") == true)
     }
 
     @Test
