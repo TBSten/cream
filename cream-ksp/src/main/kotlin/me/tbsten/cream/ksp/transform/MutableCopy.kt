@@ -67,18 +67,28 @@ private fun getMutableCopyFunctionName(
     target: KSClassDeclaration,
     options: CreamOptions,
 ): String {
-    // Use the provided prefix, or default to "mutableCopyTo"
-    val prefix = options.copyFunNamePrefix.takeIf { it.isNotEmpty() } ?: "mutableCopyTo"
+    // Use the provided prefix, or default to "copyTo"
+    val prefix = options.copyFunNamePrefix.takeIf { it.isNotEmpty() } ?: "copyTo"
     
-    // Get the target name part using the copyFunctionName logic
+    // Get the target name part using a helper function
+    val targetSuffix = getCopyFunctionTargetSuffix(source, target, options)
+    
+    return "$prefix$targetSuffix"
+}
+
+// Helper function to extract the target suffix for the copy function name
+private fun getCopyFunctionTargetSuffix(
+    source: KSClassDeclaration,
+    target: KSClassDeclaration,
+    options: CreamOptions,
+): String {
+    // Always use "copyTo" as the prefix to extract the suffix
     val fullCopyFunctionName = copyFunctionName(source, target, options.copy(copyFunNamePrefix = "copyTo"))
-    val targetSuffix = if (fullCopyFunctionName.startsWith("copyTo")) {
+    return if (fullCopyFunctionName.startsWith("copyTo")) {
         fullCopyFunctionName.removePrefix("copyTo")
     } else {
         fullCopyFunctionName
     }
-    
-    return "$prefix$targetSuffix"
 }
 
 private fun BufferedWriter.appendMutableCopyFunctionKDoc(
