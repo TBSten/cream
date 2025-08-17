@@ -19,7 +19,7 @@ class MutableCopyToWithOptionsTest {
         )
 
         // Act
-        val result = source.updateWithMutableTargetWithOptions(
+        val result = source.mutableCopyToMutableTargetWithOptions(
             mutableTarget = target,
             extraProp = "new extra"
         )

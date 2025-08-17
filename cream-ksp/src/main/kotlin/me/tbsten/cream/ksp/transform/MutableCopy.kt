@@ -27,9 +27,9 @@ internal fun BufferedWriter.appendMutableCopyFunction(
     // Add mutableTarget parameter
     appendLine("    mutableTarget: ${target.fullName},")
     
-    // Add parameters for each target mutable property
+    // Add parameters for each target property (both mutable and inherited)
     val sourceProperties = source.getAllProperties().toList()
-    val targetProperties = target.getAllProperties().filter { it.isMutable }.toList()
+    val targetProperties = target.getAllProperties().toList()
 
     targetProperties.forEach { targetProp ->
         val propName = targetProp.simpleName.asString()
@@ -54,7 +54,10 @@ internal fun BufferedWriter.appendMutableCopyFunction(
     // Assign all parameters to target properties
     targetProperties.forEach { targetProp ->
         val propName = targetProp.simpleName.asString()
-        appendLine("    mutableTarget.$propName = $propName")
+        // Only assign to mutable properties
+        if (targetProp.isMutable) {
+            appendLine("    mutableTarget.$propName = $propName")
+        }
     }
 
     appendLine("    return mutableTarget")
@@ -67,8 +70,8 @@ private fun getMutableCopyFunctionName(
     target: KSClassDeclaration,
     options: CreamOptions,
 ): String {
-    // Use the provided mutableCopyFunNamePrefix, or default to "copyTo"
-    val prefix = options.mutableCopyFunNamePrefix.takeIf { it.isNotEmpty() } ?: "copyTo"
+    // Use the provided mutableCopyFunNamePrefix
+    val prefix = options.mutableCopyFunNamePrefix
     
     // Get the target name part using a helper function
     val targetSuffix = getCopyFunctionTargetSuffix(source, target, options)
@@ -105,7 +108,7 @@ private fun BufferedWriter.appendMutableCopyFunctionKDoc(
     appendLine(" * Properties with matching names and types use source values as defaults.")
     appendLine(" * ")
     appendLine(" * @param mutableTarget The target object to copy properties to")
-    target.getAllProperties().filter { it.isMutable }.forEach { targetProp ->
+    target.getAllProperties().forEach { targetProp ->
         val propName = targetProp.simpleName.asString()
         appendLine(" * @param $propName Value for target.$propName property")
     }

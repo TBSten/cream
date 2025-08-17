@@ -301,6 +301,102 @@ data class Target(var prop: String, var extra: String)
 // generates: source.updateWithTarget(mutableTarget = target, extra = "value")
 ```
 
+### MutableCopyFrom
+
+Similar to `@CopyFrom`, but generates mutable copy functions that copy properties from the source object to an existing mutable target object with explicit parameter values.
+
+```kt
+data class DataLayerModel(
+    val data: String,
+    val count: Int,
+    val enabled: Boolean,
+)
+
+@MutableCopyFrom(DataLayerModel::class)
+data class DomainLayerModel(
+    var data: String,
+    var count: Int,
+    var enabled: Boolean,
+    var extraProp: String,
+)
+
+// auto generate
+fun DataLayerModel.mutableCopyToDomainLayerModel(
+    mutableTarget: DomainLayerModel,
+    data: String = this.data,
+    count: Int = this.count,
+    enabled: Boolean = this.enabled,
+    extraProp: String,
+): DomainLayerModel {
+    mutableTarget.data = data
+    mutableTarget.count = count
+    mutableTarget.enabled = enabled
+    mutableTarget.extraProp = extraProp
+    return mutableTarget
+}
+
+// usage
+val source = DataLayerModel("test string", 42, true)
+val target = DomainLayerModel("old value", 0, false, "old extra")
+
+val result = source.mutableCopyToDomainLayerModel(
+    mutableTarget = target,
+    extraProp = "new extra"
+)
+
+// result.data == "test string" (from source)
+// result.count == 42 (from source)
+// result.enabled == true (from source)
+// result.extraProp == "new extra" (explicitly set)
+// result === target (same instance)
+```
+
+### MutableCopyToChildren
+
+When applied to a sealed class/interface, automatically generates mutable copy functions from that sealed class/interface to all classes that inherit from it.
+
+```kt
+@MutableCopyToChildren
+sealed interface UiState {
+    data object Loading : UiState
+
+    sealed interface Success : UiState {
+        val data: Data
+
+        data class Done(
+            override val data: Data,
+        ) : Success
+
+        data class Refreshing(
+            override val data: Data,
+        ) : Success
+    }
+}
+
+// auto generate
+fun UiState.mutableCopyToUiStateLoading(
+    mutableTarget: UiState.Loading,
+): UiState.Loading = mutableTarget
+
+fun UiState.mutableCopyToUiStateSuccessDone(
+    mutableTarget: UiState.Success.Done,
+    data: Data = this.data,
+): UiState.Success.Done {
+    mutableTarget.data = data
+    return mutableTarget
+}
+
+fun UiState.mutableCopyToUiStateSuccessRefreshing(
+    mutableTarget: UiState.Success.Refreshing,
+    data: Data = this.data,
+): UiState.Success.Refreshing {
+    mutableTarget.data = data
+    return mutableTarget
+}
+```
+
+This is much easier than specifying @MutableCopyTo for each sealed class/interface.
+
 ### CopyTo.Map, CopyFrom.Map
 
 You can use `@CopyTo.Map` and `@CopyFrom.Map` to map properties between source and target

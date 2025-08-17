@@ -44,12 +44,13 @@ dependencies {
     ).forEach { it(project(":cream-ksp")) }
 }
 
-//ksp {
+ksp {
 //    arg("cream.copyFunNamePrefix", "transitionTo")
 //    arg("cream.copyFunNamingStrategy", "full-name")
+//    arg("cream.mutableCopyFunNamePrefix", "updateTo")
 //    arg("cream.escapeDot", "replace-to-underscore")
 //    arg("cream.notCopyToObject", "true")
-//}
+}
 
 fun Project.setupKspForMultiplatformWorkaround() {
     kotlin.sourceSets.commonMain {
@@ -57,7 +58,7 @@ fun Project.setupKspForMultiplatformWorkaround() {
     }
 
     tasks.configureEach {
-        if(name.startsWith("ksp") && name != "kspCommonMainKotlinMetadata") {
+        if (name.startsWith("ksp") && name != "kspCommonMainKotlinMetadata") {
             dependsOn(tasks.named("kspCommonMainKotlinMetadata"))
             enabled = false
         }

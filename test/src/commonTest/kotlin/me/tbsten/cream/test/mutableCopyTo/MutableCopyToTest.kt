@@ -31,7 +31,7 @@ class MutableCopyToTest {
         assertEquals(42, result.sourceProp2)
         assertEquals("shared value", result.sharedProp)
         assertEquals("new target only", result.targetOnlyProp)
-        
+
         // Verify that the returned object is the same instance as the target
         assertEquals(target, result)
     }

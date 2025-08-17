@@ -34,4 +34,18 @@ internal sealed interface GenerateSourceAnnotation<A : Annotation> {
         override val annotationClass: KClass<me.tbsten.cream.MutableCopyTo> =
             me.tbsten.cream.MutableCopyTo::class
     }
+
+    data class MutableCopyFrom(
+        override val annotationTarget: KSClassDeclaration,
+    ) : GenerateSourceAnnotation<me.tbsten.cream.MutableCopyFrom> {
+        override val annotationClass: KClass<me.tbsten.cream.MutableCopyFrom> =
+            me.tbsten.cream.MutableCopyFrom::class
+    }
+
+    data class MutableCopyToChildren(
+        override val annotationTarget: KSClassDeclaration,
+    ) : GenerateSourceAnnotation<me.tbsten.cream.MutableCopyToChildren> {
+        override val annotationClass: KClass<me.tbsten.cream.MutableCopyToChildren> =
+            me.tbsten.cream.MutableCopyToChildren::class
+    }
 }
