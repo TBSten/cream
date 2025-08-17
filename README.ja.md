@@ -7,7 +7,7 @@
 日本語 |
 <a href="https://deepwiki.com/TBSten/cream">DeepWiki</a>
 
-cream.kt は **クラスを跨いだ copy** をしやすくする KSP Plugin です。
+cream.kt は **宣言的データコピー（Declarative data copy）** を可能にし、**クラスを跨いだ copy** をしやすくする KSP Plugin です。
 
 あるオブジェクトをほぼ同じクラスの別インスタンスへコピーする Mapper を自動生成します。
 
