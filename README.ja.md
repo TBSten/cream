@@ -284,10 +284,10 @@ val result = source.copyToMutableTarget(
 
 #### オプションサポート
 
-MutableCopyToは`copyFunNamePrefix`パラメータを通じてカスタム関数名をサポートします：
+MutableCopyToは`mutableCopyFunNamePrefix`パラメータを通じてカスタム関数名をサポートします：
 
 ```kt
-@MutableCopyTo(Target::class, copyFunNamePrefix = "updateWith")
+@MutableCopyTo(Target::class, mutableCopyFunNamePrefix = "updateWith")
 data class Source(val prop: String)
 
 data class Target(var prop: String, var extra: String)
@@ -348,6 +348,7 @@ fun DataModel.copyToDomainModel(
 
 ksp {
     arg("cream.copyFunNamePrefix", "copyTo")
+    arg("cream.mutableCopyFunNamePrefix", "copyTo")
     arg("cream.copyFunNamingStrategy", "under-package")
     arg("cream.escapeDot", "replace-to-underscore")
     arg("cream.notCopyToObject", "false")
@@ -356,12 +357,13 @@ ksp {
 
 ### オプションの一覧
 
-| オプション名                            | 説明                                                          | 設定例                                                                      | デフォルト              |
-|-----------------------------------|-------------------------------------------------------------|--------------------------------------------------------------------------|--------------------|
-| **`cream.copyFunNamePrefix`**     | 生成されるコピー関数の先頭につく文字列                                         | `copyTo`, `transitionTo`, `to`, `mapTo`                                  | `copyTo`           |
-| **`cream.copyFunNamingStrategy`** | コピー関数の命名方法。                                                 | `under-package`, `diff-parent`, `simple-name`, `full-name`, `inner-name` | `under-package`    |
-| **`cream.escapeDot`**             | `cream.copyFunNamingStrategy` で命名された名前に含まれる `.` をエスケープする方法。 | `replace-to-underscore`, `pascal-case`, `backquote`                      | `lower-camel-case` |
-| **`cream.notCopyToObject`**       | `true` の場合 @CopyToChildren で object へのコピー関数を生成しないようにします。    | `true` , `false`                                                         | `false`            |
+| オプション名                                | 説明                                                          | 設定例                                                                      | デフォルト              |
+|---------------------------------------|-------------------------------------------------------------|--------------------------------------------------------------------------|--------------------|
+| **`cream.copyFunNamePrefix`**         | 生成されるコピー関数の先頭につく文字列                                         | `copyTo`, `transitionTo`, `to`, `mapTo`                                  | `copyTo`           |
+| **`cream.mutableCopyFunNamePrefix`**  | 生成される可変コピー関数の先頭につく文字列                                     | `copyTo`, `updateWith`, `to`, `mapTo`                                    | `copyTo`           |
+| **`cream.copyFunNamingStrategy`**     | コピー関数の命名方法。                                                 | `under-package`, `diff-parent`, `simple-name`, `full-name`, `inner-name` | `under-package`    |
+| **`cream.escapeDot`**                 | `cream.copyFunNamingStrategy` で命名された名前に含まれる `.` をエスケープする方法。 | `replace-to-underscore`, `pascal-case`, `backquote`                      | `lower-camel-case` |
+| **`cream.notCopyToObject`**           | `true` の場合 @CopyToChildren で object へのコピー関数を生成しないようにします。    | `true` , `false`                                                         | `false`            |
 
 ### オプション 1. `cream.copyFunNamePrefix`
 
@@ -372,7 +374,16 @@ ksp {
 生成されるコピー関数名の先頭につく クラス名を設定します。
 `copyTo` や `to` などのコピーや状態の遷移を表す端的な文字列を設定してください。
 
-### オプション 2. `cream.copyFunNamingStrategy`
+### オプション 2. `cream.mutableCopyFunNamePrefix`
+
+| デフォルト    | 設定可能な値 |
+|----------|--------|
+| `copyTo` | 任意の文字列 |
+
+生成される可変コピー関数名の先頭につく クラス名を設定します。
+`copyTo` や `updateWith` などのコピーや状態の遷移を表す端的な文字列を設定してください。
+
+### オプション 3. `cream.copyFunNamingStrategy`
 
 | デフォルト           | 設定可能な値                                                                          |
 |-----------------|---------------------------------------------------------------------------------|
@@ -392,7 +403,7 @@ ksp {
 
 <img src="./doc/cream.copyFunNamingStrategy.png" width="800" />
 
-### オプション 3. `cream.escapeDot`
+### オプション 4. `cream.escapeDot`
 
 | デフォルト              | 設定可能な値                                                     |
 |--------------------|------------------------------------------------------------|
@@ -408,7 +419,7 @@ Kotlin の関数名には通常 `.` を含めることはできないため 設�
 | `replace-to-underscore` | ドットをアンダースコアに置換する                   | Hoge.Fuga.copyTo_hoge_piyo(...)                                     |
 | `backquote`             | ドットを含む完全な名前をバッククォート（\``...`\`）で囲む  | Hoge.Fuga.\`copyTocom.example.Hoge.Piyo`\(...)                      |
 
-### Option 4. `cream.notCopyToObject`
+### オプション 5. `cream.notCopyToObject`
 
 | デフォルト   | 設定可能な値                |
 |---------|-----------------------|

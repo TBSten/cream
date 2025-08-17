@@ -67,8 +67,8 @@ private fun getMutableCopyFunctionName(
     target: KSClassDeclaration,
     options: CreamOptions,
 ): String {
-    // Use the provided prefix, or default to "copyTo"
-    val prefix = options.copyFunNamePrefix.takeIf { it.isNotEmpty() } ?: "copyTo"
+    // Use the provided mutableCopyFunNamePrefix, or default to "copyTo"
+    val prefix = options.mutableCopyFunNamePrefix.takeIf { it.isNotEmpty() } ?: "copyTo"
     
     // Get the target name part using a helper function
     val targetSuffix = getCopyFunctionTargetSuffix(source, target, options)

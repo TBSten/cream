@@ -260,14 +260,14 @@ class CreamSymbolProcessor(
                         )
                 }
             
-            // MutableCopyTo.copyFunNamePrefix: String
+            // MutableCopyTo.mutableCopyFunNamePrefix: String
             val copyFunNamePrefix = mutableCopyToAnnotation.arguments
-                .find { it.name?.asString() == "copyFunNamePrefix" }
+                .find { it.name?.asString() == "mutableCopyFunNamePrefix" }
                 ?.value as? String ?: ""
             
             // Create options with annotation-specific prefix
             val mutableCopyOptions = if (copyFunNamePrefix.isNotEmpty()) {
-                options.copy(copyFunNamePrefix = copyFunNamePrefix)
+                options.copy(mutableCopyFunNamePrefix = copyFunNamePrefix)
             } else {
                 options
             }

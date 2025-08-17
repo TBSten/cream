@@ -5,6 +5,7 @@ import me.tbsten.cream.ksp.util.lines
 
 internal data class CreamOptions(
     val copyFunNamePrefix: String,
+    val mutableCopyFunNamePrefix: String,
     val copyFunNamingStrategy: CopyFunNamingStrategy,
     val escapeDot: EscapeDot,
     val notCopyToObject: Boolean,
@@ -14,6 +15,8 @@ internal fun Map<String, String>.toCreamOptions(): CreamOptions {
     return CreamOptions(
         copyFunNamePrefix =
             this["cream.copyFunNamePrefix"] ?: "copyTo",
+        mutableCopyFunNamePrefix =
+            this["cream.mutableCopyFunNamePrefix"] ?: "copyTo",
         copyFunNamingStrategy =
             try {
                 CopyFunNamingStrategy.valueOf(

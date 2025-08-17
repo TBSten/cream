@@ -59,7 +59,7 @@ import kotlin.reflect.KClass
 @Target(AnnotationTarget.CLASS)
 annotation class MutableCopyTo(
     vararg val targets: KClass<*>,
-    val copyFunNamePrefix: String = "",
+    val mutableCopyFunNamePrefix: String = "",
 ) {
     @Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE_PARAMETER)
     annotation class Map(vararg val propertyNames: String)
