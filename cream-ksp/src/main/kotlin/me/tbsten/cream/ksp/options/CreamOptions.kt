@@ -9,23 +9,23 @@ internal data class CreamOptions(
     val copyFunNamingStrategy: CopyFunNamingStrategy,
     val escapeDot: EscapeDot,
     val notCopyToObject: Boolean,
-) {
-    init {
-        if (copyFunNamePrefix == mutableCopyFunNamePrefix) {
-            throw InvalidCreamOptionException(
-                message = "copyFunNamePrefix and mutableCopyFunNamePrefix cannot be the same: $copyFunNamePrefix",
-                solution = "Set different values for copyFunNamePrefix and mutableCopyFunNamePrefix"
-            )
-        }
-    }
-}
+)
 
 internal fun Map<String, String>.toCreamOptions(): CreamOptions {
+    val copyFunNamePrefix = this["cream.copyFunNamePrefix"] ?: "copyTo"
+    val mutableCopyFunNamePrefix = this["cream.mutableCopyFunNamePrefix"] ?: "mutableCopyTo"
+    
+    // Check that the prefixes are different
+    if (copyFunNamePrefix == mutableCopyFunNamePrefix) {
+        throw InvalidCreamOptionException(
+            message = "copyFunNamePrefix and mutableCopyFunNamePrefix cannot be the same: $copyFunNamePrefix",
+            solution = "Set different values for copyFunNamePrefix and mutableCopyFunNamePrefix"
+        )
+    }
+    
     return CreamOptions(
-        copyFunNamePrefix =
-            this["cream.copyFunNamePrefix"] ?: "copyTo",
-        mutableCopyFunNamePrefix =
-            this["cream.mutableCopyFunNamePrefix"] ?: "mutableCopyTo",
+        copyFunNamePrefix = copyFunNamePrefix,
+        mutableCopyFunNamePrefix = mutableCopyFunNamePrefix,
         copyFunNamingStrategy =
             try {
                 CopyFunNamingStrategy.valueOf(
