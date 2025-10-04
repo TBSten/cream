@@ -1,13 +1,12 @@
 package me.tbsten.cream.ksp.options
 
-import com.google.devtools.ksp.symbol.KSClassDeclaration
-import me.tbsten.cream.ksp.util.fullName
-import me.tbsten.cream.ksp.util.underPackageName
+import me.tbsten.cream.InternalCreamApi
 
 @Suppress("EnumEntryName", "RemoveRedundantBackticks")
-internal enum class CopyFunNamingStrategy(val funName: (source: KSClassDeclaration, target: KSClassDeclaration) -> String) {
+@InternalCreamApi
+enum class CopyFunNamingStrategy(val funName: (source: ClassDeclarationInfo, target: ClassDeclarationInfo) -> String) {
     `under-package`({ _, target ->
-        target.fullName.replace(target.packageName.asString() + ".", "")
+        target.fullName.replace(target.packageName + ".", "")
     }),
     `diff`(
         { source, target ->
@@ -26,7 +25,7 @@ internal enum class CopyFunNamingStrategy(val funName: (source: KSClassDeclarati
         }
     ),
     `simple-name`(
-        { _, target -> target.simpleName.asString() }
+        { _, target -> target.simpleName }
     ),
     `full-name`(
         { _, target -> target.fullName }
@@ -50,4 +49,13 @@ internal enum class CopyFunNamingStrategy(val funName: (source: KSClassDeclarati
     companion object {
         val default = `under-package`
     }
+}
+
+@InternalCreamApi
+interface ClassDeclarationInfo {
+    val packageName: String
+    val underPackageName: String
+    val simpleName: String
+
+    val fullName: String
 }

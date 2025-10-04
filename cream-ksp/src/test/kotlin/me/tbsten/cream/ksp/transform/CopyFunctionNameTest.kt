@@ -17,7 +17,7 @@ internal class CopyFunctionNameTest {
         vararg triples: Triple<KSClassDeclaration, KSClassDeclaration, String>,
     ) {
         triples.forEach { (source, target, expectedFunName) ->
-            val resultFunName = copyFunctionName(source, target, options)
+            val resultFunName = copyFunctionName(source, target, options).toString()
 
             assertEquals(
                 expectedFunName,

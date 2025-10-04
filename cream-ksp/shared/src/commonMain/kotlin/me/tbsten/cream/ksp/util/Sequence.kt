@@ -1,6 +1,9 @@
 package me.tbsten.cream.ksp.util
 
-internal fun <T> Sequence<T>.isCountMoreThan(count: Int, include: Boolean): Boolean {
+import me.tbsten.cream.InternalCreamApi
+
+@InternalCreamApi
+fun <T> Sequence<T>.isCountMoreThan(count: Int, include: Boolean): Boolean {
     if (count < 0) return true // 負の数よりは常に多い
     val threshold = if (include) count else count + 1
     var currentCount = 0
@@ -11,7 +14,8 @@ internal fun <T> Sequence<T>.isCountMoreThan(count: Int, include: Boolean): Bool
     return false
 }
 
-internal fun <T> Sequence<T>.isCountLessThan(count: Int, include: Boolean): Boolean {
+@InternalCreamApi
+fun <T> Sequence<T>.isCountLessThan(count: Int, include: Boolean): Boolean {
     if (count < 0) return false // 負の数より少なくなることはない
     val threshold = if (include) count else count - 1
     if (threshold < 0) return false // 0未満の閾値より少なくなることはない (空のシーケンスの場合を除くが、その場合は currentCount < 0 となるので問題ない)

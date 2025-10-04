@@ -19,8 +19,8 @@ internal fun BufferedWriter.appendCopyToObjectFunction(
     appendLine(
         "${targetObject.visibilityStr} fun ${source.fullName}.${
             copyFunctionName(
-                source,
-                targetObject,
+                source.toClassDeclarationInfo(),
+                targetObject.toClassDeclarationInfo(),
                 options,
             )
         }() = ${targetObject.fullName}"

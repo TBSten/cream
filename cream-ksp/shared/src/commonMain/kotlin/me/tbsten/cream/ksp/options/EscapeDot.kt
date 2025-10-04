@@ -1,8 +1,11 @@
 package me.tbsten.cream.ksp.options
 
+import me.tbsten.cream.InternalCreamApi
+
 
 @Suppress("EnumEntryName")
-internal enum class EscapeDot(
+@InternalCreamApi
+enum class EscapeDot(
     val escape: (String) -> String,
 ) {
     `lower-camel-case`({

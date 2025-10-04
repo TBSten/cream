@@ -1,22 +1,37 @@
+import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
+
 plugins {
-    alias(libs.plugins.kotlinJvm)
+    alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.vanniktech.mavenPublish)
 }
 
 kotlin {
+    jvm()
+    js(IR) {
+        browser()
+        nodejs()
+    }
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        browser()
+        nodejs()
+    }
+
     compilerOptions.optIn.addAll(
-        "com.google.devtools.ksp.KspExperimental",
         "me.tbsten.cream.InternalCreamApi",
     )
-}
 
-dependencies {
-    implementation(project(":cream-runtime"))
-    implementation(project(":cream-ksp:shared"))
-    implementation(libs.kspApi)
-    implementation(kotlin("reflect"))
-    testImplementation(libs.kotlinTest)
-    testImplementation(libs.mockk)
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                implementation(project(":cream-runtime"))
+            }
+        }
+        val commonTest by getting {
+            dependencies {
+            }
+        }
+    }
 }
 
 mavenPublishing {
@@ -26,10 +41,10 @@ mavenPublishing {
         signAllPublications()
     }
 
-    coordinates(group.toString(), "cream-ksp", version.toString())
+    coordinates(group.toString(), "cream-ksp-shared", version.toString())
 
     pom {
-        name = "cream.kt ksp plugin"
+        name = "cream.kt ksp plugin shared logic"
         description = "cream.kt is a KSP Plugin that makes it easy to copy across classes."
         inceptionYear = "2025"
         url = "https://github.com/TBSten/cream/"

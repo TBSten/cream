@@ -16,4 +16,5 @@ dependencyResolutionManagement {
 rootProject.name = "cream"
 include(":cream-runtime")
 include(":cream-ksp")
+include(":cream-ksp:shared")
 include(":test")
