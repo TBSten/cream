@@ -1,0 +1,24 @@
+<resources>
+    <string name="reset">リセット</string>
+    <string name="app_title">cream.kt オプションビルダー</string>
+    <string name="options_heading">1. オプションを設定</string>
+    <string name="options_copy_fun_name_prefix_heading">copyFunNamePrefix</string>
+    <string name="options_copy_fun_name_prefix_description">生成されるコピー関数の先頭につく文字列</string>
+    <string name="options_copy_fun_naming_strategy_heading">copyFunNamingStrategy</string>
+    <string name="options_copy_fun_naming_strategy_description">コピー関数の命名方法。</string>
+    <string name="options_escape_dot_heading">escapeDot</string>
+    <string name="options_escape_dot_description">
+        cream.copyFunNamingStrategy で命名された名前に含まれる . をエスケープする方法。
+    </string>
+    <string name="options_not_copy_to_object_heading">notCopyToObject</string>
+    <string name="options_not_copy_to_object_description">
+        true の場合 @CopyToChildren で object へのコピー関数を生成しないようにします。
+    </string>
+    <string name="class_names_heading">2. コピー元/コピー先のクラス名を設定する (option)</string>
+    <string name="class_names_source_sub_heading">コピー元のクラス</string>
+    <string name="class_names_target_sub_heading">コピー先のクラス</string>
+    <string name="result_heading">3. Copy 関数名を確認</string>
+    <string name="gradle_setting_heading">4. セットアップする</string>
+    <string name="show_all">全て表示</string>
+    <string name="gradle_comment_select_ksp_version">あなたのプロジェクトの Kotlin バージョンに合った KSP バージョンを選択してください</string>
+</resources>
