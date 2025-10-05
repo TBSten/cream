@@ -12,7 +12,7 @@ import kotlin.test.assertEquals
 
 @Suppress("RemoveRedundantBackticks")
 internal class CopyFunctionNameTest {
-    private fun testCopyFunctionName(
+    private inline fun testCopyFunctionName(
         options: CreamOptions,
         vararg triples: Triple<KSClassDeclaration, KSClassDeclaration, String>,
     ) {
