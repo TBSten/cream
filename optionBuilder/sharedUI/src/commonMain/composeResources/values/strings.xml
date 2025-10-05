@@ -20,4 +20,5 @@
     <string name="result_heading">3. Check Copy Function Name</string>
     <string name="gradle_setting_heading">4. Setup</string>
     <string name="show_all">Show All</string>
+    <string name="gradle_comment_select_ksp_version">Choose a KSP version that matches your project\'s Kotlin version</string>
 </resources>

@@ -109,7 +109,7 @@ private fun CopyFunctionName(
     }
 }
 
-private fun gradleSettingCode(isFull: Boolean, options: CreamOptions): String {
+private fun gradleSettingCode(isFull: Boolean, options: CreamOptions, kspVersionComment: String): String {
     val kspVersion = BuildKonfig.kspVersion
     val creamVersion = BuildKonfig.creamVersion
 
@@ -117,8 +117,7 @@ private fun gradleSettingCode(isFull: Boolean, options: CreamOptions): String {
         """
         // build.gradle.kts
         plugins {
-            // あなたの プロジェクトの kotlin バージョンに合った 
-            // KSP バージョンを選択してください
+            // $kspVersionComment
             // https://github.com/google/ksp/releases
             id("com.google.devtools.ksp") version "$kspVersion"
         }
@@ -164,12 +163,13 @@ private fun GradleSetting(
             iconRes = Res.drawable.icon_code_block,
         )
 
-        val highlights = remember(isFull) {
+        val kspVersionComment = stringResource(Res.string.gradle_comment_select_ksp_version)
+        val highlights = remember(isFull, kspVersionComment) {
             mutableStateOf(
                 Highlights
                     .Builder(
                         language = SyntaxLanguage.KOTLIN,
-                        code = gradleSettingCode(isFull, options),
+                        code = gradleSettingCode(isFull, options, kspVersionComment),
                     )
                     .build()
             )

@@ -20,4 +20,5 @@
     <string name="result_heading">3. Copy 関数名を確認</string>
     <string name="gradle_setting_heading">4. セットアップする</string>
     <string name="show_all">全て表示</string>
+    <string name="gradle_comment_select_ksp_version">あなたのプロジェクトの Kotlin バージョンに合った KSP バージョンを選択してください</string>
 </resources>
