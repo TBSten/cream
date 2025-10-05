@@ -26,11 +26,11 @@ jobs:
 
       - name: Build publish js contents
         run: ./gradlew :optionBuilder:webApp:jsBrowserDistribution
-      - run: cp -r ./optionBuilder/webApp/build/dist/js/productionExecutable ./public/option-builder
+      - run: cp -r ./optionBuilder/webApp/build/dist/js/productionExecutable ./public
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
-          destination_dir: optionBuilder/
+          destination_dir: ./option-builder
