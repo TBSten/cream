@@ -1,0 +1,24 @@
+<resources>
+    <string name="reset">Reset</string>
+    <string name="app_title">cream.kt Option Builder</string>
+    <string name="options_heading">1. Configure Options</string>
+    <string name="options_copy_fun_name_prefix_heading">copyFunNamePrefix</string>
+    <string name="options_copy_fun_name_prefix_description">Prefix for generated copy functions</string>
+    <string name="options_copy_fun_naming_strategy_heading">copyFunNamingStrategy</string>
+    <string name="options_copy_fun_naming_strategy_description">Naming strategy for copy functions.</string>
+    <string name="options_escape_dot_heading">escapeDot</string>
+    <string name="options_escape_dot_description">
+        How to escape dots in names created by cream.copyFunNamingStrategy.
+    </string>
+    <string name="options_not_copy_to_object_heading">notCopyToObject</string>
+    <string name="options_not_copy_to_object_description">
+        When true, prevents generation of copy functions to object with @CopyToChildren.
+    </string>
+    <string name="class_names_heading">2. Set Source/Target Class Names (optional)</string>
+    <string name="class_names_source_sub_heading">Source Class</string>
+    <string name="class_names_target_sub_heading">Target Class</string>
+    <string name="result_heading">3. Check Copy Function Name</string>
+    <string name="gradle_setting_heading">4. Setup</string>
+    <string name="show_all">Show All</string>
+    <string name="gradle_comment_select_ksp_version">Choose a KSP version that matches your project\'s Kotlin version</string>
+</resources>

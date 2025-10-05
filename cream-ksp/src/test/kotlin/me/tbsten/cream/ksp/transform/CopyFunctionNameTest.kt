@@ -12,12 +12,12 @@ import kotlin.test.assertEquals
 
 @Suppress("RemoveRedundantBackticks")
 internal class CopyFunctionNameTest {
-    private fun testCopyFunctionName(
+    private inline fun testCopyFunctionName(
         options: CreamOptions,
         vararg triples: Triple<KSClassDeclaration, KSClassDeclaration, String>,
     ) {
         triples.forEach { (source, target, expectedFunName) ->
-            val resultFunName = copyFunctionName(source, target, options)
+            val resultFunName = copyFunctionName(source, target, options).toString()
 
             assertEquals(
                 expectedFunName,

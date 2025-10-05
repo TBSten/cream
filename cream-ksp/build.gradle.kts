@@ -4,11 +4,15 @@ plugins {
 }
 
 kotlin {
-    compilerOptions.optIn.add("com.google.devtools.ksp.KspExperimental")
+    compilerOptions.optIn.addAll(
+        "com.google.devtools.ksp.KspExperimental",
+        "me.tbsten.cream.InternalCreamApi",
+    )
 }
 
 dependencies {
     implementation(project(":cream-runtime"))
+    implementation(project(":cream-ksp:shared"))
     implementation(libs.kspApi)
     implementation(kotlin("reflect"))
     testImplementation(libs.kotlinTest)
