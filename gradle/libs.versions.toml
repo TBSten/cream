@@ -7,16 +7,21 @@ android-compileSdk = "36"
 ksp = "2.2.0-2.0.2"
 kotest = "5.9.1"
 mockk = "1.14.5"
+kodeview = "0.9.0"
+
 
 # option builder
 composeMultiplatform = "1.9.0"
 composeHotReload = "1.0.0-beta09"
+material-kolor = "3.0.1"
 
 [libraries]
 kotlinTest = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotest = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 kspApi = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+kodeview = { module = "dev.snipme:kodeview", version.ref = "kodeview" }
+materialKolor = { module = "com.materialkolor:material-kolor", version.ref = "material-kolor" }
 
 [plugins]
 androidLibrary = { id = "com.android.library", version.ref = "agp" }

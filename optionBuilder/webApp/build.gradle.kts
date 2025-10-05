@@ -10,11 +10,6 @@ kotlin {
         binaries.executable()
     }
 
-    wasmJs {
-        browser()
-        binaries.executable()
-    }
-
     sourceSets {
         commonMain.dependencies {
             implementation(project(":optionBuilder:sharedUI"))

@@ -57,7 +57,7 @@ fun Project.setupKspForMultiplatformWorkaround() {
     }
 
     tasks.configureEach {
-        if(name.startsWith("ksp") && name != "kspCommonMainKotlinMetadata") {
+        if (name.startsWith("ksp") && name != "kspCommonMainKotlinMetadata") {
             dependsOn(tasks.named("kspCommonMainKotlinMetadata"))
             enabled = false
         }

@@ -1,5 +1,4 @@
 import org.jetbrains.compose.ExperimentalComposeLibrary
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -12,8 +11,10 @@ kotlin {
     jvm()
 
     js { browser() }
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs { browser() }
+
+    compilerOptions.optIn.addAll(
+        "me.tbsten.cream.InternalCreamApi",
+    )
 
     sourceSets {
         commonMain.dependencies {
@@ -25,6 +26,8 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(project(":cream-runtime"))
             implementation(project(":cream-ksp:shared"))
+            implementation(libs.materialKolor)
+            implementation(libs.kodeview)
         }
 
         commonTest.dependencies {
