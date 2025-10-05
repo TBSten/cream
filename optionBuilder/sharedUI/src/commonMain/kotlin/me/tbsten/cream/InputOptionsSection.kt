@@ -43,8 +43,8 @@ fun InputOptionsSection(
                         value = option.copyFunNamingStrategy,
                         defaultValue = CreamOptions.default.copyFunNamingStrategy,
                         onChange = { onChange(option.copy(copyFunNamingStrategy = it)) },
-                        subHeadingRes = Res.string.options_copy_fun_name_prefix_heading,
-                        descriptionRes = Res.string.options_copy_fun_name_prefix_description,
+                        subHeadingRes = Res.string.options_copy_fun_naming_strategy_heading,
+                        descriptionRes = Res.string.options_copy_fun_naming_strategy_description,
                         modifier = Modifier.fillParentWidth(1f),
                     )
                     SelectOptionCard(

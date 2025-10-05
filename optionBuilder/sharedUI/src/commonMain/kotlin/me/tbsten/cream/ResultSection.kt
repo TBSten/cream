@@ -196,7 +196,7 @@ private fun GradleSetting(
                         checked = isFull,
                         onCheckedChange = { isFull = it },
                     )
-                    Text(text = "全て表示")
+                    Text(text = stringResource(Res.string.show_all))
                 }
 
                 HorizontalDivider()

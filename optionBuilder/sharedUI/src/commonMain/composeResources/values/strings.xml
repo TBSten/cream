@@ -20,4 +20,5 @@
     <string name="class_names_target_sub_heading">コピー先のクラス</string>
     <string name="result_heading">3. Copy 関数名を確認</string>
     <string name="gradle_setting_heading">4. セットアップする</string>
+    <string name="show_all">全て表示</string>
 </resources>

@@ -1,6 +1,7 @@
 package me.tbsten.cream.util
 
 import androidx.compose.runtime.*
+import kotlinx.coroutines.delay
 import kotlinx.serialization.KSerializer
 
 /**
@@ -18,6 +19,8 @@ fun <T> rememberSavableSessionState(
         .let(::mutableStateOf)
 }).also {
     LaunchedEffect(it.value) {
+        // Debounce URL updates to avoid excessive history.replaceState calls
+        delay(DEBOUNCE_DELAY_MS)
         runCatching {
             setToSavableSession(serializer, key, it.value)
         }.onFailure {
@@ -25,6 +28,8 @@ fun <T> rememberSavableSessionState(
         }
     }
 }
+
+private const val DEBOUNCE_DELAY_MS = 300L
 
 internal expect fun <T> getFromSavableSession(serializer: KSerializer<T>, key: String): T
 internal expect fun <T> setToSavableSession(serializer: KSerializer<T>, key: String, value: T)
