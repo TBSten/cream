@@ -5,7 +5,6 @@ import kotlinx.serialization.KSerializer
 
 /**
  * Web では クエリパラメータにJVM ではアプリ内に アプリ内ストレージに状態を保存する。
- *  に。
  */
 @Composable
 fun <T> rememberSavableSessionState(
