@@ -26,7 +26,7 @@ jobs:
 
       - name: Build publish js contents
         run: ./gradlew :optionBuilder:webApp:jsBrowserDistribution
-      - run: cp -r ./optionBuilder/webApp/build/dist/js/productionExecutable ./public
+      - run: cp -r ./optionBuilder/webApp/build/dist/js/productionExecutable/* ./public/
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
