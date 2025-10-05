@@ -6,14 +6,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.dp
 import me.tbsten.cream.components.CommonIconButton
 import me.tbsten.cream.components.CommonInputCard
 import me.tbsten.cream.components.Toggle
 import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.sharedui.generated.resources.*
-import me.tbsten.cream.theme.AppTextStyles
+import me.tbsten.cream.util.MediumColumnLargeRow
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import kotlin.enums.enumEntries
@@ -30,47 +29,36 @@ fun InputOptionsSection(
         info = stringResource(Res.string.options_heading_info_tooltip),
     ) {
         Column {
-            Text(
-                text = descriptionText(),
-                style = AppTextStyles.description,
-            )
-
-            Row(
-                modifier = Modifier.padding(vertical = 20.dp),
-                horizontalArrangement = Arrangement.spacedBy(20.dp),
-            ) {
-                InputTextOptionCard(
-                    value = option.copyFunNamePrefix,
-                    defaultValue = CreamOptions.default.copyFunNamePrefix,
-                    onChange = { onChange(option.copy(copyFunNamePrefix = it)) },
-                    subHeadingRes = Res.string.options_copy_fun_name_prefix_heading,
-                    descriptionRes = Res.string.options_copy_fun_name_prefix_description,
-                    modifier = Modifier.weight(1f),
-                )
-                SelectOptionCard(
-                    value = option.copyFunNamingStrategy,
-                    defaultValue = CreamOptions.default.copyFunNamingStrategy,
-                    onChange = { onChange(option.copy(copyFunNamingStrategy = it)) },
-                    subHeadingRes = Res.string.options_copy_fun_name_prefix_heading,
-                    descriptionRes = Res.string.options_copy_fun_name_prefix_description,
-                    modifier = Modifier.weight(1f),
-                )
-                SelectOptionCard(
-                    value = option.escapeDot,
-                    defaultValue = CreamOptions.default.escapeDot,
-                    onChange = { onChange(option.copy(escapeDot = it)) },
-                    subHeadingRes = Res.string.options_escape_dot_heading,
-                    descriptionRes = Res.string.options_escape_dot_description,
-                    modifier = Modifier.weight(1f),
-                )
+            Row(modifier = Modifier.padding(vertical = 20.dp)) {
+                MediumColumnLargeRow(space = 20.dp) {
+                    InputTextOptionCard(
+                        value = option.copyFunNamePrefix,
+                        defaultValue = CreamOptions.default.copyFunNamePrefix,
+                        onChange = { onChange(option.copy(copyFunNamePrefix = it)) },
+                        subHeadingRes = Res.string.options_copy_fun_name_prefix_heading,
+                        descriptionRes = Res.string.options_copy_fun_name_prefix_description,
+                        modifier = Modifier.fillParentWidth(1f),
+                    )
+                    SelectOptionCard(
+                        value = option.copyFunNamingStrategy,
+                        defaultValue = CreamOptions.default.copyFunNamingStrategy,
+                        onChange = { onChange(option.copy(copyFunNamingStrategy = it)) },
+                        subHeadingRes = Res.string.options_copy_fun_name_prefix_heading,
+                        descriptionRes = Res.string.options_copy_fun_name_prefix_description,
+                        modifier = Modifier.fillParentWidth(1f),
+                    )
+                    SelectOptionCard(
+                        value = option.escapeDot,
+                        defaultValue = CreamOptions.default.escapeDot,
+                        onChange = { onChange(option.copy(escapeDot = it)) },
+                        subHeadingRes = Res.string.options_escape_dot_heading,
+                        descriptionRes = Res.string.options_escape_dot_description,
+                        modifier = Modifier.fillParentWidth(1f),
+                    )
+                }
             }
         }
     }
-}
-
-@Composable
-private fun descriptionText() = buildAnnotatedString {
-    append(stringResource(Res.string.options_description_1))
 }
 
 @Composable

@@ -3,7 +3,6 @@
     <string name="reset">リセット</string>
     <string name="options_heading">オプション</string>
     <string name="options_heading_info_tooltip">About cream.kt options</string>
-    <string name="options_description_1">cream.kt では 生成されるコピー関数の名前のカスタマイズが可能です。</string>
     <string name="options_copy_fun_name_prefix_heading">copyFunNamePrefix</string>
     <string name="options_copy_fun_name_prefix_description">生成されるコピー関数の先頭につく文字列</string>
     <string name="options_copy_fun_naming_strategy_heading">copyFunNamingStrategy</string>

@@ -1,3 +1,4 @@
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import org.jetbrains.compose.ExperimentalComposeLibrary
 
 plugins {
@@ -6,6 +7,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeHotReload)
     alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.buildKonfig)
 }
 
 kotlin {
@@ -45,4 +47,12 @@ kotlin {
 
     }
 
+}
+
+buildkonfig {
+    packageName = "me.tbsten.cream"
+    defaultConfigs {
+        buildConfigField(STRING, "creamVersion", libs.versions.cream.get())
+        buildConfigField(STRING, "kspVersion", libs.versions.ksp.get())
+    }
 }
