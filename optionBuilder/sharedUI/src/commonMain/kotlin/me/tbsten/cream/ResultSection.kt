@@ -12,11 +12,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,12 +24,13 @@ import dev.snipme.highlights.Highlights
 import dev.snipme.highlights.model.SyntaxLanguage
 import generateAnnotatedString
 import kotlinx.serialization.builtins.serializer
+import me.tbsten.cream.components.HeadingText
 import me.tbsten.cream.ksp.options.ClassDeclarationInfo
 import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.transform.copyFunctionName
-import me.tbsten.cream.sharedui.generated.resources.Res
-import me.tbsten.cream.sharedui.generated.resources.result_heading
-import me.tbsten.cream.theme.AppTextStyles
+import me.tbsten.cream.sharedui.generated.resources.*
+import me.tbsten.cream.theme.MainGradient
+import me.tbsten.cream.theme.SubGradient
 import me.tbsten.cream.util.MediumColumnLargeRow
 import me.tbsten.cream.util.adaptive
 import me.tbsten.cream.util.rememberSavableSessionState
@@ -42,18 +43,12 @@ fun ResultSection(
     targetClass: ClassDeclarationInfo,
 ) {
     Column {
-        Text(
-            text = stringResource(Res.string.result_heading),
-            style = AppTextStyles.heading,
-            modifier = Modifier.padding(top = 12.dp, bottom = 8.dp),
-        )
-
         MediumColumnLargeRow(space = 20.dp) {
             CopyFunctionName(
                 options = options,
                 sourceClass = sourceClass,
                 targetClass = targetClass,
-                modifier = Modifier.fillParentWidth(2f).padding(top = 40.dp, bottom = 20.dp),
+                modifier = Modifier.fillParentWidth(2f),
             )
 
             GradleSetting(
@@ -75,22 +70,41 @@ private fun CopyFunctionName(
     val copyFunName = copyFunctionName(source = sourceClass, target = targetClass, options = options)
 
     Column(modifier = modifier) {
-        val fontSize = adaptive(small = 28.sp, medium = 48.sp)
+        HeadingText(
+            heading = stringResource(Res.string.result_heading),
+            iconRes = Res.drawable.icon_circle_check,
+        )
+
+        val smallFontSize = adaptive(small = 24.sp, medium = 40.sp)
+        val largeFontSize = adaptive(small = 28.sp, medium = 48.sp)
 
         Text(
             buildAnnotatedString {
                 appendLine("${sourceClass.underPackageName}.")
-                withStyle(SpanStyle(brush = Brush.linearGradient(0f to Color.Yellow, 1f to Color.Green))) {
+                withStyle(
+                    SpanStyle(
+                        brush = MainGradient,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = largeFontSize
+                    )
+                ) {
                     append(copyFunName.prefix)
                 }
-                withStyle(SpanStyle(brush = Brush.linearGradient(0f to Color.Red, 1f to Color.Blue))) {
+                withStyle(
+                    SpanStyle(
+                        brush = SubGradient,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = largeFontSize
+                    )
+                ) {
                     append(copyFunName.targetName)
                 }
                 append("(...)")
             },
             color = Color.Gray,
-            fontSize = fontSize,
-            lineHeight = fontSize,
+            fontSize = smallFontSize,
+            lineHeight = smallFontSize,
+            modifier = Modifier.padding(vertical = 48.dp)
         )
     }
 }
@@ -140,11 +154,16 @@ private fun GradleSetting(
     modifier: Modifier = Modifier,
 ) {
     var isFull by rememberSavableSessionState(
-        "",
+        "full-code",
         Boolean.serializer(),
     ) { false }
 
     Column(modifier = modifier) {
+        HeadingText(
+            heading = stringResource(Res.string.gradle_setting_heading),
+            iconRes = Res.drawable.icon_code_block,
+        )
+
         val highlights = remember(isFull) {
             mutableStateOf(
                 Highlights

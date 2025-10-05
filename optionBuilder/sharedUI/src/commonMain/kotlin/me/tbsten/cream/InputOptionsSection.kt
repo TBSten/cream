@@ -9,10 +9,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import me.tbsten.cream.components.CommonIconButton
 import me.tbsten.cream.components.CommonInputCard
-import me.tbsten.cream.components.Toggle
+import me.tbsten.cream.components.ToggleHeadingText
 import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.sharedui.generated.resources.*
-import me.tbsten.cream.util.MediumColumnLargeRow
+import me.tbsten.cream.util.SmallColumnMediumRow
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import kotlin.enums.enumEntries
@@ -23,14 +23,14 @@ fun InputOptionsSection(
     option: CreamOptions,
     onChange: (CreamOptions) -> Unit,
 ) {
-    Toggle(
+    ToggleHeadingText(
         heading = stringResource(Res.string.options_heading),
+        iconRes = Res.drawable.icon_build,
         isDefaultOpen = true,
-        info = stringResource(Res.string.options_heading_info_tooltip),
     ) {
         Column {
             Row(modifier = Modifier.padding(vertical = 20.dp)) {
-                MediumColumnLargeRow(space = 20.dp) {
+                SmallColumnMediumRow(space = 20.dp) {
                     InputTextOptionCard(
                         value = option.copyFunNamePrefix,
                         defaultValue = CreamOptions.default.copyFunNamePrefix,

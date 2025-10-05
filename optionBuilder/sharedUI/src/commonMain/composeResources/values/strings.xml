@@ -1,8 +1,8 @@
 <resources>
     <!--  TODO translate to en  -->
     <string name="reset">リセット</string>
-    <string name="options_heading">オプション</string>
-    <string name="options_heading_info_tooltip">About cream.kt options</string>
+    <string name="app_title">cream.kt オプションビルダー</string>
+    <string name="options_heading">1. オプションを設定</string>
     <string name="options_copy_fun_name_prefix_heading">copyFunNamePrefix</string>
     <string name="options_copy_fun_name_prefix_description">生成されるコピー関数の先頭につく文字列</string>
     <string name="options_copy_fun_naming_strategy_heading">copyFunNamingStrategy</string>
@@ -15,8 +15,9 @@
     <string name="options_not_copy_to_object_description">
         true の場合 @CopyToChildren で object へのコピー関数を生成しないようにします。
     </string>
-    <string name="class_names_heading">コピー元/コピー先のクラス名</string>
+    <string name="class_names_heading">2. コピー元/コピー先のクラス名を設定する (option)</string>
     <string name="class_names_source_sub_heading">コピー元のクラス</string>
     <string name="class_names_target_sub_heading">コピー先のクラス</string>
-    <string name="result_heading">Copy 関数名</string>
+    <string name="result_heading">3. Copy 関数名を確認</string>
+    <string name="gradle_setting_heading">4. セットアップする</string>
 </resources>

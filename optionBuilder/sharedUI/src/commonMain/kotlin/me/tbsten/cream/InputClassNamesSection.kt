@@ -1,6 +1,5 @@
 package me.tbsten.cream
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.OutlinedTextField
@@ -9,11 +8,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import me.tbsten.cream.components.CommonInputCard
-import me.tbsten.cream.components.Toggle
-import me.tbsten.cream.sharedui.generated.resources.Res
-import me.tbsten.cream.sharedui.generated.resources.class_names_heading
-import me.tbsten.cream.sharedui.generated.resources.class_names_source_sub_heading
-import me.tbsten.cream.sharedui.generated.resources.class_names_target_sub_heading
+import me.tbsten.cream.components.ToggleHeadingText
+import me.tbsten.cream.sharedui.generated.resources.*
+import me.tbsten.cream.util.SmallColumnMediumRow
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -24,25 +21,30 @@ fun InputClassNamesSection(
     targetClass: OptionBuilderClassDeclarationInfo,
     onTargetClassChange: (OptionBuilderClassDeclarationInfo) -> Unit,
 ) {
-    Toggle(
+    ToggleHeadingText(
         heading = stringResource(Res.string.class_names_heading),
+        iconRes = Res.drawable.icon_slab,
         isDefaultOpen = false,
+        placeholder = {
+            Text(text = "${sourceClass.fullName} -> ${targetClass.fullName}")
+        },
     ) {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            ClassInputCard(
-                value = sourceClass,
-                onValueChange = onSourceClassChange,
-                subHeadingRes = Res.string.class_names_source_sub_heading,
-            )
+            SmallColumnMediumRow(space = 12.dp) {
+                ClassInputCard(
+                    value = sourceClass,
+                    onValueChange = onSourceClassChange,
+                    subHeadingRes = Res.string.class_names_source_sub_heading,
+                )
 
-            ClassInputCard(
-                value = targetClass,
-                onValueChange = onTargetClassChange,
-                subHeadingRes = Res.string.class_names_target_sub_heading,
-            )
+                ClassInputCard(
+                    value = targetClass,
+                    onValueChange = onTargetClassChange,
+                    subHeadingRes = Res.string.class_names_target_sub_heading,
+                )
+            }
         }
     }
 }

@@ -86,6 +86,18 @@ fun <S> AdaptiveContainer(
 }
 
 @Composable
+fun SmallColumnMediumRow(
+    space: Dp = 0.dp,
+    content: @Composable ColumnOrRowScope.() -> Unit,
+) = AdaptiveContainer<ColumnOrRowScope>(
+    small = { Column(verticalArrangement = Arrangement.spacedBy(space)) { it(ColumnOrRowScope(columnScope = this)) } },
+    medium = { Row(horizontalArrangement = Arrangement.spacedBy(space)) { it(ColumnOrRowScope(rowScope = this)) } },
+    content = {
+        content()
+    },
+)
+
+@Composable
 fun MediumColumnLargeRow(
     space: Dp = 0.dp,
     content: @Composable ColumnOrRowScope.() -> Unit,

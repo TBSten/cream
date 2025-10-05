@@ -8,6 +8,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.unit.dp
@@ -19,13 +20,15 @@ import org.jetbrains.compose.resources.painterResource
 fun CommonIcon(
     icon: DrawableResource,
     contentDescription: String,
+    color: Color,
 ) {
     Icon(
         painter = painterResource(icon),
         contentDescription = contentDescription,
+        tint = color,
         modifier = Modifier
             .hoverable(remember { MutableInteractionSource() })
             .pointerHoverIcon(PointerIcon.Crosshair)
-            .size(12.dp),
+            .size(24.dp),
     )
 }

@@ -1,6 +1,8 @@
 package me.tbsten.cream.theme
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -31,7 +33,7 @@ fun AppTheme(
                     state = dynamicThemeState,
                     animate = true,
                 ) {
-                    Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
+                    Background {
                         content()
                     }
                 }
@@ -42,3 +44,18 @@ fun AppTheme(
 
 @Composable
 internal expect fun PlatformAppTheme(content: @Composable () -> Unit)
+
+@Composable
+internal fun Background(content: @Composable () -> Unit) {
+
+
+    Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .background(backgroundGradient())
+                .fillMaxSize()
+        ) {
+            content()
+        }
+    }
+}
