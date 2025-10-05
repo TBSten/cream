@@ -25,8 +25,8 @@ jobs:
       - run: mkdir ./public
 
       - name: Build publish js contents
-        run: ./gradlew :optionBuilder:webApp:wasmJsBrowserDistribution
-      - run: cp -r ./optionBuilder/webApp/build/dist/wasmJs/productionExecutable ./public/option-builder
+        run: ./gradlew :optionBuilder:webApp:jsBrowserDistribution
+      - run: cp -r ./optionBuilder/webApp/build/dist/js/productionExecutable ./public/option-builder
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v4
