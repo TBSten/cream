@@ -274,6 +274,8 @@ fun DataModel.copyToDomainModel(
 生成される copy 関数の名前をカスタマイズするためのいくつかのオプションが用意されています。
 すべてのオプションの設定は任意です。必要に応じて設定してください。
 
+各オプションの動作を確認するためには [Option Builder](http://tbsten.github.io/cream/option-builder) が便利です。
+
 各オプション設定時の生成されるコピー関数名の詳細な例は、
 [@CopyFunctionNameTest.kt](./cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/transform/CopyFunctionNameTest.kt)
 のテストケースも参考にしてください。

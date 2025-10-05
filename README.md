@@ -281,6 +281,8 @@ fun DataModel.copyToDomainModel(
 Several options are provided to customize the name of the generated copy function.
 All options are optional. Set them as needed.
 
+[Option Builder](http://tbsten.github.io/cream/option-builder) is useful for verifying the behavior of each option.
+
 For a detailed example of the copy function name generated when setting each option, see
 [@CopyFunctionNameTest.kt](./cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/transform/CopyFunctionNameTest.kt)
 See also the test case at .
