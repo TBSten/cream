@@ -8,13 +8,13 @@ import kotlinx.serialization.KSerializer
  * Web では クエリパラメータにJVM ではアプリ内に アプリ内ストレージに状態を保存する。
  */
 @Composable
-fun <T> rememberSavableSessionState(
+fun <T> rememberShareableState(
     key: String,
     serializer: KSerializer<T>,
     calculation: @DisallowComposableCalls () -> T,
 ) = remember(key1 = key, calculation = {
     runCatching {
-        getFromSavableSession<T>(serializer = serializer, key = key)
+        getFromShareableState<T>(serializer = serializer, key = key)
     }.getOrElse { calculation() }
         .let(::mutableStateOf)
 }).also {
@@ -22,7 +22,7 @@ fun <T> rememberSavableSessionState(
         // Debounce URL updates to avoid excessive history.replaceState calls
         delay(DEBOUNCE_DELAY_MS)
         runCatching {
-            setToSavableSession(serializer, key, it.value)
+            setToShareableState(serializer, key, it.value)
         }.onFailure {
             it.printStackTrace()
         }
@@ -31,5 +31,5 @@ fun <T> rememberSavableSessionState(
 
 private const val DEBOUNCE_DELAY_MS = 300L
 
-internal expect fun <T> getFromSavableSession(serializer: KSerializer<T>, key: String): T
-internal expect fun <T> setToSavableSession(serializer: KSerializer<T>, key: String, value: T)
+internal expect fun <T> getFromShareableState(serializer: KSerializer<T>, key: String): T
+internal expect fun <T> setToShareableState(serializer: KSerializer<T>, key: String, value: T)

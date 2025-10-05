@@ -33,7 +33,7 @@ import me.tbsten.cream.theme.MainGradient
 import me.tbsten.cream.theme.SubGradient
 import me.tbsten.cream.util.MediumColumnLargeRow
 import me.tbsten.cream.util.adaptive
-import me.tbsten.cream.util.rememberSavableSessionState
+import me.tbsten.cream.util.rememberShareableState
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -153,7 +153,7 @@ private fun GradleSetting(
     options: CreamOptions,
     modifier: Modifier = Modifier,
 ) {
-    var isFull by rememberSavableSessionState(
+    var isFull by rememberShareableState(
         "full-code",
         Boolean.serializer(),
     ) { false }

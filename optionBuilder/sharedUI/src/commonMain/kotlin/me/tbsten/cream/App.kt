@@ -17,23 +17,23 @@ import me.tbsten.cream.sharedui.generated.resources.Res
 import me.tbsten.cream.sharedui.generated.resources.app_title
 import me.tbsten.cream.theme.AppTextStyles
 import me.tbsten.cream.theme.AppTheme
-import me.tbsten.cream.util.rememberSavableSessionState
+import me.tbsten.cream.util.rememberShareableState
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Preview
 @Composable
 fun App() = AppTheme {
-    var option by rememberSavableSessionState("option", CreamOptions.serializer()) {
+    var option by rememberShareableState("option", CreamOptions.serializer()) {
         CreamOptions.default
     }
-    var sourceClass by rememberSavableSessionState(
+    var sourceClass by rememberShareableState(
         "source",
         OptionBuilderClassDeclarationInfo.serializer(),
     ) {
         OptionBuilderClassDeclarationInfo("com.myapp", "MyUiState")
     }
-    var targetClass by rememberSavableSessionState(
+    var targetClass by rememberShareableState(
         "target",
         OptionBuilderClassDeclarationInfo.serializer(),
     ) {

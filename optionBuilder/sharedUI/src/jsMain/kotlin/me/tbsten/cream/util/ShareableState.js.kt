@@ -10,7 +10,7 @@ private val json = Json {
     ignoreUnknownKeys = true
 }
 
-internal actual fun <T> getFromSavableSession(serializer: KSerializer<T>, key: String): T =
+internal actual fun <T> getFromShareableState(serializer: KSerializer<T>, key: String): T =
     getQueryParameter(key)
         ?.let { paramValue ->
             runCatching { json.decodeFromString(serializer, paramValue) }
@@ -26,7 +26,7 @@ private fun getQueryParameter(key: String): String? {
     return queryParameters.get(key)
 }
 
-internal actual fun <T> setToSavableSession(
+internal actual fun <T> setToShareableState(
     serializer: KSerializer<T>,
     key: String,
     value: T
