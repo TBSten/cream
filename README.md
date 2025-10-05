@@ -276,7 +276,21 @@ fun DataModel.copyToDomainModel(
 )
 ```
 
-## 🔨 4. Options
+## 💻 4. 利用例
+
+The primary use cases for cream.kt are outlined below.
+Using the [Context7](https://context7.com/) for each use case allows you to instantly apply cream.kt's information to
+your generative AI, which should be convenient.
+
+- Improve state transition code in state management using sealed interfaces/classes in ViewModels, etc.
+    - [Context7 Documentation](https://context7.com/tbsten/cream?topic=Improve+ViewModel+state+management&tokens=2000)
+- Improve data model copying when transforming data models across layers such as Data <-> Domain.
+    - [Context7 Documentation](https://context7.com/tbsten/cream?topic=Cross-Layer+Data+Model+Copy&tokens=2000)
+
+(This is just one example of usage and does not limit the scope of cream.kt. If you encounter issues with other use
+cases, please create an issue.)
+
+## 🔨 5. Options
 
 Several options are provided to customize the name of the generated copy function.
 All options are optional. Set them as needed.
