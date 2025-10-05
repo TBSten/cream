@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeHotReload)
+    alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
@@ -26,6 +27,8 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(project(":cream-runtime"))
             implementation(project(":cream-ksp:shared"))
+            implementation(libs.kotlinxCoroutines)
+            implementation(libs.kotlinxSerializationJson)
             implementation(libs.materialKolor)
             implementation(libs.kodeview)
         }

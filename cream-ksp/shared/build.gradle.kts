@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.vanniktech.mavenPublish)
+    alias(libs.plugins.kotlinSerialization)
 }
 
 kotlin {
@@ -25,6 +26,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(project(":cream-runtime"))
+                implementation(libs.kotlinxSerializationCore)
             }
         }
         val commonTest by getting {
