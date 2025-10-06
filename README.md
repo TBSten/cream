@@ -276,7 +276,7 @@ fun DataModel.copyToDomainModel(
 )
 ```
 
-## 💻 4. 利用例
+## 💻 4. Usage Example
 
 The primary use cases for cream.kt are outlined below.
 Using the [Context7](https://context7.com/) for each use case allows you to instantly apply cream.kt's information to
