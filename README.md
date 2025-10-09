@@ -7,7 +7,7 @@ English |
 <a href="https://github.com/TBSten/cream/blob/main/README.ja.md">日本語</a> |
 <a href="https://deepwiki.com/TBSten/cream">DeepWiki</a>
 
-cream.kt is a KSP Plugin that makes it easy to **copy across classes**.
+cream.kt is a KSP Plugin that enables **declarative data copy** and makes it easy to **copy across classes**.
 
 Automatically generates a Mapper that copies an object to another instance of approximately the same
 class.
