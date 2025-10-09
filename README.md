@@ -236,6 +236,71 @@ fun UiState.copyToUiStateSuccessRefreshing(
 
 This is much easier than specifying @CopyTo for each sealed class/interface.
 
+### MutableCopyTo
+
+Generates mutable copy functions that copy properties from the source object to an existing mutable target object with explicit parameter values. Properties with matching names and types use source values as defaults.
+
+This is particularly useful when implementing Modifier.Node in Compose, where you need to update existing mutable objects.
+
+```kt
+@MutableCopyTo(MutableTarget::class)
+data class Source(
+    val prop1: String,
+    val prop2: Int,
+    val sharedProp: String,
+)
+
+data class MutableTarget(
+    var prop1: String,
+    var prop2: Int,
+    var sharedProp: String,
+    var targetOnlyProp: String,
+)
+
+// auto generate
+fun Source.copyToMutableTarget(
+    mutableTarget: MutableTarget,
+    prop1: String = this.prop1,
+    prop2: Int = this.prop2,
+    sharedProp: String = this.sharedProp,
+    targetOnlyProp: String,
+): MutableTarget {
+    mutableTarget.prop1 = prop1
+    mutableTarget.prop2 = prop2
+    mutableTarget.sharedProp = sharedProp
+    mutableTarget.targetOnlyProp = targetOnlyProp
+    return mutableTarget
+}
+
+// usage
+val source = Source("test1", 42, "shared")
+val target = MutableTarget("old1", 0, "old_shared", "target_only")
+
+val result = source.copyToMutableTarget(
+    mutableTarget = target,
+    targetOnlyProp = "customized_target"
+)
+
+// result.prop1 == "test1" (from source default)
+// result.prop2 == 42 (from source default)
+// result.sharedProp == "shared" (from source default)
+// result.targetOnlyProp == "customized_target" (explicitly set)
+// result === target (same instance)
+```
+
+#### Options Support
+
+MutableCopyTo supports custom function naming through the `copyFunNamePrefix` parameter:
+
+```kt
+@MutableCopyTo(Target::class, copyFunNamePrefix = "updateWith")
+data class Source(val prop: String)
+
+data class Target(var prop: String, var extra: String)
+
+// generates: source.updateWithTarget(mutableTarget = target, extra = "value")
+```
+
 ### CopyTo.Map, CopyFrom.Map
 
 You can use `@CopyTo.Map` and `@CopyFrom.Map` to map properties between source and target

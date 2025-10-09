@@ -10,8 +10,10 @@ import com.google.devtools.ksp.validate
 import me.tbsten.cream.CopyFrom
 import me.tbsten.cream.CopyTo
 import me.tbsten.cream.CopyToChildren
+import me.tbsten.cream.MutableCopyTo
 import me.tbsten.cream.ksp.options.toCreamOptions
 import me.tbsten.cream.ksp.transform.appendCopyFunction
+import me.tbsten.cream.ksp.transform.appendMutableCopyFunction
 import me.tbsten.cream.ksp.util.fullName
 import me.tbsten.cream.ksp.util.isSealed
 import me.tbsten.cream.ksp.util.underPackageName
@@ -33,6 +35,9 @@ class CreamSymbolProcessor(
             .also { invalidTargets.addAll(it) }
 
         processCopyToChildren(resolver)
+            .also { invalidTargets.addAll(it) }
+
+        processMutableCopyTo(resolver)
             .also { invalidTargets.addAll(it) }
 
         return invalidTargets
@@ -217,6 +222,75 @@ class CreamSymbolProcessor(
         }
 
         return invalidCopyToChildrenTargets
+    }
+
+    private fun processMutableCopyTo(resolver: Resolver): List<KSAnnotated> {
+        val (mutableCopyToTargets, invalidMutableCopyToTargets) = resolver.getSymbolsWithAnnotation(
+            annotationName = MutableCopyTo::class.fullName,
+        ).partition { it.validate() }
+
+        mutableCopyToTargets.forEach { target ->
+            val sourceClass = (target as? KSClassDeclaration)
+                ?: throw InvalidCreamUsageException(
+                    message = "@${MutableCopyTo::class.simpleName} must be applied to a class or interface.",
+                    solution = "Please apply @${MutableCopyTo::class.simpleName} to `class or interface`",
+                )
+
+            // Get annotation details
+            val mutableCopyToAnnotation = target
+                .annotations
+                .first { it.annotationType.resolve().declaration.fullName == MutableCopyTo::class.qualifiedName }
+            
+            // MutableCopyTo.targets: List<KClass<*>>
+            val targetClasses = mutableCopyToAnnotation.arguments
+                .filter { it.name?.asString() == "targets" }
+                .map { it.value }
+                .filterIsInstance<List<KSType>>()
+                .flatten()
+                .map { it.declaration }
+                .map {
+                    it as? KSClassDeclaration
+                        ?: throw InvalidCreamUsageException(
+                            message = "${it.fullName} (Specified in @${MutableCopyTo::class.simpleName}.targets of ${target.fullName}) must be class.",
+                            solution = "Specify class or interface in @${MutableCopyTo::class.simpleName}.targets of ${target.fullName}.",
+                        )
+                }
+            
+            // MutableCopyTo.copyFunNamePrefix: String
+            val copyFunNamePrefix = mutableCopyToAnnotation.arguments
+                .find { it.name?.asString() == "copyFunNamePrefix" }
+                ?.value as? String ?: ""
+            
+            // Create options with annotation-specific prefix
+            val mutableCopyOptions = if (copyFunNamePrefix.isNotEmpty()) {
+                options.copy(copyFunNamePrefix = copyFunNamePrefix)
+            } else {
+                options
+            }
+
+            codeGenerator
+                .createNewKotlinFile(
+                    dependencies = Dependencies(aggregating = true, sourceClass.containingFile!!),
+                    packageName = sourceClass.packageName,
+                    fileName = "MutableCopyTo__${sourceClass.underPackageName}",
+                ) {
+                    it.appendLine("import me.tbsten.cream.*")
+                    it.appendLine()
+
+                    targetClasses.forEach { targetClass ->
+                        // generate sourceClass to targetClass mutable copy function
+                        it.appendMutableCopyFunction(
+                            source = sourceClass,
+                            target = targetClass,
+                            options = mutableCopyOptions,
+                            omitPackages = listOf("kotlin", sourceClass.packageName.asString()),
+                            generateSourceAnnotation =
+                                GenerateSourceAnnotation.MutableCopyTo(annotationTarget = target),
+                        )
+                    }
+                }
+        }
+        return invalidMutableCopyToTargets
     }
 }
 
