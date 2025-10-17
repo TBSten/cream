@@ -269,6 +269,35 @@ fun DataModel.copyToDomainModel(
 )
 ```
 
+### CopyMapping
+
+コピー元/コピー先クラスが両方とも自分のソースコードではないが、コピー関数を生成したい場合は CopyMapping を使用できます。
+これにより コピー元クラス, コピー先クラスを両方とも一切編集することなく それらの関数のコピー関数を生成することが可能です。
+
+```kt
+// in library X
+data class LibXModel(
+    val shareProp: String,
+    val xProp: Int,
+)
+
+// in library Y
+data class LibYModel(
+    val shareProp: String,
+    val yProp: Int,
+)
+
+// in your module
+@CopyMapping(LibXModel::class, LibYModel::class)
+private object Mapping
+
+// auto generate
+fun LibXModel.copyToLibYModel(
+    shareProp: String = this.sharedProp,
+    yProp: Int,
+): LibYModel = ...
+```
+
 ## 💻 4. 利用例
 
 主に想定されている cream.kt のユースケースを以下に示します。

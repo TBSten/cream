@@ -276,6 +276,34 @@ fun DataModel.copyToDomainModel(
 )
 ```
 
+### CopyMapping
+
+If you want to generate a copy function between classes where neither the source nor destination is in your own source code, you can use CopyMapping. This allows you to generate copy functions between library classes without modifying either class at all.
+
+```kt
+// in library X
+data class LibXModel(
+    val shareProp: String,
+    val xProp: Int,
+)
+
+// in library Y
+data class LibYModel(
+    val shareProp: String,
+    val yProp: Int,
+)
+
+// in your module
+@CopyMapping(LibXModel::class, LibYModel::class)
+private object Mapping
+
+// auto generate
+fun LibXModel.copyToLibYModel(
+    shareProp: String = this.sharedProp,
+    yProp: Int,
+): LibYModel = ...
+```
+
 ## 💻 4. Usage Example
 
 The primary use cases for cream.kt are outlined below.
