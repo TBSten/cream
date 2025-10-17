@@ -13,7 +13,7 @@ internal fun KSValueParameter.findMatchedProperty(
     generateSourceAnnotation: GenerateSourceAnnotation<*>,
 ): KSPropertyDeclaration? {
     val parameterName = this.name?.asString()
-    if (parameterName == null) return null
+        ?: return null
 
     findSourcePropertyWithCopyToAnnotation(source, parameterName)
         ?.let { return it }
