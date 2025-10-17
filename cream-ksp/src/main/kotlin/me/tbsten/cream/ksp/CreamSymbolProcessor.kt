@@ -8,6 +8,7 @@ import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.symbol.*
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CopyFrom
+import me.tbsten.cream.CopyMapping
 import me.tbsten.cream.CopyTo
 import me.tbsten.cream.CopyToChildren
 import me.tbsten.cream.ksp.options.toCreamOptions
@@ -33,6 +34,9 @@ class CreamSymbolProcessor(
             .also { invalidTargets.addAll(it) }
 
         processCopyToChildren(resolver)
+            .also { invalidTargets.addAll(it) }
+
+        processCopyMapping(resolver)
             .also { invalidTargets.addAll(it) }
 
         return invalidTargets
@@ -217,6 +221,106 @@ class CreamSymbolProcessor(
         }
 
         return invalidCopyToChildrenTargets
+    }
+
+    private fun processCopyMapping(resolver: Resolver): List<KSAnnotated> {
+        val (copyMappingTargets, invalidCopyMappingTargets) = resolver.getSymbolsWithAnnotation(
+            annotationName = CopyMapping::class.fullName,
+        ).partition { it.validate() }
+
+        copyMappingTargets.forEach { target ->
+            val annotatedDeclaration = (target as? KSClassDeclaration)
+                ?: throw InvalidCreamUsageException(
+                    message = "@${CopyMapping::class.simpleName} must be applied to a class.",
+                    solution = "Please apply @${CopyMapping::class.simpleName} to a `class` or `object`",
+                )
+
+            // Extract all CopyMapping annotations from the target
+            val copyMappings = target
+                .annotations
+                .filter { it.annotationType.resolve().declaration.fullName == CopyMapping::class.qualifiedName }
+                .map { annotation ->
+                    val sourceType = annotation.arguments
+                        .firstOrNull { it.name?.asString() == "source" }
+                        ?.value as? KSType
+                        ?: throw InvalidCreamUsageException(
+                            message = "source parameter is required in @${CopyMapping::class.simpleName}",
+                            solution = "Specify source class in @${CopyMapping::class.simpleName}",
+                        )
+
+                    val targetType = annotation.arguments
+                        .firstOrNull { it.name?.asString() == "target" }
+                        ?.value as? KSType
+                        ?: throw InvalidCreamUsageException(
+                            message = "target parameter is required in @${CopyMapping::class.simpleName}",
+                            solution = "Specify target class in @${CopyMapping::class.simpleName}",
+                        )
+
+                    val canReverse = annotation.arguments
+                        .firstOrNull { it.name?.asString() == "canReverse" }
+                        ?.value as? Boolean
+                        ?: false
+
+                    val sourceClass = sourceType.declaration as? KSClassDeclaration
+                        ?: throw InvalidCreamUsageException(
+                            message = "${sourceType.declaration.fullName} (Specified in @${CopyMapping::class.simpleName}.source) must be a class.",
+                            solution = "Specify a class in @${CopyMapping::class.simpleName}.source",
+                        )
+
+                    val targetClass = targetType.declaration as? KSClassDeclaration
+                        ?: throw InvalidCreamUsageException(
+                            message = "${targetType.declaration.fullName} (Specified in @${CopyMapping::class.simpleName}.target) must be a class.",
+                            solution = "Specify a class in @${CopyMapping::class.simpleName}.target",
+                        )
+
+                    Triple(sourceClass, targetClass, canReverse)
+                }
+
+            // Group by source class to create one file per source package
+            copyMappings.groupBy { (sourceClass, _, _) -> sourceClass.packageName }
+                .forEach { (packageName, mappings) ->
+                    // Use the first source class's file for dependencies
+                    val sourceFile = mappings.first().first.containingFile
+                        ?: annotatedDeclaration.containingFile!!
+
+                    codeGenerator.createNewKotlinFile(
+                        dependencies = Dependencies(aggregating = true, sourceFile),
+                        packageName = packageName,
+                        fileName = "CopyMapping__${annotatedDeclaration.underPackageName}",
+                    ) {
+                        it.appendLine("import me.tbsten.cream.*")
+                        it.appendLine()
+
+                        mappings.forEach { (sourceClass, targetClass, canReverse) ->
+                            // Generate forward copy function (source -> target)
+                            it.appendCopyFunction(
+                                source = sourceClass,
+                                target = targetClass,
+                                options = options,
+                                omitPackages = listOf("kotlin", packageName.asString()),
+                                generateSourceAnnotation =
+                                    GenerateSourceAnnotation.CopyMapping(annotationTarget = annotatedDeclaration),
+                                notCopyToObject = false,
+                            )
+
+                            // Generate reverse copy function (target -> source) if canReverse is true
+                            if (canReverse) {
+                                it.appendCopyFunction(
+                                    source = targetClass,
+                                    target = sourceClass,
+                                    options = options,
+                                    omitPackages = listOf("kotlin", packageName.asString()),
+                                    generateSourceAnnotation =
+                                        GenerateSourceAnnotation.CopyMapping(annotationTarget = annotatedDeclaration),
+                                    notCopyToObject = false,
+                                )
+                            }
+                        }
+                    }
+                }
+        }
+
+        return invalidCopyMappingTargets
     }
 }
 
