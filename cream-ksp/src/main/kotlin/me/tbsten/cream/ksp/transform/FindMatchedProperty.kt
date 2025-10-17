@@ -15,17 +15,17 @@ internal fun KSValueParameter.findMatchedProperty(
     val parameterName = this.name?.asString()
     if (parameterName == null) return null
 
+    findSourcePropertyWithCopyToAnnotation(source, parameterName)
+        ?.let { return it }
+
+    findSourcePropertyWithCopyFromAnnotation(source)
+        ?.let { return it }
+
     val propertyMappings = (generateSourceAnnotation as? GenerateSourceAnnotation.CopyMapping)
         ?.propertyMappings
         ?: emptyList()
 
     findSourcePropertyWithCopyMappingAnnotation(source, parameterName, propertyMappings)
-        ?.let { return it }
-
-    findSourcePropertyWithCopyToAnnotation(source, parameterName)
-        ?.let { return it }
-
-    findSourcePropertyWithCopyFromAnnotation(source)
         ?.let { return it }
 
     return findSourcePropertyByName(source, parameterName)
