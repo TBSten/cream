@@ -51,12 +51,12 @@ class CopyMappingTest {
         )
 
         val result = libYModel.copyToLibZModel(
-            zProp = "z-value",
+            zProp = 300,
         )
 
         val expected = LibZModel(
             shareProp = "shared",
-            zProp = "z-value",
+            zProp = 300,
         )
 
         assertEquals(expected, result)
@@ -71,12 +71,51 @@ class CopyMappingTest {
 
         val result = libYModel.copyToLibZModel(
             shareProp = "new-shared",
-            zProp = "z-value",
+            zProp = 400,
         )
 
         val expected = LibZModel(
             shareProp = "new-shared",
-            zProp = "z-value",
+            zProp = 400,
+        )
+
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun libXModelToLibYModelWithPropertyMapping() {
+        // Test that xProp from LibXModel maps to yProp in LibYModel
+        // via the CopyMapping.Map property mapping
+        val libXModel = LibXModel(
+            shareProp = "shared",
+            xProp = 42,
+        )
+
+        val result = libXModel.copyToLibYModel()
+
+        val expected = LibYModel(
+            shareProp = "shared",
+            yProp = 42,
+        )
+
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun libXModelToLibYModelWithPropertyMappingAndOverride() {
+        // Test that property mapping can be overridden
+        val libXModel = LibXModel(
+            shareProp = "shared",
+            xProp = 42,
+        )
+
+        val result = libXModel.copyToLibYModel(
+            yProp = 999,
+        )
+
+        val expected = LibYModel(
+            shareProp = "shared",
+            yProp = 999,
         )
 
         assertEquals(expected, result)

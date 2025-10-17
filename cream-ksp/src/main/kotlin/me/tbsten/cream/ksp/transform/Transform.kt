@@ -25,7 +25,7 @@ internal fun BufferedWriter.appendCopyFunction(
                 target,
                 generateSourceAnnotation,
                 omitPackages,
-                options
+                options,
             )
 
         ClassKind.OBJECT ->

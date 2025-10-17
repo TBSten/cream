@@ -6,23 +6,52 @@ import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
 import me.tbsten.cream.CopyFrom
 import me.tbsten.cream.CopyTo
+import me.tbsten.cream.ksp.GenerateSourceAnnotation
 
 internal fun KSValueParameter.findMatchedProperty(
     source: KSClassDeclaration,
+    generateSourceAnnotation: GenerateSourceAnnotation<*>,
 ): KSPropertyDeclaration? {
     val parameterName = this.name?.asString()
-    if (parameterName == null) return null
+        ?: return null
 
-    // Try @CopyTo.Map annotation matching first
     findSourcePropertyWithCopyToAnnotation(source, parameterName)
         ?.let { return it }
 
-    // Try @CopyFrom.Map annotation matching
     findSourcePropertyWithCopyFromAnnotation(source)
         ?.let { return it }
 
-    // Fall back to original name-based matching
+    val propertyMappings = (generateSourceAnnotation as? GenerateSourceAnnotation.CopyMapping)
+        ?.propertyMappings
+        ?: emptyList()
+
+    findSourcePropertyWithCopyMappingAnnotation(source, parameterName, propertyMappings)
+        ?.let { return it }
+
     return findSourcePropertyByName(source, parameterName)
+}
+
+/**
+ * Find source property using CopyMapping.Map property mappings
+ *
+ * Property mappings define explicit source -> target property name mappings.
+ * For example, if mapping is ("xProp" -> "yProp"), then when looking for target parameter "yProp",
+ * this function will find source property "xProp".
+ */
+private fun KSValueParameter.findSourcePropertyWithCopyMappingAnnotation(
+    source: KSClassDeclaration,
+    parameterName: String,
+    propertyMappings: List<Pair<String, String>>,
+): KSPropertyDeclaration? {
+    val sourcePropertyName = propertyMappings.firstOrNull { (_, target) ->
+        target == parameterName
+    }?.first ?: return null
+
+    return source.getAllProperties()
+        .firstOrNull {
+            it.simpleName.asString() == sourcePropertyName &&
+                    this.type.resolve().isAssignableFrom(it.type.resolve())
+        }
 }
 
 private fun KSValueParameter.findSourcePropertyWithCopyToAnnotation(

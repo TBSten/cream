@@ -30,6 +30,7 @@ internal sealed interface GenerateSourceAnnotation<A : Annotation> {
 
     data class CopyMapping(
         override val annotationTarget: KSClassDeclaration,
+        val propertyMappings: List<Pair<String, String>> = emptyList(),
     ) : GenerateSourceAnnotation<me.tbsten.cream.CopyMapping> {
         override val annotationClass: KClass<me.tbsten.cream.CopyMapping> =
             me.tbsten.cream.CopyMapping::class

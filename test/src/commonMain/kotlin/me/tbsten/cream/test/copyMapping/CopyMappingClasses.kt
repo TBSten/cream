@@ -32,14 +32,20 @@ data class LibYModel(
  */
 data class LibZModel(
     val shareProp: String,
-    val zProp: String,
+    val zProp: Int,
 )
 
 /**
  * Mapping object that generates copy functions between library classes
  * without modifying the library classes themselves.
+ *
+ * Example: LibXModel.xProp maps to LibYModel.yProp via property mapping
  */
-@CopyMapping(LibXModel::class, LibYModel::class)
+@CopyMapping(
+    LibXModel::class,
+    LibYModel::class,
+    properties = [CopyMapping.Map(source = "xProp", target = "yProp")]
+)
 @CopyMapping(LibYModel::class, LibZModel::class)
 private object Mapping
 

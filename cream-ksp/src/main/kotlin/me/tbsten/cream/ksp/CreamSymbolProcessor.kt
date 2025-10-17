@@ -18,6 +18,21 @@ import me.tbsten.cream.ksp.util.isSealed
 import me.tbsten.cream.ksp.util.underPackageName
 import java.io.BufferedWriter
 
+/**
+ * Data class to hold CopyMapping annotation information
+ *
+ * @property sourceClass The source class for the mapping
+ * @property targetClass The target class for the mapping
+ * @property canReverse Whether bidirectional mapping is enabled
+ * @property propertyMappings List of property name mappings (source property name -> target property name)
+ */
+private data class CopyMappingInfo(
+    val sourceClass: KSClassDeclaration,
+    val targetClass: KSClassDeclaration,
+    val canReverse: Boolean,
+    val propertyMappings: List<Pair<String, String>>,
+)
+
 class CreamSymbolProcessor(
     options: Map<String, String>,
     private val codeGenerator: CodeGenerator,
@@ -261,6 +276,27 @@ class CreamSymbolProcessor(
                         ?.value as? Boolean
                         ?: false
 
+                    val propertyMappings = annotation.arguments
+                        .firstOrNull { it.name?.asString() == "properties" }
+                        ?.value as? List<*>
+                        ?: emptyList<Any>()
+
+                    val propertyMaps = propertyMappings.mapNotNull { mapping ->
+                        val mapAnnotation = mapping as? KSAnnotation ?: return@mapNotNull null
+                        val sourceProperty = mapAnnotation.arguments
+                            .firstOrNull { it.name?.asString() == "source" }
+                            ?.value as? String
+                        val targetProperty = mapAnnotation.arguments
+                            .firstOrNull { it.name?.asString() == "target" }
+                            ?.value as? String
+
+                        if (sourceProperty != null && targetProperty != null) {
+                            sourceProperty to targetProperty
+                        } else {
+                            null
+                        }
+                    }
+
                     val sourceClass = sourceType.declaration as? KSClassDeclaration
                         ?: throw InvalidCreamUsageException(
                             message = "${sourceType.declaration.fullName} (Specified in @${CopyMapping::class.simpleName}.source) must be a class.",
@@ -273,14 +309,14 @@ class CreamSymbolProcessor(
                             solution = "Specify a class in @${CopyMapping::class.simpleName}.target",
                         )
 
-                    Triple(sourceClass, targetClass, canReverse)
+                    CopyMappingInfo(sourceClass, targetClass, canReverse, propertyMaps)
                 }
 
             // Group by source class to create one file per source package
-            copyMappings.groupBy { (sourceClass, _, _) -> sourceClass.packageName }
+            copyMappings.groupBy { it.sourceClass.packageName }
                 .forEach { (packageName, mappings) ->
                     // Use the first source class's file for dependencies
-                    val sourceFile = mappings.first().first.containingFile
+                    val sourceFile = mappings.first().sourceClass.containingFile
                         ?: annotatedDeclaration.containingFile!!
 
                     codeGenerator.createNewKotlinFile(
@@ -291,27 +327,34 @@ class CreamSymbolProcessor(
                         it.appendLine("import me.tbsten.cream.*")
                         it.appendLine()
 
-                        mappings.forEach { (sourceClass, targetClass, canReverse) ->
-                            // Generate forward copy function (source -> target)
+                        mappings.forEach { mapping ->
                             it.appendCopyFunction(
-                                source = sourceClass,
-                                target = targetClass,
+                                source = mapping.sourceClass,
+                                target = mapping.targetClass,
                                 options = options,
                                 omitPackages = listOf("kotlin", packageName.asString()),
                                 generateSourceAnnotation =
-                                    GenerateSourceAnnotation.CopyMapping(annotationTarget = annotatedDeclaration),
+                                    GenerateSourceAnnotation.CopyMapping(
+                                        annotationTarget = annotatedDeclaration,
+                                        propertyMappings = mapping.propertyMappings,
+                                    ),
                                 notCopyToObject = false,
                             )
 
-                            // Generate reverse copy function (target -> source) if canReverse is true
-                            if (canReverse) {
+                            if (mapping.canReverse) {
+                                val reversePropertyMappings = mapping.propertyMappings.map { (source, target) ->
+                                    target to source
+                                }
                                 it.appendCopyFunction(
-                                    source = targetClass,
-                                    target = sourceClass,
+                                    source = mapping.targetClass,
+                                    target = mapping.sourceClass,
                                     options = options,
                                     omitPackages = listOf("kotlin", packageName.asString()),
                                     generateSourceAnnotation =
-                                        GenerateSourceAnnotation.CopyMapping(annotationTarget = annotatedDeclaration),
+                                        GenerateSourceAnnotation.CopyMapping(
+                                            annotationTarget = annotatedDeclaration,
+                                            propertyMappings = reversePropertyMappings,
+                                        ),
                                     notCopyToObject = false,
                                 )
                             }
