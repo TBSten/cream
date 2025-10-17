@@ -1,5 +1,5 @@
 [versions]
-cream = "0.7.0"
+cream = "0.7.1"
 agp = "8.11.1"
 kotlin = "2.2.0"
 android-minSdk = "24"
