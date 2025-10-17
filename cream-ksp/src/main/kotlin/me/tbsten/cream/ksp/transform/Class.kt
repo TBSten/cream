@@ -105,7 +105,8 @@ internal fun BufferedWriter.appendCopyToClassFunction(
                     },
                 )
             append("    ${paramName}: $paramType")
-            parameter.findMatchedProperty(source)
+
+            parameter.findMatchedProperty(source, generateSourceAnnotation)
                 ?.let { " = this.${it.simpleName.asString()}" }
                 ?.let(::append)
             append(",\n")
