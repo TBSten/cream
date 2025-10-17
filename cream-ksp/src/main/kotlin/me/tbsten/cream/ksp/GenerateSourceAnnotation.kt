@@ -27,4 +27,11 @@ internal sealed interface GenerateSourceAnnotation<A : Annotation> {
         override val annotationClass: KClass<me.tbsten.cream.CopyToChildren> =
             me.tbsten.cream.CopyToChildren::class
     }
+
+    data class CopyMapping(
+        override val annotationTarget: KSClassDeclaration,
+    ) : GenerateSourceAnnotation<me.tbsten.cream.CopyMapping> {
+        override val annotationClass: KClass<me.tbsten.cream.CopyMapping> =
+            me.tbsten.cream.CopyMapping::class
+    }
 }
