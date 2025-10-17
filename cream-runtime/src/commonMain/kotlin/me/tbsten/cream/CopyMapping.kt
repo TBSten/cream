@@ -34,8 +34,22 @@ import kotlin.reflect.KClass
  * ): LibYModel = ...
  * ```
  *
+ * # Bidirectional Mapping
+ *
+ * Set `canReverse = true` to generate copy functions in both directions:
+ *
+ * ```kt
+ * @CopyMapping(LibXModel::class, LibYModel::class, canReverse = true)
+ * private object Mapping
+ *
+ * // auto generate both:
+ * fun LibXModel.copyToLibYModel(...): LibYModel = ...
+ * fun LibYModel.copyToLibXModel(...): LibXModel = ...
+ * ```
+ *
  * @param source The source class to copy from
  * @param target The target class to copy to
+ * @param canReverse If true, also generates a reverse copy function (target -> source). Default is false.
  *
  * @see CopyTo
  * @see CopyFrom
@@ -45,4 +59,5 @@ import kotlin.reflect.KClass
 annotation class CopyMapping(
     val source: KClass<*>,
     val target: KClass<*>,
+    val canReverse: Boolean = false,
 )

@@ -81,4 +81,62 @@ class CopyMappingTest {
 
         assertEquals(expected, result)
     }
+
+    @Test
+    fun libWModelToLibVModelWithCanReverse() {
+        val libWModel = LibWModel(
+            shareProp = "shared",
+            wProp = 3.14,
+        )
+
+        val result = libWModel.copyToLibVModel(
+            vProp = true,
+        )
+
+        val expected = LibVModel(
+            shareProp = "shared",
+            vProp = true,
+        )
+
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun libVModelToLibWModelWithCanReverse() {
+        val libVModel = LibVModel(
+            shareProp = "shared",
+            vProp = false,
+        )
+
+        val result = libVModel.copyToLibWModel(
+            wProp = 2.71,
+        )
+
+        val expected = LibWModel(
+            shareProp = "shared",
+            wProp = 2.71,
+        )
+
+        assertEquals(expected, result)
+    }
+
+    @Test
+    fun libWModelToLibVModelWithCanReverseAndOverride() {
+        val libWModel = LibWModel(
+            shareProp = "shared",
+            wProp = 3.14,
+        )
+
+        val result = libWModel.copyToLibVModel(
+            shareProp = "overridden",
+            vProp = true,
+        )
+
+        val expected = LibVModel(
+            shareProp = "overridden",
+            vProp = true,
+        )
+
+        assertEquals(expected, result)
+    }
 }

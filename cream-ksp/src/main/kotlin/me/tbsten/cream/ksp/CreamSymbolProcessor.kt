@@ -256,6 +256,11 @@ class CreamSymbolProcessor(
                             solution = "Specify target class in @${CopyMapping::class.simpleName}",
                         )
 
+                    val canReverse = annotation.arguments
+                        .firstOrNull { it.name?.asString() == "canReverse" }
+                        ?.value as? Boolean
+                        ?: false
+
                     val sourceClass = sourceType.declaration as? KSClassDeclaration
                         ?: throw InvalidCreamUsageException(
                             message = "${sourceType.declaration.fullName} (Specified in @${CopyMapping::class.simpleName}.source) must be a class.",
@@ -268,11 +273,11 @@ class CreamSymbolProcessor(
                             solution = "Specify a class in @${CopyMapping::class.simpleName}.target",
                         )
 
-                    sourceClass to targetClass
+                    Triple(sourceClass, targetClass, canReverse)
                 }
 
             // Group by source class to create one file per source package
-            copyMappings.groupBy { (sourceClass, _) -> sourceClass.packageName }
+            copyMappings.groupBy { (sourceClass, _, _) -> sourceClass.packageName }
                 .forEach { (packageName, mappings) ->
                     // Use the first source class's file for dependencies
                     val sourceFile = mappings.first().first.containingFile
@@ -286,7 +291,8 @@ class CreamSymbolProcessor(
                         it.appendLine("import me.tbsten.cream.*")
                         it.appendLine()
 
-                        mappings.forEach { (sourceClass, targetClass) ->
+                        mappings.forEach { (sourceClass, targetClass, canReverse) ->
+                            // Generate forward copy function (source -> target)
                             it.appendCopyFunction(
                                 source = sourceClass,
                                 target = targetClass,
@@ -296,6 +302,19 @@ class CreamSymbolProcessor(
                                     GenerateSourceAnnotation.CopyMapping(annotationTarget = annotatedDeclaration),
                                 notCopyToObject = false,
                             )
+
+                            // Generate reverse copy function (target -> source) if canReverse is true
+                            if (canReverse) {
+                                it.appendCopyFunction(
+                                    source = targetClass,
+                                    target = sourceClass,
+                                    options = options,
+                                    omitPackages = listOf("kotlin", packageName.asString()),
+                                    generateSourceAnnotation =
+                                        GenerateSourceAnnotation.CopyMapping(annotationTarget = annotatedDeclaration),
+                                    notCopyToObject = false,
+                                )
+                            }
                         }
                     }
                 }

@@ -42,3 +42,31 @@ data class LibZModel(
 @CopyMapping(LibXModel::class, LibYModel::class)
 @CopyMapping(LibYModel::class, LibZModel::class)
 private object Mapping
+
+/**
+ * Library W model for testing bidirectional mapping
+ *
+ * @property shareProp Shared property
+ * @property wProp Property specific to LibW
+ */
+data class LibWModel(
+    val shareProp: String,
+    val wProp: Double,
+)
+
+/**
+ * Library V model for testing bidirectional mapping
+ *
+ * @property shareProp Shared property
+ * @property vProp Property specific to LibV
+ */
+data class LibVModel(
+    val shareProp: String,
+    val vProp: Boolean,
+)
+
+/**
+ * Mapping object with canReverse = true to generate bidirectional copy functions
+ */
+@CopyMapping(LibWModel::class, LibVModel::class, canReverse = true)
+private object ReversibleMapping
