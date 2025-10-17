@@ -120,6 +120,27 @@ dependencies {
 のような中間ソースセットにコードを生成することをサポートしていません。 ([参照](https://github.com/google/ksp/issues/567))
 この制限により現在 cream.kt では commonMain などのクラスからコピー関数を生成することはできません。
 
+ただし 以下のようにセットアップすることで commonMain コードのみ コード生成させることが可能になります。
+(この場合 各プラットフォームのアノテーションは処理されない点に注意してください。)
+
+```kt
+fun Project.setupKspForMultiplatformWorkaround() {
+    kotlin.sourceSets.commonMain {
+        kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
+    }
+
+    tasks.configureEach {
+        if (name.startsWith("ksp") && name != "kspCommonMainKotlinMetadata") {
+            dependsOn(tasks.named("kspCommonMainKotlinMetadata"))
+            enabled = false
+        }
+    }
+}
+setupKspForMultiplatformWorkaround()
+```
+
+参考: https://github.com/TBSten/cream/blob/main/test/build.gradle.kts#L54-L66
+
 </details>
 
 ## ❇️ 3. 利用方法

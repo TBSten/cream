@@ -125,6 +125,27 @@ Multiplatform's commonMain .
 This limitation currently prevents cream.kt from generating copy functions from classes such as
 commonMain.
 
+However, by setting it up as follows, you can enable code generation for only the commonMain code.
+(Note that in this case, annotations for each platform will not be processed.)
+
+```kt
+fun Project.setupKspForMultiplatformWorkaround() {
+    kotlin.sourceSets.commonMain {
+        kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
+    }
+
+    tasks.configureEach {
+        if (name.startsWith("ksp") && name != "kspCommonMainKotlinMetadata") {
+            dependsOn(tasks.named("kspCommonMainKotlinMetadata"))
+            enabled = false
+        }
+    }
+}
+setupKspForMultiplatformWorkaround()
+```
+
+refs: https://github.com/TBSten/cream/blob/main/test/build.gradle.kts#L54-L66
+
 </details>
 
 ## ❇️ 3. Usage
@@ -278,7 +299,9 @@ fun DataModel.copyToDomainModel(
 
 ### CopyMapping
 
-If you want to generate a copy function between classes where neither the source nor destination is in your own source code, you can use CopyMapping. This allows you to generate copy functions between library classes without modifying either class at all.
+If you want to generate a copy function between classes where neither the source nor destination is in your own source
+code, you can use CopyMapping. This allows you to generate copy functions between library classes without modifying
+either class at all.
 
 ```kt
 // in library X
