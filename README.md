@@ -299,7 +299,7 @@ private object Mapping
 
 // auto generate
 fun LibXModel.copyToLibYModel(
-    shareProp: String = this.sharedProp,
+    shareProp: String = this.shareProp,
     yProp: Int,
 ): LibYModel = ...
 ```
