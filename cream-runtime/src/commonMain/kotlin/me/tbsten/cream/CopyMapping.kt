@@ -55,6 +55,7 @@ import kotlin.reflect.KClass
  * @see CopyFrom
  */
 @Target(AnnotationTarget.CLASS)
+@Retention(AnnotationRetention.SOURCE)
 @Repeatable
 annotation class CopyMapping(
     val source: KClass<*>,
