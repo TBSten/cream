@@ -6,6 +6,7 @@ import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSValueParameter
+import me.tbsten.cream.CombineTo
 import me.tbsten.cream.CopyFrom
 import me.tbsten.cream.CopyTo
 import me.tbsten.cream.ksp.GenerateSourceAnnotation
@@ -18,6 +19,9 @@ internal fun KSValueParameter.findMatchedProperty(
         ?: return null
 
     findSourcePropertyWithCopyToAnnotation(source, parameterName)
+        ?.let { return it }
+
+    findSourcePropertyWithCombineToAnnotation(source, parameterName)
         ?.let { return it }
 
     findSourcePropertyWithCopyFromAnnotation(source)
@@ -68,6 +72,25 @@ private fun KSValueParameter.findSourcePropertyWithCopyToAnnotation(
 
             if (copyToPropertyAnnotation != null) {
                 parameterName in copyToPropertyAnnotation.propertyNames &&
+                        isTypeCompatible(this.type.resolve(), sourceProperty.type.resolve())
+            } else {
+                false
+            }
+        }
+}
+
+private fun KSValueParameter.findSourcePropertyWithCombineToAnnotation(
+    source: KSClassDeclaration,
+    parameterName: String,
+): KSPropertyDeclaration? {
+    return source.getAllProperties()
+        .firstOrNull { sourceProperty ->
+            val combineToPropertyAnnotation = sourceProperty
+                .getAnnotationsByType(CombineTo.Map::class)
+                .firstOrNull()
+
+            if (combineToPropertyAnnotation != null) {
+                parameterName in combineToPropertyAnnotation.propertyNames &&
                         isTypeCompatible(this.type.resolve(), sourceProperty.type.resolve())
             } else {
                 false
