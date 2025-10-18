@@ -3,6 +3,8 @@ package me.tbsten.cream.ksp.transform
 import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSValueParameter
 import me.tbsten.cream.CopyFrom
 import me.tbsten.cream.CopyTo
@@ -50,7 +52,7 @@ private fun KSValueParameter.findSourcePropertyWithCopyMappingAnnotation(
     return source.getAllProperties()
         .firstOrNull {
             it.simpleName.asString() == sourcePropertyName &&
-                    this.type.resolve().isAssignableFrom(it.type.resolve())
+                    isTypeCompatible(this.type.resolve(), it.type.resolve())
         }
 }
 
@@ -66,7 +68,7 @@ private fun KSValueParameter.findSourcePropertyWithCopyToAnnotation(
 
             if (copyToPropertyAnnotation != null) {
                 parameterName in copyToPropertyAnnotation.propertyNames &&
-                        this.type.resolve().isAssignableFrom(sourceProperty.type.resolve())
+                        isTypeCompatible(this.type.resolve(), sourceProperty.type.resolve())
             } else {
                 false
             }
@@ -86,7 +88,7 @@ private fun KSValueParameter.findSourcePropertyWithCopyFromAnnotation(
         return source.getAllProperties()
             .firstOrNull {
                 it.simpleName.asString() in sourcePropertyNames &&
-                        this.type.resolve().isAssignableFrom(it.type.resolve())
+                        isTypeCompatible(this.type.resolve(), it.type.resolve())
             }
     }
 
@@ -101,6 +103,28 @@ private fun KSValueParameter.findSourcePropertyByName(
         .getAllProperties()
         .firstOrNull {
             it.simpleName.asString() == parameterName &&
-                    this.type.resolve().isAssignableFrom(it.type.resolve())
+                    isTypeCompatible(this.type.resolve(), it.type.resolve())
         }
+}
+
+/**
+ * Check if two types are compatible for property matching.
+ * This includes:
+ * - Direct assignability (normal cases)
+ * - Both are type parameters with the same name (generic cases)
+ */
+private fun isTypeCompatible(targetType: KSType, sourceType: KSType): Boolean {
+    // Check direct assignability first
+    if (targetType.isAssignableFrom(sourceType)) {
+        return true
+    }
+
+    // Check if both are type parameters with the same name
+    val targetDecl = targetType.declaration
+    val sourceDecl = sourceType.declaration
+    if (targetDecl is KSTypeParameter && sourceDecl is KSTypeParameter) {
+        return targetDecl.name.asString() == sourceDecl.name.asString()
+    }
+
+    return false
 }

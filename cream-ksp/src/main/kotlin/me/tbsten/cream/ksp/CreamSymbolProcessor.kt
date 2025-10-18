@@ -7,11 +7,9 @@ import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.symbol.*
 import com.google.devtools.ksp.validate
-import me.tbsten.cream.CopyFrom
-import me.tbsten.cream.CopyMapping
-import me.tbsten.cream.CopyTo
-import me.tbsten.cream.CopyToChildren
+import me.tbsten.cream.*
 import me.tbsten.cream.ksp.options.toCreamOptions
+import me.tbsten.cream.ksp.transform.appendCombineToFunction
 import me.tbsten.cream.ksp.transform.appendCopyFunction
 import me.tbsten.cream.ksp.util.fullName
 import me.tbsten.cream.ksp.util.isSealed
@@ -49,6 +47,9 @@ class CreamSymbolProcessor(
             .also { invalidTargets.addAll(it) }
 
         processCopyToChildren(resolver)
+            .also { invalidTargets.addAll(it) }
+
+        processCombineTo(resolver)
             .also { invalidTargets.addAll(it) }
 
         processCopyMapping(resolver)
@@ -236,6 +237,84 @@ class CreamSymbolProcessor(
         }
 
         return invalidCopyToChildrenTargets
+    }
+
+    private class TargetSourcesMapForCombineTo :
+        MutableMap<KSClassDeclaration, MutableList<KSClassDeclaration>> by mutableMapOf() {
+        fun put(targetClass: KSClassDeclaration, sourceClass: KSClassDeclaration) {
+            getOrPut(targetClass) { mutableListOf() }.add(sourceClass)
+        }
+    }
+
+    private fun processCombineTo(resolver: Resolver): List<KSAnnotated> {
+        val (combineToTargets, invalidCombineToTargets) = resolver.getSymbolsWithAnnotation(
+            annotationName = CombineTo::class.fullName,
+        ).partition { it.validate() }
+
+        // Group source classes by their target classes
+        val targetToSourcesMap = TargetSourcesMapForCombineTo()
+
+        combineToTargets.forEach { target ->
+            val sourceClass = (target as? KSClassDeclaration)
+                ?: throw InvalidCreamUsageException(
+                    message = "@${CombineTo::class.simpleName} must be applied to a class or interface.",
+                    solution = "Please apply @${CombineTo::class.simpleName} to `class or interface`",
+                )
+
+            // CombineTo.targets: List<KClass<*>>
+            val targetClasses = target
+                .annotations
+                .filter { it.annotationType.resolve().declaration.fullName == CombineTo::class.qualifiedName }
+                .flatMap {
+                    it.arguments
+                        .filter { it.name?.asString() == "targets" }
+                        .map { it.value }
+                        .filterIsInstance<List<KSType>>()
+                        .flatten()
+                }.map { it.declaration }
+                .map {
+                    it as? KSClassDeclaration
+                        ?: throw InvalidCreamUsageException(
+                            message = "${it.fullName} (Specified in @${CombineTo::class.simpleName}.targets of ${target.fullName}) must be class.",
+                            solution = "Specify class or interface in @${CombineTo::class.simpleName}.targets of ${target.fullName}.",
+                        )
+                }
+
+            // Group source classes by target class
+            targetClasses.forEach { targetClass ->
+                targetToSourcesMap.put(targetClass, sourceClass)
+            }
+        }
+
+        // For each target class, generate copy functions for each source class
+        targetToSourcesMap.forEach { (targetClass, sourceClasses) ->
+            sourceClasses.forEach { sourceClass ->
+                val otherSourceClasses = sourceClasses.filter { it != sourceClass }
+
+                codeGenerator
+                    .createNewKotlinFile(
+                        dependencies = Dependencies(aggregating = true, sourceClass.containingFile!!),
+                        packageName = sourceClass.packageName,
+                        fileName = "CombineTo__${sourceClass.underPackageName}__${targetClass.underPackageName}",
+                    ) {
+                        it.appendLine("import me.tbsten.cream.*")
+                        it.appendLine()
+
+                        // Generate combine function with multiple sources
+                        it.appendCombineToFunction(
+                            primarySource = sourceClass,
+                            otherSources = otherSourceClasses,
+                            target = targetClass,
+                            options = options,
+                            omitPackages = listOf("kotlin", sourceClass.packageName.asString()),
+                            generateSourceAnnotation =
+                                GenerateSourceAnnotation.CombineTo(annotationTarget = sourceClass),
+                        )
+                    }
+            }
+        }
+
+        return invalidCombineToTargets
     }
 
     private fun processCopyMapping(resolver: Resolver): List<KSAnnotated> {
