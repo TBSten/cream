@@ -373,6 +373,8 @@ fun DataModel.copyToDomainModel(
 
 複数のソースクラスから1つのターゲットクラスへコピーする際も同様にプロパティマッピングが可能です。
 
+**ソース側でマッピングを指定する場合:**
+
 ```kt
 @CombineTo(TargetState::class)
 data class SourceA(
@@ -395,6 +397,33 @@ fun SourceA.copyToTargetState(
     sourceB: SourceB,
     targetProperty: String = this.sourceProperty, // sourceProperty と targetProperty がマッピングされます
     otherProperty: Int = sourceB.otherProperty,
+): TargetState = ...
+```
+
+**ターゲット側でマッピングを指定する場合:**
+
+```kt
+data class SourceA(
+    val sourceProperty: String,
+)
+
+data class SourceB(
+    val otherSourceProperty: Int,
+)
+
+@CombineFrom(SourceA::class, SourceB::class)
+data class TargetState(
+    @CombineFrom.Map("sourceProperty")
+    val targetProperty: String,
+    @CombineFrom.Map("otherSourceProperty")
+    val otherProperty: Int,
+)
+
+// auto generate
+fun SourceA.copyToTargetState(
+    sourceB: SourceB,
+    targetProperty: String = this.sourceProperty, // sourceProperty と targetProperty がマッピングされます
+    otherProperty: Int = sourceB.otherSourceProperty, // otherSourceProperty と otherProperty がマッピングされます
 ): TargetState = ...
 ```
 
