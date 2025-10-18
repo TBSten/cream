@@ -35,6 +35,13 @@ internal sealed interface GenerateSourceAnnotation<A : Annotation> {
             me.tbsten.cream.CombineTo::class
     }
 
+    data class CombineFrom(
+        override val annotationTarget: KSClassDeclaration,
+    ) : GenerateSourceAnnotation<me.tbsten.cream.CombineFrom> {
+        override val annotationClass: KClass<me.tbsten.cream.CombineFrom> =
+            me.tbsten.cream.CombineFrom::class
+    }
+
     data class CopyMapping(
         override val annotationTarget: KSClassDeclaration,
         val propertyMappings: List<Pair<String, String>> = emptyList(),

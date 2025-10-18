@@ -52,6 +52,9 @@ class CreamSymbolProcessor(
         processCombineTo(resolver)
             .also { invalidTargets.addAll(it) }
 
+        processCombineFrom(resolver)
+            .also { invalidTargets.addAll(it) }
+
         processCopyMapping(resolver)
             .also { invalidTargets.addAll(it) }
 
@@ -315,6 +318,74 @@ class CreamSymbolProcessor(
         }
 
         return invalidCombineToTargets
+    }
+
+    private fun processCombineFrom(resolver: Resolver): List<KSAnnotated> {
+        val (combineFromTargets, invalidCombineFromTargets) = resolver.getSymbolsWithAnnotation(
+            annotationName = CombineFrom::class.fullName,
+        ).partition { it.validate() }
+
+        combineFromTargets.forEach { target ->
+            val targetClass = (target as? KSClassDeclaration)
+                ?: throw InvalidCreamUsageException(
+                    message = "@${CombineFrom::class.simpleName} must be applied to a class or interface.",
+                    solution = "Please apply @${CombineFrom::class.simpleName} to `class or interface`",
+                )
+
+            val sourceClasses = target
+                .annotations
+                .filter { it.annotationType.resolve().declaration.fullName == CombineFrom::class.qualifiedName }
+                .flatMap {
+                    it.arguments
+                        .filter { it.name?.asString() == "sources" }
+                        .map { it.value }
+                        .filterIsInstance<List<KSType>>()
+                        .flatten()
+                }.map { it.declaration }
+                .map {
+                    it as? KSClassDeclaration
+                        ?: throw InvalidCreamUsageException(
+                            message = "${it.fullName} (Specified in @${CombineFrom::class.simpleName}.sources of ${target.fullName}) must be class.",
+                            solution = "Specify class or interface in @${CombineFrom::class.simpleName}.sources of ${target.fullName}.",
+                        )
+                }
+                .toList()
+
+            // Need at least one source class
+            if (sourceClasses.isEmpty()) {
+                throw InvalidCreamUsageException(
+                    message = "@${CombineFrom::class.simpleName} requires at least one source class.",
+                    solution = "Specify at least one source class in @${CombineFrom::class.simpleName}.sources of ${target.fullName}.",
+                )
+            }
+
+            // First source class is the primary source (extension function receiver)
+            val primarySource = sourceClasses.first()
+            val otherSources = sourceClasses.drop(1)
+
+            codeGenerator
+                .createNewKotlinFile(
+                    dependencies = Dependencies(aggregating = true, targetClass.containingFile!!),
+                    packageName = targetClass.packageName,
+                    fileName = "CombineFrom__${primarySource.underPackageName}__${targetClass.underPackageName}",
+                ) {
+                    it.appendLine("import me.tbsten.cream.*")
+                    it.appendLine()
+
+                    // Generate combine function with multiple sources
+                    it.appendCombineToFunction(
+                        primarySource = primarySource,
+                        otherSources = otherSources,
+                        target = targetClass,
+                        options = options,
+                        omitPackages = listOf("kotlin", primarySource.packageName.asString()),
+                        generateSourceAnnotation =
+                            GenerateSourceAnnotation.CombineFrom(annotationTarget = targetClass),
+                    )
+                }
+        }
+
+        return invalidCombineFromTargets
     }
 
     private fun processCopyMapping(resolver: Resolver): List<KSAnnotated> {
