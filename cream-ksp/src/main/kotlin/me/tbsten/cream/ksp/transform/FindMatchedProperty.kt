@@ -28,7 +28,10 @@ internal fun KSValueParameter.findMatchedProperty(
     findSourcePropertyWithCopyFromAnnotation(source)
         ?.let { return it }
 
-    findSourcePropertyWithCombineFromAnnotation(source, parameterName)
+    findSourcePropertyWithCombineFromAnnotationOnTarget(source)
+        ?.let { return it }
+
+    findSourcePropertyWithCombineFromAnnotationOnSource(source, parameterName)
         ?.let { return it }
 
     val propertyMappings = (generateSourceAnnotation as? GenerateSourceAnnotation.CopyMapping)
@@ -102,7 +105,37 @@ private fun KSValueParameter.findSourcePropertyWithCombineToAnnotation(
         }
 }
 
-private fun KSValueParameter.findSourcePropertyWithCombineFromAnnotation(
+/**
+ * Find source property using @CombineFrom.Map annotation on target parameter.
+ * Target parameter specifies which source property to use.
+ * Example: @CombineFrom.Map("sourcePropertyB") val targetProperty: String
+ */
+private fun KSValueParameter.findSourcePropertyWithCombineFromAnnotationOnTarget(
+    source: KSClassDeclaration,
+): KSPropertyDeclaration? {
+    val combineFromPropertyAnnotation = this
+        .getAnnotationsByType(CombineFrom.Map::class)
+        .firstOrNull()
+
+    if (combineFromPropertyAnnotation != null) {
+        val sourcePropertyNames = combineFromPropertyAnnotation.propertyNames
+
+        return source.getAllProperties()
+            .firstOrNull {
+                it.simpleName.asString() in sourcePropertyNames &&
+                        isTypeCompatible(this.type.resolve(), it.type.resolve())
+            }
+    }
+
+    return null
+}
+
+/**
+ * Find source property using @CombineFrom.Map annotation on source property.
+ * Source property specifies which target parameters it maps to.
+ * Example: @CombineFrom.Map("targetPropertyA") val sourceProperty: String
+ */
+private fun KSValueParameter.findSourcePropertyWithCombineFromAnnotationOnSource(
     source: KSClassDeclaration,
     parameterName: String,
 ): KSPropertyDeclaration? {
