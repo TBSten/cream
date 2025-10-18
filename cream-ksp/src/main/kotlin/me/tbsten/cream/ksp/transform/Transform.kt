@@ -65,3 +65,44 @@ internal fun BufferedWriter.appendCopyFunction(
         )
     }
 }
+
+internal fun BufferedWriter.appendCombineToFunction(
+    primarySource: KSClassDeclaration,
+    otherSources: List<KSClassDeclaration>,
+    target: KSClassDeclaration,
+    omitPackages: List<String>,
+    generateSourceAnnotation: GenerateSourceAnnotation<*>,
+    options: CreamOptions,
+) {
+    when (target.classKind) {
+        ClassKind.CLASS,
+        ClassKind.ANNOTATION_CLASS,
+            ->
+            appendCombineToClassFunction(
+                primarySource,
+                otherSources,
+                target,
+                generateSourceAnnotation,
+                omitPackages,
+                options,
+            )
+
+        ClassKind.OBJECT ->
+            if (!options.notCopyToObject)
+                appendCombineToObjectFunction(
+                    primarySource,
+                    otherSources,
+                    target,
+                    generateSourceAnnotation,
+                    options,
+                )
+
+        else -> throw InvalidCreamUsageException(
+            message =
+                "Unsupported combine to ${
+                    target.classKind.name.lowercase().replace("_", " ")
+                } (${target.fullName}).",
+            solution = "Please make ${target.fullName} a class or object.",
+        )
+    }
+}
