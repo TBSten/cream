@@ -64,11 +64,11 @@ data class MergeMappingSourceA(
 )
 
 data class MergeMappingSourceB(
-    @CombineFrom.Map("sourcePropertyA")
     val sourcePropertyB: String,
 )
 
 @CombineFrom(MergeMappingSourceA::class, MergeMappingSourceB::class)
 data class MergeMappingTarget(
+    @CombineFrom.Map("sourcePropertyB")
     val sourcePropertyA: String,
 )
