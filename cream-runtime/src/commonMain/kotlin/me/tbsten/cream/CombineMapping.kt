@@ -101,7 +101,8 @@ annotation class CombineMapping(
      * @param source The property name in one of the source classes
      * @param target The property name in the target class
      *
-     * @example
+     * ## Example Usage
+     *
      * ```kt
      * @CombineMapping(
      *     sources = [PersonDto::class, AddressDto::class],
