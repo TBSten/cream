@@ -73,9 +73,22 @@ private fun KSValueParameter.findSourcePropertyWithCopyToAnnotation(
 ): KSPropertyDeclaration? {
     return source.getAllProperties()
         .firstOrNull { sourceProperty ->
-            val copyToPropertyAnnotation = sourceProperty
+            // First try to get annotation from property itself
+            val propertyAnnotation = sourceProperty
                 .getAnnotationsByType(CopyTo.Map::class)
                 .firstOrNull()
+
+            // If not found on property, try to get it from the corresponding constructor parameter
+            val constructorParamAnnotation = if (propertyAnnotation == null) {
+                source.primaryConstructor?.parameters
+                    ?.firstOrNull { it.name?.asString() == sourceProperty.simpleName.asString() }
+                    ?.getAnnotationsByType(CopyTo.Map::class)
+                    ?.firstOrNull()
+            } else {
+                null
+            }
+
+            val copyToPropertyAnnotation = propertyAnnotation ?: constructorParamAnnotation
 
             if (copyToPropertyAnnotation != null) {
                 parameterName in copyToPropertyAnnotation.propertyNames &&
@@ -92,9 +105,22 @@ private fun KSValueParameter.findSourcePropertyWithCombineToAnnotation(
 ): KSPropertyDeclaration? {
     return source.getAllProperties()
         .firstOrNull { sourceProperty ->
-            val combineToPropertyAnnotation = sourceProperty
+            // First try to get annotation from property itself
+            val propertyAnnotation = sourceProperty
                 .getAnnotationsByType(CombineTo.Map::class)
                 .firstOrNull()
+
+            // If not found on property, try to get it from the corresponding constructor parameter
+            val constructorParamAnnotation = if (propertyAnnotation == null) {
+                source.primaryConstructor?.parameters
+                    ?.firstOrNull { it.name?.asString() == sourceProperty.simpleName.asString() }
+                    ?.getAnnotationsByType(CombineTo.Map::class)
+                    ?.firstOrNull()
+            } else {
+                null
+            }
+
+            val combineToPropertyAnnotation = propertyAnnotation ?: constructorParamAnnotation
 
             if (combineToPropertyAnnotation != null) {
                 parameterName in combineToPropertyAnnotation.propertyNames &&
@@ -141,9 +167,22 @@ private fun KSValueParameter.findSourcePropertyWithCombineFromAnnotationOnSource
 ): KSPropertyDeclaration? {
     return source.getAllProperties()
         .firstOrNull { sourceProperty ->
-            val combineFromPropertyAnnotation = sourceProperty
+            // First try to get annotation from property itself
+            val propertyAnnotation = sourceProperty
                 .getAnnotationsByType(CombineFrom.Map::class)
                 .firstOrNull()
+
+            // If not found on property, try to get it from the corresponding constructor parameter
+            val constructorParamAnnotation = if (propertyAnnotation == null) {
+                source.primaryConstructor?.parameters
+                    ?.firstOrNull { it.name?.asString() == sourceProperty.simpleName.asString() }
+                    ?.getAnnotationsByType(CombineFrom.Map::class)
+                    ?.firstOrNull()
+            } else {
+                null
+            }
+
+            val combineFromPropertyAnnotation = propertyAnnotation ?: constructorParamAnnotation
 
             if (combineFromPropertyAnnotation != null) {
                 parameterName in combineFromPropertyAnnotation.propertyNames &&

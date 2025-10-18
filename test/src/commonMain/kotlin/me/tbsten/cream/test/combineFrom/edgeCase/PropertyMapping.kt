@@ -8,25 +8,24 @@ import me.tbsten.cream.CombineFrom
 
 // Test case 1: Simple property name mapping
 data class MappingSourceA(
-    @CombineFrom.Map("targetPropertyA")
     val sourcePropertyA: String,
 )
 
 data class MappingSourceB(
-    @CombineFrom.Map("targetPropertyB")
     val sourcePropertyB: Int,
 )
 
 @CombineFrom(MappingSourceA::class, MappingSourceB::class)
 data class MappedTarget(
+    @CombineFrom.Map("sourcePropertyA")
     val targetPropertyA: String,
+    @CombineFrom.Map("sourcePropertyB")
     val targetPropertyB: Int,
     val normalProperty: String,
 )
 
 // Test case 2: Multiple property names mapping
 data class MultiMappingSource(
-    @CombineFrom.Map("targetName1", "targetName2")
     val sourceName: String,
 )
 
@@ -36,7 +35,9 @@ data class MultiMappingSourceB(
 
 @CombineFrom(MultiMappingSource::class, MultiMappingSourceB::class)
 data class MultiMappedTarget(
+    @CombineFrom.Map("sourceName")
     val targetName1: String,
+    @CombineFrom.Map("sourceName")
     val targetName2: String,
     val otherProp: Int,
 )
@@ -47,13 +48,13 @@ data class MixedMappingSourceA(
 )
 
 data class MixedMappingSourceB(
-    @CombineFrom.Map("renamedProperty")
     val originalProperty: Int,
 )
 
 @CombineFrom(MixedMappingSourceA::class, MixedMappingSourceB::class)
 data class MixedMappingTarget(
     val directMatch: String,
+    @CombineFrom.Map("originalProperty")
     val renamedProperty: Int,
     val extraProperty: Boolean,
 )
