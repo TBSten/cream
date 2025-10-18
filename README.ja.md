@@ -251,10 +251,89 @@ fun UiState.copyToUiStateSuccessRefreshing(
 
 これは各 sealed class/interface に @CopyTo を都度指定するよりも圧倒的に楽です。
 
-### CopyTo.Map, CopyFrom.Map
+### CombineTo
 
-`@CopyTo.Map` および `@CopyFrom.Map` を使用してプロパティごとに対応するプロパティを指定できます。
+`@CombineTo` を使用すると、**複数のソースクラスから1つのターゲットクラスへ**コピー関数を生成できます。
+複数のデータソースを組み合わせて1つの状態を作成する際に便利です。
+
+```kt
+@CombineTo(SuccessState::class)
+data class LoadingState(
+    val itemId: String,
+)
+
+@CombineTo(SuccessState::class)
+data class SuccessAction(
+    val data: Data,
+)
+
+data class SuccessState(
+    val itemId: String,  // from LoadingState.itemId
+    val data: Data,      // from SuccessAction.data
+    val lastUpdateAt: Date,
+)
+
+// auto generate
+fun LoadingState.copyToSuccessState(
+    successAction: SuccessAction,
+    itemId: String = this.itemId,
+    data: Data = successAction.data,
+    lastUpdateAt: Date,
+): SuccessState = /* ... */
+
+// usage
+val loadingState: LoadingState = /* ... */
+val action: SuccessAction = /* ... */
+val successState: SuccessState = loadingState.copyToSuccessState(
+    successAction = action,
+    lastUpdateAt = Date(),
+)
+```
+
+複数のソースクラスに同じプロパティ名がある場合、**後に宣言されたソースクラス** の値が優先されます。
+
+### CombineFrom
+
+`@CombineFrom` は `@CombineTo` の逆で、**ターゲット側**に複数のソースクラスを指定します。
+
+```kt
+data class LoadingState(
+    val itemId: String,
+)
+
+data class SuccessAction(
+    val data: Data,
+)
+
+@CombineFrom(LoadingState::class, SuccessAction::class)
+data class SuccessState(
+    val itemId: String,  // from LoadingState.itemId
+    val data: Data,      // from SuccessAction.data
+    val lastUpdateAt: Date,
+)
+
+// auto generate
+fun LoadingState.copyToSuccessState(
+    successAction: SuccessAction,
+    itemId: String = this.itemId,
+    data: Data = successAction.data,
+    lastUpdateAt: Date,
+): SuccessState = /* ... */
+```
+
+`@CombineTo` と `@CombineFrom` は生成される関数は同じですが、アノテーションを付ける場所が異なります。
+
+- ソース側を編集できる場合は `@CombineTo`
+- ターゲット側を編集できる場合は `@CombineFrom`
+
+を選択してください。
+
+### CopyTo.Map, CopyFrom.Map, CombineTo.Map, CombineFrom.Map
+
+`@CopyTo.Map`、`@CopyFrom.Map`、`@CombineTo.Map`、`@CombineFrom.Map` を使用してプロパティごとに対応するプロパティを指定できます。
 これはコピー元とコピー先でプロパティ名が違う時にマッピングするのに便利です。
+
+#### CopyTo.Map / CopyFrom.Map
 
 ```kt
 @CopyTo(DataModel::class)
@@ -288,6 +367,35 @@ data class DataModel(
 fun DataModel.copyToDomainModel(
     domainId: String = this.dataId, // dataId と domainId がマッピングされます
 )
+```
+
+#### CombineTo.Map / CombineFrom.Map
+
+複数のソースクラスから1つのターゲットクラスへコピーする際も同様にプロパティマッピングが可能です。
+
+```kt
+@CombineTo(TargetState::class)
+data class SourceA(
+    @CombineTo.Map("targetProperty")
+    val sourceProperty: String,
+)
+
+@CombineTo(TargetState::class)
+data class SourceB(
+    val otherProperty: Int,
+)
+
+data class TargetState(
+    val targetProperty: String,
+    val otherProperty: Int,
+)
+
+// auto generate
+fun SourceA.copyToTargetState(
+    sourceB: SourceB,
+    targetProperty: String = this.sourceProperty, // sourceProperty と targetProperty がマッピングされます
+    otherProperty: Int = sourceB.otherProperty,
+): TargetState = ...
 ```
 
 ### CopyMapping

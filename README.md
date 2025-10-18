@@ -257,6 +257,80 @@ fun UiState.copyToUiStateSuccessRefreshing(
 
 This is much easier than specifying @CopyTo for each sealed class/interface.
 
+### CombineTo
+
+Use `@CombineTo` to generate copy functions **from multiple source classes to a single target class**.
+This is useful when combining multiple data sources to create a single state.
+
+```kt
+@CombineTo(SuccessState::class)
+data class LoadingState(
+    val itemId: String,
+)
+
+@CombineTo(SuccessState::class)
+data class SuccessAction(
+    val data: Data,
+)
+
+data class SuccessState(
+    val itemId: String,  // from LoadingState.itemId
+    val data: Data,      // from SuccessAction.data
+    val lastUpdateAt: Date,
+)
+
+// auto generate
+fun LoadingState.copyToSuccessState(
+    successAction: SuccessAction,
+    itemId: String = this.itemId,
+    data: Data = successAction.data,
+    lastUpdateAt: Date,
+): SuccessState = /* ... */
+
+// usage
+val loadingState: LoadingState = /* ... */
+val action: SuccessAction = /* ... */
+val successState: SuccessState = loadingState.copyToSuccessState(
+    successAction = action,
+    lastUpdateAt = Date(),
+)
+```
+
+When multiple source classes have the same property name, **the last declared source class** takes precedence.
+
+### CombineFrom
+
+`@CombineFrom` is the inverse of `@CombineTo`, where you specify multiple source classes **on the target side**.
+
+```kt
+data class LoadingState(
+    val itemId: String,
+)
+
+data class SuccessAction(
+    val data: Data,
+)
+
+@CombineFrom(LoadingState::class, SuccessAction::class)
+data class SuccessState(
+    val itemId: String,  // from LoadingState.itemId
+    val data: Data,      // from SuccessAction.data
+    val lastUpdateAt: Date,
+)
+
+// auto generate
+fun LoadingState.copyToSuccessState(
+    successAction: SuccessAction,
+    itemId: String = this.itemId,
+    data: Data = successAction.data,
+    lastUpdateAt: Date,
+): SuccessState = /* ... */
+```
+
+Both `@CombineTo` and `@CombineFrom` generate the same functions, but differ in where the annotation is placed:
+- Use `@CombineTo` if you can modify the source side
+- Use `@CombineFrom` if you can modify the target side
+
 ### CopyTo.Map, CopyFrom.Map
 
 You can use `@CopyTo.Map` and `@CopyFrom.Map` to map properties between source and target
@@ -295,6 +369,35 @@ data class DataModel(
 fun DataModel.copyToDomainModel(
     domainId: String = this.dataId, // dataId is mapped to domainId
 )
+```
+
+### CombineTo.Map, CombineFrom.Map
+
+`@CombineTo.Map` and `@CombineFrom.Map` can also be used for property mapping when copying from multiple source classes to a single target class.
+
+```kt
+@CombineTo(TargetState::class)
+data class SourceA(
+    @CombineTo.Map("targetProperty")
+    val sourceProperty: String,
+)
+
+@CombineTo(TargetState::class)
+data class SourceB(
+    val otherProperty: Int,
+)
+
+data class TargetState(
+    val targetProperty: String,
+    val otherProperty: Int,
+)
+
+// auto generate
+fun SourceA.copyToTargetState(
+    sourceB: SourceB,
+    targetProperty: String = this.sourceProperty, // sourceProperty is mapped to targetProperty
+    otherProperty: Int = sourceB.otherProperty,
+): TargetState = ...
 ```
 
 ### CopyMapping
