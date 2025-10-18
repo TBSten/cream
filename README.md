@@ -375,6 +375,8 @@ fun DataModel.copyToDomainModel(
 
 `@CombineTo.Map` and `@CombineFrom.Map` can also be used for property mapping when copying from multiple source classes to a single target class.
 
+**Specifying mapping on source side:**
+
 ```kt
 @CombineTo(TargetState::class)
 data class SourceA(
@@ -397,6 +399,33 @@ fun SourceA.copyToTargetState(
     sourceB: SourceB,
     targetProperty: String = this.sourceProperty, // sourceProperty is mapped to targetProperty
     otherProperty: Int = sourceB.otherProperty,
+): TargetState = ...
+```
+
+**Specifying mapping on target side:**
+
+```kt
+data class SourceA(
+    val sourceProperty: String,
+)
+
+data class SourceB(
+    val otherSourceProperty: Int,
+)
+
+@CombineFrom(SourceA::class, SourceB::class)
+data class TargetState(
+    @CombineFrom.Map("sourceProperty")
+    val targetProperty: String,
+    @CombineFrom.Map("otherSourceProperty")
+    val otherProperty: Int,
+)
+
+// auto generate
+fun SourceA.copyToTargetState(
+    sourceB: SourceB,
+    targetProperty: String = this.sourceProperty, // sourceProperty is mapped to targetProperty
+    otherProperty: Int = sourceB.otherSourceProperty, // otherSourceProperty is mapped to otherProperty
 ): TargetState = ...
 ```
 
