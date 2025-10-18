@@ -413,9 +413,9 @@ data class SourceB(
 
 @CombineFrom(SourceA::class, SourceB::class)
 data class TargetState(
-    @param:CombineFrom.Map("sourceProperty")
+    @CombineFrom.Map("sourceProperty")
     val targetProperty: String,
-    @param:CombineFrom.Map("otherSourceProperty")
+    @CombineFrom.Map("otherSourceProperty")
     val otherProperty: Int,
 )
 
