@@ -31,6 +31,19 @@ private data class CopyMappingInfo(
     val propertyMappings: List<Pair<String, String>>,
 )
 
+/**
+ * Data class to hold CombineMapping annotation information
+ *
+ * @property sourceClasses The source classes to combine from (at least 2 sources)
+ * @property targetClass The target class for the mapping
+ * @property propertyMappings List of property name mappings (source property name -> target property name)
+ */
+private data class CombineMappingInfo(
+    val sourceClasses: List<KSClassDeclaration>,
+    val targetClass: KSClassDeclaration,
+    val propertyMappings: List<Pair<String, String>>,
+)
+
 class CreamSymbolProcessor(
     options: Map<String, String>,
     private val codeGenerator: CodeGenerator,
@@ -56,6 +69,9 @@ class CreamSymbolProcessor(
             .also { invalidTargets.addAll(it) }
 
         processCopyMapping(resolver)
+            .also { invalidTargets.addAll(it) }
+
+        processCombineMapping(resolver)
             .also { invalidTargets.addAll(it) }
 
         return invalidTargets
@@ -514,6 +530,130 @@ class CreamSymbolProcessor(
         }
 
         return invalidCopyMappingTargets
+    }
+
+    private fun processCombineMapping(resolver: Resolver): List<KSAnnotated> {
+        val (combineMappingTargets, invalidCombineMappingTargets) = resolver.getSymbolsWithAnnotation(
+            annotationName = CombineMapping::class.fullName,
+        ).partition { it.validate() }
+
+        combineMappingTargets.forEach { target ->
+            val annotatedDeclaration = (target as? KSClassDeclaration)
+                ?: throw InvalidCreamUsageException(
+                    message = "@${CombineMapping::class.simpleName} must be applied to a class.",
+                    solution = "Please apply @${CombineMapping::class.simpleName} to a `class` or `object`",
+                )
+
+            // Extract all CombineMapping annotations from the target
+            val combineMappings = target
+                .annotations
+                .filter { it.annotationType.resolve().declaration.fullName == CombineMapping::class.qualifiedName }
+                .map { annotation ->
+                    val sourcesTypes = annotation.arguments
+                        .firstOrNull { it.name?.asString() == "sources" }
+                        ?.value as? List<*>
+                        ?: throw InvalidCreamUsageException(
+                            message = "sources parameter is required in @${CombineMapping::class.simpleName}",
+                            solution = "Specify at least 2 source classes in @${CombineMapping::class.simpleName}",
+                        )
+
+                    val targetType = annotation.arguments
+                        .firstOrNull { it.name?.asString() == "target" }
+                        ?.value as? KSType
+                        ?: throw InvalidCreamUsageException(
+                            message = "target parameter is required in @${CombineMapping::class.simpleName}",
+                            solution = "Specify target class in @${CombineMapping::class.simpleName}",
+                        )
+
+                    val propertyMappings = annotation.arguments
+                        .firstOrNull { it.name?.asString() == "properties" }
+                        ?.value as? List<*>
+                        ?: emptyList<Any>()
+
+                    val propertyMaps = propertyMappings.mapNotNull { mapping ->
+                        val mapAnnotation = mapping as? KSAnnotation ?: return@mapNotNull null
+                        val sourceProperty = mapAnnotation.arguments
+                            .firstOrNull { it.name?.asString() == "source" }
+                            ?.value as? String
+                        val targetProperty = mapAnnotation.arguments
+                            .firstOrNull { it.name?.asString() == "target" }
+                            ?.value as? String
+
+                        if (sourceProperty != null && targetProperty != null) {
+                            sourceProperty to targetProperty
+                        } else {
+                            null
+                        }
+                    }
+
+                    val sourceClasses = sourcesTypes.mapNotNull { sourceType ->
+                        (sourceType as? KSType)?.declaration as? KSClassDeclaration
+                    }
+
+                    if (sourceClasses.size < 2) {
+                        throw InvalidCreamUsageException(
+                            message = "@${CombineMapping::class.simpleName} requires at least 2 source classes, but got ${sourceClasses.size}.",
+                            solution = "Specify at least 2 source classes in @${CombineMapping::class.simpleName}.sources",
+                        )
+                    }
+
+                    sourceClasses.forEach { sourceClass ->
+                        if (sourceClass.classKind != ClassKind.CLASS &&
+                            sourceClass.classKind != ClassKind.ANNOTATION_CLASS
+                        ) {
+                            throw InvalidCreamUsageException(
+                                message = "${sourceClass.fullName} (Specified in @${CombineMapping::class.simpleName}.sources) must be a class.",
+                                solution = "Specify a class in @${CombineMapping::class.simpleName}.sources",
+                            )
+                        }
+                    }
+
+                    val targetClass = targetType.declaration as? KSClassDeclaration
+                        ?: throw InvalidCreamUsageException(
+                            message = "${targetType.declaration.fullName} (Specified in @${CombineMapping::class.simpleName}.target) must be a class.",
+                            solution = "Specify a class in @${CombineMapping::class.simpleName}.target",
+                        )
+
+                    CombineMappingInfo(sourceClasses, targetClass, propertyMaps)
+                }
+
+            // Group by first source class package to create one file per source package
+            combineMappings.groupBy { it.sourceClasses.first().packageName }
+                .forEach { (packageName, mappings) ->
+                    // Use the first source class's file for dependencies
+                    val sourceFile = mappings.first().sourceClasses.first().containingFile
+                        ?: annotatedDeclaration.containingFile!!
+
+                    codeGenerator.createNewKotlinFile(
+                        dependencies = Dependencies(aggregating = true, sourceFile),
+                        packageName = packageName,
+                        fileName = "CombineMapping__${annotatedDeclaration.underPackageName}",
+                    ) {
+                        it.appendLine("import me.tbsten.cream.*")
+                        it.appendLine()
+
+                        mappings.forEach { mapping ->
+                            val primarySource = mapping.sourceClasses.first()
+                            val otherSources = mapping.sourceClasses.drop(1)
+
+                            it.appendCombineToFunction(
+                                primarySource = primarySource,
+                                otherSources = otherSources,
+                                target = mapping.targetClass,
+                                options = options,
+                                omitPackages = listOf("kotlin", packageName.asString()),
+                                generateSourceAnnotation =
+                                    GenerateSourceAnnotation.CombineMapping(
+                                        annotationTarget = annotatedDeclaration,
+                                        propertyMappings = mapping.propertyMappings,
+                                    ),
+                            )
+                        }
+                    }
+                }
+        }
+
+        return invalidCombineMappingTargets
     }
 }
 

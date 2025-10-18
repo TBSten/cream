@@ -49,4 +49,12 @@ internal sealed interface GenerateSourceAnnotation<A : Annotation> {
         override val annotationClass: KClass<me.tbsten.cream.CopyMapping> =
             me.tbsten.cream.CopyMapping::class
     }
+
+    data class CombineMapping(
+        override val annotationTarget: KSClassDeclaration,
+        val propertyMappings: List<Pair<String, String>> = emptyList(),
+    ) : GenerateSourceAnnotation<me.tbsten.cream.CombineMapping> {
+        override val annotationClass: KClass<me.tbsten.cream.CombineMapping> =
+            me.tbsten.cream.CombineMapping::class
+    }
 }

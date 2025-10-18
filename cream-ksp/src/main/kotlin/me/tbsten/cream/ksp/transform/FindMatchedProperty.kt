@@ -34,11 +34,18 @@ internal fun KSValueParameter.findMatchedProperty(
     findSourcePropertyWithCombineFromAnnotationOnSource(source, parameterName)
         ?.let { return it }
 
-    val propertyMappings = (generateSourceAnnotation as? GenerateSourceAnnotation.CopyMapping)
+    val copyMappingPropertyMappings = (generateSourceAnnotation as? GenerateSourceAnnotation.CopyMapping)
         ?.propertyMappings
         ?: emptyList()
 
-    findSourcePropertyWithCopyMappingAnnotation(source, parameterName, propertyMappings)
+    findSourcePropertyWithCopyMappingAnnotation(source, parameterName, copyMappingPropertyMappings)
+        ?.let { return it }
+
+    val combineMappingPropertyMappings = (generateSourceAnnotation as? GenerateSourceAnnotation.CombineMapping)
+        ?.propertyMappings
+        ?: emptyList()
+
+    findSourcePropertyWithCombineMappingAnnotation(source, parameterName, combineMappingPropertyMappings)
         ?.let { return it }
 
     return findSourcePropertyByName(source, parameterName)
@@ -52,6 +59,29 @@ internal fun KSValueParameter.findMatchedProperty(
  * this function will find source property "xProp".
  */
 private fun KSValueParameter.findSourcePropertyWithCopyMappingAnnotation(
+    source: KSClassDeclaration,
+    parameterName: String,
+    propertyMappings: List<Pair<String, String>>,
+): KSPropertyDeclaration? {
+    val sourcePropertyName = propertyMappings.firstOrNull { (_, target) ->
+        target == parameterName
+    }?.first ?: return null
+
+    return source.getAllProperties()
+        .firstOrNull {
+            it.simpleName.asString() == sourcePropertyName &&
+                    isTypeCompatible(this.type.resolve(), it.type.resolve())
+        }
+}
+
+/**
+ * Find source property using CombineMapping.Map property mappings
+ *
+ * Property mappings define explicit source -> target property name mappings.
+ * For example, if mapping is ("xProp" -> "yProp"), then when looking for target parameter "yProp",
+ * this function will find source property "xProp".
+ */
+private fun KSValueParameter.findSourcePropertyWithCombineMappingAnnotation(
     source: KSClassDeclaration,
     parameterName: String,
     propertyMappings: List<Pair<String, String>>,
