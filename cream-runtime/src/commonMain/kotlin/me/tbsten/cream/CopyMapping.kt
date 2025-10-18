@@ -96,17 +96,15 @@ annotation class CopyMapping(
     val source: KClass<*>,
     val target: KClass<*>,
     val canReverse: Boolean = false,
-    vararg val properties: Map,
+    val properties: Array<Map> = [],
 ) {
     /**
      * Defines a property name mapping between source and target classes.
      *
      * This allows you to map properties with different names when generating copy functions.
      *
-     * @param source The property name in the source class
-     * @param target The property name in the target class
+     * ## Example
      *
-     * @example
      * ```kt
      * @CopyMapping(
      *     source = PersonDto::class,
@@ -116,6 +114,9 @@ annotation class CopyMapping(
      *         CopyMapping.Map(source = "emailAddr", target = "email")
      *     ]
      * )
+     *
+     * @param source The property name in the source class
+     * @param target The property name in the target class
      * ```
      */
     annotation class Map(val source: String, val target: String)
