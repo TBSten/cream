@@ -1,26 +1,9 @@
-package me.tbsten.cream.test.copyToChildren.edgeCase
+package me.tbsten.cream.test.copyToChildren
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class CopyToChildrenEdgeCaseTest {
-    @Test
-    fun dataObjectToDataObject() {
-        val source = EmptyChild1
-        val target = source.copyToEmptyChild2()
-
-        assertEquals(EmptyChild2, target)
-    }
-
-    @Test
-    fun nestedClasses() {
-        val parent = ParentClass("test", 100)
-        val source = NestedChild1(parent, "test name")
-        val target = source.copyToNestedChild2(value = 0)
-
-        assertEquals(NestedChild2(parent, 0), target)
-    }
-
+class ComplexTypesTest {
     @Test
     fun complexTypes() {
         val source =
@@ -54,21 +37,6 @@ class CopyToChildrenEdgeCaseTest {
             ComplexTypeChild2(
                 stringList = emptyList(),
                 intMap = emptyMap(),
-            ),
-            target,
-        )
-    }
-
-    @Test
-    fun visibilityProperties() {
-        val source = VisibilityChild1(publicProp = "public", internalProp = "internal")
-        val target = source.copyToVisibilityChild2(newProperty = "new")
-
-        assertEquals(
-            VisibilityChild2(
-                publicProp = "public",
-                internalProp = "internal",
-                newProperty = "new",
             ),
             target,
         )

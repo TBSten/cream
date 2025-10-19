@@ -3,7 +3,7 @@ package me.tbsten.cream.test.copyToChildren
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class CopyToChildrenTest {
+class BasicTest {
     @Test
     fun parentToChildren() {
         val parent: Parent = ChildDataObject
