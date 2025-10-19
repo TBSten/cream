@@ -11,18 +11,20 @@ class MultiSourceTest {
         val sourceC = MultiSourceC(propertyC = true)
         val sourceD = MultiSourceD(propertyD = 3.14)
 
-        val result = sourceA.copyToMultiSourceTarget(
-            multiSourceB = sourceB,
-            multiSourceC = sourceC,
-            multiSourceD = sourceD,
-        )
+        val result =
+            sourceA.copyToMultiSourceTarget(
+                multiSourceB = sourceB,
+                multiSourceC = sourceC,
+                multiSourceD = sourceD,
+            )
 
-        val expected = MultiSourceTarget(
-            propertyA = "A",
-            propertyB = 1,
-            propertyC = true,
-            propertyD = 3.14,
-        )
+        val expected =
+            MultiSourceTarget(
+                propertyA = "A",
+                propertyB = 1,
+                propertyC = true,
+                propertyD = 3.14,
+            )
 
         assertEquals(expected, result)
     }

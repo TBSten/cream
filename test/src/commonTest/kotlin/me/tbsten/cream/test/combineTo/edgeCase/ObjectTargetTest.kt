@@ -9,9 +9,10 @@ class ObjectTargetTest {
         val sourceA = ObjectSourceA(propertyA = "test")
         val sourceB = ObjectSourceB(propertyB = 42)
 
-        val result = sourceA.copyToTargetObject(
-            objectSourceB = sourceB,
-        )
+        val result =
+            sourceA.copyToTargetObject(
+                objectSourceB = sourceB,
+            )
 
         // Objects are singletons, so the result should be the same instance
         assertSame(TargetObject, result)

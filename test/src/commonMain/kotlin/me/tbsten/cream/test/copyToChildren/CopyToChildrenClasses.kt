@@ -9,7 +9,6 @@ sealed interface Parent {
     val parentProp3: Boolean
 }
 
-
 // Child
 data object ChildDataObject : Parent {
     override val parentProp1 = "aaa"
@@ -31,7 +30,6 @@ sealed interface ChildSealedInterface : Parent {
     val childProp2: Long
     val childProp3: String
 }
-
 
 // GrandChild
 data object GrandChildDataObject : ChildSealedInterface {
@@ -61,7 +59,6 @@ sealed interface GrandChildSealedInterface : ChildSealedInterface {
     val grandChildProp3: Boolean
 }
 
-
 // GreatGrandChild
 data object GreatGrandChildDataObject : GrandChildSealedInterface {
     override val parentProp1 = "ddd"
@@ -85,6 +82,7 @@ data class GreatGrandChildDataClass(
     override val grandChildProp1: String,
     override val grandChildProp2: Int,
     override val grandChildProp3: Boolean,
+    @Suppress("REDUNDANT_PROJECTION")
     val greatGrandChildProp1: List<out Any>,
     val greatGrandChildProp2: Double,
     val greatGrandChildProp3: Boolean,

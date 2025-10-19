@@ -6,11 +6,15 @@ import kotlinx.serialization.json.Json
 import org.w3c.dom.url.URL
 import org.w3c.dom.url.URLSearchParams
 
-private val json = Json {
-    ignoreUnknownKeys = true
-}
+private val json =
+    Json {
+        ignoreUnknownKeys = true
+    }
 
-internal actual fun <T> getFromShareableState(serializer: KSerializer<T>, key: String): T =
+internal actual fun <T> getFromShareableState(
+    serializer: KSerializer<T>,
+    key: String,
+): T =
     getQueryParameter(key)
         ?.let { paramValue ->
             runCatching { json.decodeFromString(serializer, paramValue) }
@@ -29,7 +33,7 @@ private fun getQueryParameter(key: String): String? {
 internal actual fun <T> setToShareableState(
     serializer: KSerializer<T>,
     key: String,
-    value: T
+    value: T,
 ) {
     val encoded = json.encodeToString(serializer, value)
     // Validate that the encoded value is not excessively long
@@ -40,7 +44,10 @@ internal actual fun <T> setToShareableState(
     setQueryParameter(key, encoded)
 }
 
-private fun setQueryParameter(key: String, value: String) {
+private fun setQueryParameter(
+    key: String,
+    value: String,
+) {
     val url = URL(window.location.toString())
     url.searchParams.set(key, value)
 

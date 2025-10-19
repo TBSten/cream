@@ -44,7 +44,7 @@ data class LibZModel(
 @CopyMapping(
     LibXModel::class,
     LibYModel::class,
-    properties = [CopyMapping.Map(source = "xProp", target = "yProp")]
+    properties = [CopyMapping.Map(source = "xProp", target = "yProp")],
 )
 @CopyMapping(LibYModel::class, LibZModel::class)
 private object Mapping

@@ -1,6 +1,10 @@
 package me.tbsten.cream.util
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisallowComposableCalls
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import kotlinx.coroutines.delay
 import kotlinx.serialization.KSerializer
 
@@ -12,12 +16,15 @@ fun <T> rememberShareableState(
     key: String,
     serializer: KSerializer<T>,
     calculation: @DisallowComposableCalls () -> T,
-) = remember(key1 = key, calculation = {
-    runCatching {
-        getFromShareableState<T>(serializer = serializer, key = key)
-    }.getOrElse { calculation() }
-        .let(::mutableStateOf)
-}).also {
+) = remember(
+    key1 = key,
+    calculation = {
+        runCatching {
+            getFromShareableState<T>(serializer = serializer, key = key)
+        }.getOrElse { calculation() }
+            .let(::mutableStateOf)
+    },
+).also {
     LaunchedEffect(it.value) {
         // Debounce URL updates to avoid excessive history.replaceState calls
         delay(DEBOUNCE_DELAY_MS)
@@ -31,5 +38,13 @@ fun <T> rememberShareableState(
 
 private const val DEBOUNCE_DELAY_MS = 300L
 
-internal expect fun <T> getFromShareableState(serializer: KSerializer<T>, key: String): T
-internal expect fun <T> setToShareableState(serializer: KSerializer<T>, key: String, value: T)
+internal expect fun <T> getFromShareableState(
+    serializer: KSerializer<T>,
+    key: String,
+): T
+
+internal expect fun <T> setToShareableState(
+    serializer: KSerializer<T>,
+    key: String,
+    value: T,
+)

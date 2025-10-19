@@ -26,9 +26,10 @@ fun CommonIcon(
         painter = painterResource(icon),
         contentDescription = contentDescription,
         tint = color,
-        modifier = Modifier
-            .hoverable(remember { MutableInteractionSource() })
-            .pointerHoverIcon(PointerIcon.Crosshair)
-            .size(24.dp),
+        modifier =
+            Modifier
+                .hoverable(remember { MutableInteractionSource() })
+                .pointerHoverIcon(PointerIcon.Crosshair)
+                .size(24.dp),
     )
 }

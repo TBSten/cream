@@ -6,11 +6,12 @@ import kotlin.test.assertEquals
 class GenericClassTest {
     @Test
     fun twoArgToThreeArg() {
-        val source = GenericSourceWithTwoTypeArg(
-            a = "test",
-            b = listOf("a", "b"),
-            d = 123,
-        )
+        val source =
+            GenericSourceWithTwoTypeArg(
+                a = "test",
+                b = listOf("a", "b"),
+                d = 123,
+            )
 
         mapOf(
             // FIXME
@@ -29,12 +30,13 @@ class GenericClassTest {
                 b = listOf("bbb", "bbb", "bbb"),
                 c = "c",
                 d = 456,
-            ) to GenericTargetWithThreeTypeArg(
-                a = "aaa",
-                b = listOf("bbb", "bbb", "bbb"),
-                c = "c",
-                d = 456,
-            ),
+            ) to
+                GenericTargetWithThreeTypeArg(
+                    a = "aaa",
+                    b = listOf("bbb", "bbb", "bbb"),
+                    c = "c",
+                    d = 456,
+                ),
         ).forEach { (actual, expected) ->
             assertEquals(actual, expected)
         }
@@ -42,11 +44,12 @@ class GenericClassTest {
 
     @Test
     fun threeArgToTwoArg() {
-        val source = GenericSourceWithThreeTypeArg(
-            a = "test",
-            b = listOf("a", "b"),
-            c = "c",
-        )
+        val source =
+            GenericSourceWithThreeTypeArg(
+                a = "test",
+                b = listOf("a", "b"),
+                c = "c",
+            )
 
         mapOf(
             // FIXME
@@ -63,10 +66,11 @@ class GenericClassTest {
             source.copyToGenericTargetWithTwoTypeArg(
                 a = "aaa",
                 b = listOf("bbb", "bbb", "bbb"),
-            ) to GenericTargetWithTwoTypeArg(
-                a = "aaa",
-                b = listOf("bbb", "bbb", "bbb"),
-            ),
+            ) to
+                GenericTargetWithTwoTypeArg(
+                    a = "aaa",
+                    b = listOf("bbb", "bbb", "bbb"),
+                ),
         ).forEach { (actual, expected) ->
             assertEquals(actual, expected)
         }

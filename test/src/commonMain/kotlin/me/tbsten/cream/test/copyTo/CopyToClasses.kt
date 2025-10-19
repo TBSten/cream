@@ -15,7 +15,6 @@ sealed interface Parent {
     val parentOrNull: Parent?
 }
 
-
 // Child
 @CopyTo(ChildDataClass::class)
 data object ChildDataObject : Parent {
@@ -41,7 +40,6 @@ sealed interface ChildSealedInterface : Parent {
     val childProp2: Long
     val childProp3: String
 }
-
 
 // GrandChild
 data object GrandChildDataObject : ChildSealedInterface {
@@ -72,7 +70,6 @@ sealed interface GrandChildSealedInterface : ChildSealedInterface {
     val grandChildProp2: Int
     val grandChildProp3: Boolean
 }
-
 
 // GreatGrandChild
 data object GreatGrandChildDataObject : GrandChildSealedInterface {

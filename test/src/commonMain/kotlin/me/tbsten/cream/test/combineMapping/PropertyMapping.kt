@@ -6,10 +6,10 @@ import me.tbsten.cream.CombineMapping
  * Target model with property name differences from source models
  */
 data class RenamedTargetModel(
-    val targetNameA: String,  // maps from LibAModel.nameA
-    val targetValueA: Int,     // maps from LibAModel.valueA
-    val targetNameB: String,   // maps from LibBModel.nameB
-    val targetValueB: Double,  // maps from LibBModel.valueB
+    val targetNameA: String, // maps from LibAModel.nameA
+    val targetValueA: Int, // maps from LibAModel.valueA
+    val targetNameB: String, // maps from LibBModel.nameB
+    val targetValueB: Double, // maps from LibBModel.valueB
     val extra: String,
 )
 
@@ -26,6 +26,6 @@ data class RenamedTargetModel(
         CombineMapping.Map(source = "valueA", target = "targetValueA"),
         CombineMapping.Map(source = "nameB", target = "targetNameB"),
         CombineMapping.Map(source = "valueB", target = "targetValueB"),
-    ]
+    ],
 )
 private object PropertyMappingMapping

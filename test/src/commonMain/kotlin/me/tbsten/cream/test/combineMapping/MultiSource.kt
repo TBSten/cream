@@ -33,6 +33,6 @@ data class TripleCombinedModel(
  */
 @CombineMapping(
     sources = [LibAModel::class, LibBModel::class, LibCModel::class],
-    target = TripleCombinedModel::class
+    target = TripleCombinedModel::class,
 )
 private object MultiSourceMapping

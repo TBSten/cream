@@ -9,7 +9,6 @@ import me.tbsten.cream.theme.AppTextStyles
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
-
 @Composable
 internal fun CommonInputCard(
     subHeadingRes: StringResource,
@@ -36,4 +35,3 @@ internal fun CommonInputCard(
         input()
     }
 }
-

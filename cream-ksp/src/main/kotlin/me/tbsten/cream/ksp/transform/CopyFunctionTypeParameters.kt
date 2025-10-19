@@ -22,25 +22,24 @@ internal class CopyFunctionTypeParameters(
     private val sourceClass: KSClassDeclaration,
     private val targetConstructor: KSFunctionDeclaration,
 ) : Map<String, CopyFunctionTypeParameter> by copyFunctionTypeParametersMap(
-    sourceClass,
-    targetConstructor
-) {
-    fun getNameFromSourceClassTypeParameters(
-        typeParameter: KSTypeParameter,
-    ): String? {
-        return this.entries.find {
-            it.value.source?.name?.asString() == typeParameter.name.asString()
-        }?.key
-    }
+        sourceClass,
+        targetConstructor,
+    ) {
+    fun getNameFromSourceClassTypeParameters(typeParameter: KSTypeParameter): String? =
+        this.entries
+            .find {
+                it.value.source
+                    ?.name
+                    ?.asString() == typeParameter.name.asString()
+            }?.key
 
-    fun getNameFromTargetConstructorTypeParameters(
-        typeParameter: KSTypeParameter,
-    ): String? {
-        return this.entries.find {
-            it.value.target?.name?.asString() == typeParameter.name.asString()
-        }?.key
-
-    }
+    fun getNameFromTargetConstructorTypeParameters(typeParameter: KSTypeParameter): String? =
+        this.entries
+            .find {
+                it.value.target
+                    ?.name
+                    ?.asString() == typeParameter.name.asString()
+            }?.key
 }
 
 private fun copyFunctionTypeParametersMap(
@@ -81,18 +80,20 @@ private fun copyFunctionTypeParametersMap(
         if (prevTypeParameters.isEmpty()) {
             put(
                 key = typeParameter.name.asString(),
-                value = CopyFunctionTypeParameter(
-                    source = typeParameter,
-                    target = null,
-                ),
+                value =
+                    CopyFunctionTypeParameter(
+                        source = typeParameter,
+                        target = null,
+                    ),
             )
         }
         prevTypeParameters.forEach { (name, prevTypeParameter) ->
             put(
                 key = name,
-                value = prevTypeParameter.copy(
-                    source = typeParameter,
-                ),
+                value =
+                    prevTypeParameter.copy(
+                        source = typeParameter,
+                    ),
             )
         }
     }

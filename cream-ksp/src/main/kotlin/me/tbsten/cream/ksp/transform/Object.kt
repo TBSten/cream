@@ -8,21 +8,21 @@ import me.tbsten.cream.ksp.util.underPackageName
 import me.tbsten.cream.ksp.util.visibilityStr
 import java.io.BufferedWriter
 
-
 internal fun BufferedWriter.appendCopyToObjectFunction(
     source: KSClassDeclaration,
     targetObject: KSClassDeclaration,
     generateSourceAnnotation: GenerateSourceAnnotation<*>,
     options: CreamOptions,
 ) {
-    val funName = copyFunctionName(
-        source.toClassDeclarationInfo(),
-        targetObject.toClassDeclarationInfo(),
-        options,
-    )
+    val funName =
+        copyFunctionName(
+            source.toClassDeclarationInfo(),
+            targetObject.toClassDeclarationInfo(),
+            options,
+        )
     appendCopyToObjectKDoc(source, targetObject, generateSourceAnnotation, funName.toString())
     appendLine(
-        "${targetObject.visibilityStr} fun ${source.fullName}.$funName() = ${targetObject.fullName}"
+        "${targetObject.visibilityStr} fun ${source.fullName}.$funName() = ${targetObject.fullName}",
     )
 }
 
@@ -34,18 +34,19 @@ internal fun BufferedWriter.appendCombineToObjectFunction(
     options: CreamOptions,
 ) {
     val allSources = listOf(primarySource) + otherSources
-    val funName = copyFunctionName(
-        primarySource.toClassDeclarationInfo(),
-        targetObject.toClassDeclarationInfo(),
-        options,
-    )
+    val funName =
+        copyFunctionName(
+            primarySource.toClassDeclarationInfo(),
+            targetObject.toClassDeclarationInfo(),
+            options,
+        )
     appendCombineToObjectKDoc(allSources, targetObject, generateSourceAnnotation, funName.toString())
     appendLine(
         "${targetObject.visibilityStr} fun ${primarySource.fullName}.$funName(${
             otherSources.joinToString(", ") { otherSource ->
                 "${otherSource.underPackageName.replaceFirstChar { it.lowercase() }}: ${otherSource.fullName}"
             }
-        }) = ${targetObject.fullName}"
+        }) = ${targetObject.fullName}",
     )
 }
 
@@ -64,16 +65,26 @@ private fun BufferedWriter.appendCombineToObjectKDoc(
         appendLine()
 
         val primarySource = sources.first()
-        val otherSourceParams = sources.drop(1).joinToString(", ") {
-            "${it.underPackageName.replaceFirstChar { c -> c.lowercase() }} = ${it.simpleName.asString()}(...)"
-        }
-        val exampleLines = buildString {
-            appendLine("val ${primarySource.underPackageName.replaceFirstChar { it.lowercase() }} = ${primarySource.simpleName.asString()}(...)")
-            sources.drop(1).forEach { otherSource ->
-                appendLine("val ${otherSource.underPackageName.replaceFirstChar { it.lowercase() }} = ${otherSource.simpleName.asString()}(...)")
+        val otherSourceParams =
+            sources.drop(1).joinToString(", ") {
+                "${it.underPackageName.replaceFirstChar { c -> c.lowercase() }} = ${it.simpleName.asString()}(...)"
             }
-            append("val target = ${primarySource.underPackageName.replaceFirstChar { it.lowercase() }}.$funName($otherSourceParams)")
-        }
+        val exampleLines =
+            buildString {
+                appendLine(
+                    "val ${primarySource.underPackageName.replaceFirstChar {
+                        it.lowercase()
+                    }} = ${primarySource.simpleName.asString()}(...)",
+                )
+                sources.drop(1).forEach { otherSource ->
+                    appendLine(
+                        "val ${otherSource.underPackageName.replaceFirstChar {
+                            it.lowercase()
+                        }} = ${otherSource.simpleName.asString()}(...)",
+                    )
+                }
+                append("val target = ${primarySource.underPackageName.replaceFirstChar { it.lowercase() }}.$funName($otherSourceParams)")
+            }
         appendExample("Example: Basic", exampleLines)
     }
 }
@@ -91,10 +102,11 @@ private fun BufferedWriter.appendCopyToObjectKDoc(
         appendLine("${source.underPackageName} -> ${target.underPackageName} copy function.")
 
         appendExample(
-            "Example: Basic", """
+            "Example: Basic",
+            """
             val source = ${source.simpleName.asString()}(...)
             val target = source.$funName()
-        """.trimIndent()
+            """.trimIndent(),
         )
     }
 }

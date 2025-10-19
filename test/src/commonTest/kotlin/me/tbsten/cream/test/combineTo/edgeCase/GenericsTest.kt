@@ -9,14 +9,16 @@ class GenericsTest {
         val sourceA = GenericSourceA(genericProperty = 123)
         val sourceB = GenericSourceB(normalProperty = "normal")
 
-        val result: GenericTarget<Int> = sourceA.copyToGenericTarget(
-            genericSourceB = sourceB,
-        )
+        val result: GenericTarget<Int> =
+            sourceA.copyToGenericTarget(
+                genericSourceB = sourceB,
+            )
 
-        val expected = GenericTarget(
-            genericProperty = 123,
-            normalProperty = "normal",
-        )
+        val expected =
+            GenericTarget(
+                genericProperty = 123,
+                normalProperty = "normal",
+            )
 
         assertEquals(expected, result)
     }

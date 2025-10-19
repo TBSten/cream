@@ -13,17 +13,19 @@ internal fun KSType.asString(
         append(
             when (type.declaration) {
                 is KSTypeParameter -> typeParameterToString(type)
-                else -> type.declaration
-                    .let {
-                        // remove package in omitPackages
-                        if (it.packageName.asString() in omitPackages) {
-                            it.qualifiedName!!.asString()
-                                .removePrefix("${it.packageName.asString()}.")
-                        } else {
-                            it.qualifiedName!!.asString()
+                else ->
+                    type.declaration
+                        .let {
+                            // remove package in omitPackages
+                            if (it.packageName.asString() in omitPackages) {
+                                it.qualifiedName!!
+                                    .asString()
+                                    .removePrefix("${it.packageName.asString()}.")
+                            } else {
+                                it.qualifiedName!!.asString()
+                            }
                         }
-                    }
-            }
+            },
         )
 
         // type parameters
@@ -38,7 +40,7 @@ internal fun KSType.asString(
                         Variance.INVARIANT,
                         Variance.COVARIANT,
                         Variance.CONTRAVARIANT,
-                            -> {
+                        -> {
                             if (typeArg.variance != Variance.INVARIANT) {
                                 append(typeArg.variance.label)
                                 append(" ")
@@ -49,7 +51,7 @@ internal fun KSType.asString(
                             )
                         }
                     }
-                }
+                },
             )
             append(">")
         }

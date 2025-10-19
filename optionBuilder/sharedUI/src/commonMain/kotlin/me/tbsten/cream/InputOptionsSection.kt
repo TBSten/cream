@@ -1,9 +1,22 @@
 package me.tbsten.cream
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.selection.DisableSelection
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -11,7 +24,17 @@ import me.tbsten.cream.components.CommonIconButton
 import me.tbsten.cream.components.CommonInputCard
 import me.tbsten.cream.components.ToggleHeadingText
 import me.tbsten.cream.ksp.options.CreamOptions
-import me.tbsten.cream.sharedui.generated.resources.*
+import me.tbsten.cream.sharedui.generated.resources.Res
+import me.tbsten.cream.sharedui.generated.resources.icon_build
+import me.tbsten.cream.sharedui.generated.resources.icon_reset
+import me.tbsten.cream.sharedui.generated.resources.options_copy_fun_name_prefix_description
+import me.tbsten.cream.sharedui.generated.resources.options_copy_fun_name_prefix_heading
+import me.tbsten.cream.sharedui.generated.resources.options_copy_fun_naming_strategy_description
+import me.tbsten.cream.sharedui.generated.resources.options_copy_fun_naming_strategy_heading
+import me.tbsten.cream.sharedui.generated.resources.options_escape_dot_description
+import me.tbsten.cream.sharedui.generated.resources.options_escape_dot_heading
+import me.tbsten.cream.sharedui.generated.resources.options_heading
+import me.tbsten.cream.sharedui.generated.resources.reset
 import me.tbsten.cream.util.SmallColumnMediumRow
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -112,7 +135,6 @@ private fun <T> SelectOptionCard(
         modifier = modifier,
     ) {
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
-
             Column(
                 modifier = Modifier.weight(1f),
             ) {

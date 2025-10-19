@@ -27,12 +27,15 @@ internal class KDocWriter(
 ) {
     fun appendLine(value: String = "") {
         value.split("\n").forEach { line ->
-            writer.appendLine("${prefix}${line}")
+            writer.appendLine("${prefix}$line")
         }
     }
 }
 
-internal fun KDocWriter.appendExample(title: String, content: String) {
+internal fun KDocWriter.appendExample(
+    title: String,
+    content: String,
+) {
     appendLine("# $title")
     appendLine()
     appendLine("```kt")

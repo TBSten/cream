@@ -10,15 +10,17 @@ class OverlapTest {
         val sourceB = OverlapSourceB(sharedProperty = "from B", uniqueB = true)
 
         // When called from sourceA, sourceB's sharedProperty should be prioritized
-        val result: OverlapTarget = sourceA.copyToOverlapTarget(
-            overlapSourceB = sourceB,
-        )
+        val result: OverlapTarget =
+            sourceA.copyToOverlapTarget(
+                overlapSourceB = sourceB,
+            )
 
-        val expected = OverlapTarget(
-            sharedProperty = "from B", // SourceB is prioritized for overlapping properties
-            uniqueA = 42,
-            uniqueB = true,
-        )
+        val expected =
+            OverlapTarget(
+                sharedProperty = "from B", // SourceB is prioritized for overlapping properties
+                uniqueA = 42,
+                uniqueB = true,
+            )
 
         assertEquals(expected, result)
     }
@@ -29,18 +31,20 @@ class OverlapTest {
         val sourceB = OverlapSourceB(sharedProperty = "from B", uniqueB = true)
 
         // When called from sourceA, sourceB's sharedProperty should be prioritized
-        val result = sourceA.copyToOverlapTarget(
-            overlapSourceB = sourceB,
-            sharedProperty = "overridden",
-            uniqueA = 42,
-            uniqueB = true,
-        )
+        val result =
+            sourceA.copyToOverlapTarget(
+                overlapSourceB = sourceB,
+                sharedProperty = "overridden",
+                uniqueA = 42,
+                uniqueB = true,
+            )
 
-        val expected = OverlapTarget(
-            sharedProperty = "overridden", // SourceB is prioritized for overlapping properties
-            uniqueA = 42,
-            uniqueB = true,
-        )
+        val expected =
+            OverlapTarget(
+                sharedProperty = "overridden", // SourceB is prioritized for overlapping properties
+                uniqueA = 42,
+                uniqueB = true,
+            )
 
         assertEquals(expected, result)
     }

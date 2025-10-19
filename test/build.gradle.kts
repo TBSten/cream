@@ -13,10 +13,16 @@ plugins {
 
 android {
     namespace = "me.tbsten.cream.test"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    compileSdk =
+        libs.versions.android.compileSdk
+            .get()
+            .toInt()
 
     defaultConfig {
-        minSdk = libs.versions.android.minSdk.get().toInt()
+        minSdk =
+            libs.versions.android.minSdk
+                .get()
+                .toInt()
     }
 }
 
@@ -49,12 +55,12 @@ dependencies {
     ).forEach { it(project(":cream-ksp")) }
 }
 
-//ksp {
+// ksp {
 //    arg("cream.copyFunNamePrefix", "transitionTo")
 //    arg("cream.copyFunNamingStrategy", "full-name")
 //    arg("cream.escapeDot", "replace-to-underscore")
 //    arg("cream.notCopyToObject", "true")
-//}
+// }
 
 fun Project.setupKspForMultiplatformWorkaround() {
     kotlin.sourceSets.commonMain {

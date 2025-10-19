@@ -23,7 +23,7 @@ fun CommonCard(
     ) {
         Column(
             verticalArrangement = verticalArrangement,
-            modifier = Modifier.padding(20.dp)
+            modifier = Modifier.padding(20.dp),
         ) {
             content()
         }

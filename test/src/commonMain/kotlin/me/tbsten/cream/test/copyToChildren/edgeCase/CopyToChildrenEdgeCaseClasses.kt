@@ -7,6 +7,7 @@ import me.tbsten.cream.CopyToChildren
 sealed class EmptyParent
 
 data object EmptyChild1 : EmptyParent()
+
 data object EmptyChild2 : EmptyParent()
 
 // 2. Nested classes
@@ -63,4 +64,4 @@ data class VisibilityChild2(
     override val publicProp: String,
     internal override val internalProp: String,
     val newProperty: String,
-) : VisibilityParent() 
+) : VisibilityParent()

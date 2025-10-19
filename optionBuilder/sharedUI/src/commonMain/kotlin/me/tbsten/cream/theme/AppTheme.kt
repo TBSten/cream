@@ -15,14 +15,13 @@ import com.materialkolor.PaletteStyle
 import com.materialkolor.rememberDynamicMaterialThemeState
 
 @Composable
-fun AppTheme(
-    content: @Composable () -> Unit,
-) {
-    val dynamicThemeState = rememberDynamicMaterialThemeState(
-        isDark = isSystemInDarkTheme(),
-        style = PaletteStyle.TonalSpot,
-        seedColor = SeedColor,
-    )
+fun AppTheme(content: @Composable () -> Unit) {
+    val dynamicThemeState =
+        rememberDynamicMaterialThemeState(
+            isDark = isSystemInDarkTheme(),
+            style = PaletteStyle.TonalSpot,
+            seedColor = SeedColor,
+        )
 
     MaterialTheme {
         CompositionLocalProvider(
@@ -47,13 +46,12 @@ internal expect fun PlatformAppTheme(content: @Composable () -> Unit)
 
 @Composable
 internal fun Background(content: @Composable () -> Unit) {
-
-
     Surface(color = MaterialTheme.colorScheme.background, modifier = Modifier.fillMaxSize()) {
         Box(
-            modifier = Modifier
-                .background(backgroundGradient())
-                .fillMaxSize()
+            modifier =
+                Modifier
+                    .background(backgroundGradient())
+                    .fillMaxSize(),
         ) {
             content()
         }
