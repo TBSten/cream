@@ -12,14 +12,14 @@ class ExcludeTest {
         val result: ExcludeTestTarget =
             sourceA.copyToExcludeTestTarget(
                 excludeTestSourceB = sourceB,
-                sourceBProperty = "overriden",
+                sourceBProperty = "overridden",
             )
 
         // Verify
         val expected =
             ExcludeTestTarget(
                 sourceAProperty = "sourceA",
-                sourceBProperty = "overriden",
+                sourceBProperty = "overridden",
             )
 
         assertEquals(expected, result)
@@ -33,15 +33,15 @@ class ExcludeTest {
         val result: ExcludeTestTarget =
             sourceA.copyToExcludeTestTarget(
                 excludeTestSourceB = sourceB,
-                sourceAProperty = "overriden A",
-                sourceBProperty = "overriden B",
+                sourceAProperty = "overridden A",
+                sourceBProperty = "overridden B",
             )
 
         // Verify
         val expected: ExcludeTestTarget =
             ExcludeTestTarget(
-                sourceAProperty = "overriden A",
-                sourceBProperty = "overriden B",
+                sourceAProperty = "overridden A",
+                sourceBProperty = "overridden B",
             )
 
         assertEquals(expected, result)

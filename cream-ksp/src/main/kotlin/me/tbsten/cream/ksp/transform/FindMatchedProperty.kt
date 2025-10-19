@@ -351,15 +351,12 @@ private fun isTypeCompatible(
 /**
  * Check if a value parameter or property has an Exclude annotation
  */
-private inline fun <reified T : Annotation> KSValueParameter.hasExcludeAnnotation(): Boolean =
-    this.getAnnotationsByType(T::class).any()
+private inline fun <reified T : Annotation> KSValueParameter.hasExcludeAnnotation() = this.getAnnotationsByType(T::class).any()
 
 /**
  * Check if a property has an Exclude annotation (checks both property and constructor parameter)
  */
-private inline fun <reified T : Annotation> KSPropertyDeclaration.hasExcludeAnnotation(
-    source: KSClassDeclaration,
-): Boolean {
+private inline fun <reified T : Annotation> KSPropertyDeclaration.hasExcludeAnnotation(source: KSClassDeclaration): Boolean {
     // Check property itself
     if (this.getAnnotationsByType(T::class).any()) {
         return true
