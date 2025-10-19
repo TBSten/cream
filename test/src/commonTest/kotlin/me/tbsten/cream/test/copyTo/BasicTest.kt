@@ -3,7 +3,7 @@ package me.tbsten.cream.test.copyTo
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class CopyToTest {
+class BasicTest {
     @Test
     fun parentToChildren() {
         val parent: Parent =
