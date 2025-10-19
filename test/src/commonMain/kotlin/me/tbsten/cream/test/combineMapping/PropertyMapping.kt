@@ -28,4 +28,4 @@ data class RenamedTargetModel(
         CombineMapping.Map(source = "valueB", target = "targetValueB"),
     ],
 )
-private object PropertyMappingMapping
+private object PropertyMapping
