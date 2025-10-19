@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.composeHotReload)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.buildKonfig)
+    id("buildLogic.lint")
 }
 
 kotlin {

@@ -8,11 +8,16 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.ksp)
+    id("buildLogic.lint")
 }
 
 android {
     namespace = "me.tbsten.cream.test"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
+
+    defaultConfig {
+        minSdk = libs.versions.android.minSdk.get().toInt()
+    }
 }
 
 kotlin {

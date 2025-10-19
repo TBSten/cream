@@ -7,6 +7,8 @@ android-compileSdk = "36"
 ksp = "2.2.20-2.0.4"
 kotest = "6.0.4"
 mockk = "1.14.6"
+ktlint = "1.7.1"
+ktlintGradlePlugin = "13.1.0"
 
 # option builder
 composeMultiplatform = "1.9.1"
@@ -27,6 +29,9 @@ kotlinxSerializationCore = { module = "org.jetbrains.kotlinx:kotlinx-serializati
 kotlinxSerializationJson = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 kodeview = { module = "dev.snipme:kodeview", version.ref = "kodeview" }
 materialKolor = { module = "com.materialkolor:material-kolor", version.ref = "material-kolor" }
+kotlinGradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+kotlinGradlePluginApi = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin-api", version.ref = "kotlin" }
+ktlintGradlePlugin = { module = "org.jlleitschuh.gradle:ktlint-gradle", version.ref = "ktlintGradlePlugin" }
 
 [plugins]
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
@@ -34,6 +39,7 @@ kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref =
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 vanniktech-mavenPublish = { id = "com.vanniktech.maven.publish", version = "0.34.0" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+ktlintGradle = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintGradlePlugin" }
 
 # option builder
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
