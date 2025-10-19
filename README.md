@@ -429,6 +429,85 @@ fun SourceA.copyToTargetState(
 ): TargetState = ...
 ```
 
+### Exclude Annotations
+
+You can use `@Exclude` annotations to exclude specific properties from automatic copying, making them required parameters in the generated copy functions. This is useful when you want to force the caller to explicitly provide values for certain properties instead of inheriting them from the source.
+
+#### CopyTo.Exclude, CopyFrom.Exclude
+
+For single-source copy functions, use `@CopyTo.Exclude` on the source property or `@CopyFrom.Exclude` on the target parameter:
+
+```kt
+@CopyTo(TargetModel::class)
+data class SourceModel(
+    val sharedProp: String,
+    @CopyTo.Exclude  // This property will not be auto-copied
+    val excludedProp: String,
+)
+
+data class TargetModel(
+    val sharedProp: String,
+    val excludedProp: String,
+)
+
+// auto generate
+fun SourceModel.copyToTargetModel(
+    sharedProp: String = this.sharedProp,
+    excludedProp: String,  // Required parameter (no default value)
+): TargetModel = ...
+```
+
+#### CombineTo.Exclude, CombineFrom.Exclude
+
+For multi-source copy functions, use `@CombineTo.Exclude` on source properties or `@CombineFrom.Exclude` on target parameters:
+
+```kt
+@CombineTo(TargetState::class)
+data class SourceA(
+    val propA: String,
+    @CombineTo.Exclude  // This property will not be auto-copied
+    val excludedProp: String,
+)
+
+@CombineTo(TargetState::class)
+data class SourceB(
+    val propB: String,
+)
+
+data class TargetState(
+    val propA: String,
+    val excludedProp: String,
+    val propB: String,
+)
+
+// auto generate
+fun SourceA.copyToTargetState(
+    sourceB: SourceB,
+    propA: String = this.propA,
+    excludedProp: String,  // Required parameter (no default value)
+    propB: String = sourceB.propB,
+): TargetState = ...
+```
+
+#### CopyMapping.excludes, CombineMapping.excludes
+
+For mapping annotations, use the `excludes` parameter to specify property names to exclude:
+
+```kt
+@CopyMapping(
+    source = LibSourceModel::class,
+    target = LibTargetModel::class,
+    excludes = ["excludedProp"]  // Exclude specific properties
+)
+private object Mapping
+
+// auto generate
+fun LibSourceModel.copyToLibTargetModel(
+    sharedProp: String = this.sharedProp,
+    excludedProp: String,  // Required parameter (no default value)
+): LibTargetModel = ...
+```
+
 ### CopyMapping
 
 If you want to generate a copy function between classes where neither the source nor destination is in your own source
