@@ -328,6 +328,7 @@ fun LoadingState.copyToSuccessState(
 ```
 
 Both `@CombineTo` and `@CombineFrom` generate the same functions, but differ in where the annotation is placed:
+
 - Use `@CombineTo` if you can modify the source side
 - Use `@CombineFrom` if you can modify the target side
 
@@ -429,9 +430,10 @@ fun SourceA.copyToTargetState(
 ): TargetState = ...
 ```
 
-### Exclude Annotations
+### Exclude
 
-You can use `@Exclude` annotations to exclude specific properties from automatic copying, making them required parameters in the generated copy functions. This is useful when you want to force the caller to explicitly provide values for certain properties instead of inheriting them from the source.
+You can use `@Exclude` annotations to exclude specific properties from automatic copying, making them required parameters in the generated copy functions. This is useful when you
+want to force the caller to explicitly provide values for certain properties instead of inheriting them from the source.
 
 #### CopyTo.Exclude, CopyFrom.Exclude
 
