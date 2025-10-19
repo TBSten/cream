@@ -17,9 +17,9 @@ class LintPlugin : Plugin<Project> {
             ktlint {
                 version.set(libs.version("ktlint"))
 
-                this
                 filter {
-                    exclude("**/generated/ksp/**")
+                    exclude("**/generated/**")
+                    exclude("**/build/**")
                 }
             }
         }

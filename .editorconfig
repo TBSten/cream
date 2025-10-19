@@ -34,5 +34,8 @@ ktlint_function_naming_ignore_when_annotated_with = Composable
 [**/generated/**/*]
 ktlint = disabled
 
+[**/build/**/*]
+ktlint = disabled
+
 [test/src/**/*]
 ktlint_standard_filename = disabled

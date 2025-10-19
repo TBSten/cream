@@ -75,3 +75,19 @@ fun Project.setupKspForMultiplatformWorkaround() {
     }
 }
 setupKspForMultiplatformWorkaround()
+
+fun ktlintWithKspWorkaround() {
+    tasks.named("runKtlintFormatOverCommonMainSourceSet") {
+        dependsOn("kspCommonMainKotlinMetadata")
+    }
+    tasks.named("runKtlintCheckOverCommonMainSourceSet") {
+        dependsOn("kspCommonMainKotlinMetadata")
+    }
+
+    ktlint {
+        filter {
+            exclude("**/build/generated/**")
+        }
+    }
+}
+ktlintWithKspWorkaround()
