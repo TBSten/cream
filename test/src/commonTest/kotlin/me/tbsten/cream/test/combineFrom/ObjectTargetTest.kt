@@ -1,4 +1,4 @@
-package me.tbsten.cream.test.combineFrom.edgeCase
+package me.tbsten.cream.test.combineFrom
 
 import kotlin.test.Test
 import kotlin.test.assertSame
