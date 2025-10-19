@@ -26,8 +26,19 @@ internal class KDocWriter(
     private val writer: BufferedWriter,
 ) {
     fun appendLine(value: String = "") {
-        writer.appendLine("${prefix}${value}")
+        value.split("\n").forEach { line ->
+            writer.appendLine("${prefix}${line}")
+        }
     }
+}
+
+internal fun KDocWriter.appendExample(title: String, content: String) {
+    appendLine("# $title")
+    appendLine()
+    appendLine("```kt")
+    appendLine(content.trimIndent())
+    appendLine("```")
+    appendLine()
 }
 
 private fun autoGenerateKDoc(generateSourceAnnotation: GenerateSourceAnnotation<*>): String =
