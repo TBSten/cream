@@ -1,4 +1,4 @@
-package me.tbsten.cream.test.combineTo.edgeCase
+package me.tbsten.cream.test.combineTo
 
 import me.tbsten.cream.CombineTo
 
