@@ -3,7 +3,7 @@ package me.tbsten.cream.test.copyFrom
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class CopyFromTest {
+class BasicTest {
     @Test
     fun dataLayerModelToDomainLayerModel() {
         val dataLayerModel: DataLayerModel =
