@@ -29,11 +29,12 @@ internal fun BufferedWriter.appendCopyFunction(
             )
 
         ClassKind.OBJECT ->
-            if (!notCopyToObject)
+            if (!notCopyToObject) {
                 appendCopyToObjectFunction(source, target, generateSourceAnnotation, options)
+            }
 
         ClassKind.INTERFACE -> {
-            if (target.isSealed())
+            if (target.isSealed()) {
                 if (generateTargetToSealedSubclasses) {
                     appendCopyToSealedClassFunction(
                         source,
@@ -46,14 +47,16 @@ internal fun BufferedWriter.appendCopyFunction(
                 } else {
                     // no op
                 }
-            else throw InvalidCreamUsageException(
-                message =
-                    "Unsupported copy to ${
-                        target.classKind.name.lowercase().replace("_", " ")
-                    } (${target.fullName})." +
+            } else {
+                throw InvalidCreamUsageException(
+                    message =
+                        "Unsupported copy to ${
+                            target.classKind.name.lowercase().replace("_", " ")
+                        } (${target.fullName})." +
                             "It must be a sealed interface.",
-                solution = "Please make ${target.fullName} a sealed interface.",
-            )
+                    solution = "Please make ${target.fullName} a sealed interface.",
+                )
+            }
         }
 
         else -> throw InvalidCreamUsageException(
@@ -77,7 +80,7 @@ internal fun BufferedWriter.appendCombineToFunction(
     when (target.classKind) {
         ClassKind.CLASS,
         ClassKind.ANNOTATION_CLASS,
-            ->
+        ->
             appendCombineToClassFunction(
                 primarySource,
                 otherSources,
@@ -88,7 +91,7 @@ internal fun BufferedWriter.appendCombineToFunction(
             )
 
         ClassKind.OBJECT ->
-            if (!options.notCopyToObject)
+            if (!options.notCopyToObject) {
                 appendCombineToObjectFunction(
                     primarySource,
                     otherSources,
@@ -96,6 +99,7 @@ internal fun BufferedWriter.appendCombineToFunction(
                     generateSourceAnnotation,
                     options,
                 )
+            }
 
         else -> throw InvalidCreamUsageException(
             message =

@@ -23,52 +23,54 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Preview
 @Composable
-fun App() = AppTheme {
-    var option by rememberShareableState("option", CreamOptions.serializer()) {
-        CreamOptions.default
-    }
-    var sourceClass by rememberShareableState(
-        "source",
-        OptionBuilderClassDeclarationInfo.serializer(),
-    ) {
-        OptionBuilderClassDeclarationInfo("com.myapp", "MyUiState")
-    }
-    var targetClass by rememberShareableState(
-        "target",
-        OptionBuilderClassDeclarationInfo.serializer(),
-    ) {
-        OptionBuilderClassDeclarationInfo("com.myapp", "MyUiState.Success")
-    }
-
-    SelectionContainer {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(40.dp),
-            modifier = Modifier
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
+fun App() =
+    AppTheme {
+        var option by rememberShareableState("option", CreamOptions.serializer()) {
+            CreamOptions.default
+        }
+        var sourceClass by rememberShareableState(
+            "source",
+            OptionBuilderClassDeclarationInfo.serializer(),
         ) {
-            AppTitle()
+            OptionBuilderClassDeclarationInfo("com.myapp", "MyUiState")
+        }
+        var targetClass by rememberShareableState(
+            "target",
+            OptionBuilderClassDeclarationInfo.serializer(),
+        ) {
+            OptionBuilderClassDeclarationInfo("com.myapp", "MyUiState.Success")
+        }
 
-            InputOptionsSection(
-                option = option,
-                onChange = { option = it },
-            )
+        SelectionContainer {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(40.dp),
+                modifier =
+                    Modifier
+                        .verticalScroll(rememberScrollState())
+                        .padding(16.dp),
+            ) {
+                AppTitle()
 
-            InputClassNamesSection(
-                sourceClass = sourceClass,
-                onSourceClassChange = { sourceClass = it },
-                targetClass = targetClass,
-                onTargetClassChange = { targetClass = it }
-            )
+                InputOptionsSection(
+                    option = option,
+                    onChange = { option = it },
+                )
 
-            ResultSection(
-                options = option,
-                sourceClass = sourceClass,
-                targetClass = targetClass,
-            )
+                InputClassNamesSection(
+                    sourceClass = sourceClass,
+                    onSourceClassChange = { sourceClass = it },
+                    targetClass = targetClass,
+                    onTargetClassChange = { targetClass = it },
+                )
+
+                ResultSection(
+                    options = option,
+                    sourceClass = sourceClass,
+                    targetClass = targetClass,
+                )
+            }
         }
     }
-}
 
 @Composable
 private fun AppTitle() {

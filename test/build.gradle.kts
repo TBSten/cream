@@ -8,11 +8,22 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.ksp)
+    id("buildLogic.lint")
 }
 
 android {
     namespace = "me.tbsten.cream.test"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    compileSdk =
+        libs.versions.android.compileSdk
+            .get()
+            .toInt()
+
+    defaultConfig {
+        minSdk =
+            libs.versions.android.minSdk
+                .get()
+                .toInt()
+    }
 }
 
 kotlin {
@@ -44,12 +55,12 @@ dependencies {
     ).forEach { it(project(":cream-ksp")) }
 }
 
-//ksp {
+// ksp {
 //    arg("cream.copyFunNamePrefix", "transitionTo")
 //    arg("cream.copyFunNamingStrategy", "full-name")
 //    arg("cream.escapeDot", "replace-to-underscore")
 //    arg("cream.notCopyToObject", "true")
-//}
+// }
 
 fun Project.setupKspForMultiplatformWorkaround() {
     kotlin.sourceSets.commonMain {
@@ -64,3 +75,19 @@ fun Project.setupKspForMultiplatformWorkaround() {
     }
 }
 setupKspForMultiplatformWorkaround()
+
+fun ktlintWithKspWorkaround() {
+    tasks.named("runKtlintFormatOverCommonMainSourceSet") {
+        dependsOn("kspCommonMainKotlinMetadata")
+    }
+    tasks.named("runKtlintCheckOverCommonMainSourceSet") {
+        dependsOn("kspCommonMainKotlinMetadata")
+    }
+
+    ktlint {
+        filter {
+            exclude("**/build/generated/**")
+        }
+    }
+}
+ktlintWithKspWorkaround()

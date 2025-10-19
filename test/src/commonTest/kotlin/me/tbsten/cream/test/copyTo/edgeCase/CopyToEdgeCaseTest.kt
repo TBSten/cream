@@ -4,7 +4,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class CopyToEdgeCaseTest {
-
     @Test
     fun dataObjectToDataObject() {
         val source = EmptySource
@@ -15,12 +14,13 @@ class CopyToEdgeCaseTest {
 
     @Test
     fun nonNullableToNullable() {
-        val source = NonNullableSource(
-            str = "test string",
-            num = 42,
-            bool = true,
-            list = listOf("item1", "item2", "item3")
-        )
+        val source =
+            NonNullableSource(
+                str = "test string",
+                num = 42,
+                bool = true,
+                list = listOf("item1", "item2", "item3"),
+            )
 
         val target = source.copyToNullableTarget(newProperty = "new")
 
@@ -30,19 +30,21 @@ class CopyToEdgeCaseTest {
                 num = 42,
                 bool = true,
                 list = listOf("item1", "item2", "item3"),
-                newProperty = "new"
-            ), target
+                newProperty = "new",
+            ),
+            target,
         )
     }
 
     @Test
     fun nonNullableToNullableWithEmptyValues() {
-        val source = NonNullableSource(
-            str = "",
-            num = 0,
-            bool = false,
-            list = emptyList()
-        )
+        val source =
+            NonNullableSource(
+                str = "",
+                num = 0,
+                bool = false,
+                list = emptyList(),
+            )
 
         val target = source.copyToNullableTarget(newProperty = "new")
 
@@ -52,8 +54,9 @@ class CopyToEdgeCaseTest {
                 num = 0,
                 bool = false,
                 list = emptyList(),
-                newProperty = "new"
-            ), target
+                newProperty = "new",
+            ),
+            target,
         )
     }
 
@@ -68,11 +71,12 @@ class CopyToEdgeCaseTest {
 
     @Test
     fun complexTypes() {
-        val source = ComplexTypeSource(
-            stringList = listOf("a", "b", "c"),
-            intMap = mapOf("one" to 1, "two" to 2),
-            nullableSet = setOf(1.0, 2.0, 3.0)
-        )
+        val source =
+            ComplexTypeSource(
+                stringList = listOf("a", "b", "c"),
+                intMap = mapOf("one" to 1, "two" to 2),
+                nullableSet = setOf(1.0, 2.0, 3.0),
+            )
 
         val target = source.copyToComplexTypeTarget(newProperty = "new")
 
@@ -81,18 +85,20 @@ class CopyToEdgeCaseTest {
                 stringList = listOf("a", "b", "c"),
                 intMap = mapOf("one" to 1, "two" to 2),
                 nullableSet = setOf(1.0, 2.0, 3.0),
-                newProperty = "new"
-            ), target
+                newProperty = "new",
+            ),
+            target,
         )
     }
 
     @Test
     fun complexTypesWithNull() {
-        val source = ComplexTypeSource(
-            stringList = listOf("a", "b", "c"),
-            intMap = mapOf("one" to 1, "two" to 2),
-            nullableSet = null
-        )
+        val source =
+            ComplexTypeSource(
+                stringList = listOf("a", "b", "c"),
+                intMap = mapOf("one" to 1, "two" to 2),
+                nullableSet = null,
+            )
 
         val target = source.copyToComplexTypeTarget(newProperty = "new")
 
@@ -101,8 +107,9 @@ class CopyToEdgeCaseTest {
                 stringList = listOf("a", "b", "c"),
                 intMap = mapOf("one" to 1, "two" to 2),
                 nullableSet = null,
-                newProperty = "new"
-            ), target
+                newProperty = "new",
+            ),
+            target,
         )
     }
 
@@ -116,16 +123,17 @@ class CopyToEdgeCaseTest {
 
     @Test
     fun propertyMapping() {
-        val domainSource = DomainSourceModel(
-            domainId = "test-id",
-            name = "test-name"
-        )
+        val domainSource =
+            DomainSourceModel(
+                domainId = "test-id",
+                name = "test-name",
+            )
 
         val dataTarget = domainSource.copyToDataTargetModel()
 
         assertEquals(
             DataTargetModel(dataId = "test-id", name = "test-name"),
-            dataTarget
+            dataTarget,
         )
     }
 }

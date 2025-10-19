@@ -16,8 +16,9 @@ internal fun KSValueParameter.findMatchedProperty(
     source: KSClassDeclaration,
     generateSourceAnnotation: GenerateSourceAnnotation<*>,
 ): KSPropertyDeclaration? {
-    val parameterName = this.name?.asString()
-        ?: return null
+    val parameterName =
+        this.name?.asString()
+            ?: return null
 
     findSourcePropertyWithCopyToAnnotation(source, parameterName)
         ?.let { return it }
@@ -34,16 +35,18 @@ internal fun KSValueParameter.findMatchedProperty(
     findSourcePropertyWithCombineFromAnnotationOnSource(source, parameterName)
         ?.let { return it }
 
-    val copyMappingPropertyMappings = (generateSourceAnnotation as? GenerateSourceAnnotation.CopyMapping)
-        ?.propertyMappings
-        ?: emptyList()
+    val copyMappingPropertyMappings =
+        (generateSourceAnnotation as? GenerateSourceAnnotation.CopyMapping)
+            ?.propertyMappings
+            ?: emptyList()
 
     findSourcePropertyWithCopyMappingAnnotation(source, parameterName, copyMappingPropertyMappings)
         ?.let { return it }
 
-    val combineMappingPropertyMappings = (generateSourceAnnotation as? GenerateSourceAnnotation.CombineMapping)
-        ?.propertyMappings
-        ?: emptyList()
+    val combineMappingPropertyMappings =
+        (generateSourceAnnotation as? GenerateSourceAnnotation.CombineMapping)
+            ?.propertyMappings
+            ?: emptyList()
 
     findSourcePropertyWithCombineMappingAnnotation(source, parameterName, combineMappingPropertyMappings)
         ?.let { return it }
@@ -63,14 +66,17 @@ private fun KSValueParameter.findSourcePropertyWithCopyMappingAnnotation(
     parameterName: String,
     propertyMappings: List<Pair<String, String>>,
 ): KSPropertyDeclaration? {
-    val sourcePropertyName = propertyMappings.firstOrNull { (_, target) ->
-        target == parameterName
-    }?.first ?: return null
+    val sourcePropertyName =
+        propertyMappings
+            .firstOrNull { (_, target) ->
+                target == parameterName
+            }?.first ?: return null
 
-    return source.getAllProperties()
+    return source
+        .getAllProperties()
         .firstOrNull {
             it.simpleName.asString() == sourcePropertyName &&
-                    isTypeCompatible(this.type.resolve(), it.type.resolve())
+                isTypeCompatible(this.type.resolve(), it.type.resolve())
         }
 }
 
@@ -86,100 +92,109 @@ private fun KSValueParameter.findSourcePropertyWithCombineMappingAnnotation(
     parameterName: String,
     propertyMappings: List<Pair<String, String>>,
 ): KSPropertyDeclaration? {
-    val sourcePropertyName = propertyMappings.firstOrNull { (_, target) ->
-        target == parameterName
-    }?.first ?: return null
+    val sourcePropertyName =
+        propertyMappings
+            .firstOrNull { (_, target) ->
+                target == parameterName
+            }?.first ?: return null
 
-    return source.getAllProperties()
+    return source
+        .getAllProperties()
         .firstOrNull {
             it.simpleName.asString() == sourcePropertyName &&
-                    isTypeCompatible(this.type.resolve(), it.type.resolve())
+                isTypeCompatible(this.type.resolve(), it.type.resolve())
         }
 }
 
 private fun KSValueParameter.findSourcePropertyWithCopyToAnnotation(
     source: KSClassDeclaration,
     parameterName: String,
-): KSPropertyDeclaration? {
-    return source.getAllProperties()
+): KSPropertyDeclaration? =
+    source
+        .getAllProperties()
         .firstOrNull { sourceProperty ->
             // First try to get annotation from property itself
-            val propertyAnnotation = sourceProperty
-                .getAnnotationsByType(CopyTo.Map::class)
-                .firstOrNull()
+            val propertyAnnotation =
+                sourceProperty
+                    .getAnnotationsByType(CopyTo.Map::class)
+                    .firstOrNull()
 
             // If not found on property, try to get it from the corresponding constructor parameter
-            val constructorParamAnnotation = if (propertyAnnotation == null) {
-                source.primaryConstructor?.parameters
-                    ?.firstOrNull { it.name?.asString() == sourceProperty.simpleName.asString() }
-                    ?.getAnnotationsByType(CopyTo.Map::class)
-                    ?.firstOrNull()
-            } else {
-                null
-            }
+            val constructorParamAnnotation =
+                if (propertyAnnotation == null) {
+                    source.primaryConstructor
+                        ?.parameters
+                        ?.firstOrNull { it.name?.asString() == sourceProperty.simpleName.asString() }
+                        ?.getAnnotationsByType(CopyTo.Map::class)
+                        ?.firstOrNull()
+                } else {
+                    null
+                }
 
             val copyToPropertyAnnotation = propertyAnnotation ?: constructorParamAnnotation
 
             if (copyToPropertyAnnotation != null) {
                 parameterName in copyToPropertyAnnotation.propertyNames &&
-                        isTypeCompatible(this.type.resolve(), sourceProperty.type.resolve())
+                    isTypeCompatible(this.type.resolve(), sourceProperty.type.resolve())
             } else {
                 false
             }
         }
-}
 
 private fun KSValueParameter.findSourcePropertyWithCombineToAnnotation(
     source: KSClassDeclaration,
     parameterName: String,
-): KSPropertyDeclaration? {
-    return source.getAllProperties()
+): KSPropertyDeclaration? =
+    source
+        .getAllProperties()
         .firstOrNull { sourceProperty ->
             // First try to get annotation from property itself
-            val propertyAnnotation = sourceProperty
-                .getAnnotationsByType(CombineTo.Map::class)
-                .firstOrNull()
+            val propertyAnnotation =
+                sourceProperty
+                    .getAnnotationsByType(CombineTo.Map::class)
+                    .firstOrNull()
 
             // If not found on property, try to get it from the corresponding constructor parameter
-            val constructorParamAnnotation = if (propertyAnnotation == null) {
-                source.primaryConstructor?.parameters
-                    ?.firstOrNull { it.name?.asString() == sourceProperty.simpleName.asString() }
-                    ?.getAnnotationsByType(CombineTo.Map::class)
-                    ?.firstOrNull()
-            } else {
-                null
-            }
+            val constructorParamAnnotation =
+                if (propertyAnnotation == null) {
+                    source.primaryConstructor
+                        ?.parameters
+                        ?.firstOrNull { it.name?.asString() == sourceProperty.simpleName.asString() }
+                        ?.getAnnotationsByType(CombineTo.Map::class)
+                        ?.firstOrNull()
+                } else {
+                    null
+                }
 
             val combineToPropertyAnnotation = propertyAnnotation ?: constructorParamAnnotation
 
             if (combineToPropertyAnnotation != null) {
                 parameterName in combineToPropertyAnnotation.propertyNames &&
-                        isTypeCompatible(this.type.resolve(), sourceProperty.type.resolve())
+                    isTypeCompatible(this.type.resolve(), sourceProperty.type.resolve())
             } else {
                 false
             }
         }
-}
 
 /**
  * Find source property using @CombineFrom.Map annotation on target parameter.
  * Target parameter specifies which source property to use.
  * Example: @CombineFrom.Map("sourcePropertyB") val targetProperty: String
  */
-private fun KSValueParameter.findSourcePropertyWithCombineFromAnnotationOnTarget(
-    source: KSClassDeclaration,
-): KSPropertyDeclaration? {
-    val combineFromPropertyAnnotation = this
-        .getAnnotationsByType(CombineFrom.Map::class)
-        .firstOrNull()
+private fun KSValueParameter.findSourcePropertyWithCombineFromAnnotationOnTarget(source: KSClassDeclaration): KSPropertyDeclaration? {
+    val combineFromPropertyAnnotation =
+        this
+            .getAnnotationsByType(CombineFrom.Map::class)
+            .firstOrNull()
 
     if (combineFromPropertyAnnotation != null) {
         val sourcePropertyNames = combineFromPropertyAnnotation.propertyNames
 
-        return source.getAllProperties()
+        return source
+            .getAllProperties()
             .firstOrNull {
                 it.simpleName.asString() in sourcePropertyNames &&
-                        isTypeCompatible(this.type.resolve(), it.type.resolve())
+                    isTypeCompatible(this.type.resolve(), it.type.resolve())
             }
     }
 
@@ -194,49 +209,52 @@ private fun KSValueParameter.findSourcePropertyWithCombineFromAnnotationOnTarget
 private fun KSValueParameter.findSourcePropertyWithCombineFromAnnotationOnSource(
     source: KSClassDeclaration,
     parameterName: String,
-): KSPropertyDeclaration? {
-    return source.getAllProperties()
+): KSPropertyDeclaration? =
+    source
+        .getAllProperties()
         .firstOrNull { sourceProperty ->
             // First try to get annotation from property itself
-            val propertyAnnotation = sourceProperty
-                .getAnnotationsByType(CombineFrom.Map::class)
-                .firstOrNull()
+            val propertyAnnotation =
+                sourceProperty
+                    .getAnnotationsByType(CombineFrom.Map::class)
+                    .firstOrNull()
 
             // If not found on property, try to get it from the corresponding constructor parameter
-            val constructorParamAnnotation = if (propertyAnnotation == null) {
-                source.primaryConstructor?.parameters
-                    ?.firstOrNull { it.name?.asString() == sourceProperty.simpleName.asString() }
-                    ?.getAnnotationsByType(CombineFrom.Map::class)
-                    ?.firstOrNull()
-            } else {
-                null
-            }
+            val constructorParamAnnotation =
+                if (propertyAnnotation == null) {
+                    source.primaryConstructor
+                        ?.parameters
+                        ?.firstOrNull { it.name?.asString() == sourceProperty.simpleName.asString() }
+                        ?.getAnnotationsByType(CombineFrom.Map::class)
+                        ?.firstOrNull()
+                } else {
+                    null
+                }
 
             val combineFromPropertyAnnotation = propertyAnnotation ?: constructorParamAnnotation
 
             if (combineFromPropertyAnnotation != null) {
                 parameterName in combineFromPropertyAnnotation.propertyNames &&
-                        isTypeCompatible(this.type.resolve(), sourceProperty.type.resolve())
+                    isTypeCompatible(this.type.resolve(), sourceProperty.type.resolve())
             } else {
                 false
             }
         }
-}
 
-private fun KSValueParameter.findSourcePropertyWithCopyFromAnnotation(
-    source: KSClassDeclaration,
-): KSPropertyDeclaration? {
-    val copyFromPropertyAnnotation = this
-        .getAnnotationsByType(CopyFrom.Map::class)
-        .firstOrNull()
+private fun KSValueParameter.findSourcePropertyWithCopyFromAnnotation(source: KSClassDeclaration): KSPropertyDeclaration? {
+    val copyFromPropertyAnnotation =
+        this
+            .getAnnotationsByType(CopyFrom.Map::class)
+            .firstOrNull()
 
     if (copyFromPropertyAnnotation != null) {
         val sourcePropertyNames = copyFromPropertyAnnotation.propertyNames
 
-        return source.getAllProperties()
+        return source
+            .getAllProperties()
             .firstOrNull {
                 it.simpleName.asString() in sourcePropertyNames &&
-                        isTypeCompatible(this.type.resolve(), it.type.resolve())
+                    isTypeCompatible(this.type.resolve(), it.type.resolve())
             }
     }
 
@@ -246,14 +264,13 @@ private fun KSValueParameter.findSourcePropertyWithCopyFromAnnotation(
 private fun KSValueParameter.findSourcePropertyByName(
     source: KSClassDeclaration,
     parameterName: String,
-): KSPropertyDeclaration? {
-    return source
+): KSPropertyDeclaration? =
+    source
         .getAllProperties()
         .firstOrNull {
             it.simpleName.asString() == parameterName &&
-                    isTypeCompatible(this.type.resolve(), it.type.resolve())
+                isTypeCompatible(this.type.resolve(), it.type.resolve())
         }
-}
 
 /**
  * Check if two types are compatible for property matching.
@@ -261,7 +278,10 @@ private fun KSValueParameter.findSourcePropertyByName(
  * - Direct assignability (normal cases)
  * - Both are type parameters with the same name (generic cases)
  */
-private fun isTypeCompatible(targetType: KSType, sourceType: KSType): Boolean {
+private fun isTypeCompatible(
+    targetType: KSType,
+    sourceType: KSType,
+): Boolean {
     // Check direct assignability first
     if (targetType.isAssignableFrom(sourceType)) {
         return true

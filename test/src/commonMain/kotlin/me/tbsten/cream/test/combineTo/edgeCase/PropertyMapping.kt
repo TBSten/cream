@@ -2,11 +2,11 @@ package me.tbsten.cream.test.combineTo.edgeCase
 
 import me.tbsten.cream.CombineTo
 
+// Test case 1: Simple property name mapping
+
 /**
  * Test property mapping with @CombineTo.Map annotation
  */
-
-// Test case 1: Simple property name mapping
 @CombineTo(MappedTarget::class)
 data class MappingSourceA(
     @CombineTo.Map("targetPropertyA")

@@ -11,12 +11,13 @@ class MultiSourceTest {
         val sourceC = MultiSourceC(propertyC = true)
         val sourceD = MultiSourceD(propertyD = 3.14)
 
-        val result: MultiSourceTarget = sourceA.copyToMultiSourceTarget(
-            multiSourceB = sourceB,
-            multiSourceC = sourceC,
-            multiSourceD = sourceD,
-            extraProperty = "extra",
-        )
+        val result: MultiSourceTarget =
+            sourceA.copyToMultiSourceTarget(
+                multiSourceB = sourceB,
+                multiSourceC = sourceC,
+                multiSourceD = sourceD,
+                extraProperty = "extra",
+            )
 
         assertEquals("A", result.propertyA)
         assertEquals(42, result.propertyB)
@@ -32,16 +33,17 @@ class MultiSourceTest {
         val sourceC = MultiSourceC(propertyC = true)
         val sourceD = MultiSourceD(propertyD = 3.14)
 
-        val result: MultiSourceTarget = sourceA.copyToMultiSourceTarget(
-            multiSourceB = sourceB,
-            multiSourceC = sourceC,
-            multiSourceD = sourceD,
-            propertyA = "Overridden",
-            propertyB = 100,
-            propertyC = false,
-            propertyD = 2.71,
-            extraProperty = "extra",
-        )
+        val result: MultiSourceTarget =
+            sourceA.copyToMultiSourceTarget(
+                multiSourceB = sourceB,
+                multiSourceC = sourceC,
+                multiSourceD = sourceD,
+                propertyA = "Overridden",
+                propertyB = 100,
+                propertyC = false,
+                propertyD = 2.71,
+                extraProperty = "extra",
+            )
 
         assertEquals("Overridden", result.propertyA)
         assertEquals(100, result.propertyB)

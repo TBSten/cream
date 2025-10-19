@@ -22,7 +22,7 @@ data class LibEModel(
  * Target model with overlapping property names
  */
 data class OverlapTargetModel(
-    val sharedName: String,  // Both LibDModel and LibEModel have this property
+    val sharedName: String, // Both LibDModel and LibEModel have this property
     val valueA: String,
     val valueB: Int,
 )
@@ -38,6 +38,6 @@ data class OverlapTargetModel(
     properties = [
         CombineMapping.Map(source = "specificD", target = "valueA"),
         CombineMapping.Map(source = "specificE", target = "valueB"),
-    ]
+    ],
 )
 private object OverlapMapping

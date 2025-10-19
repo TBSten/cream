@@ -1,7 +1,13 @@
 package me.tbsten.cream.util
 
 import androidx.annotation.FloatRange
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
@@ -11,11 +17,16 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun <T> adaptive(small: T, medium: T = small, large: T = medium): T = adaptive(
-    small = { small },
-    medium = { medium },
-    large = { large },
-)
+fun <T> adaptive(
+    small: T,
+    medium: T = small,
+    large: T = medium,
+): T =
+    adaptive(
+        small = { small },
+        medium = { medium },
+        large = { large },
+    )
 
 @Composable
 fun <T> adaptive(
@@ -36,24 +47,32 @@ fun <T> adaptive(
 fun currentBreakpoint(): Breakpoint {
     val screenWidth =
         with(LocalDensity.current) {
-            LocalWindowInfo.current.containerSize.width.toDp()
+            LocalWindowInfo.current.containerSize.width
+                .toDp()
         }
     return Breakpoint.fromWidth(screenWidth)
 }
 
-enum class Breakpoint(val maxWidth: Dp) {
+enum class Breakpoint(
+    val maxWidth: Dp,
+) {
     Small(600.dp),
     Medium(1200.dp),
     Large(Dp.Infinity),
     ;
 
     operator fun <T> invoke(block: () -> T) = DataOverBreakpoint(this, block)
-    inner class DataOverBreakpoint<T> internal constructor(val breakpoint: Breakpoint, val data: () -> T)
+
+    inner class DataOverBreakpoint<T> internal constructor(
+        val breakpoint: Breakpoint,
+        val data: () -> T,
+    )
 
     companion object {
-        fun fromWidth(width: Dp) = entries.firstOrNull {
-            width <= it.maxWidth
-        } ?: entries.last()
+        fun fromWidth(width: Dp) =
+            entries.firstOrNull {
+                width <= it.maxWidth
+            } ?: entries.last()
     }
 }
 
@@ -117,35 +136,38 @@ class ColumnOrRowScope internal constructor(
     fun Modifier.weight(
         @FloatRange(from = 0.0, fromInclusive = false) weight: Float,
         fill: Boolean = true,
-    ): Modifier = then(
-        if (columnScope != null) {
-            with(columnScope) { weight(weight = weight, fill = fill) }
-        } else if (rowScope != null) {
-            with(rowScope) { weight(weight = weight, fill = fill) }
-        } else {
-            error("ColumnOrRowScope has not been set")
-        }
-    )
+    ): Modifier =
+        then(
+            if (columnScope != null) {
+                with(columnScope) { weight(weight = weight, fill = fill) }
+            } else if (rowScope != null) {
+                with(rowScope) { weight(weight = weight, fill = fill) }
+            } else {
+                error("ColumnOrRowScope has not been set")
+            },
+        )
 
     @Stable
-    fun Modifier.fillParentWidth(weight: Float = 1f): Modifier = then(
-        if (columnScope != null) {
-            with(columnScope) { fillMaxWidth(fraction = weight) }
-        } else if (rowScope != null) {
-            with(rowScope) { weight(weight = weight, fill = true) }
-        } else {
-            error("ColumnOrRowScope has not been set")
-        }
-    )
+    fun Modifier.fillParentWidth(weight: Float = 1f): Modifier =
+        then(
+            if (columnScope != null) {
+                with(columnScope) { fillMaxWidth(fraction = weight) }
+            } else if (rowScope != null) {
+                with(rowScope) { weight(weight = weight, fill = true) }
+            } else {
+                error("ColumnOrRowScope has not been set")
+            },
+        )
 
     @Stable
-    fun Modifier.fillParentHeight(weight: Float = 1f): Modifier = then(
-        if (columnScope != null) {
-            with(columnScope) { weight(weight = weight, fill = true) }
-        } else if (rowScope != null) {
-            with(rowScope) { fillMaxHeight(fraction = weight) }
-        } else {
-            error("ColumnOrRowScope has not been set")
-        }
-    )
+    fun Modifier.fillParentHeight(weight: Float = 1f): Modifier =
+        then(
+            if (columnScope != null) {
+                with(columnScope) { weight(weight = weight, fill = true) }
+            } else if (rowScope != null) {
+                with(rowScope) { fillMaxHeight(fraction = weight) }
+            } else {
+                error("ColumnOrRowScope has not been set")
+            },
+        )
 }

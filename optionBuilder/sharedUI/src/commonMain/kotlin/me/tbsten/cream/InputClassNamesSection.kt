@@ -9,7 +9,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import me.tbsten.cream.components.CommonInputCard
 import me.tbsten.cream.components.ToggleHeadingText
-import me.tbsten.cream.sharedui.generated.resources.*
+import me.tbsten.cream.sharedui.generated.resources.Res
+import me.tbsten.cream.sharedui.generated.resources.class_names_heading
+import me.tbsten.cream.sharedui.generated.resources.class_names_source_sub_heading
+import me.tbsten.cream.sharedui.generated.resources.class_names_target_sub_heading
+import me.tbsten.cream.sharedui.generated.resources.icon_slab
 import me.tbsten.cream.util.SmallColumnMediumRow
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -30,7 +34,7 @@ fun InputClassNamesSection(
         },
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             SmallColumnMediumRow(space = 12.dp) {
                 ClassInputCard(

@@ -38,6 +38,6 @@ data class CombinedModel(
  */
 @CombineMapping(
     sources = [LibAModel::class, LibBModel::class],
-    target = CombinedModel::class
+    target = CombinedModel::class,
 )
 private object BasicMapping

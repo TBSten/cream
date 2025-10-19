@@ -7,9 +7,13 @@ import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.UnknownCreamException
 import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.reportToGithub
-import me.tbsten.cream.ksp.util.*
+import me.tbsten.cream.ksp.util.asString
+import me.tbsten.cream.ksp.util.fullName
+import me.tbsten.cream.ksp.util.isCountMoreThan
+import me.tbsten.cream.ksp.util.lines
+import me.tbsten.cream.ksp.util.underPackageName
+import me.tbsten.cream.ksp.util.visibilityStr
 import java.io.BufferedWriter
-
 
 internal fun BufferedWriter.appendCopyToClassFunction(
     source: KSClassDeclaration,
@@ -36,17 +40,18 @@ internal fun BufferedWriter.appendCopyToClassFunction(
                 typeParameters.entries.joinToString(", ") { (name, typeParam) ->
                     buildString {
                         append(name)
-                        val bound = typeParam
-                            .bounds
-                            .singleOrNull()
-                            ?.resolve()
-                            ?.asString(omitPackages = omitPackages)
+                        val bound =
+                            typeParam
+                                .bounds
+                                .singleOrNull()
+                                ?.resolve()
+                                ?.asString(omitPackages = omitPackages)
                         if (bound != null && bound != "kotlin.Any?") {
                             append(" : ")
                             append(bound)
                         }
                     }
-                }
+                },
             )
             append(">")
         }
@@ -59,19 +64,21 @@ internal fun BufferedWriter.appendCopyToClassFunction(
                     .joinToString(", ") { typeParam ->
                         typeParameters.getNameFromSourceClassTypeParameters(typeParam)
                             ?: throw UnknownCreamException(
-                                message = lines(
-                                    "Can not find type parameter ${typeParam.name.asString()} in ${source.fullName}'s type parameters.",
-                                    "  find type parameter: ${typeParam.name.asString()}",
-                                    "  ${source.fullName}'s type parameters: ${
-                                        source.typeParameters.joinToString(", ") { it.simpleName.asString() }
-                                    }",
-                                ),
-                                solution = reportToGithub(
-                                    "${targetClass.fullName} and related definitions",
-                                    "${source.fullName} and related definitions",
-                                ),
+                                message =
+                                    lines(
+                                        "Can not find type parameter ${typeParam.name.asString()} in ${source.fullName}'s type parameters.",
+                                        "  find type parameter: ${typeParam.name.asString()}",
+                                        "  ${source.fullName}'s type parameters: ${
+                                            source.typeParameters.joinToString(", ") { it.simpleName.asString() }
+                                        }",
+                                    ),
+                                solution =
+                                    reportToGithub(
+                                        "${targetClass.fullName} and related definitions",
+                                        "${source.fullName} and related definitions",
+                                    ),
                             )
-                    }
+                    },
             )
             append(">")
         }
@@ -81,31 +88,36 @@ internal fun BufferedWriter.appendCopyToClassFunction(
 
         constructor.parameters.forEach { parameter ->
             val paramName = parameter.name!!.asString()
-            val paramType = parameter.type.resolve()
-                .asString(
-                    omitPackages = omitPackages,
-                    typeParameterToString = {
-                        val typeParameter = it.declaration as KSTypeParameter
-                        typeParameters.getNameFromTargetConstructorTypeParameters(typeParameter)
-                            ?: typeParameters.getNameFromSourceClassTypeParameters(typeParameter)
-                            ?: throw UnknownCreamException(
-                                message = lines(
-                                    "Can not find type parameter ${typeParameter.name.asString()} in ${source.fullName}'s type parameters.",
-                                    "  find type parameter: ${typeParameter.name.asString()}",
-                                    "  ${source.fullName}'s type parameters: ${
-                                        source.typeParameters.joinToString(", ") { it.simpleName.asString() }
-                                    }",
-                                ),
-                                solution = reportToGithub(
-                                    "${targetClass.fullName} and related definitions",
-                                    "${source.fullName} and related definitions",
-                                ),
-                            )
-                    },
-                )
-            append("    ${paramName}: $paramType")
+            val paramType =
+                parameter.type
+                    .resolve()
+                    .asString(
+                        omitPackages = omitPackages,
+                        typeParameterToString = {
+                            val typeParameter = it.declaration as KSTypeParameter
+                            typeParameters.getNameFromTargetConstructorTypeParameters(typeParameter)
+                                ?: typeParameters.getNameFromSourceClassTypeParameters(typeParameter)
+                                ?: throw UnknownCreamException(
+                                    message =
+                                        lines(
+                                            "Can not find type parameter ${typeParameter.name.asString()} in ${source.fullName}'s type parameters.",
+                                            "  find type parameter: ${typeParameter.name.asString()}",
+                                            "  ${source.fullName}'s type parameters: ${
+                                                source.typeParameters.joinToString(", ") { it.simpleName.asString() }
+                                            }",
+                                        ),
+                                    solution =
+                                        reportToGithub(
+                                            "${targetClass.fullName} and related definitions",
+                                            "${source.fullName} and related definitions",
+                                        ),
+                                )
+                        },
+                    )
+            append("    $paramName: $paramType")
 
-            parameter.findMatchedProperty(source, generateSourceAnnotation)
+            parameter
+                .findMatchedProperty(source, generateSourceAnnotation)
                 ?.let { " = this.${it.simpleName.asString()}" }
                 ?.let(::append)
             append(",\n")
@@ -119,19 +131,21 @@ internal fun BufferedWriter.appendCopyToClassFunction(
                     .joinToString(", ") { typeParam ->
                         typeParameters.getNameFromTargetConstructorTypeParameters(typeParam)
                             ?: throw UnknownCreamException(
-                                message = lines(
-                                    "Can not find type parameter ${typeParam.name.asString()} in ${source.fullName}'s type parameters.",
-                                    "  find type parameter: ${typeParam.name.asString()}",
-                                    "  ${targetClass.fullName}'s type parameters: ${
-                                        targetClass.typeParameters.joinToString(", ") { it.simpleName.asString() }
-                                    }",
-                                ),
-                                solution = reportToGithub(
-                                    "${targetClass.fullName} and related definitions",
-                                    "${source.fullName} and related definitions",
-                                ),
+                                message =
+                                    lines(
+                                        "Can not find type parameter ${typeParam.name.asString()} in ${source.fullName}'s type parameters.",
+                                        "  find type parameter: ${typeParam.name.asString()}",
+                                        "  ${targetClass.fullName}'s type parameters: ${
+                                            targetClass.typeParameters.joinToString(", ") { it.simpleName.asString() }
+                                        }",
+                                    ),
+                                solution =
+                                    reportToGithub(
+                                        "${targetClass.fullName} and related definitions",
+                                        "${source.fullName} and related definitions",
+                                    ),
                             )
-                    }
+                    },
             )
             append(">")
         }
@@ -146,13 +160,12 @@ internal fun BufferedWriter.appendCopyToClassFunction(
                         typeParam.bounds.map {
                             Pair(
                                 name,
-                                it
+                                it,
                             )
                         }
-                    }
-                    .joinToString(", ") { (name, bound) ->
+                    }.joinToString(", ") { (name, bound) ->
                         "$name : ${bound.resolve().asString(omitPackages = omitPackages)}"
-                    }
+                    },
             )
         }
         append(" = ${targetClass.fullName}(")
@@ -181,17 +194,19 @@ private fun BufferedWriter.appendCopyToClassKDoc(
         appendLine()
 
         appendExample(
-            "Example: Basic", """
+            "Example: Basic",
+            """
             val source = ${source.simpleName.asString()}(...)
             val target = source.$funName()
-        """.trimIndent()
+            """.trimIndent(),
         )
 
         appendExample(
-            "Example: Override property values", """
+            "Example: Override property values",
+            """
             val source = ${source.simpleName.asString()}(...)
             val target = source.$funName(property = value)
-        """.trimIndent()
+            """.trimIndent(),
         )
     }
 }

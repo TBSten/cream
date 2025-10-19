@@ -114,5 +114,8 @@ annotation class CombineMapping(
      * )
      * ```
      */
-    annotation class Map(val source: String, val target: String)
+    annotation class Map(
+        val source: String,
+        val target: String,
+    )
 }

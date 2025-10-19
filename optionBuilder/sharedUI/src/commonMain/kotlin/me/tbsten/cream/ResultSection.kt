@@ -8,8 +8,17 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,7 +37,13 @@ import me.tbsten.cream.components.HeadingText
 import me.tbsten.cream.ksp.options.ClassDeclarationInfo
 import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.transform.copyFunctionName
-import me.tbsten.cream.sharedui.generated.resources.*
+import me.tbsten.cream.sharedui.generated.resources.Res
+import me.tbsten.cream.sharedui.generated.resources.gradle_comment_select_ksp_version
+import me.tbsten.cream.sharedui.generated.resources.gradle_setting_heading
+import me.tbsten.cream.sharedui.generated.resources.icon_circle_check
+import me.tbsten.cream.sharedui.generated.resources.icon_code_block
+import me.tbsten.cream.sharedui.generated.resources.result_heading
+import me.tbsten.cream.sharedui.generated.resources.show_all
 import me.tbsten.cream.theme.MainGradient
 import me.tbsten.cream.theme.SubGradient
 import me.tbsten.cream.util.MediumColumnLargeRow
@@ -59,7 +74,6 @@ fun ResultSection(
     }
 }
 
-
 @Composable
 private fun CopyFunctionName(
     options: CreamOptions,
@@ -85,8 +99,8 @@ private fun CopyFunctionName(
                     SpanStyle(
                         brush = MainGradient,
                         fontWeight = FontWeight.Bold,
-                        fontSize = largeFontSize
-                    )
+                        fontSize = largeFontSize,
+                    ),
                 ) {
                     append(copyFunName.prefix)
                 }
@@ -94,8 +108,8 @@ private fun CopyFunctionName(
                     SpanStyle(
                         brush = SubGradient,
                         fontWeight = FontWeight.Bold,
-                        fontSize = largeFontSize
-                    )
+                        fontSize = largeFontSize,
+                    ),
                 ) {
                     append(copyFunName.targetName)
                 }
@@ -104,12 +118,16 @@ private fun CopyFunctionName(
             color = Color.Gray,
             fontSize = smallFontSize,
             lineHeight = smallFontSize,
-            modifier = Modifier.padding(vertical = 48.dp)
+            modifier = Modifier.padding(vertical = 48.dp),
         )
     }
 }
 
-private fun gradleSettingCode(isFull: Boolean, options: CreamOptions, kspVersionComment: String): String {
+private fun gradleSettingCode(
+    isFull: Boolean,
+    options: CreamOptions,
+    kspVersionComment: String,
+): String {
     val kspVersion = BuildKonfig.kspVersion
     val creamVersion = BuildKonfig.creamVersion
 
@@ -164,16 +182,16 @@ private fun GradleSetting(
         )
 
         val kspVersionComment = stringResource(Res.string.gradle_comment_select_ksp_version)
-        val highlights = remember(isFull, kspVersionComment) {
-            mutableStateOf(
-                Highlights
-                    .Builder(
-                        language = SyntaxLanguage.KOTLIN,
-                        code = gradleSettingCode(isFull, options, kspVersionComment),
-                    )
-                    .build()
-            )
-        }
+        val highlights =
+            remember(isFull, kspVersionComment) {
+                mutableStateOf(
+                    Highlights
+                        .Builder(
+                            language = SyntaxLanguage.KOTLIN,
+                            code = gradleSettingCode(isFull, options, kspVersionComment),
+                        ).build(),
+                )
+            }
 
         Card(
             shape = RoundedCornerShape(12.dp),
@@ -182,15 +200,17 @@ private fun GradleSetting(
             val cardInnerPadding = 12.dp
 
             Column(
-                modifier = Modifier
-                    .animateContentSize()
-                    .padding(vertical = cardInnerPadding)
+                modifier =
+                    Modifier
+                        .animateContentSize()
+                        .padding(vertical = cardInnerPadding),
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier
-                        .padding(horizontal = 12.dp)
+                    modifier =
+                        Modifier
+                            .padding(horizontal = 12.dp),
                 ) {
                     Switch(
                         checked = isFull,
@@ -203,9 +223,10 @@ private fun GradleSetting(
 
                 CodeTextView(
                     highlights = highlights.value,
-                    modifier = Modifier
-                        .horizontalScroll(rememberScrollState())
-                        .padding(horizontal = 12.dp)
+                    modifier =
+                        Modifier
+                            .horizontalScroll(rememberScrollState())
+                            .padding(horizontal = 12.dp),
                 )
             }
         }
@@ -222,13 +243,14 @@ private fun CodeTextView(
     }
 
     LaunchedEffect(highlights) {
-        textState = highlights
-            .getHighlights()
-            .generateAnnotatedString(highlights.getCode())
+        textState =
+            highlights
+                .getHighlights()
+                .generateAnnotatedString(highlights.getCode())
     }
 
     Text(
         modifier = modifier,
-        text = textState
+        text = textState,
     )
 }

@@ -16,14 +16,15 @@ class CopyToTest {
                 childProp1 = 1.0,
                 childProp2 = 2L,
                 childProp3 = "child",
-            ) to ChildDataClass(
-                parentProp1 = parent.parentProp1,
-                parentProp2 = parent.parentProp2,
-                parentProp3 = parent.parentProp3,
-                childProp1 = 1.0,
-                childProp2 = 2L,
-                childProp3 = "child"
-            ),
+            ) to
+                ChildDataClass(
+                    parentProp1 = parent.parentProp1,
+                    parentProp2 = parent.parentProp2,
+                    parentProp3 = parent.parentProp3,
+                    childProp1 = 1.0,
+                    childProp2 = 2L,
+                    childProp3 = "child",
+                ),
         ).forEach { (actual, expected) ->
             assertEquals(actual, expected)
         }
@@ -43,15 +44,16 @@ class CopyToTest {
                 parentProp3 = false,
                 childProp1 = 1.0,
                 childProp2 = 2L,
-                childProp3 = "child"
-            ) to ChildDataClass(
-                parentProp1 = "parent",
-                parentProp2 = 123,
-                parentProp3 = false,
-                childProp1 = 1.0,
-                childProp2 = 2L,
-                childProp3 = "child"
-            ),
+                childProp3 = "child",
+            ) to
+                ChildDataClass(
+                    parentProp1 = "parent",
+                    parentProp2 = 123,
+                    parentProp3 = false,
+                    childProp1 = 1.0,
+                    childProp2 = 2L,
+                    childProp3 = "child",
+                ),
         ).forEach { (actual, expected) ->
             assertEquals(actual, expected)
         }
@@ -72,17 +74,18 @@ class CopyToTest {
                 grandChildProp1 = "grandChild",
                 grandChildProp2 = 3,
                 grandChildProp3 = true,
-            ) to GrandChildDataClass(
-                parentProp1 = parent.parentProp1,
-                parentProp2 = parent.parentProp2,
-                parentProp3 = parent.parentProp3,
-                childProp1 = 1.0,
-                childProp2 = 2L,
-                childProp3 = "child",
-                grandChildProp1 = "grandChild",
-                grandChildProp2 = 3,
-                grandChildProp3 = true,
-            ),
+            ) to
+                GrandChildDataClass(
+                    parentProp1 = parent.parentProp1,
+                    parentProp2 = parent.parentProp2,
+                    parentProp3 = parent.parentProp3,
+                    childProp1 = 1.0,
+                    childProp2 = 2L,
+                    childProp3 = "child",
+                    grandChildProp1 = "grandChild",
+                    grandChildProp2 = 3,
+                    grandChildProp3 = true,
+                ),
         ).forEach { (actual, expected) ->
             assertEquals(actual, expected)
         }
@@ -105,17 +108,18 @@ class CopyToTest {
                 grandChildProp1 = "grandChild",
                 grandChildProp2 = 3,
                 grandChildProp3 = true,
-            ) to GrandChildDataClass(
-                parentProp1 = "parent",
-                parentProp2 = 123,
-                parentProp3 = false,
-                childProp1 = 1.0,
-                childProp2 = 2L,
-                childProp3 = "child",
-                grandChildProp1 = "grandChild",
-                grandChildProp2 = 3,
-                grandChildProp3 = true,
-            ),
+            ) to
+                GrandChildDataClass(
+                    parentProp1 = "parent",
+                    parentProp2 = 123,
+                    parentProp3 = false,
+                    childProp1 = 1.0,
+                    childProp2 = 2L,
+                    childProp3 = "child",
+                    grandChildProp1 = "grandChild",
+                    grandChildProp2 = 3,
+                    grandChildProp3 = true,
+                ),
         ).forEach { (actual, expected) ->
             assertEquals(actual, expected)
         }
@@ -133,17 +137,18 @@ class CopyToTest {
                 grandChildProp1 = "grandChild",
                 grandChildProp2 = 123,
                 grandChildProp3 = true,
-            ) to GrandChildDataClass(
-                parentProp1 = child.parentProp1,
-                parentProp2 = child.parentProp2,
-                parentProp3 = child.parentProp3,
-                childProp1 = child.childProp1,
-                childProp2 = child.childProp2,
-                childProp3 = child.childProp3,
-                grandChildProp1 = "grandChild",
-                grandChildProp2 = 123,
-                grandChildProp3 = true,
-            ),
+            ) to
+                GrandChildDataClass(
+                    parentProp1 = child.parentProp1,
+                    parentProp2 = child.parentProp2,
+                    parentProp3 = child.parentProp3,
+                    childProp1 = child.childProp1,
+                    childProp2 = child.childProp2,
+                    childProp3 = child.childProp3,
+                    grandChildProp1 = "grandChild",
+                    grandChildProp2 = 123,
+                    grandChildProp3 = true,
+                ),
         ).forEach { (actual, expected) ->
             assertEquals(actual, expected)
         }
@@ -163,17 +168,18 @@ class CopyToTest {
                 grandChildProp1 = "grandChild",
                 grandChildProp2 = 123,
                 grandChildProp3 = true,
-            ) to GrandChildDataClass(
-                parentProp1 = child.parentProp1,
-                parentProp2 = child.parentProp2,
-                parentProp3 = child.parentProp3,
-                childProp1 = 1.0,
-                childProp2 = 2L,
-                childProp3 = "child",
-                grandChildProp1 = "grandChild",
-                grandChildProp2 = 123,
-                grandChildProp3 = true,
-            ),
+            ) to
+                GrandChildDataClass(
+                    parentProp1 = child.parentProp1,
+                    parentProp2 = child.parentProp2,
+                    parentProp3 = child.parentProp3,
+                    childProp1 = 1.0,
+                    childProp2 = 2L,
+                    childProp3 = "child",
+                    grandChildProp1 = "grandChild",
+                    grandChildProp2 = 123,
+                    grandChildProp3 = true,
+                ),
         ).forEach { (actual, expected) ->
             assertEquals(actual, expected)
         }

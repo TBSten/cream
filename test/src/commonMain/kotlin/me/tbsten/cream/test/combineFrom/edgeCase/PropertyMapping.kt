@@ -2,11 +2,11 @@ package me.tbsten.cream.test.combineFrom.edgeCase
 
 import me.tbsten.cream.CombineFrom
 
+// Test case 1: Simple property name mapping
+
 /**
  * Test property mapping with @CombineFrom.Map annotation
  */
-
-// Test case 1: Simple property name mapping
 data class MappingSourceA(
     val sourcePropertyA: String,
 )
@@ -25,6 +25,7 @@ data class MappedTarget(
 )
 
 // Test case 2: Multiple property names mapping
+
 data class MultiMappingSource(
     val sourceName: String,
 )
@@ -43,6 +44,7 @@ data class MultiMappedTarget(
 )
 
 // Test case 3: Mixed mapping (both direct match and explicit mapping)
+
 data class MixedMappingSourceA(
     val directMatch: String,
 )
@@ -60,6 +62,7 @@ data class MixedMappingTarget(
 )
 
 // Test case 4: Merge mapping (multiple sources map to same target property)
+
 data class MergeMappingSourceA(
     val sourcePropertyA: String,
 )
