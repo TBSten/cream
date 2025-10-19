@@ -23,8 +23,6 @@ data class CombineMappingExcludeTestTarget(
         CombineMappingExcludeTestSourceB::class,
     ],
     target = CombineMappingExcludeTestTarget::class,
-    properties = [
-        CombineMapping.Exclude(source = "excludedProp"),
-    ],
+    excludes = ["excludedProp"],
 )
 private object CombineMappingExcludeTestMapping

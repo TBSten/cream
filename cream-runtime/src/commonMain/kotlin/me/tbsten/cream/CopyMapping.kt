@@ -97,6 +97,7 @@ annotation class CopyMapping(
     val target: KClass<*>,
     val canReverse: Boolean = false,
     val properties: Array<Map> = [],
+    val excludes: Array<String> = [],
 ) {
     /**
      * Defines a property name mapping between source and target classes.

@@ -45,6 +45,7 @@ internal sealed interface GenerateSourceAnnotation<A : Annotation> {
     data class CopyMapping(
         override val annotationTarget: KSClassDeclaration,
         val propertyMappings: List<Pair<String, String>> = emptyList(),
+        val excludes: List<String> = emptyList(),
     ) : GenerateSourceAnnotation<me.tbsten.cream.CopyMapping> {
         override val annotationClass: KClass<me.tbsten.cream.CopyMapping> =
             me.tbsten.cream.CopyMapping::class
@@ -53,6 +54,7 @@ internal sealed interface GenerateSourceAnnotation<A : Annotation> {
     data class CombineMapping(
         override val annotationTarget: KSClassDeclaration,
         val propertyMappings: List<Pair<String, String>> = emptyList(),
+        val excludes: List<String> = emptyList(),
     ) : GenerateSourceAnnotation<me.tbsten.cream.CombineMapping> {
         override val annotationClass: KClass<me.tbsten.cream.CombineMapping> =
             me.tbsten.cream.CombineMapping::class

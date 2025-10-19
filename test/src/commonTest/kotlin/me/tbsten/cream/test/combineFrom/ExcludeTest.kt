@@ -11,7 +11,7 @@ class ExcludeTest {
 
         val result: ExcludeTestTarget =
             sourceA.copyToExcludeTestTarget(
-                sourceB = sourceB,
+                excludeTestSourceB = sourceB,
                 sourceBProperty = "overriden",
             )
 
@@ -32,7 +32,7 @@ class ExcludeTest {
 
         val result: ExcludeTestTarget =
             sourceA.copyToExcludeTestTarget(
-                sourceB = sourceB,
+                excludeTestSourceB = sourceB,
                 sourceAProperty = "overriden A",
                 sourceBProperty = "overriden B",
             )

@@ -44,4 +44,7 @@ annotation class CombineTo(
     annotation class Map(
         vararg val propertyNames: String,
     )
+
+    @Target(AnnotationTarget.PROPERTY)
+    annotation class Exclude
 }

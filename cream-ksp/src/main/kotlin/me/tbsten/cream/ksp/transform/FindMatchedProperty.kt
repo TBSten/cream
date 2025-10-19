@@ -10,6 +10,7 @@ import me.tbsten.cream.CombineFrom
 import me.tbsten.cream.CombineTo
 import me.tbsten.cream.CopyFrom
 import me.tbsten.cream.CopyTo
+import me.tbsten.cream.CopyToChildren
 import me.tbsten.cream.ksp.GenerateSourceAnnotation
 
 internal fun KSValueParameter.findMatchedProperty(
@@ -19,6 +20,31 @@ internal fun KSValueParameter.findMatchedProperty(
     val parameterName =
         this.name?.asString()
             ?: return null
+
+    // Check if this parameter is excluded via @CombineFrom.Exclude
+    if (this.hasExcludeAnnotation<me.tbsten.cream.CombineFrom.Exclude>()) {
+        return null
+    }
+
+    // Check if this parameter is excluded via @CopyFrom.Exclude
+    if (this.hasExcludeAnnotation<me.tbsten.cream.CopyFrom.Exclude>()) {
+        return null
+    }
+
+    // Check if this property is excluded in CopyMapping or CombineMapping
+    when (generateSourceAnnotation) {
+        is GenerateSourceAnnotation.CopyMapping -> {
+            if (parameterName in generateSourceAnnotation.excludes) {
+                return null
+            }
+        }
+        is GenerateSourceAnnotation.CombineMapping -> {
+            if (parameterName in generateSourceAnnotation.excludes) {
+                return null
+            }
+        }
+        else -> {}
+    }
 
     findSourcePropertyWithCopyToAnnotation(source, parameterName)
         ?.let { return it }
@@ -113,6 +139,11 @@ private fun KSValueParameter.findSourcePropertyWithCopyToAnnotation(
     source
         .getAllProperties()
         .firstOrNull { sourceProperty ->
+            // Check if property is excluded
+            if (sourceProperty.hasExcludeAnnotation<CopyTo.Exclude>(source)) {
+                return@firstOrNull false
+            }
+
             // First try to get annotation from property itself
             val propertyAnnotation =
                 sourceProperty
@@ -148,6 +179,11 @@ private fun KSValueParameter.findSourcePropertyWithCombineToAnnotation(
     source
         .getAllProperties()
         .firstOrNull { sourceProperty ->
+            // Check if property is excluded
+            if (sourceProperty.hasExcludeAnnotation<CombineTo.Exclude>(source)) {
+                return@firstOrNull false
+            }
+
             // First try to get annotation from property itself
             val propertyAnnotation =
                 sourceProperty
@@ -267,9 +303,24 @@ private fun KSValueParameter.findSourcePropertyByName(
 ): KSPropertyDeclaration? =
     source
         .getAllProperties()
-        .firstOrNull {
-            it.simpleName.asString() == parameterName &&
-                isTypeCompatible(this.type.resolve(), it.type.resolve())
+        .firstOrNull { sourceProperty ->
+            // Check if property is excluded via @CopyTo.Exclude
+            if (sourceProperty.hasExcludeAnnotation<CopyTo.Exclude>(source)) {
+                return@firstOrNull false
+            }
+
+            // Check if property is excluded via @CombineTo.Exclude
+            if (sourceProperty.hasExcludeAnnotation<CombineTo.Exclude>(source)) {
+                return@firstOrNull false
+            }
+
+            // Check if property is excluded via @CopyToChildren.Exclude
+            if (sourceProperty.hasExcludeAnnotation<CopyToChildren.Exclude>(source)) {
+                return@firstOrNull false
+            }
+
+            sourceProperty.simpleName.asString() == parameterName &&
+                isTypeCompatible(this.type.resolve(), sourceProperty.type.resolve())
         }
 
 /**
@@ -293,6 +344,36 @@ private fun isTypeCompatible(
     if (targetDecl is KSTypeParameter && sourceDecl is KSTypeParameter) {
         return targetDecl.name.asString() == sourceDecl.name.asString()
     }
+
+    return false
+}
+
+/**
+ * Check if a value parameter or property has an Exclude annotation
+ */
+private inline fun <reified T : Annotation> KSValueParameter.hasExcludeAnnotation(): Boolean =
+    this.getAnnotationsByType(T::class).any()
+
+/**
+ * Check if a property has an Exclude annotation (checks both property and constructor parameter)
+ */
+private inline fun <reified T : Annotation> KSPropertyDeclaration.hasExcludeAnnotation(
+    source: KSClassDeclaration,
+): Boolean {
+    // Check property itself
+    if (this.getAnnotationsByType(T::class).any()) {
+        return true
+    }
+
+    // Check corresponding constructor parameter
+    source.primaryConstructor
+        ?.parameters
+        ?.firstOrNull { it.name?.asString() == this.simpleName.asString() }
+        ?.let {
+            if (it.getAnnotationsByType(T::class).any()) {
+                return true
+            }
+        }
 
     return false
 }

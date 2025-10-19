@@ -16,8 +16,6 @@ data class CopyMappingExcludeTestTarget(
 @CopyMapping(
     source = CopyMappingExcludeTestSource::class,
     target = CopyMappingExcludeTestTarget::class,
-    properties = [
-        CopyMapping.Exclude(source = "excludedProp"),
-    ],
+    excludes = ["excludedProp"],
 )
 private object CopyMappingExcludeTestMapping

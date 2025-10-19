@@ -14,7 +14,7 @@ class ExcludeTest {
             )
 
         val result: CopyToChildrenExcludeTestParent.Child =
-            parent.copyToChild(
+            parent.copyToCopyToChildrenExcludeTestParentChild(
                 excludedProp = "required",
                 childProp = "new child",
             )
@@ -40,7 +40,7 @@ class ExcludeTest {
             )
 
         val result: CopyToChildrenExcludeTestParent.Child =
-            parent.copyToChild(
+            parent.copyToCopyToChildrenExcludeTestParentChild(
                 sharedProp = "overridden shared",
                 excludedProp = "overridden excluded",
                 childProp = "new child",
