@@ -565,3 +565,51 @@ suppress them.
 
 This option affects the entire module, but you can also limit it to a specific class by setting the
 `notCopyToObject` property of the `@CopyToChildren` annotation to `true`.
+
+## 🆚 6. Comparison with Other Libraries
+
+When choosing a data mapping library for Kotlin, you might consider several alternatives. Here's how cream.kt compares to other popular mapping libraries:
+
+### vs. MapStruct
+
+**MapStruct** is a mature Java-based code generation library for mapping between different object types.
+
+| Feature | cream.kt | MapStruct |
+|---------|----------|-----------|
+| **Language** | Kotlin-first with KSP | Java-first with annotation processing |
+| **State Transitions** | ✅ Designed for sealed class state transitions | ❌ Focused on entity-DTO mapping |
+| **Default Value Override** | ✅ Generated functions allow overriding defaults | ⚠️ Limited default value handling |
+| **Multiplatform** | ✅ Kotlin Multiplatform support | ❌ JVM only |
+| **IDE Support** | ✅ Native Kotlin IDE integration | ⚠️ Better for Java projects |
+| **Use Case** | Frontend state management (e.g., UI states) | Backend entity-DTO conversions |
+
+**When to choose cream.kt over MapStruct:**
+- You're working with Kotlin (especially Kotlin Multiplatform)
+- You need to manage UI state transitions with sealed classes
+- You want to override default values during state transitions
+- You prefer a lightweight, Kotlin-native solution
+
+### vs. KOMM (Kotlin Object Multiplatform Mapper)
+
+**KOMM** is a lightweight Kotlin Multiplatform mapping library that also uses KSP for code generation.
+
+| Feature | cream.kt | KOMM |
+|---------|----------|------|
+| **Structural Mismatch Handling** | ✅ Better handling when source/target structures differ | ⚠️ Requires more manual configuration |
+| **Default Value Override** | ✅ All matched properties get defaults; can be overridden | ⚠️ More limited default handling |
+| **Advanced Features** | ✅ `@CopyToChildren`, `@CombineTo`, `@CopyMapping` | ⚠️ Simpler feature set |
+| **Object Singleton Copy** | ✅ Copy to `object` types (with opt-out) | ❌ Not supported |
+| **Complexity** | ⚠️ More features = steeper learning curve | ✅ Simpler, more lightweight |
+| **Flexibility** | ⚠️ Opinionated for state management patterns | ✅ More general-purpose flexibility |
+
+**When to choose cream.kt over KOMM:**
+- You're building applications with complex state management (e.g., using libraries like [Tart](https://github.com/TBSten/tart))
+- You need to copy from a sealed interface to all its children (`@CopyToChildren`)
+- You frequently work with sealed class hierarchies for UI states
+- You need to combine multiple source classes into one target (`@CombineTo`)
+- You want library-to-library mapping without modifying source code (`@CopyMapping`)
+
+**When KOMM might be better:**
+- You want a simpler, more general-purpose mapping library
+- You prefer maximum flexibility over opinionated patterns
+- You have simpler mapping needs without complex state hierarchies
