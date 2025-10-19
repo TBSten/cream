@@ -6,10 +6,11 @@ import kotlin.test.assertEquals
 class ExcludeTest {
     @Test
     fun copyMappingWithExclude() {
-        val source = CopyMappingExcludeTestSource(
-            sharedProp = "shared",
-            excludedProp = "excluded",
-        )
+        val source =
+            CopyMappingExcludeTestSource(
+                sharedProp = "shared",
+                excludedProp = "excluded",
+            )
 
         val result: CopyMappingExcludeTestTarget =
             source.copyToCopyMappingExcludeTestTarget(
@@ -30,10 +31,11 @@ class ExcludeTest {
 
     @Test
     fun copyMappingWithOverride() {
-        val source = CopyMappingExcludeTestSource(
-            sharedProp = "shared",
-            excludedProp = "excluded",
-        )
+        val source =
+            CopyMappingExcludeTestSource(
+                sharedProp = "shared",
+                excludedProp = "excluded",
+            )
 
         val result: CopyMappingExcludeTestTarget =
             source.copyToCopyMappingExcludeTestTarget(

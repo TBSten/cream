@@ -6,13 +6,15 @@ import kotlin.test.assertEquals
 class ExcludeTest {
     @Test
     fun combineToTargetWithExclude() {
-        val sourceA = CombineToExcludeTestSourceA(
-            sourceAProp = "sourceA",
-            excludedProp = "excluded",
-        )
-        val sourceB = CombineToExcludeTestSourceB(
-            sourceBProp = "sourceB",
-        )
+        val sourceA =
+            CombineToExcludeTestSourceA(
+                sourceAProp = "sourceA",
+                excludedProp = "excluded",
+            )
+        val sourceB =
+            CombineToExcludeTestSourceB(
+                sourceBProp = "sourceB",
+            )
 
         val result: CombineToExcludeTestTarget =
             sourceA.copyToCombineToExcludeTestTarget(
@@ -33,13 +35,15 @@ class ExcludeTest {
 
     @Test
     fun combineToTargetWithOverride() {
-        val sourceA = CombineToExcludeTestSourceA(
-            sourceAProp = "sourceA",
-            excludedProp = "excluded",
-        )
-        val sourceB = CombineToExcludeTestSourceB(
-            sourceBProp = "sourceB",
-        )
+        val sourceA =
+            CombineToExcludeTestSourceA(
+                sourceAProp = "sourceA",
+                excludedProp = "excluded",
+            )
+        val sourceB =
+            CombineToExcludeTestSourceB(
+                sourceBProp = "sourceB",
+            )
 
         val result: CombineToExcludeTestTarget =
             sourceA.copyToCombineToExcludeTestTarget(
