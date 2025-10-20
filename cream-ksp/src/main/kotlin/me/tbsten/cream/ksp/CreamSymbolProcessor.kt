@@ -12,6 +12,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSName
 import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSTypeAlias
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CombineFrom
 import me.tbsten.cream.CombineMapping
@@ -25,6 +26,7 @@ import me.tbsten.cream.ksp.transform.appendCombineToFunction
 import me.tbsten.cream.ksp.transform.appendCopyFunction
 import me.tbsten.cream.ksp.util.fullName
 import me.tbsten.cream.ksp.util.isSealed
+import me.tbsten.cream.ksp.util.resolveToClassDeclaration
 import me.tbsten.cream.ksp.util.underPackageName
 import java.io.BufferedWriter
 
@@ -97,8 +99,19 @@ class CreamSymbolProcessor(
                 ).partition { it.validate() }
 
         copyFromTargets.forEach { target ->
+            val targetDeclaration =
+                when (target) {
+                    is KSClassDeclaration -> target
+                    is KSTypeAlias -> target
+                    else ->
+                        throw InvalidCreamUsageException(
+                            message = "@${CopyFrom::class.simpleName} must be applied to a class, interface, or typealias.",
+                            solution = "Please apply @${CopyFrom::class.simpleName} to `class`, `interface`, or `typealias`",
+                        )
+                }
+
             val targetClass =
-                (target as? KSClassDeclaration)
+                (targetDeclaration as? KSDeclaration)?.resolveToClassDeclaration()
                     ?: throw InvalidCreamUsageException(
                         message = "@${CopyFrom::class.simpleName} must be applied to a class or interface.",
                         solution = "Please apply @${CopyFrom::class.simpleName} to `class or interface`",
@@ -119,17 +132,17 @@ class CreamSymbolProcessor(
                             .filterIsInstance<List<KSType>>()
                             .flatten()
                     }.map { it.declaration }
-                    .map {
-                        it as? KSClassDeclaration
+                    .map { declaration ->
+                        declaration.resolveToClassDeclaration()
                             ?: throw InvalidCreamUsageException(
-                                message = "${it.fullName} (Specified in @${CopyFrom::class.simpleName}.sources of ${target.fullName}) must be class.",
-                                solution = "Specify class or interface in @${CopyFrom::class.simpleName}.sources of ${target.fullName}.",
+                                message = "${declaration.fullName} (Specified in @${CopyFrom::class.simpleName}.sources of ${target.fullName}) must be class or typealias.",
+                                solution = "Specify class, interface, or typealias in @${CopyFrom::class.simpleName}.sources of ${target.fullName}.",
                             )
                     }
 
             codeGenerator
                 .createNewKotlinFile(
-                    dependencies = Dependencies(aggregating = true, targetClass.containingFile!!),
+                    dependencies = Dependencies(aggregating = true, targetDeclaration.containingFile!!),
                     packageName = targetClass.packageName,
                     fileName = "CopyFrom__${targetClass.underPackageName}",
                 ) {
@@ -143,7 +156,7 @@ class CreamSymbolProcessor(
                             options = options,
                             omitPackages = listOf("kotlin", targetClass.packageName.asString()),
                             generateSourceAnnotation =
-                                GenerateSourceAnnotation.CopyFrom(annotationTarget = target),
+                                GenerateSourceAnnotation.CopyFrom(annotationTarget = targetDeclaration),
                             notCopyToObject = false,
                         )
                     }
@@ -161,8 +174,19 @@ class CreamSymbolProcessor(
                 ).partition { it.validate() }
 
         copyToTargets.forEach { target ->
+            val sourceDeclaration =
+                when (target) {
+                    is KSClassDeclaration -> target
+                    is KSTypeAlias -> target
+                    else ->
+                        throw InvalidCreamUsageException(
+                            message = "@${CopyTo::class.simpleName} must be applied to a class, interface, or typealias.",
+                            solution = "Please apply @${CopyTo::class.simpleName} to `class`, `interface`, or `typealias`",
+                        )
+                }
+
             val sourceClass =
-                (target as? KSClassDeclaration)
+                (sourceDeclaration as? KSDeclaration)?.resolveToClassDeclaration()
                     ?: throw InvalidCreamUsageException(
                         message = "@${CopyTo::class.simpleName} must be applied to a class or interface.",
                         solution = "Please apply @${CopyTo::class.simpleName} to `class or interface`",
@@ -183,17 +207,17 @@ class CreamSymbolProcessor(
                             .filterIsInstance<List<KSType>>()
                             .flatten()
                     }.map { it.declaration }
-                    .map {
-                        it as? KSClassDeclaration
+                    .map { declaration ->
+                        declaration.resolveToClassDeclaration()
                             ?: throw InvalidCreamUsageException(
-                                message = "${it.fullName} (Specified in @${CopyTo::class.simpleName}.sources of ${target.fullName}) must be class.",
-                                solution = "Specify class or interface in @${CopyTo::class.simpleName}.sources of ${target.fullName}.",
+                                message = "${declaration.fullName} (Specified in @${CopyTo::class.simpleName}.targets of ${target.fullName}) must be class or typealias.",
+                                solution = "Specify class, interface, or typealias in @${CopyTo::class.simpleName}.targets of ${target.fullName}.",
                             )
                     }
 
             codeGenerator
                 .createNewKotlinFile(
-                    dependencies = Dependencies(aggregating = true, sourceClass.containingFile!!),
+                    dependencies = Dependencies(aggregating = true, sourceDeclaration.containingFile!!),
                     packageName = sourceClass.packageName,
                     fileName = "CopyTo__${sourceClass.underPackageName}",
                 ) {
@@ -208,7 +232,7 @@ class CreamSymbolProcessor(
                             options = options,
                             omitPackages = listOf("kotlin", sourceClass.packageName.asString()),
                             generateSourceAnnotation =
-                                GenerateSourceAnnotation.CopyTo(annotationTarget = target),
+                                GenerateSourceAnnotation.CopyTo(annotationTarget = sourceDeclaration),
                             notCopyToObject = false,
                         )
                     }
@@ -317,8 +341,19 @@ class CreamSymbolProcessor(
         val targetToSourcesMap = TargetSourcesMapForCombineTo()
 
         combineToTargets.forEach { target ->
+            val sourceDeclaration =
+                when (target) {
+                    is KSClassDeclaration -> target
+                    is KSTypeAlias -> target
+                    else ->
+                        throw InvalidCreamUsageException(
+                            message = "@${CombineTo::class.simpleName} must be applied to a class, interface, or typealias.",
+                            solution = "Please apply @${CombineTo::class.simpleName} to `class`, `interface`, or `typealias`",
+                        )
+                }
+
             val sourceClass =
-                (target as? KSClassDeclaration)
+                (sourceDeclaration as? KSDeclaration)?.resolveToClassDeclaration()
                     ?: throw InvalidCreamUsageException(
                         message = "@${CombineTo::class.simpleName} must be applied to a class or interface.",
                         solution = "Please apply @${CombineTo::class.simpleName} to `class or interface`",
@@ -339,11 +374,11 @@ class CreamSymbolProcessor(
                             .filterIsInstance<List<KSType>>()
                             .flatten()
                     }.map { it.declaration }
-                    .map {
-                        it as? KSClassDeclaration
+                    .map { declaration ->
+                        declaration.resolveToClassDeclaration()
                             ?: throw InvalidCreamUsageException(
-                                message = "${it.fullName} (Specified in @${CombineTo::class.simpleName}.targets of ${target.fullName}) must be class.",
-                                solution = "Specify class or interface in @${CombineTo::class.simpleName}.targets of ${target.fullName}.",
+                                message = "${declaration.fullName} (Specified in @${CombineTo::class.simpleName}.targets of ${target.fullName}) must be class or typealias.",
+                                solution = "Specify class, interface, or typealias in @${CombineTo::class.simpleName}.targets of ${target.fullName}.",
                             )
                     }
 

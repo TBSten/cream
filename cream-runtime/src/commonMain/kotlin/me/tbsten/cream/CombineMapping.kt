@@ -85,7 +85,7 @@ import kotlin.reflect.KClass
  * @see CombineFrom
  * @see CopyMapping
  */
-@Target(AnnotationTarget.CLASS)
+@Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS)
 @Retention(AnnotationRetention.SOURCE)
 @Repeatable
 annotation class CombineMapping(

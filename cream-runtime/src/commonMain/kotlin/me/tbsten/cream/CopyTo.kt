@@ -27,7 +27,7 @@ import kotlin.reflect.KClass
  *
  * @see CopyFrom
  */
-@Target(AnnotationTarget.CLASS)
+@Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS)
 annotation class CopyTo(
     vararg val targets: KClass<*>,
 ) {

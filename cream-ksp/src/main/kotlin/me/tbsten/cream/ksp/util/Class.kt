@@ -16,6 +16,9 @@ internal val KSDeclaration.fullName: String
 internal val KSClassDeclaration.underPackageName: String
     get() = fullName.replace("${packageName.asString()}.", "")
 
+internal val KSDeclaration.underPackageName: String
+    get() = fullName.replace("${packageName.asString()}.", "")
+
 internal val KClass<*>.fullName: String
     get() =
         qualifiedName
