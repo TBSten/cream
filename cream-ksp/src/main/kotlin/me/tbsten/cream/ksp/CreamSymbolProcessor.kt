@@ -10,6 +10,7 @@ import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSName
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeAlias
@@ -72,6 +73,9 @@ class CreamSymbolProcessor(
             .also { invalidTargets.addAll(it) }
 
         processCopyTo(resolver)
+            .also { invalidTargets.addAll(it) }
+
+        processCopyToFun(resolver)
             .also { invalidTargets.addAll(it) }
 
         processCopyToChildren(resolver)
@@ -755,6 +759,145 @@ class CreamSymbolProcessor(
         }
 
         return invalidCombineMappingTargets
+    }
+
+    private fun processCopyToFun(resolver: Resolver): List<KSAnnotated> {
+        val (copyToFunTargets, invalidCopyToFunTargets) =
+            resolver
+                .getSymbolsWithAnnotation(
+                    annotationName = "${CopyTo::class.qualifiedName}.Fun",
+                ).partition { it.validate() }
+
+        copyToFunTargets.forEach { target ->
+            val sourceClass =
+                (target as? KSClassDeclaration)
+                    ?: throw InvalidCreamUsageException(
+                        message = "@${CopyTo::class.simpleName}.Fun must be applied to a class or interface.",
+                        solution = "Please apply @${CopyTo::class.simpleName}.Fun to `class or interface`",
+                    )
+
+            // Get all @CopyTo.Fun annotations
+            val funAnnotations =
+                sourceClass
+                    .annotations
+                    .filter {
+                        it.annotationType
+                            .resolve()
+                            .declaration.fullName == "${CopyTo::class.qualifiedName}.Fun"
+                    }.toList()
+
+            codeGenerator
+                .createNewKotlinFile(
+                    dependencies = Dependencies(aggregating = true, sourceClass.containingFile!!),
+                    packageName = sourceClass.packageName,
+                    fileName = "CopyToFun__${sourceClass.underPackageName}",
+                ) {
+                    it.appendLine("import me.tbsten.cream.*")
+                    it.appendLine()
+
+                    funAnnotations.forEach { annotation ->
+                        // Get funName from annotation
+                        val funName =
+                            annotation.arguments
+                                .firstOrNull { it.name?.asString() == "funName" }
+                                ?.value as? String
+                                ?: throw InvalidCreamUsageException(
+                                    message = "@${CopyTo::class.simpleName}.Fun.funName is required.",
+                                    solution = "Please specify funName in @${CopyTo::class.simpleName}.Fun",
+                                )
+
+                        // Find factory function
+                        val factoryFunction =
+                            findFactoryFunction(sourceClass, funName, resolver)
+                                ?: throw InvalidCreamUsageException(
+                                    message = "Factory function '$funName' not found for ${sourceClass.fullName}.",
+                                    solution = "Please ensure the factory function '$funName' exists in the same package or specify the full qualified name.",
+                                )
+
+                        // Get target class from factory function return type
+                        val targetType =
+                            factoryFunction.returnType?.resolve()
+                                ?: throw InvalidCreamUsageException(
+                                    message = "Factory function '$funName' must have a return type.",
+                                    solution = "Please specify return type for factory function '$funName'.",
+                                )
+
+                        val targetClass =
+                            targetType.declaration as? KSClassDeclaration
+                                ?: throw InvalidCreamUsageException(
+                                    message = "Factory function '$funName' must return a class type.",
+                                    solution = "Please ensure factory function '$funName' returns a class.",
+                                )
+
+                        // Generate copy function using existing appendCopyToClassFunction
+                        it.appendCopyFunction(
+                            source = sourceClass,
+                            target = targetClass,
+                            omitPackages = listOf("kotlin", sourceClass.packageName.asString()),
+                            generateSourceAnnotation =
+                                GenerateSourceAnnotation.CopyTo(
+                                    annotationTarget = sourceClass,
+                                ),
+                            options = options,
+                            notCopyToObject = false,
+                            factoryFunction = factoryFunction,
+                        )
+                    }
+                }
+        }
+
+        return invalidCopyToFunTargets
+    }
+
+    /**
+     * Find factory function by name in the same package as source class
+     */
+    private fun findFactoryFunction(
+        source: KSClassDeclaration,
+        funName: String,
+        resolver: Resolver,
+    ): KSFunctionDeclaration? {
+        val packageName = source.packageName.asString()
+
+        // Parse factory function name (supports "ClassName.method" format)
+        val (className, methodName) =
+            if (funName.contains(".")) {
+                val parts = funName.split(".", limit = 2)
+                parts[0] to parts[1]
+            } else {
+                null to funName
+            }
+
+        return if (className != null) {
+            // Look for companion object or class method
+            val qualifiedClassName =
+                if (className.contains(".")) {
+                    className
+                } else {
+                    "$packageName.$className"
+                }
+
+            val classDecl =
+                resolver.getClassDeclarationByName(resolver.getKSNameFromString(qualifiedClassName))
+                    ?: return null
+
+            // Check companion object
+            val companionObject =
+                classDecl.declarations
+                    .filterIsInstance<KSClassDeclaration>()
+                    .firstOrNull { it.isCompanionObject }
+
+            companionObject
+                ?.declarations
+                ?.filterIsInstance<KSFunctionDeclaration>()
+                ?.firstOrNull { it.simpleName.asString() == methodName }
+        } else {
+            // Look for top-level function in same package
+            resolver
+                .getDeclarationsFromPackage(packageName)
+                .filterIsInstance<KSFunctionDeclaration>()
+                .firstOrNull { it.simpleName.asString() == methodName }
+        }
     }
 }
 
