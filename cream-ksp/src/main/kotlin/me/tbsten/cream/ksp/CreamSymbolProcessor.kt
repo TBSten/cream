@@ -806,41 +806,37 @@ class CreamSymbolProcessor(
                                     solution = "Please specify funName in @${CopyTo::class.simpleName}.Fun",
                                 )
 
-                        // Find factory function
-                        val factoryFunction =
-                            findFactoryFunction(sourceClass, funName, resolver)
-                                ?: throw InvalidCreamUsageException(
-                                    message = "Factory function '$funName' not found for ${sourceClass.fullName}.",
-                                    solution = "Please ensure the factory function '$funName' exists in the same package or specify the full qualified name.",
-                                )
+                        // Find target class from factory function return type
+                        val factoryFunction = findFactoryFunction(sourceClass, funName, resolver)
+                            ?: throw InvalidCreamUsageException(
+                                message = "Factory function '$funName' not found for ${sourceClass.fullName}.",
+                                solution = "Please ensure the factory function '$funName' exists in the same package or specify the full qualified name.",
+                            )
 
-                        // Get target class from factory function return type
-                        val targetType =
-                            factoryFunction.returnType?.resolve()
-                                ?: throw InvalidCreamUsageException(
-                                    message = "Factory function '$funName' must have a return type.",
-                                    solution = "Please specify return type for factory function '$funName'.",
-                                )
+                        val targetType = factoryFunction.returnType?.resolve()
+                            ?: throw InvalidCreamUsageException(
+                                message = "Factory function '$funName' must have a return type.",
+                                solution = "Please specify return type for factory function '$funName'.",
+                            )
 
-                        val targetClass =
-                            targetType.declaration as? KSClassDeclaration
-                                ?: throw InvalidCreamUsageException(
-                                    message = "Factory function '$funName' must return a class type.",
-                                    solution = "Please ensure factory function '$funName' returns a class.",
-                                )
+                        val targetClass = targetType.declaration as? KSClassDeclaration
+                            ?: throw InvalidCreamUsageException(
+                                message = "Factory function '$funName' must return a class type.",
+                                solution = "Please ensure factory function '$funName' returns a class.",
+                            )
 
-                        // Generate copy function using existing appendCopyToClassFunction
+                        // Generate copy function using funName string directly
                         it.appendCopyFunction(
                             source = sourceClass,
                             target = targetClass,
                             omitPackages = listOf("kotlin", sourceClass.packageName.asString()),
                             generateSourceAnnotation =
-                                GenerateSourceAnnotation.CopyTo(
+                                GenerateSourceAnnotation.CopyToFun(
                                     annotationTarget = sourceClass,
                                 ),
                             options = options,
                             notCopyToObject = false,
-                            factoryFunction = factoryFunction,
+                            factoryFunctionName = funName,
                         )
                     }
                 }

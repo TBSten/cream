@@ -22,38 +22,17 @@ internal fun BufferedWriter.appendCopyToClassFunction(
     generateSourceAnnotation: GenerateSourceAnnotation<*>,
     omitPackages: List<String>,
     options: CreamOptions,
-    factoryFunction: KSFunctionDeclaration? = null,
+    factoryFunctionName: String? = null,
 ) {
-    // Use factory function parameters if provided, otherwise use constructor parameters
-    val parametersProvider =
-        if (factoryFunction != null) {
-            listOf(factoryFunction)
-        } else {
-            targetClass.getConstructors().toList()
-        }
-
-    parametersProvider.forEach { paramSource ->
-        val functionDeclaration = paramSource as KSFunctionDeclaration
-        val parameters =
-            if (factoryFunction != null) {
-                factoryFunction.parameters
-            } else {
-                paramSource.parameters
-            }
-
+    // Use factory function name if provided, otherwise use constructor
+    targetClass.getConstructors().forEach { constructor ->
         val typeParameters =
-            if (factoryFunction != null) {
-                // For factory functions, use factory function as the target constructor
-                getCopyFunctionTypeParameters(
-                    sourceClass = source,
-                    targetConstructor = factoryFunction,
-                )
-            } else {
-                getCopyFunctionTypeParameters(
-                    sourceClass = source,
-                    targetConstructor = functionDeclaration,
-                )
-            }
+            getCopyFunctionTypeParameters(
+                sourceClass = source,
+                targetConstructor = constructor,
+            )
+
+        val parameters = constructor.parameters
 
         // Generate copy function
         val funName = copyFunctionName(source, targetClass, options)
@@ -195,10 +174,9 @@ internal fun BufferedWriter.appendCopyToClassFunction(
             )
         }
         // Generate function body - call factory function or constructor
-        if (factoryFunction != null) {
+        if (factoryFunctionName != null) {
             // Use factory function
-            val factoryFunctionQualifiedName = factoryFunction.qualifiedName?.asString() ?: factoryFunction.simpleName.asString()
-            append(" = $factoryFunctionQualifiedName(")
+            append(" = $factoryFunctionName(")
             appendLine()
         } else {
             // Use constructor

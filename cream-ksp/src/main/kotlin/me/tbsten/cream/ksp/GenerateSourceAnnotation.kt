@@ -58,4 +58,46 @@ internal sealed interface GenerateSourceAnnotation<A : Annotation> {
         override val annotationClass: KClass<me.tbsten.cream.CombineMapping> =
             me.tbsten.cream.CombineMapping::class
     }
+
+    data class CopyToFun(
+        override val annotationTarget: KSDeclaration,
+    ) : GenerateSourceAnnotation<me.tbsten.cream.CopyTo.Fun> {
+        override val annotationClass: KClass<me.tbsten.cream.CopyTo.Fun> =
+            me.tbsten.cream.CopyTo.Fun::class
+    }
+
+    data class CopyFromFun(
+        override val annotationTarget: KSDeclaration,
+    ) : GenerateSourceAnnotation<me.tbsten.cream.CopyFrom.Fun> {
+        override val annotationClass: KClass<me.tbsten.cream.CopyFrom.Fun> =
+            me.tbsten.cream.CopyFrom.Fun::class
+    }
+
+    data class CombineToFun(
+        override val annotationTarget: KSDeclaration,
+    ) : GenerateSourceAnnotation<me.tbsten.cream.CombineTo.Fun> {
+        override val annotationClass: KClass<me.tbsten.cream.CombineTo.Fun> =
+            me.tbsten.cream.CombineTo.Fun::class
+    }
+
+    data class CombineFromFun(
+        override val annotationTarget: KSDeclaration,
+    ) : GenerateSourceAnnotation<me.tbsten.cream.CombineFrom.Fun> {
+        override val annotationClass: KClass<me.tbsten.cream.CombineFrom.Fun> =
+            me.tbsten.cream.CombineFrom.Fun::class
+    }
+
+    data class CopyMappingFun(
+        override val annotationTarget: KSDeclaration,
+    ) : GenerateSourceAnnotation<me.tbsten.cream.CopyMapping.Fun> {
+        override val annotationClass: KClass<me.tbsten.cream.CopyMapping.Fun> =
+            me.tbsten.cream.CopyMapping.Fun::class
+    }
+
+    data class CombineMappingFun(
+        override val annotationTarget: KSDeclaration,
+    ) : GenerateSourceAnnotation<me.tbsten.cream.CombineMapping.Fun> {
+        override val annotationClass: KClass<me.tbsten.cream.CombineMapping.Fun> =
+            me.tbsten.cream.CombineMapping.Fun::class
+    }
 }
