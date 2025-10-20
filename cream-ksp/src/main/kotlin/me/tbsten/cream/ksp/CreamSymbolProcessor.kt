@@ -310,18 +310,12 @@ class CreamSymbolProcessor(
         return invalidCopyToChildrenTargets
     }
 
-    private data class SourceInfo(
-        val sourceClass: KSClassDeclaration,
-        val sourceDeclaration: KSDeclaration,
-    )
-
-    private class TargetSourcesMapForCombineTo : MutableMap<KSClassDeclaration, MutableList<SourceInfo>> by mutableMapOf() {
+    private class TargetSourcesMapForCombineTo : MutableMap<KSClassDeclaration, MutableList<KSDeclaration>> by mutableMapOf() {
         fun put(
             targetClass: KSClassDeclaration,
-            sourceClass: KSClassDeclaration,
             sourceDeclaration: KSDeclaration,
         ) {
-            getOrPut(targetClass) { mutableListOf() }.add(SourceInfo(sourceClass, sourceDeclaration))
+            getOrPut(targetClass) { mutableListOf() }.add(sourceDeclaration)
         }
     }
 
@@ -373,33 +367,37 @@ class CreamSymbolProcessor(
 
             // Group source classes by target class
             targetClasses.forEach { targetClass ->
-                targetToSourcesMap.put(targetClass, sourceClass, sourceDeclaration)
+                targetToSourcesMap.put(targetClass, sourceDeclaration)
             }
         }
 
         // For each target class, generate copy functions for each source class
-        targetToSourcesMap.forEach { (targetClass, sourceInfos) ->
-            sourceInfos.forEach { sourceInfo ->
-                val otherSourceClasses = sourceInfos.filter { it != sourceInfo }.map { it.sourceClass }
+        targetToSourcesMap.forEach { (targetClass, sourceDeclarations) ->
+            sourceDeclarations.forEach { sourceDeclaration ->
+                val sourceClass = sourceDeclaration.resolveToClassDeclaration()!!
+                val otherSourceClasses =
+                    sourceDeclarations
+                        .filter { it != sourceDeclaration }
+                        .map { it.resolveToClassDeclaration()!! }
 
                 codeGenerator
                     .createNewKotlinFile(
-                        dependencies = Dependencies(aggregating = true, sourceInfo.sourceDeclaration.containingFile!!),
-                        packageName = sourceInfo.sourceClass.packageName,
-                        fileName = "CombineTo__${sourceInfo.sourceClass.underPackageName}__${targetClass.underPackageName}",
+                        dependencies = Dependencies(aggregating = true, sourceDeclaration.containingFile!!),
+                        packageName = sourceClass.packageName,
+                        fileName = "CombineTo__${sourceClass.underPackageName}__${targetClass.underPackageName}",
                     ) {
                         it.appendLine("import me.tbsten.cream.*")
                         it.appendLine()
 
                         // Generate combine function with multiple sources
                         it.appendCombineToFunction(
-                            primarySource = sourceInfo.sourceClass,
+                            primarySource = sourceClass,
                             otherSources = otherSourceClasses,
                             target = targetClass,
                             options = options,
-                            omitPackages = listOf("kotlin", sourceInfo.sourceClass.packageName.asString()),
+                            omitPackages = listOf("kotlin", sourceClass.packageName.asString()),
                             generateSourceAnnotation =
-                                GenerateSourceAnnotation.CombineTo(annotationTarget = sourceInfo.sourceDeclaration),
+                                GenerateSourceAnnotation.CombineTo(annotationTarget = sourceDeclaration),
                         )
                     }
             }
