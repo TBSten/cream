@@ -4,8 +4,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
-class TypeAliasPropertiesTest {
-
+class TypeAliasTest {
     @Test
     fun testCopyFromTypeAlias() {
         // Create a SourceModel instance (through SourceModelAlias)

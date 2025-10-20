@@ -12,8 +12,8 @@ import com.google.devtools.ksp.symbol.KSTypeAlias
  *
  * @return The underlying KSClassDeclaration, or null if resolution fails
  */
-internal fun KSDeclaration.resolveToClassDeclaration(): KSClassDeclaration? {
-    return when (this) {
+internal fun KSDeclaration.resolveToClassDeclaration(): KSClassDeclaration? =
+    when (this) {
         is KSClassDeclaration -> this
         is KSTypeAlias -> {
             // Resolve the type alias to its underlying type
@@ -25,4 +25,3 @@ internal fun KSDeclaration.resolveToClassDeclaration(): KSClassDeclaration? {
         }
         else -> null
     }
-}

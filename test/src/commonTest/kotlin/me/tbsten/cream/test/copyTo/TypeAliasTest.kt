@@ -4,8 +4,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 
-class TypeAliasPropertiesTest {
-
+class TypeAliasTest {
     @Test
     fun testCopyToTypeAlias() {
         // Create a DomainModel instance (through DomainModelAlias)
