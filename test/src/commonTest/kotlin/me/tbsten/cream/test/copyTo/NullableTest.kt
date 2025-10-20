@@ -14,7 +14,7 @@ class NullableTest {
                 list = listOf("item1", "item2", "item3"),
             )
 
-        val target = source.copyToNullableTarget(newProperty = "new")
+        val target: NullableTarget = source.copyToNullableTarget(newProperty = "new")
 
         assertEquals(
             NullableTarget(
@@ -38,7 +38,7 @@ class NullableTest {
                 list = emptyList(),
             )
 
-        val target = source.copyToNullableTarget(newProperty = "new")
+        val target: NullableTarget = source.copyToNullableTarget(newProperty = "new")
 
         assertEquals(
             NullableTarget(

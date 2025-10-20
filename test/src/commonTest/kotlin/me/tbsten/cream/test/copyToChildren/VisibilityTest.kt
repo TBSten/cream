@@ -7,7 +7,7 @@ class VisibilityTest {
     @Test
     fun visibilityProperties() {
         val source = VisibilityChild1(publicProp = "public", internalProp = "internal")
-        val target = source.copyToVisibilityChild2(newProperty = "new")
+        val target: VisibilityChild2 = source.copyToVisibilityChild2(newProperty = "new")
 
         assertEquals(
             VisibilityChild2(

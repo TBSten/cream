@@ -12,7 +12,7 @@ class PropertyMappingTest {
                 name = "test-name",
             )
 
-        val dataTarget = domainSource.copyToDataTargetModel()
+        val dataTarget: DataTargetModel = domainSource.copyToDataTargetModel()
 
         assertEquals(
             DataTargetModel(dataId = "test-id", name = "test-name"),
