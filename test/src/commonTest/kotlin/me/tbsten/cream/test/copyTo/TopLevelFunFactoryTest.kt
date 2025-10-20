@@ -1,4 +1,4 @@
-package me.tbsten.cream.test.copyToFun
+package me.tbsten.cream.test.copyTo
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
