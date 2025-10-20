@@ -118,4 +118,64 @@ annotation class CombineMapping(
         val source: String,
         val target: String,
     )
+
+    /**
+     * Generate combine copy function that uses a factory function instead of constructor.
+     *
+     * # Example
+     *
+     * ```kt
+     * // in library A
+     * data class LibAModel(val propA: String, val valueA: Int)
+     *
+     * // in library B
+     * data class LibBModel(val propB: String, val valueB: Double)
+     *
+     * // in library C
+     * data class LibCModel(
+     *     val propA: String,
+     *     val valueA: Int,
+     *     val propB: String,
+     *     val valueB: Double,
+     *     val extra: String,
+     * )
+     *
+     * fun createLibCModel(
+     *     propA: String,
+     *     valueA: Int,
+     *     propB: String,
+     *     valueB: Double,
+     *     extra: String
+     * ): LibCModel = LibCModel(propA, valueA, propB, valueB, extra)
+     *
+     * // in your module
+     * @CombineMapping.Fun(
+     *     sources = [LibAModel::class, LibBModel::class],
+     *     funName = "createLibCModel"
+     * )
+     * private object Mapping
+     *
+     * // Auto generate
+     * fun LibAModel.copyToLibCModel(
+     *     libBModel: LibBModel,
+     *     propA: String = this.propA,
+     *     valueA: Int = this.valueA,
+     *     propB: String = libBModel.propB,
+     *     valueB: Double = libBModel.valueB,
+     *     extra: String,
+     * ) = createLibCModel(
+     *     propA = propA,
+     *     valueA = valueA,
+     *     propB = propB,
+     *     valueB = valueB,
+     *     extra = extra
+     * )
+     * ```
+     */
+    @Target(AnnotationTarget.CLASS)
+    @Repeatable
+    annotation class Fun(
+        val sources: Array<KClass<*>>,
+        val funName: String,
+    )
 }

@@ -123,4 +123,40 @@ annotation class CopyMapping(
         val source: String,
         val target: String,
     )
+
+    /**
+     * Generate copy function that uses a factory function instead of constructor.
+     *
+     * # Example
+     *
+     * ```kt
+     * // in library X
+     * data class LibXModel(val shareProp: String, val xProp: Int)
+     *
+     * // in library Y
+     * data class LibYModel(val shareProp: String, val yProp: Int)
+     *
+     * fun createLibYModel(shareProp: String, yProp: Int): LibYModel =
+     *     LibYModel(shareProp, yProp)
+     *
+     * // in your module
+     * @CopyMapping.Fun(
+     *     source = LibXModel::class,
+     *     funName = "createLibYModel"
+     * )
+     * private object Mapping
+     *
+     * // Auto generate
+     * fun LibXModel.copyToLibYModel(
+     *     shareProp: String = this.shareProp,
+     *     yProp: Int,
+     * ) = createLibYModel(shareProp = shareProp, yProp = yProp)
+     * ```
+     */
+    @Target(AnnotationTarget.CLASS)
+    @Repeatable
+    annotation class Fun(
+        val source: KClass<*>,
+        val funName: String,
+    )
 }
