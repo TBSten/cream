@@ -12,5 +12,5 @@ data class DataModel(
 
 typealias DataModelAlias = DataModel
 
-@CopyTo(DataModelAlias::class) // will generate DomainModelAlias.copyToDataModelAlias(...): DataModelAlias
+@CopyTo(DataModelAlias::class) // will generate DomainModel.copyToDataModel(...): DataModel
 typealias DomainModelAlias = DomainModel
