@@ -321,12 +321,18 @@ class CreamSymbolProcessor(
         return invalidCopyToChildrenTargets
     }
 
-    private class TargetSourcesMapForCombineTo : MutableMap<KSClassDeclaration, MutableList<KSClassDeclaration>> by mutableMapOf() {
+    private data class SourceInfo(
+        val sourceClass: KSClassDeclaration,
+        val sourceDeclaration: KSDeclaration,
+    )
+
+    private class TargetSourcesMapForCombineTo : MutableMap<KSClassDeclaration, MutableList<SourceInfo>> by mutableMapOf() {
         fun put(
             targetClass: KSClassDeclaration,
             sourceClass: KSClassDeclaration,
+            sourceDeclaration: KSDeclaration,
         ) {
-            getOrPut(targetClass) { mutableListOf() }.add(sourceClass)
+            getOrPut(targetClass) { mutableListOf() }.add(SourceInfo(sourceClass, sourceDeclaration))
         }
     }
 
@@ -384,33 +390,33 @@ class CreamSymbolProcessor(
 
             // Group source classes by target class
             targetClasses.forEach { targetClass ->
-                targetToSourcesMap.put(targetClass, sourceClass)
+                targetToSourcesMap.put(targetClass, sourceClass, sourceDeclaration)
             }
         }
 
         // For each target class, generate copy functions for each source class
-        targetToSourcesMap.forEach { (targetClass, sourceClasses) ->
-            sourceClasses.forEach { sourceClass ->
-                val otherSourceClasses = sourceClasses.filter { it != sourceClass }
+        targetToSourcesMap.forEach { (targetClass, sourceInfos) ->
+            sourceInfos.forEach { sourceInfo ->
+                val otherSourceClasses = sourceInfos.filter { it != sourceInfo }.map { it.sourceClass }
 
                 codeGenerator
                     .createNewKotlinFile(
-                        dependencies = Dependencies(aggregating = true, sourceClass.containingFile!!),
-                        packageName = sourceClass.packageName,
-                        fileName = "CombineTo__${sourceClass.underPackageName}__${targetClass.underPackageName}",
+                        dependencies = Dependencies(aggregating = true, sourceInfo.sourceDeclaration.containingFile!!),
+                        packageName = sourceInfo.sourceClass.packageName,
+                        fileName = "CombineTo__${sourceInfo.sourceClass.underPackageName}__${targetClass.underPackageName}",
                     ) {
                         it.appendLine("import me.tbsten.cream.*")
                         it.appendLine()
 
                         // Generate combine function with multiple sources
                         it.appendCombineToFunction(
-                            primarySource = sourceClass,
+                            primarySource = sourceInfo.sourceClass,
                             otherSources = otherSourceClasses,
                             target = targetClass,
                             options = options,
-                            omitPackages = listOf("kotlin", sourceClass.packageName.asString()),
+                            omitPackages = listOf("kotlin", sourceInfo.sourceClass.packageName.asString()),
                             generateSourceAnnotation =
-                                GenerateSourceAnnotation.CombineTo(annotationTarget = sourceClass),
+                                GenerateSourceAnnotation.CombineTo(annotationTarget = sourceInfo.sourceDeclaration),
                         )
                     }
             }
@@ -427,8 +433,19 @@ class CreamSymbolProcessor(
                 ).partition { it.validate() }
 
         combineFromTargets.forEach { target ->
+            val targetDeclaration =
+                when (target) {
+                    is KSClassDeclaration -> target
+                    is KSTypeAlias -> target
+                    else ->
+                        throw InvalidCreamUsageException(
+                            message = "@${CombineFrom::class.simpleName} must be applied to a class, interface, or typealias.",
+                            solution = "Please apply @${CombineFrom::class.simpleName} to `class`, `interface`, or `typealias`",
+                        )
+                }
+
             val targetClass =
-                (target as? KSClassDeclaration)
+                (targetDeclaration as? KSDeclaration)?.resolveToClassDeclaration()
                     ?: throw InvalidCreamUsageException(
                         message = "@${CombineFrom::class.simpleName} must be applied to a class or interface.",
                         solution = "Please apply @${CombineFrom::class.simpleName} to `class or interface`",
@@ -448,11 +465,11 @@ class CreamSymbolProcessor(
                             .filterIsInstance<List<KSType>>()
                             .flatten()
                     }.map { it.declaration }
-                    .map {
-                        it as? KSClassDeclaration
+                    .map { declaration ->
+                        declaration.resolveToClassDeclaration()
                             ?: throw InvalidCreamUsageException(
-                                message = "${it.fullName} (Specified in @${CombineFrom::class.simpleName}.sources of ${target.fullName}) must be class.",
-                                solution = "Specify class or interface in @${CombineFrom::class.simpleName}.sources of ${target.fullName}.",
+                                message = "${declaration.fullName} (Specified in @${CombineFrom::class.simpleName}.sources of ${target.fullName}) must be class or typealias.",
+                                solution = "Specify class, interface, or typealias in @${CombineFrom::class.simpleName}.sources of ${target.fullName}.",
                             )
                     }.toList()
 
@@ -470,7 +487,7 @@ class CreamSymbolProcessor(
 
             codeGenerator
                 .createNewKotlinFile(
-                    dependencies = Dependencies(aggregating = true, targetClass.containingFile!!),
+                    dependencies = Dependencies(aggregating = true, targetDeclaration.containingFile!!),
                     packageName = targetClass.packageName,
                     fileName = "CombineFrom__${primarySource.underPackageName}__${targetClass.underPackageName}",
                 ) {
@@ -485,7 +502,7 @@ class CreamSymbolProcessor(
                         options = options,
                         omitPackages = listOf("kotlin", primarySource.packageName.asString()),
                         generateSourceAnnotation =
-                            GenerateSourceAnnotation.CombineFrom(annotationTarget = targetClass),
+                            GenerateSourceAnnotation.CombineFrom(annotationTarget = targetDeclaration),
                     )
                 }
         }
