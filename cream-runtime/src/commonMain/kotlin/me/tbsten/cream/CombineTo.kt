@@ -36,7 +36,7 @@ import kotlin.reflect.KClass
  * @see CopyTo
  * @see CopyFrom
  */
-@Target(AnnotationTarget.CLASS)
+@Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS)
 annotation class CombineTo(
     vararg val targets: KClass<*>,
 ) {

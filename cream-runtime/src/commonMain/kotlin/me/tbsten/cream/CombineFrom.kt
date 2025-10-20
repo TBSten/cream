@@ -38,7 +38,7 @@ import kotlin.reflect.KClass
  * @see CombineTo
  * @see CopyFrom
  */
-@Target(AnnotationTarget.CLASS)
+@Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS)
 @Repeatable
 annotation class CombineFrom(
     vararg val sources: KClass<*>,
