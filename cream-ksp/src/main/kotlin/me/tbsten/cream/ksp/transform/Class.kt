@@ -2,6 +2,7 @@ package me.tbsten.cream.ksp.transform
 
 import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.UnknownCreamException
@@ -21,13 +22,38 @@ internal fun BufferedWriter.appendCopyToClassFunction(
     generateSourceAnnotation: GenerateSourceAnnotation<*>,
     omitPackages: List<String>,
     options: CreamOptions,
+    factoryFunction: KSFunctionDeclaration? = null,
 ) {
-    targetClass.getConstructors().forEach { constructor ->
+    // Use factory function parameters if provided, otherwise use constructor parameters
+    val parametersProvider =
+        if (factoryFunction != null) {
+            listOf(factoryFunction)
+        } else {
+            targetClass.getConstructors().toList()
+        }
+
+    parametersProvider.forEach { paramSource ->
+        val functionDeclaration = paramSource as KSFunctionDeclaration
+        val parameters =
+            if (factoryFunction != null) {
+                factoryFunction.parameters
+            } else {
+                paramSource.parameters
+            }
+
         val typeParameters =
-            getCopyFunctionTypeParameters(
-                sourceClass = source,
-                targetConstructor = constructor,
-            )
+            if (factoryFunction != null) {
+                // For factory functions, use factory function as the target constructor
+                getCopyFunctionTypeParameters(
+                    sourceClass = source,
+                    targetConstructor = factoryFunction,
+                )
+            } else {
+                getCopyFunctionTypeParameters(
+                    sourceClass = source,
+                    targetConstructor = functionDeclaration,
+                )
+            }
 
         // Generate copy function
         val funName = copyFunctionName(source, targetClass, options)
@@ -86,7 +112,7 @@ internal fun BufferedWriter.appendCopyToClassFunction(
         append("$funName(")
         appendLine()
 
-        constructor.parameters.forEach { parameter ->
+        parameters.forEach { parameter ->
             val paramName = parameter.name!!.asString()
             val paramType =
                 parameter.type
@@ -168,10 +194,19 @@ internal fun BufferedWriter.appendCopyToClassFunction(
                     },
             )
         }
-        append(" = ${targetClass.fullName}(")
-        appendLine()
+        // Generate function body - call factory function or constructor
+        if (factoryFunction != null) {
+            // Use factory function
+            val factoryFunctionQualifiedName = factoryFunction.qualifiedName?.asString() ?: factoryFunction.simpleName.asString()
+            append(" = $factoryFunctionQualifiedName(")
+            appendLine()
+        } else {
+            // Use constructor
+            append(" = ${targetClass.fullName}(")
+            appendLine()
+        }
 
-        constructor.parameters.forEach { param ->
+        parameters.forEach { param ->
             appendLine("    ${param.name!!.asString()} = ${param.name!!.asString()},")
         }
 
