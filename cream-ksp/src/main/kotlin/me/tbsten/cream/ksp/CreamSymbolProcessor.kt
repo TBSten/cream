@@ -100,7 +100,12 @@ class CreamSymbolProcessor(
                 ).partition { it.validate() }
 
         copyFromTargets.forEach { target ->
-            val targetDeclaration = target as KSDeclaration
+            val targetDeclaration =
+                target as? KSDeclaration
+                    ?: throw InvalidCreamUsageException(
+                        message = "@${CopyFrom::class.simpleName} must be applied to a class, interface, or typealias.",
+                        solution = "Please apply @${CopyFrom::class.simpleName} to `class`, `interface`, or `typealias`",
+                    )
             val targetClass = targetDeclaration.requireClassDeclaration(annotationName = CopyFrom::class.simpleName!!)
 
             // CopyFrom.sources: List<KClass<*>>
@@ -159,7 +164,12 @@ class CreamSymbolProcessor(
                 ).partition { it.validate() }
 
         copyToTargets.forEach { target ->
-            val sourceDeclaration = target as KSDeclaration
+            val sourceDeclaration =
+                target as? KSDeclaration
+                    ?: throw InvalidCreamUsageException(
+                        message = "@${CopyTo::class.simpleName} must be applied to a class, interface, or typealias.",
+                        solution = "Please apply @${CopyTo::class.simpleName} to `class`, `interface`, or `typealias`",
+                    )
             val sourceClass = sourceDeclaration.requireClassDeclaration(annotationName = CopyTo::class.simpleName!!)
 
             // CopyTo.targets: List<KClass<*>>
@@ -310,7 +320,12 @@ class CreamSymbolProcessor(
         val targetToSourcesMap = TargetSourcesMapForCombineTo()
 
         combineToTargets.forEach { target ->
-            val sourceDeclaration = target as KSDeclaration
+            val sourceDeclaration =
+                target as? KSDeclaration
+                    ?: throw InvalidCreamUsageException(
+                        message = "@${CombineTo::class.simpleName} must be applied to a class, interface, or typealias.",
+                        solution = "Please apply @${CombineTo::class.simpleName} to `class`, `interface`, or `typealias`",
+                    )
             val sourceClass = sourceDeclaration.requireClassDeclaration(annotationName = CombineTo::class.simpleName!!)
 
             // CombineTo.targets: List<KClass<*>>
@@ -384,7 +399,12 @@ class CreamSymbolProcessor(
                 ).partition { it.validate() }
 
         combineFromTargets.forEach { target ->
-            val targetDeclaration = target as KSDeclaration
+            val targetDeclaration =
+                target as? KSDeclaration
+                    ?: throw InvalidCreamUsageException(
+                        message = "@${CombineFrom::class.simpleName} must be applied to a class, interface, or typealias.",
+                        solution = "Please apply @${CombineFrom::class.simpleName} to `class`, `interface`, or `typealias`",
+                    )
             val targetClass = targetDeclaration.requireClassDeclaration(annotationName = CombineFrom::class.simpleName!!)
 
             val sourceClasses =
