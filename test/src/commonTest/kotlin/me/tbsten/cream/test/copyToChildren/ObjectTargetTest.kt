@@ -7,7 +7,7 @@ class ObjectTargetTest {
     @Test
     fun dataObjectToDataObject() {
         val source = EmptyChild1
-        val target = source.copyToEmptyChild2()
+        val target: EmptyChild2 = source.copyToEmptyChild2()
 
         assertEquals(EmptyChild2, target)
     }

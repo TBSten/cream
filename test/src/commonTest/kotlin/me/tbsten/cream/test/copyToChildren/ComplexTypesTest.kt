@@ -12,7 +12,7 @@ class ComplexTypesTest {
                 intMap = mapOf("one" to 1, "two" to 2),
             )
 
-        val target = source.copyToComplexTypeChild2()
+        val target: ComplexTypeChild2 = source.copyToComplexTypeChild2()
 
         assertEquals(
             ComplexTypeChild2(
@@ -31,7 +31,7 @@ class ComplexTypesTest {
                 intMap = emptyMap(),
             )
 
-        val target = source.copyToComplexTypeChild2()
+        val target: ComplexTypeChild2 = source.copyToComplexTypeChild2()
 
         assertEquals(
             ComplexTypeChild2(
@@ -50,7 +50,7 @@ class ComplexTypesTest {
                 intMap = mapOf("x" to 1),
             )
 
-        val intermediate = source.copyToComplexTypeChild2()
+        val intermediate: ComplexTypeChild2 = source.copyToComplexTypeChild2()
         val final =
             intermediate.copyToComplexTypeChild1(
                 stringList = intermediate.stringList!!,

@@ -104,7 +104,7 @@ class CopyMappingTest {
                 xProp = 42,
             )
 
-        val result = libXModel.copyToLibYModel()
+        val result: LibYModel = libXModel.copyToLibYModel()
 
         val expected =
             LibYModel(

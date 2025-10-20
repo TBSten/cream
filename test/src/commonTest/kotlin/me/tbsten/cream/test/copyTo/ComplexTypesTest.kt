@@ -13,7 +13,7 @@ class ComplexTypesTest {
                 nullableSet = setOf(1.0, 2.0, 3.0),
             )
 
-        val target = source.copyToComplexTypeTarget(newProperty = "new")
+        val target: ComplexTypeTarget = source.copyToComplexTypeTarget(newProperty = "new")
 
         assertEquals(
             ComplexTypeTarget(
@@ -35,7 +35,7 @@ class ComplexTypesTest {
                 nullableSet = null,
             )
 
-        val target = source.copyToComplexTypeTarget(newProperty = "new")
+        val target: ComplexTypeTarget = source.copyToComplexTypeTarget(newProperty = "new")
 
         assertEquals(
             ComplexTypeTarget(
