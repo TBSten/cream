@@ -50,12 +50,27 @@ color: green
     - 関連する issue がある場合は `feature/issue-{issue-number}` ブランチを使用
 
 4. **PR情報の収集**:
-    - **issue 番号**: 対応する issue があれば `close #{issue-number}` を記載
+    - **変更内容の確認**: まず以下のコマンドで変更を把握:
+        ```bash
+        git log --oneline -3              # 最近のコミットを確認
+        git diff main...HEAD --stat       # mainブランチからの差分を確認
+        ```
+    - **issue 番号**: 対応する issue があれば適切な形式で参照
+        - `close #<issue-number>`: PRマージ時にissueを自動クローズ
+        - `Fixes #<issue-number>`: バグ修正の場合
+        - `Relates to #<issue-number>`: 関連するが完全には解決しない場合
     - **タイトル**: 変更を要約する明確で簡潔なタイトルを作成
+        - コミットメッセージと同じスタイルを使用
+        - プレフィックスを含める: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`
+        - 50文字以内を目安に簡潔に記載
+        - 例:
+            - `feat: Add @CombineTo annotation for multi-source mapping`
+            - `fix: Resolve property matching issue in sealed classes`
+            - `docs: Add comparison section with MapStruct and KOMM`
     - **説明**: 以下を含む包括的な説明を作成:
-        - 何が変更され、なぜ変更されたか
-        - 採用した技術的アプローチ
-        - 実施したテスト
+        - **Summary**: 変更内容の要約（3-5項目の箇条書き）
+        - **Changes**: 具体的な変更内容の詳細（追加ファイル、変更ロジック、削除機能など）
+        - **Test plan**: 実施したテストをチェックリスト形式で記載
         - 破壊的変更やマイグレーションノート
         - 適用可能な場合はスクリーンショットや例
     - **ベースブランチ**: ターゲットブランチを確認（通常はmain/master/develop）
@@ -72,12 +87,26 @@ color: green
     - 必要に応じてドキュメントが更新されていることを確認
 
 6. **プルリクエストの作成**:
-    - Github CLI のコマンドを使用
+    - Github CLI のコマンドを使用:
+        ```bash
+        git push -u origin <branch-name> && gh pr create --title "<PR タイトル>" --body "$(cat <<'EOF'
+        <PR本文>
+        EOF
+        )"
+        ```
     - PR本文に収集したすべての情報を含める
+    - **必ず Claude Code の署名を含める**（PR本文の最後に記載）
     - 重要な実装箇所・テストケースについて インラインコメント しておく。
 
 7. **作成後のアクション**:
-    - ユーザーにPR URLを提供
+    - ユーザーにPR URLを提供（例: `https://github.com/TBSten/cream/pull/46`）
+    - 以下の確認チェックリストを実施:
+        - [ ] PRのタイトルが適切か
+        - [ ] PRの本文に必要な情報が含まれているか
+        - [ ] 関連するissueが正しくリンクされているか
+        - [ ] Claude Codeの署名が含まれているか
+        - [ ] CIが正常に実行されているか
+        - [ ] レビュアーが適切に設定されているか（必要に応じて）
     - PR説明への調整を申し出る
 
 ## PR説明テンプレート
@@ -85,24 +114,49 @@ color: green
 PR説明は以下のセクションで構成します:
 
 ```markdown
-
-close #{issue-number}
-
 ## Summary
-
-[A brief overview of what this PR will achieve]
+- 変更内容の要約を箇条書きで記載（3-5項目）
+- 主要な追加機能や修正内容を簡潔に説明
 
 ## Changes
+- 具体的な変更内容の詳細
+- 追加されたファイル、変更されたロジック、削除された機能など
+- コードの重要な変更点を説明
+- 必要に応じてサブセクションに分割
 
-- [Major Change 1]
-- [Major Change 2]
-- [Major Change 3]
+## Test plan
+- [ ] 実施したテスト項目をチェックリスト形式で記載
+- [ ] ユニットテストの実行結果（例: `./gradlew jvmTest` が成功）
+- [ ] 統合テストの確認内容
+- [ ] マニュアルで確認した項目
+- [ ] コードフォーマットの確認（例: `./gradlew ktlintFormat` 実行済み）
 
-## Test
+Resolves #<issue-number>
 
-- [The content of the prepared test]
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
 
+Co-Authored-By: Claude <noreply@anthropic.com>
 ```
+
+### テンプレートの注意事項
+
+1. **issue番号の参照**:
+    - `Resolves #XX`: PRマージ時に自動でissueをクローズ（機能追加や修正が完了した場合）
+    - `Fixes #XX`: バグ修正の場合
+    - `Relates to #XX`: 関連するが完全には解決しない場合
+
+2. **Claude Codeの署名**:
+    - PRの最後に**必ず**含める
+    - これによりAIによって作成されたことが明確になる
+
+3. **Summary vs Changes**:
+    - **Summary**: 高レベルの要約（何をしたか）
+    - **Changes**: より詳細な変更内容（どのように実装したか）
+
+4. **Test plan**:
+    - 実施したテスト内容を具体的に記載
+    - チェックボックス形式で完了済みのものをチェック
+    - 実行したコマンドも記載すると分かりやすい
 
 ## 意思決定フレームワーク
 
