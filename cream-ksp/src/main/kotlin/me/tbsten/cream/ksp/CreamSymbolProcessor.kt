@@ -135,8 +135,12 @@ class CreamSymbolProcessor(
                     .map { declaration ->
                         declaration.resolveToClassDeclaration()
                             ?: throw InvalidCreamUsageException(
-                                message = "${declaration.fullName} (Specified in @${CopyFrom::class.simpleName}.sources of ${target.fullName}) must be class, interface, or typealias.",
-                                solution = "Specify class, interface, or typealias in @${CopyFrom::class.simpleName}.sources of ${target.fullName}.",
+                                message =
+                                    "${declaration.fullName} (Specified in @${CopyFrom::class.simpleName}.sources " +
+                                        "of ${target.fullName}) must be class, interface, or typealias.",
+                                solution =
+                                    "Specify class, interface, or typealias in @${CopyFrom::class.simpleName}.sources " +
+                                        "of ${target.fullName}.",
                             )
                     }
 
@@ -210,8 +214,12 @@ class CreamSymbolProcessor(
                     .map { declaration ->
                         declaration.resolveToClassDeclaration()
                             ?: throw InvalidCreamUsageException(
-                                message = "${declaration.fullName} (Specified in @${CopyTo::class.simpleName}.targets of ${target.fullName}) must be class, interface, or typealias.",
-                                solution = "Specify class, interface, or typealias in @${CopyTo::class.simpleName}.targets of ${target.fullName}.",
+                                message =
+                                    "${declaration.fullName} (Specified in @${CopyTo::class.simpleName}.targets " +
+                                        "of ${target.fullName}) must be class, interface, or typealias.",
+                                solution =
+                                    "Specify class, interface, or typealias in @${CopyTo::class.simpleName}.targets " +
+                                        "of ${target.fullName}.",
                             )
                     }
 
@@ -383,8 +391,12 @@ class CreamSymbolProcessor(
                     .map { declaration ->
                         declaration.resolveToClassDeclaration()
                             ?: throw InvalidCreamUsageException(
-                                message = "${declaration.fullName} (Specified in @${CombineTo::class.simpleName}.targets of ${target.fullName}) must be class, interface, or typealias.",
-                                solution = "Specify class, interface, or typealias in @${CombineTo::class.simpleName}.targets of ${target.fullName}.",
+                                message =
+                                    "${declaration.fullName} (Specified in @${CombineTo::class.simpleName}.targets " +
+                                        "of ${target.fullName}) must be class, interface, or typealias.",
+                                solution =
+                                    "Specify class, interface, or typealias in @${CombineTo::class.simpleName}.targets " +
+                                        "of ${target.fullName}.",
                             )
                     }
 
@@ -468,8 +480,12 @@ class CreamSymbolProcessor(
                     .map { declaration ->
                         declaration.resolveToClassDeclaration()
                             ?: throw InvalidCreamUsageException(
-                                message = "${declaration.fullName} (Specified in @${CombineFrom::class.simpleName}.sources of ${target.fullName}) must be class, interface, or typealias.",
-                                solution = "Specify class, interface, or typealias in @${CombineFrom::class.simpleName}.sources of ${target.fullName}.",
+                                message =
+                                    "${declaration.fullName} (Specified in @${CombineFrom::class.simpleName}.sources " +
+                                        "of ${target.fullName}) must be class, interface, or typealias.",
+                                solution =
+                                    "Specify class, interface, or typealias in @${CombineFrom::class.simpleName}.sources " +
+                                        "of ${target.fullName}.",
                             )
                     }.toList()
 

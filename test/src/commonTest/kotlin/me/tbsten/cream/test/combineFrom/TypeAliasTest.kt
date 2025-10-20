@@ -7,7 +7,8 @@ import kotlin.test.assertIs
 class TypeAliasTest {
     @Test
     fun testCombineFromWithTypeAliasTarget() {
-        // Create source instances through typealiases
+        // Create instances using actual class constructors and assign them to variables with typealias types.
+        // Note: Typealiases are just alternative names for the same types.
         val sourceX: SourceXAlias = SourceX(propX = "x-value")
         val sourceY: SourceYAlias = SourceY(propY = 99)
 

@@ -7,7 +7,8 @@ import kotlin.test.assertIs
 class TypeAliasTest {
     @Test
     fun testCopyToTypeAlias() {
-        // Create a DomainModel instance (through DomainModelAlias)
+        // Create a DomainModel instance and assign it to a variable typed as DomainModelAlias.
+        // Note: DomainModelAlias is just a type alias for DomainModel.
         val domainModel: DomainModelAlias = DomainModel(id = "test-id-123")
 
         // Call the generated copyToDataModel function

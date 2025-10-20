@@ -7,7 +7,8 @@ import kotlin.test.assertIs
 class TypeAliasTest {
     @Test
     fun testCopyFromTypeAlias() {
-        // Create a SourceModel instance (through SourceModelAlias)
+        // Create a SourceModel instance and assign it to a variable typed as SourceModelAlias.
+        // Note: SourceModelAlias is just a type alias for SourceModel.
         val sourceModel: SourceModelAlias = SourceModel(value = "test-value")
 
         // Call the generated copyToTargetModel function
