@@ -17,6 +17,7 @@ internal fun BufferedWriter.appendCopyFunction(
     options: CreamOptions,
     notCopyToObject: Boolean,
     generateTargetToSealedSubclasses: Boolean = true,
+    factoryFunction: com.google.devtools.ksp.symbol.KSFunctionDeclaration? = null,
 ) {
     when (target.classKind) {
         ClassKind.CLASS ->
@@ -26,6 +27,7 @@ internal fun BufferedWriter.appendCopyFunction(
                 generateSourceAnnotation,
                 omitPackages,
                 options,
+                factoryFunction,
             )
 
         ClassKind.OBJECT ->
