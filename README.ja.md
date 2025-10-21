@@ -427,6 +427,85 @@ fun SourceA.copyToTargetState(
 ): TargetState = ...
 ```
 
+### Exclude
+
+`@Exclude` アノテーションを使用すると、特定のプロパティを自動コピーから除外し、生成されるコピー関数で必須パラメータにすることができます。これは、ソースから継承するのではなく、呼び出し側に特定のプロパティの値を明示的に提供させたい場合に便利です。
+
+#### CopyTo.Exclude, CopyFrom.Exclude
+
+単一ソースのコピー関数の場合、ソースプロパティに `@CopyTo.Exclude` を使用するか、ターゲットパラメータに `@CopyFrom.Exclude` を使用します。
+
+```kt
+@CopyTo(TargetModel::class)
+data class SourceModel(
+    val sharedProp: String,
+    @CopyTo.Exclude  // このプロパティは自動コピーされません
+    val excludedProp: String,
+)
+
+data class TargetModel(
+    val sharedProp: String,
+    val excludedProp: String,
+)
+
+// auto generate
+fun SourceModel.copyToTargetModel(
+    sharedProp: String = this.sharedProp,
+    excludedProp: String,  // 必須パラメータ（デフォルト値なし）
+): TargetModel = ...
+```
+
+#### CombineTo.Exclude, CombineFrom.Exclude
+
+複数ソースのコピー関数の場合、ソースプロパティに `@CombineTo.Exclude` を使用するか、ターゲットパラメータに `@CombineFrom.Exclude` を使用します。
+
+```kt
+@CombineTo(TargetState::class)
+data class SourceA(
+    val propA: String,
+    @CombineTo.Exclude  // このプロパティは自動コピーされません
+    val excludedProp: String,
+)
+
+@CombineTo(TargetState::class)
+data class SourceB(
+    val propB: String,
+)
+
+data class TargetState(
+    val propA: String,
+    val excludedProp: String,
+    val propB: String,
+)
+
+// auto generate
+fun SourceA.copyToTargetState(
+    sourceB: SourceB,
+    propA: String = this.propA,
+    excludedProp: String,  // 必須パラメータ（デフォルト値なし）
+    propB: String = sourceB.propB,
+): TargetState = ...
+```
+
+#### CopyMapping.excludes, CombineMapping.excludes
+
+マッピングアノテーションの場合、`excludes` パラメータを使用して除外するプロパティ名を指定します。
+
+```kt
+@CopyMapping(
+    source = LibSourceModel::class,
+    target = LibTargetModel::class,
+    excludes = ["excludedProp"]  // 特定のプロパティを除外
+)
+private object Mapping
+
+// auto generate
+fun LibSourceModel.copyToLibTargetModel(
+    sharedProp: String = this.sharedProp,
+    excludedProp: String,  // 必須パラメータ（デフォルト値なし）
+): LibTargetModel = ...
+```
+
 ### CopyMapping
 
 コピー元/コピー先クラスが両方とも自分のソースコードではないが、コピー関数を生成したい場合は CopyMapping を使用できます。

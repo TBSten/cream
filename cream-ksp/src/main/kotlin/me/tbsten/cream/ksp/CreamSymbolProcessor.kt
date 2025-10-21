@@ -38,12 +38,14 @@ import java.io.BufferedWriter
  * @property targetClass The target class for the mapping
  * @property canReverse Whether bidirectional mapping is enabled
  * @property propertyMappings List of property name mappings (source property name -> target property name)
+ * @property excludes List of property names to exclude from auto-copying
  */
 private data class CopyMappingInfo(
     val sourceClass: KSClassDeclaration,
     val targetClass: KSClassDeclaration,
     val canReverse: Boolean,
     val propertyMappings: List<Pair<String, String>>,
+    val excludes: List<String>,
 )
 
 /**
@@ -52,11 +54,13 @@ private data class CopyMappingInfo(
  * @property sourceClasses The source classes to combine from (at least 2 sources)
  * @property targetClass The target class for the mapping
  * @property propertyMappings List of property name mappings (source property name -> target property name)
+ * @property excludes List of property names to exclude from auto-copying
  */
 private data class CombineMappingInfo(
     val sourceClasses: List<KSClassDeclaration>,
     val targetClass: KSClassDeclaration,
     val propertyMappings: List<Pair<String, String>>,
+    val excludes: List<String>,
 )
 
 class CreamSymbolProcessor(
@@ -538,6 +542,14 @@ class CreamSymbolProcessor(
                                 }
                             }
 
+                        val excludes =
+                            annotation.arguments
+                                .firstOrNull { it.name?.asString() == "excludes" }
+                                ?.value as? List<*>
+                                ?: emptyList<Any>()
+
+                        val excludeList = excludes.mapNotNull { it as? String }
+
                         val sourceClass =
                             sourceType.declaration as? KSClassDeclaration
                                 ?: throw InvalidCreamUsageException(
@@ -552,7 +564,7 @@ class CreamSymbolProcessor(
                                     solution = "Specify a class in @${CopyMapping::class.simpleName}.target",
                                 )
 
-                        CopyMappingInfo(sourceClass, targetClass, canReverse, propertyMaps)
+                        CopyMappingInfo(sourceClass, targetClass, canReverse, propertyMaps, excludeList)
                     }
 
             // Group by source class to create one file per source package
@@ -582,6 +594,7 @@ class CreamSymbolProcessor(
                                     GenerateSourceAnnotation.CopyMapping(
                                         annotationTarget = annotatedDeclaration,
                                         propertyMappings = mapping.propertyMappings,
+                                        excludes = mapping.excludes,
                                     ),
                                 notCopyToObject = false,
                             )
@@ -600,6 +613,7 @@ class CreamSymbolProcessor(
                                         GenerateSourceAnnotation.CopyMapping(
                                             annotationTarget = annotatedDeclaration,
                                             propertyMappings = reversePropertyMappings,
+                                            excludes = mapping.excludes,
                                         ),
                                     notCopyToObject = false,
                                 )
@@ -679,6 +693,14 @@ class CreamSymbolProcessor(
                                 }
                             }
 
+                        val excludes =
+                            annotation.arguments
+                                .firstOrNull { it.name?.asString() == "excludes" }
+                                ?.value as? List<*>
+                                ?: emptyList<Any>()
+
+                        val excludeList = excludes.mapNotNull { it as? String }
+
                         val sourceClasses =
                             sourcesTypes.mapNotNull { sourceType ->
                                 (sourceType as? KSType)?.declaration as? KSClassDeclaration
@@ -709,7 +731,7 @@ class CreamSymbolProcessor(
                                     solution = "Specify a class in @${CombineMapping::class.simpleName}.target",
                                 )
 
-                        CombineMappingInfo(sourceClasses, targetClass, propertyMaps)
+                        CombineMappingInfo(sourceClasses, targetClass, propertyMaps, excludeList)
                     }
 
             // Group by first source class package to create one file per source package
@@ -747,6 +769,7 @@ class CreamSymbolProcessor(
                                     GenerateSourceAnnotation.CombineMapping(
                                         annotationTarget = annotatedDeclaration,
                                         propertyMappings = mapping.propertyMappings,
+                                        excludes = mapping.excludes,
                                     ),
                             )
                         }

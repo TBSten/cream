@@ -47,4 +47,7 @@ annotation class CombineFrom(
     annotation class Map(
         vararg val propertyNames: String,
     )
+
+    @Target(AnnotationTarget.VALUE_PARAMETER)
+    annotation class Exclude
 }
