@@ -2,6 +2,7 @@ package me.tbsten.cream.ksp.transform
 
 import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.UnknownCreamException
@@ -21,13 +22,17 @@ internal fun BufferedWriter.appendCopyToClassFunction(
     generateSourceAnnotation: GenerateSourceAnnotation<*>,
     omitPackages: List<String>,
     options: CreamOptions,
+    factoryFunctionName: String? = null,
 ) {
+    // Use factory function name if provided, otherwise use constructor
     targetClass.getConstructors().forEach { constructor ->
         val typeParameters =
             getCopyFunctionTypeParameters(
                 sourceClass = source,
                 targetConstructor = constructor,
             )
+
+        val parameters = constructor.parameters
 
         // Generate copy function
         val funName = copyFunctionName(source, targetClass, options)
@@ -86,7 +91,7 @@ internal fun BufferedWriter.appendCopyToClassFunction(
         append("$funName(")
         appendLine()
 
-        constructor.parameters.forEach { parameter ->
+        parameters.forEach { parameter ->
             val paramName = parameter.name!!.asString()
             val paramType =
                 parameter.type
@@ -168,10 +173,18 @@ internal fun BufferedWriter.appendCopyToClassFunction(
                     },
             )
         }
-        append(" = ${targetClass.fullName}(")
-        appendLine()
+        // Generate function body - call factory function or constructor
+        if (factoryFunctionName != null) {
+            // Use factory function
+            append(" = $factoryFunctionName(")
+            appendLine()
+        } else {
+            // Use constructor
+            append(" = ${targetClass.fullName}(")
+            appendLine()
+        }
 
-        constructor.parameters.forEach { param ->
+        parameters.forEach { param ->
             appendLine("    ${param.name!!.asString()} = ${param.name!!.asString()},")
         }
 

@@ -40,4 +40,30 @@ annotation class CopyFrom(
     annotation class Exclude(
         val value: String,
     )
+
+    /**
+     * Generate copy function that uses a factory function instead of constructor.
+     *
+     * # Example
+     *
+     * ```kt
+     * data class MySource(val a: String)
+     *
+     * @CopyFrom.Fun(funName = "createMyTarget")
+     * data class MyTarget(val a: String, val b: Int)
+     *
+     * fun createMyTarget(a: String, b: Int): MyTarget = MyTarget(a, b)
+     *
+     * // Auto generate
+     * fun MySource.copyToMyTarget(
+     *   a: String = this.a,
+     *   b: Int,
+     * ) = createMyTarget(a = a, b = b)
+     * ```
+     */
+    @Target(AnnotationTarget.CLASS)
+    @Repeatable
+    annotation class Fun(
+        val funName: String,
+    )
 }
