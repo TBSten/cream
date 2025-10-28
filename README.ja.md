@@ -2,6 +2,7 @@
 
 ![Maven Central Version](https://img.shields.io/maven-central/v/me.tbsten.cream/cream-runtime)
 ![GitHub License](https://img.shields.io/github/license/TBSten/cream)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/TBSten/cream)
 
 <a href="https://github.com/TBSten/cream/blob/main/README.md">English</a> |
 日本語 |
