@@ -1,0 +1,41 @@
+package me.tbsten.cream.test.combineFrom
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CombineFrom] annotation of [OverlapTarget])
+ * 
+ * [OverlapSourceA] + [OverlapSourceB] -> [OverlapTarget] copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val overlapSourceA = OverlapSourceA(...)
+ * val overlapSourceB = OverlapSourceB(...)
+ * val target = overlapSourceA.copyToOverlapTarget(overlapSourceB = OverlapSourceB(...))
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val overlapSourceA = OverlapSourceA(...)
+ * val overlapSourceB = OverlapSourceB(...)
+ * val target = overlapSourceA.copyToOverlapTarget(overlapSourceB = OverlapSourceB(...), property = value)
+ * ```
+ * 
+ * 
+ * @see OverlapSourceA
+ * @see OverlapSourceB
+ * @see OverlapTarget
+ */
+public fun  me.tbsten.cream.test.combineFrom.OverlapSourceA.copyToOverlapTarget(
+    overlapSourceB: me.tbsten.cream.test.combineFrom.OverlapSourceB,
+    shared: String = overlapSourceB.shared,
+    uniqueA: String = this.uniqueA,
+    uniqueB: Int = overlapSourceB.uniqueB,
+) : me.tbsten.cream.test.combineFrom.OverlapTarget = me.tbsten.cream.test.combineFrom.OverlapTarget(
+    shared = shared,
+    uniqueA = uniqueA,
+    uniqueB = uniqueB,
+)
+

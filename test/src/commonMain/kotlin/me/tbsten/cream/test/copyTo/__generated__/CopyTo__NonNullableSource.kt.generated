@@ -1,0 +1,41 @@
+package me.tbsten.cream.test.copyTo
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CopyTo] annotation of [NonNullableSource])
+ * 
+ * NonNullableSource -> NullableTarget copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = NonNullableSource(...)
+ * val target = source.copyToNullableTarget()
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val source = NonNullableSource(...)
+ * val target = source.copyToNullableTarget(property = value)
+ * ```
+ * 
+ * 
+ * @see NonNullableSource
+ * @see NullableTarget
+ */
+public fun  me.tbsten.cream.test.copyTo.NonNullableSource.copyToNullableTarget(
+    str: String? = this.str,
+    num: Int? = this.num,
+    bool: Boolean? = this.bool,
+    list: kotlin.collections.List<String>? = this.list,
+    newProperty: String,
+) : me.tbsten.cream.test.copyTo.NullableTarget = me.tbsten.cream.test.copyTo.NullableTarget(
+    str = str,
+    num = num,
+    bool = bool,
+    list = list,
+    newProperty = newProperty,
+)
+

@@ -1,0 +1,45 @@
+package me.tbsten.cream.test.copyTo
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CopyTo] annotation of [ChildDataObject])
+ * 
+ * ChildDataObject -> ChildDataClass copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = ChildDataObject(...)
+ * val target = source.copyToChildDataClass()
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val source = ChildDataObject(...)
+ * val target = source.copyToChildDataClass(property = value)
+ * ```
+ * 
+ * 
+ * @see ChildDataObject
+ * @see ChildDataClass
+ */
+public fun  me.tbsten.cream.test.copyTo.ChildDataObject.copyToChildDataClass(
+    parentProp1: String = this.parentProp1,
+    parentProp2: Int = this.parentProp2,
+    parentProp3: Boolean = this.parentProp3,
+    childProp1: Double,
+    childProp2: Long,
+    childProp3: String,
+    parentOrNull: ChildDataObject? = this.parentOrNull,
+) : me.tbsten.cream.test.copyTo.ChildDataClass = me.tbsten.cream.test.copyTo.ChildDataClass(
+    parentProp1 = parentProp1,
+    parentProp2 = parentProp2,
+    parentProp3 = parentProp3,
+    childProp1 = childProp1,
+    childProp2 = childProp2,
+    childProp3 = childProp3,
+    parentOrNull = parentOrNull,
+)
+

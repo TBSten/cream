@@ -1,0 +1,41 @@
+package me.tbsten.cream.test.combineTo
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CombineTo] annotation of [MultiMappingSourceB])
+ * 
+ * [MultiMappingSourceB] + [MultiMappingSource] -> [MultiMappedTarget] copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val multiMappingSourceB = MultiMappingSourceB(...)
+ * val multiMappingSource = MultiMappingSource(...)
+ * val target = multiMappingSourceB.copyToMultiMappedTarget(multiMappingSource = MultiMappingSource(...))
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val multiMappingSourceB = MultiMappingSourceB(...)
+ * val multiMappingSource = MultiMappingSource(...)
+ * val target = multiMappingSourceB.copyToMultiMappedTarget(multiMappingSource = MultiMappingSource(...), property = value)
+ * ```
+ * 
+ * 
+ * @see MultiMappingSourceB
+ * @see MultiMappingSource
+ * @see MultiMappedTarget
+ */
+public fun  me.tbsten.cream.test.combineTo.MultiMappingSourceB.copyToMultiMappedTarget(
+    multiMappingSource: me.tbsten.cream.test.combineTo.MultiMappingSource,
+    targetName1: String = multiMappingSource.sourceName,
+    targetName2: String = multiMappingSource.sourceName,
+    otherProp: Int = this.otherProp,
+) : me.tbsten.cream.test.combineTo.MultiMappedTarget = me.tbsten.cream.test.combineTo.MultiMappedTarget(
+    targetName1 = targetName1,
+    targetName2 = targetName2,
+    otherProp = otherProp,
+)
+

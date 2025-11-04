@@ -1,0 +1,41 @@
+package me.tbsten.cream.test.combineFrom
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CombineFrom] annotation of [CombinedResultWithAlias])
+ * 
+ * [SourceX] + [SourceY] -> [CombinedResult] copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val sourceX = SourceX(...)
+ * val sourceY = SourceY(...)
+ * val target = sourceX.copyToCombinedResult(sourceY = SourceY(...))
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val sourceX = SourceX(...)
+ * val sourceY = SourceY(...)
+ * val target = sourceX.copyToCombinedResult(sourceY = SourceY(...), property = value)
+ * ```
+ * 
+ * 
+ * @see SourceX
+ * @see SourceY
+ * @see CombinedResult
+ */
+public fun  me.tbsten.cream.test.combineFrom.SourceX.copyToCombinedResult(
+    sourceY: me.tbsten.cream.test.combineFrom.SourceY,
+    propX: String = this.propX,
+    propY: Int = sourceY.propY,
+    extraProp: String,
+) : me.tbsten.cream.test.combineFrom.CombinedResult = me.tbsten.cream.test.combineFrom.CombinedResult(
+    propX = propX,
+    propY = propY,
+    extraProp = extraProp,
+)
+

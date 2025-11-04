@@ -1,0 +1,68 @@
+package me.tbsten.cream.test.copyToChildren
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CopyToChildren] annotation of [VisibilityParent])
+ * 
+ * VisibilityParent -> VisibilityChild1 copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = VisibilityParent(...)
+ * val target = source.copyToVisibilityChild1()
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val source = VisibilityParent(...)
+ * val target = source.copyToVisibilityChild1(property = value)
+ * ```
+ * 
+ * 
+ * @see VisibilityParent
+ * @see VisibilityChild1
+ */
+public fun  me.tbsten.cream.test.copyToChildren.VisibilityParent.copyToVisibilityChild1(
+    publicProp: String = this.publicProp,
+    internalProp: String = this.internalProp,
+) : me.tbsten.cream.test.copyToChildren.VisibilityChild1 = me.tbsten.cream.test.copyToChildren.VisibilityChild1(
+    publicProp = publicProp,
+    internalProp = internalProp,
+)
+
+/**
+ * (Auto generate by @[CopyToChildren] annotation of [VisibilityParent])
+ * 
+ * VisibilityParent -> VisibilityChild2 copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = VisibilityParent(...)
+ * val target = source.copyToVisibilityChild2()
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val source = VisibilityParent(...)
+ * val target = source.copyToVisibilityChild2(property = value)
+ * ```
+ * 
+ * 
+ * @see VisibilityParent
+ * @see VisibilityChild2
+ */
+public fun  me.tbsten.cream.test.copyToChildren.VisibilityParent.copyToVisibilityChild2(
+    publicProp: String = this.publicProp,
+    internalProp: String = this.internalProp,
+    newProperty: String,
+) : me.tbsten.cream.test.copyToChildren.VisibilityChild2 = me.tbsten.cream.test.copyToChildren.VisibilityChild2(
+    publicProp = publicProp,
+    internalProp = internalProp,
+    newProperty = newProperty,
+)
+

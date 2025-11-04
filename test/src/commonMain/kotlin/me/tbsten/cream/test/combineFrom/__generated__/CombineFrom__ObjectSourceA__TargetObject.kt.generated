@@ -1,0 +1,23 @@
+package me.tbsten.cream.test.combineFrom
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CombineFrom] annotation of [TargetObject])
+ * 
+ * [ObjectSourceA] + [ObjectSourceB] -> [TargetObject] copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val objectSourceA = ObjectSourceA(...)
+ * val objectSourceB = ObjectSourceB(...)
+ * val target = objectSourceA.copyToTargetObject(objectSourceB = ObjectSourceB(...))
+ * ```
+ * 
+ * 
+ * @see ObjectSourceA
+ * @see ObjectSourceB
+ * @see TargetObject
+ */
+public fun me.tbsten.cream.test.combineFrom.ObjectSourceA.copyToTargetObject(objectSourceB: me.tbsten.cream.test.combineFrom.ObjectSourceB) = me.tbsten.cream.test.combineFrom.TargetObject

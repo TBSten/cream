@@ -1,0 +1,41 @@
+package me.tbsten.cream.test.combineTo
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CombineTo] annotation of [SourceBWithAlias])
+ * 
+ * [SourceB] + [SourceA] -> [CombinedTarget] copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val sourceB = SourceB(...)
+ * val sourceA = SourceA(...)
+ * val target = sourceB.copyToCombinedTarget(sourceA = SourceA(...))
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val sourceB = SourceB(...)
+ * val sourceA = SourceA(...)
+ * val target = sourceB.copyToCombinedTarget(sourceA = SourceA(...), property = value)
+ * ```
+ * 
+ * 
+ * @see SourceB
+ * @see SourceA
+ * @see CombinedTarget
+ */
+public fun  me.tbsten.cream.test.combineTo.SourceB.copyToCombinedTarget(
+    sourceA: me.tbsten.cream.test.combineTo.SourceA,
+    propA: String = sourceA.propA,
+    propB: Int = this.propB,
+    extra: String,
+) : me.tbsten.cream.test.combineTo.CombinedTarget = me.tbsten.cream.test.combineTo.CombinedTarget(
+    propA = propA,
+    propB = propB,
+    extra = extra,
+)
+

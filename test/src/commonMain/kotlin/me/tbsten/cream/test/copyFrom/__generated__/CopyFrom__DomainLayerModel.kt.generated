@@ -1,0 +1,35 @@
+package me.tbsten.cream.test.copyFrom
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CopyFrom] annotation of [DomainLayerModel])
+ * 
+ * DataLayerModel -> DomainLayerModel copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = DataLayerModel(...)
+ * val target = source.copyToDomainLayerModel()
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val source = DataLayerModel(...)
+ * val target = source.copyToDomainLayerModel(property = value)
+ * ```
+ * 
+ * 
+ * @see DataLayerModel
+ * @see DomainLayerModel
+ */
+public fun  me.tbsten.cream.test.copyFrom.DataLayerModel.copyToDomainLayerModel(
+    prop1: String = this.prop1,
+    prop2: Int = this.prop2,
+) : me.tbsten.cream.test.copyFrom.DomainLayerModel = me.tbsten.cream.test.copyFrom.DomainLayerModel(
+    prop1 = prop1,
+    prop2 = prop2,
+)
+

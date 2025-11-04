@@ -1,0 +1,66 @@
+package me.tbsten.cream.test.copyToChildren
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CopyToChildren] annotation of [NestedParent])
+ * 
+ * NestedParent -> NestedChild1 copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = NestedParent(...)
+ * val target = source.copyToNestedChild1()
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val source = NestedParent(...)
+ * val target = source.copyToNestedChild1(property = value)
+ * ```
+ * 
+ * 
+ * @see NestedParent
+ * @see NestedChild1
+ */
+public fun  me.tbsten.cream.test.copyToChildren.NestedParent.copyToNestedChild1(
+    parent: ParentClass = this.parent,
+    name: String,
+) : me.tbsten.cream.test.copyToChildren.NestedChild1 = me.tbsten.cream.test.copyToChildren.NestedChild1(
+    parent = parent,
+    name = name,
+)
+
+/**
+ * (Auto generate by @[CopyToChildren] annotation of [NestedParent])
+ * 
+ * NestedParent -> NestedChild2 copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = NestedParent(...)
+ * val target = source.copyToNestedChild2()
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val source = NestedParent(...)
+ * val target = source.copyToNestedChild2(property = value)
+ * ```
+ * 
+ * 
+ * @see NestedParent
+ * @see NestedChild2
+ */
+public fun  me.tbsten.cream.test.copyToChildren.NestedParent.copyToNestedChild2(
+    parent: ParentClass = this.parent,
+    value: Int,
+) : me.tbsten.cream.test.copyToChildren.NestedChild2 = me.tbsten.cream.test.copyToChildren.NestedChild2(
+    parent = parent,
+    value = value,
+)
+

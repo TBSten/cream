@@ -1,0 +1,41 @@
+package me.tbsten.cream.test.combineMapping
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CombineMapping] annotation of [OverlapMapping])
+ * 
+ * [LibDModel] + [LibEModel] -> [OverlapTargetModel] copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val libDModel = LibDModel(...)
+ * val libEModel = LibEModel(...)
+ * val target = libDModel.copyToOverlapTargetModel(libEModel = LibEModel(...))
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val libDModel = LibDModel(...)
+ * val libEModel = LibEModel(...)
+ * val target = libDModel.copyToOverlapTargetModel(libEModel = LibEModel(...), property = value)
+ * ```
+ * 
+ * 
+ * @see LibDModel
+ * @see LibEModel
+ * @see OverlapTargetModel
+ */
+public fun  me.tbsten.cream.test.combineMapping.LibDModel.copyToOverlapTargetModel(
+    libEModel: me.tbsten.cream.test.combineMapping.LibEModel,
+    sharedName: String = libEModel.sharedName,
+    valueA: String = this.specificD,
+    valueB: Int = libEModel.specificE,
+) : me.tbsten.cream.test.combineMapping.OverlapTargetModel = me.tbsten.cream.test.combineMapping.OverlapTargetModel(
+    sharedName = sharedName,
+    valueA = valueA,
+    valueB = valueB,
+)
+

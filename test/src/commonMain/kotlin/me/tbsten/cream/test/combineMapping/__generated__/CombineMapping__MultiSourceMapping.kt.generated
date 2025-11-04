@@ -1,0 +1,51 @@
+package me.tbsten.cream.test.combineMapping
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CombineMapping] annotation of [MultiSourceMapping])
+ * 
+ * [LibAModel] + [LibBModel] + [LibCModel] -> [TripleCombinedModel] copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val libAModel = LibAModel(...)
+ * val libBModel = LibBModel(...)
+ * val libCModel = LibCModel(...)
+ * val target = libAModel.copyToTripleCombinedModel(libBModel = LibBModel(...), libCModel = LibCModel(...))
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val libAModel = LibAModel(...)
+ * val libBModel = LibBModel(...)
+ * val libCModel = LibCModel(...)
+ * val target = libAModel.copyToTripleCombinedModel(libBModel = LibBModel(...), libCModel = LibCModel(...), property = value)
+ * ```
+ * 
+ * 
+ * @see LibAModel
+ * @see LibBModel
+ * @see LibCModel
+ * @see TripleCombinedModel
+ */
+public fun  me.tbsten.cream.test.combineMapping.LibAModel.copyToTripleCombinedModel(
+    libBModel: me.tbsten.cream.test.combineMapping.LibBModel,
+    libCModel: me.tbsten.cream.test.combineMapping.LibCModel,
+    nameA: String = this.nameA,
+    valueA: Int = this.valueA,
+    nameB: String = libBModel.nameB,
+    valueB: Double = libBModel.valueB,
+    nameC: String = libCModel.nameC,
+    valueC: Boolean = libCModel.valueC,
+) : me.tbsten.cream.test.combineMapping.TripleCombinedModel = me.tbsten.cream.test.combineMapping.TripleCombinedModel(
+    nameA = nameA,
+    valueA = valueA,
+    nameB = nameB,
+    valueB = valueB,
+    nameC = nameC,
+    valueC = valueC,
+)
+

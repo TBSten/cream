@@ -1,0 +1,66 @@
+package me.tbsten.cream.test.copyMapping
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CopyMapping] annotation of [ReversibleMapping])
+ * 
+ * LibWModel -> LibVModel copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = LibWModel(...)
+ * val target = source.copyToLibVModel()
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val source = LibWModel(...)
+ * val target = source.copyToLibVModel(property = value)
+ * ```
+ * 
+ * 
+ * @see LibWModel
+ * @see LibVModel
+ */
+public fun  me.tbsten.cream.test.copyMapping.LibWModel.copyToLibVModel(
+    shareProp: String = this.shareProp,
+    vProp: Boolean,
+) : me.tbsten.cream.test.copyMapping.LibVModel = me.tbsten.cream.test.copyMapping.LibVModel(
+    shareProp = shareProp,
+    vProp = vProp,
+)
+
+/**
+ * (Auto generate by @[CopyMapping] annotation of [ReversibleMapping])
+ * 
+ * LibVModel -> LibWModel copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = LibVModel(...)
+ * val target = source.copyToLibWModel()
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val source = LibVModel(...)
+ * val target = source.copyToLibWModel(property = value)
+ * ```
+ * 
+ * 
+ * @see LibVModel
+ * @see LibWModel
+ */
+public fun  me.tbsten.cream.test.copyMapping.LibVModel.copyToLibWModel(
+    shareProp: String = this.shareProp,
+    wProp: Double,
+) : me.tbsten.cream.test.copyMapping.LibWModel = me.tbsten.cream.test.copyMapping.LibWModel(
+    shareProp = shareProp,
+    wProp = wProp,
+)
+

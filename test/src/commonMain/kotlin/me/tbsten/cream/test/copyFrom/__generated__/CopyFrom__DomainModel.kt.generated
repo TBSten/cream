@@ -1,0 +1,66 @@
+package me.tbsten.cream.test.copyFrom
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CopyFrom] annotation of [DomainModel])
+ * 
+ * DataModel -> DomainModel copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = DataModel(...)
+ * val target = source.copyToDomainModel()
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val source = DataModel(...)
+ * val target = source.copyToDomainModel(property = value)
+ * ```
+ * 
+ * 
+ * @see DataModel
+ * @see DomainModel
+ */
+public fun  me.tbsten.cream.test.copyFrom.DataModel.copyToDomainModel(
+    domainId: String = this.dataId,
+    name: String = this.name,
+) : me.tbsten.cream.test.copyFrom.DomainModel = me.tbsten.cream.test.copyFrom.DomainModel(
+    domainId = domainId,
+    name = name,
+)
+
+/**
+ * (Auto generate by @[CopyFrom] annotation of [DomainModel])
+ * 
+ * UiModel -> DomainModel copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = UiModel(...)
+ * val target = source.copyToDomainModel()
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val source = UiModel(...)
+ * val target = source.copyToDomainModel(property = value)
+ * ```
+ * 
+ * 
+ * @see UiModel
+ * @see DomainModel
+ */
+public fun  me.tbsten.cream.test.copyFrom.UiModel.copyToDomainModel(
+    domainId: String = this.uiId,
+    name: String = this.name,
+) : me.tbsten.cream.test.copyFrom.DomainModel = me.tbsten.cream.test.copyFrom.DomainModel(
+    domainId = domainId,
+    name = name,
+)
+

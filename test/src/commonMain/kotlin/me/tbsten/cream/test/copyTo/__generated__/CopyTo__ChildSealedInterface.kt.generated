@@ -1,0 +1,67 @@
+package me.tbsten.cream.test.copyTo
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CopyTo] annotation of [ChildSealedInterface])
+ * 
+ * ChildSealedInterface -> GrandChildDataObject copy function.
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = ChildSealedInterface(...)
+ * val target = source.copyToGrandChildDataObject()
+ * ```
+ * 
+ * 
+ * @see ChildSealedInterface
+ * @see GrandChildDataObject
+ */
+public fun me.tbsten.cream.test.copyTo.ChildSealedInterface.copyToGrandChildDataObject() = me.tbsten.cream.test.copyTo.GrandChildDataObject
+/**
+ * (Auto generate by @[CopyTo] annotation of [ChildSealedInterface])
+ * 
+ * ChildSealedInterface -> GrandChildDataClass copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = ChildSealedInterface(...)
+ * val target = source.copyToGrandChildDataClass()
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val source = ChildSealedInterface(...)
+ * val target = source.copyToGrandChildDataClass(property = value)
+ * ```
+ * 
+ * 
+ * @see ChildSealedInterface
+ * @see GrandChildDataClass
+ */
+public fun  me.tbsten.cream.test.copyTo.ChildSealedInterface.copyToGrandChildDataClass(
+    parentProp1: String = this.parentProp1,
+    parentProp2: Int = this.parentProp2,
+    parentProp3: Boolean = this.parentProp3,
+    parentOrNull: ChildDataObject?,
+    childProp1: Double = this.childProp1,
+    childProp2: Long = this.childProp2,
+    childProp3: String = this.childProp3,
+    grandChildProp1: String,
+    grandChildProp2: Int,
+    grandChildProp3: Boolean,
+) : me.tbsten.cream.test.copyTo.GrandChildDataClass = me.tbsten.cream.test.copyTo.GrandChildDataClass(
+    parentProp1 = parentProp1,
+    parentProp2 = parentProp2,
+    parentProp3 = parentProp3,
+    parentOrNull = parentOrNull,
+    childProp1 = childProp1,
+    childProp2 = childProp2,
+    childProp3 = childProp3,
+    grandChildProp1 = grandChildProp1,
+    grandChildProp2 = grandChildProp2,
+    grandChildProp3 = grandChildProp3,
+)
+

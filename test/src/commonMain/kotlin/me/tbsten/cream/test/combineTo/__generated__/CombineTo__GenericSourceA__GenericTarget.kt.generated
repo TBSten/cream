@@ -1,0 +1,39 @@
+package me.tbsten.cream.test.combineTo
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CombineTo] annotation of [GenericSourceA])
+ * 
+ * [GenericSourceA] + [GenericSourceB] -> [GenericTarget] copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val genericSourceA = GenericSourceA(...)
+ * val genericSourceB = GenericSourceB(...)
+ * val target = genericSourceA.copyToGenericTarget(genericSourceB = GenericSourceB(...))
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val genericSourceA = GenericSourceA(...)
+ * val genericSourceB = GenericSourceB(...)
+ * val target = genericSourceA.copyToGenericTarget(genericSourceB = GenericSourceB(...), property = value)
+ * ```
+ * 
+ * 
+ * @see GenericSourceA
+ * @see GenericSourceB
+ * @see GenericTarget
+ */
+public fun <T : Any?> me.tbsten.cream.test.combineTo.GenericSourceA<T>.copyToGenericTarget(
+    genericSourceB: me.tbsten.cream.test.combineTo.GenericSourceB,
+    genericProperty: T = this.genericProperty,
+    normalProperty: String = genericSourceB.normalProperty,
+) : me.tbsten.cream.test.combineTo.GenericTarget<T> = me.tbsten.cream.test.combineTo.GenericTarget(
+    genericProperty = genericProperty,
+    normalProperty = normalProperty,
+)
+
