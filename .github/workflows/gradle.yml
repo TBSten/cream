@@ -98,7 +98,7 @@ jobs:
       - name: Check for uncommitted generated source changes
         id: check_diff
         run: |
-          if ! git diff --exit-code test/src/commonMain/kotlin/me/tbsten/cream/test/ -- '**/__generated__/**'; then
+          if ! git diff --exit-code -- 'test/src/commonMain/kotlin/me/tbsten/cream/test/**/__generated__/'; then
             echo "has_diff=true" >> $GITHUB_OUTPUT
             echo "::warning::Generated source files are out of sync"
           fi
@@ -107,6 +107,7 @@ jobs:
         if: steps.check_diff.outputs.has_diff == 'true'
         uses: peter-evans/create-pull-request@4e1beaa7521e8b457b572c090b25bd3db56bf1c5 # v5
         id: create_pr
+        continue-on-error: true
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: "chore: Update generated test source files"
@@ -129,7 +130,7 @@ jobs:
           delete-branch: true
 
       - name: Prepare comment message
-        if: steps.check_diff.outputs.has_diff == 'true'
+        if: always() && steps.check_diff.outputs.has_diff == 'true'
         id: prepare_comment
         run: |
           cat << 'EOF' > comment.md
@@ -179,7 +180,7 @@ jobs:
           EOF
 
       - name: Comment on PR
-        if: steps.check_diff.outputs.has_diff == 'true'
+        if: always() && steps.check_diff.outputs.has_diff == 'true'
         uses: yumemi-inc/comment-pull-request@83a841f3afaa3e2f5cd5e8b4b6a6e743e75894d6 # v1.5.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
