@@ -94,16 +94,7 @@ jobs:
         with:
           arguments: :test:dumpGeneratedSource
 
-      - name: Check for uncommitted generated source changes
-        id: check_diff
-        run: |
-          if ! git diff --exit-code -- 'test/src/commonMain/kotlin/me/tbsten/cream/test/**/__generated__/'; then
-            echo "has_diff=true" >> $GITHUB_OUTPUT
-            echo "::warning::Generated source files are out of sync"
-          fi
-
       - name: Create auto-dump PR
-        if: steps.check_diff.outputs.has_diff == 'true'
         uses: peter-evans/create-pull-request@4e1beaa7521e8b457b572c090b25bd3db56bf1c5 # v5
         id: create_pr
         continue-on-error: true
@@ -129,13 +120,13 @@ jobs:
           delete-branch: true
 
       - name: Prepare comment message
-        if: always() && steps.check_diff.outputs.has_diff == 'true'
+        if: always() && steps.create_pr.outputs.pull-request-operation != 'none'
         id: prepare_comment
         run: |
-          cat << 'EOF' > comment.md
+          cat << EOF > comment.md
           ## ⚠️ Generated Test Source Files Out of Sync
 
-          The generated test source files in `test/src/**/__generated__/` are not up to date.
+          The generated test source files in \`test/src/**/__generated__/\` are not up to date.
 
           <details>
           <summary>What does this mean?</summary>
@@ -150,36 +141,23 @@ jobs:
           <details>
           <summary>How to fix this?</summary>
 
-          EOF
-
-          if [ "${{ steps.create_pr.outputs.pull-request-operation }}" = "created" ] || [ "${{ steps.create_pr.outputs.pull-request-operation }}" = "updated" ]; then
-            cat << 'EOF' >> comment.md
           **Option 1: Merge the auto-dump PR** ✅
           An automatic PR has been created: #${{ steps.create_pr.outputs.pull-request-number }}
           Merge it to update the generated files.
 
           **Option 2: Update locally** 💻
-          EOF
-          else
-            cat << 'EOF' >> comment.md
-          **Update locally** 💻
-          EOF
-          fi
-
-          cat << 'EOF' >> comment.md
           Run the following command and commit the changes:
-          ```bash
+          \`\`\`bash
           ./gradlew :test:dumpGeneratedSource
           git add test/src/commonMain/kotlin/me/tbsten/cream/test/*/__generated__/
           git commit -m "chore: Update generated test source files"
-          ```
+          \`\`\`
 
           </details>
-
           EOF
 
       - name: Comment on PR
-        if: always() && steps.check_diff.outputs.has_diff == 'true'
+        if: always() && steps.create_pr.outputs.pull-request-operation != 'none'
         uses: yumemi-inc/comment-pull-request@83a841f3afaa3e2f5cd5e8b4b6a6e743e75894d6 # v1.5.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
