@@ -100,6 +100,8 @@ jobs:
         continue-on-error: true
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          add-paths: |
+            test/src/commonMain/kotlin/me/tbsten/cream/test/*/__generated__/
           commit-message: "chore: Update generated test source files"
           title: "🤖 Auto-dump: Update generated test source files"
           body: |
