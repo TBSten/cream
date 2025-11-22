@@ -5,9 +5,8 @@
   - 指摘の方が間違っている時は間違っている旨を返信コメントして。
   - 指摘が正しい場合は
     - コメントごとに、該当コードを修正してコミットする
-    - 対応した指摘のコメントには **それぞれの指摘コメントごとに** 
-      - 対応済みの旨と修正コミットを返信コメントして。
-      - 返信コメント参考: https://docs.github.com/en/rest/pulls/comments?utm_source=chatgpt.com&apiVersion=2022-11-28#create-a-reply-for-a-review-comment
+    - 対応した指摘のコメントには **それぞれの指摘コメントごとに** 対応済みの旨と修正コミットを返信コメントして。
+      - 返信コメント方法 参考: https://docs.github.com/en/rest/pulls/comments?utm_source=chatgpt.com&apiVersion=2022-11-28#create-a-reply-for-a-review-comment
 - コメント全て見終わったら push する。
 
 ## 例
