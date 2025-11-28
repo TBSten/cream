@@ -1,0 +1,51 @@
+package me.tbsten.cream.test.combineTo
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CombineTo] annotation of [MultiSourceC])
+ * 
+ * [MultiSourceC] + [MultiSourceA] + [MultiSourceB] + [MultiSourceD] -> [MultiSourceTarget] copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val multiSourceC = MultiSourceC(...)
+ * val multiSourceA = MultiSourceA(...)
+ * val multiSourceB = MultiSourceB(...)
+ * val multiSourceD = MultiSourceD(...)
+ * val target = multiSourceC.copyToMultiSourceTarget(multiSourceA = MultiSourceA(...), multiSourceB = MultiSourceB(...), multiSourceD = MultiSourceD(...))
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val multiSourceC = MultiSourceC(...)
+ * val multiSourceA = MultiSourceA(...)
+ * val multiSourceB = MultiSourceB(...)
+ * val multiSourceD = MultiSourceD(...)
+ * val target = multiSourceC.copyToMultiSourceTarget(multiSourceA = MultiSourceA(...), multiSourceB = MultiSourceB(...), multiSourceD = MultiSourceD(...), property = value)
+ * ```
+ * 
+ * 
+ * @see MultiSourceC
+ * @see MultiSourceA
+ * @see MultiSourceB
+ * @see MultiSourceD
+ * @see MultiSourceTarget
+ */
+public fun  me.tbsten.cream.test.combineTo.MultiSourceC.copyToMultiSourceTarget(
+    multiSourceA: me.tbsten.cream.test.combineTo.MultiSourceA,
+    multiSourceB: me.tbsten.cream.test.combineTo.MultiSourceB,
+    multiSourceD: me.tbsten.cream.test.combineTo.MultiSourceD,
+    propertyA: String = multiSourceA.propertyA,
+    propertyB: Int = multiSourceB.propertyB,
+    propertyC: Boolean = this.propertyC,
+    propertyD: Double = multiSourceD.propertyD,
+) : me.tbsten.cream.test.combineTo.MultiSourceTarget = me.tbsten.cream.test.combineTo.MultiSourceTarget(
+    propertyA = propertyA,
+    propertyB = propertyB,
+    propertyC = propertyC,
+    propertyD = propertyD,
+)
+

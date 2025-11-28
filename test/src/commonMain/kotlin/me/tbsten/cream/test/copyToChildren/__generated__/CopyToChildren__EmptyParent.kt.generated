@@ -1,0 +1,36 @@
+package me.tbsten.cream.test.copyToChildren
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CopyToChildren] annotation of [EmptyParent])
+ * 
+ * EmptyParent -> EmptyChild1 copy function.
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = EmptyParent(...)
+ * val target = source.copyToEmptyChild1()
+ * ```
+ * 
+ * 
+ * @see EmptyParent
+ * @see EmptyChild1
+ */
+public fun me.tbsten.cream.test.copyToChildren.EmptyParent.copyToEmptyChild1() = me.tbsten.cream.test.copyToChildren.EmptyChild1
+/**
+ * (Auto generate by @[CopyToChildren] annotation of [EmptyParent])
+ * 
+ * EmptyParent -> EmptyChild2 copy function.
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = EmptyParent(...)
+ * val target = source.copyToEmptyChild2()
+ * ```
+ * 
+ * 
+ * @see EmptyParent
+ * @see EmptyChild2
+ */
+public fun me.tbsten.cream.test.copyToChildren.EmptyParent.copyToEmptyChild2() = me.tbsten.cream.test.copyToChildren.EmptyChild2

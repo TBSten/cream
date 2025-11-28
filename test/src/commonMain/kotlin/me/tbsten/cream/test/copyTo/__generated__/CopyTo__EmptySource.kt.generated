@@ -1,0 +1,20 @@
+package me.tbsten.cream.test.copyTo
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CopyTo] annotation of [EmptySource])
+ * 
+ * EmptySource -> EmptyTarget copy function.
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = EmptySource(...)
+ * val target = source.copyToEmptyTarget()
+ * ```
+ * 
+ * 
+ * @see EmptySource
+ * @see EmptyTarget
+ */
+public fun me.tbsten.cream.test.copyTo.EmptySource.copyToEmptyTarget() = me.tbsten.cream.test.copyTo.EmptyTarget

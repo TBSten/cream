@@ -1,0 +1,66 @@
+package me.tbsten.cream.test.copyToChildren
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CopyToChildren] annotation of [ComplexTypeParent])
+ * 
+ * ComplexTypeParent -> ComplexTypeChild1 copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = ComplexTypeParent(...)
+ * val target = source.copyToComplexTypeChild1()
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val source = ComplexTypeParent(...)
+ * val target = source.copyToComplexTypeChild1(property = value)
+ * ```
+ * 
+ * 
+ * @see ComplexTypeParent
+ * @see ComplexTypeChild1
+ */
+public fun  me.tbsten.cream.test.copyToChildren.ComplexTypeParent.copyToComplexTypeChild1(
+    stringList: kotlin.collections.List<String>,
+    intMap: kotlin.collections.Map<String, Int>,
+) : me.tbsten.cream.test.copyToChildren.ComplexTypeChild1 = me.tbsten.cream.test.copyToChildren.ComplexTypeChild1(
+    stringList = stringList,
+    intMap = intMap,
+)
+
+/**
+ * (Auto generate by @[CopyToChildren] annotation of [ComplexTypeParent])
+ * 
+ * ComplexTypeParent -> ComplexTypeChild2 copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = ComplexTypeParent(...)
+ * val target = source.copyToComplexTypeChild2()
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val source = ComplexTypeParent(...)
+ * val target = source.copyToComplexTypeChild2(property = value)
+ * ```
+ * 
+ * 
+ * @see ComplexTypeParent
+ * @see ComplexTypeChild2
+ */
+public fun  me.tbsten.cream.test.copyToChildren.ComplexTypeParent.copyToComplexTypeChild2(
+    stringList: kotlin.collections.List<String>? = this.stringList,
+    intMap: kotlin.collections.Map<String, Int>? = this.intMap,
+) : me.tbsten.cream.test.copyToChildren.ComplexTypeChild2 = me.tbsten.cream.test.copyToChildren.ComplexTypeChild2(
+    stringList = stringList,
+    intMap = intMap,
+)
+

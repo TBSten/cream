@@ -1,0 +1,45 @@
+package me.tbsten.cream.test.combineMapping
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CombineMapping] annotation of [PropertyMapping])
+ * 
+ * [LibAModel] + [LibBModel] -> [RenamedTargetModel] copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val libAModel = LibAModel(...)
+ * val libBModel = LibBModel(...)
+ * val target = libAModel.copyToRenamedTargetModel(libBModel = LibBModel(...))
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val libAModel = LibAModel(...)
+ * val libBModel = LibBModel(...)
+ * val target = libAModel.copyToRenamedTargetModel(libBModel = LibBModel(...), property = value)
+ * ```
+ * 
+ * 
+ * @see LibAModel
+ * @see LibBModel
+ * @see RenamedTargetModel
+ */
+public fun  me.tbsten.cream.test.combineMapping.LibAModel.copyToRenamedTargetModel(
+    libBModel: me.tbsten.cream.test.combineMapping.LibBModel,
+    targetNameA: String = this.nameA,
+    targetValueA: Int = this.valueA,
+    targetNameB: String = libBModel.nameB,
+    targetValueB: Double = libBModel.valueB,
+    extra: String,
+) : me.tbsten.cream.test.combineMapping.RenamedTargetModel = me.tbsten.cream.test.combineMapping.RenamedTargetModel(
+    targetNameA = targetNameA,
+    targetValueA = targetValueA,
+    targetNameB = targetNameB,
+    targetValueB = targetValueB,
+    extra = extra,
+)
+

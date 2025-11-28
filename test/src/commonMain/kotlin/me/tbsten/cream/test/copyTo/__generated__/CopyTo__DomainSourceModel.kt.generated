@@ -1,0 +1,66 @@
+package me.tbsten.cream.test.copyTo
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CopyTo] annotation of [DomainSourceModel])
+ * 
+ * DomainSourceModel -> DataTargetModel copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = DomainSourceModel(...)
+ * val target = source.copyToDataTargetModel()
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val source = DomainSourceModel(...)
+ * val target = source.copyToDataTargetModel(property = value)
+ * ```
+ * 
+ * 
+ * @see DomainSourceModel
+ * @see DataTargetModel
+ */
+public fun  me.tbsten.cream.test.copyTo.DomainSourceModel.copyToDataTargetModel(
+    dataId: String = this.domainId,
+    name: String = this.name,
+) : me.tbsten.cream.test.copyTo.DataTargetModel = me.tbsten.cream.test.copyTo.DataTargetModel(
+    dataId = dataId,
+    name = name,
+)
+
+/**
+ * (Auto generate by @[CopyTo] annotation of [DomainSourceModel])
+ * 
+ * DomainSourceModel -> UiTargetModel copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = DomainSourceModel(...)
+ * val target = source.copyToUiTargetModel()
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val source = DomainSourceModel(...)
+ * val target = source.copyToUiTargetModel(property = value)
+ * ```
+ * 
+ * 
+ * @see DomainSourceModel
+ * @see UiTargetModel
+ */
+public fun  me.tbsten.cream.test.copyTo.DomainSourceModel.copyToUiTargetModel(
+    uiId: String = this.domainId,
+    name: String = this.name,
+) : me.tbsten.cream.test.copyTo.UiTargetModel = me.tbsten.cream.test.copyTo.UiTargetModel(
+    uiId = uiId,
+    name = name,
+)
+

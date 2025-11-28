@@ -1,0 +1,37 @@
+package me.tbsten.cream.test.combineFrom
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CombineFrom] annotation of [MergeMappingTarget])
+ * 
+ * [MergeMappingSourceA] + [MergeMappingSourceB] -> [MergeMappingTarget] copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val mergeMappingSourceA = MergeMappingSourceA(...)
+ * val mergeMappingSourceB = MergeMappingSourceB(...)
+ * val target = mergeMappingSourceA.copyToMergeMappingTarget(mergeMappingSourceB = MergeMappingSourceB(...))
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val mergeMappingSourceA = MergeMappingSourceA(...)
+ * val mergeMappingSourceB = MergeMappingSourceB(...)
+ * val target = mergeMappingSourceA.copyToMergeMappingTarget(mergeMappingSourceB = MergeMappingSourceB(...), property = value)
+ * ```
+ * 
+ * 
+ * @see MergeMappingSourceA
+ * @see MergeMappingSourceB
+ * @see MergeMappingTarget
+ */
+public fun  me.tbsten.cream.test.combineFrom.MergeMappingSourceA.copyToMergeMappingTarget(
+    mergeMappingSourceB: me.tbsten.cream.test.combineFrom.MergeMappingSourceB,
+    sourcePropertyA: String = mergeMappingSourceB.sourcePropertyB,
+) : me.tbsten.cream.test.combineFrom.MergeMappingTarget = me.tbsten.cream.test.combineFrom.MergeMappingTarget(
+    sourcePropertyA = sourcePropertyA,
+)
+

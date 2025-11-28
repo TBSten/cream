@@ -1,0 +1,41 @@
+package me.tbsten.cream.test.combineTo
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CombineTo] annotation of [MixedMappingSourceB])
+ * 
+ * [MixedMappingSourceB] + [MixedMappingSourceA] -> [MixedMappingTarget] copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val mixedMappingSourceB = MixedMappingSourceB(...)
+ * val mixedMappingSourceA = MixedMappingSourceA(...)
+ * val target = mixedMappingSourceB.copyToMixedMappingTarget(mixedMappingSourceA = MixedMappingSourceA(...))
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val mixedMappingSourceB = MixedMappingSourceB(...)
+ * val mixedMappingSourceA = MixedMappingSourceA(...)
+ * val target = mixedMappingSourceB.copyToMixedMappingTarget(mixedMappingSourceA = MixedMappingSourceA(...), property = value)
+ * ```
+ * 
+ * 
+ * @see MixedMappingSourceB
+ * @see MixedMappingSourceA
+ * @see MixedMappingTarget
+ */
+public fun  me.tbsten.cream.test.combineTo.MixedMappingSourceB.copyToMixedMappingTarget(
+    mixedMappingSourceA: me.tbsten.cream.test.combineTo.MixedMappingSourceA,
+    directMatch: String = mixedMappingSourceA.directMatch,
+    renamedProperty: Int = this.originalProperty,
+    extraProperty: Boolean,
+) : me.tbsten.cream.test.combineTo.MixedMappingTarget = me.tbsten.cream.test.combineTo.MixedMappingTarget(
+    directMatch = directMatch,
+    renamedProperty = renamedProperty,
+    extraProperty = extraProperty,
+)
+

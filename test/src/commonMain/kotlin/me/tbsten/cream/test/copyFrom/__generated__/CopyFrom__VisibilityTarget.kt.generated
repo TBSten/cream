@@ -1,0 +1,35 @@
+package me.tbsten.cream.test.copyFrom
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CopyFrom] annotation of [VisibilityTarget])
+ * 
+ * VisibilitySource -> VisibilityTarget copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = VisibilitySource(...)
+ * val target = source.copyToVisibilityTarget()
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val source = VisibilitySource(...)
+ * val target = source.copyToVisibilityTarget(property = value)
+ * ```
+ * 
+ * 
+ * @see VisibilitySource
+ * @see VisibilityTarget
+ */
+public fun  me.tbsten.cream.test.copyFrom.VisibilitySource.copyToVisibilityTarget(
+    publicProp: String = this.publicProp,
+    newProperty: String,
+) : me.tbsten.cream.test.copyFrom.VisibilityTarget = me.tbsten.cream.test.copyFrom.VisibilityTarget(
+    publicProp = publicProp,
+    newProperty = newProperty,
+)
+

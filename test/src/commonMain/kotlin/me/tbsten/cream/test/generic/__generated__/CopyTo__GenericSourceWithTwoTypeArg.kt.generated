@@ -1,0 +1,39 @@
+package me.tbsten.cream.test.generic
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CopyTo] annotation of [GenericSourceWithTwoTypeArg])
+ * 
+ * GenericSourceWithTwoTypeArg -> GenericTargetWithThreeTypeArg copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = GenericSourceWithTwoTypeArg(...)
+ * val target = source.copyToGenericTargetWithThreeTypeArg()
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val source = GenericSourceWithTwoTypeArg(...)
+ * val target = source.copyToGenericTargetWithThreeTypeArg(property = value)
+ * ```
+ * 
+ * 
+ * @see GenericSourceWithTwoTypeArg
+ * @see GenericTargetWithThreeTypeArg
+ */
+public fun <Aaa, Bbb : Any?, Ccc : Any?> me.tbsten.cream.test.generic.GenericSourceWithTwoTypeArg<Aaa, Bbb>.copyToGenericTargetWithThreeTypeArg(
+    a: Aaa?,
+    b: kotlin.collections.List<Bbb>,
+    c: Ccc,
+    d: Int = this.d,
+) : me.tbsten.cream.test.generic.GenericTargetWithThreeTypeArg<Aaa, Bbb, Ccc> where Aaa : Comparable<String>, Aaa : CharSequence = me.tbsten.cream.test.generic.GenericTargetWithThreeTypeArg(
+    a = a,
+    b = b,
+    c = c,
+    d = d,
+)
+

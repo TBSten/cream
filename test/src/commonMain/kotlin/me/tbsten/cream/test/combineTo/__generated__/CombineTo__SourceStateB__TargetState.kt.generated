@@ -1,0 +1,41 @@
+package me.tbsten.cream.test.combineTo
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CombineTo] annotation of [SourceStateB])
+ * 
+ * [SourceStateB] + [SourceStateA] -> [TargetState] copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val sourceStateB = SourceStateB(...)
+ * val sourceStateA = SourceStateA(...)
+ * val target = sourceStateB.copyToTargetState(sourceStateA = SourceStateA(...))
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val sourceStateB = SourceStateB(...)
+ * val sourceStateA = SourceStateA(...)
+ * val target = sourceStateB.copyToTargetState(sourceStateA = SourceStateA(...), property = value)
+ * ```
+ * 
+ * 
+ * @see SourceStateB
+ * @see SourceStateA
+ * @see TargetState
+ */
+public fun  me.tbsten.cream.test.combineTo.SourceStateB.copyToTargetState(
+    sourceStateA: me.tbsten.cream.test.combineTo.SourceStateA,
+    propertyA: String = sourceStateA.propertyA,
+    propertyB: Int = this.propertyB,
+    propertyC: Boolean,
+) : me.tbsten.cream.test.combineTo.TargetState = me.tbsten.cream.test.combineTo.TargetState(
+    propertyA = propertyA,
+    propertyB = propertyB,
+    propertyC = propertyC,
+)
+

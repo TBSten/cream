@@ -1,0 +1,39 @@
+package me.tbsten.cream.test.copyTo
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CopyTo] annotation of [ComplexTypeSource])
+ * 
+ * ComplexTypeSource -> ComplexTypeTarget copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = ComplexTypeSource(...)
+ * val target = source.copyToComplexTypeTarget()
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val source = ComplexTypeSource(...)
+ * val target = source.copyToComplexTypeTarget(property = value)
+ * ```
+ * 
+ * 
+ * @see ComplexTypeSource
+ * @see ComplexTypeTarget
+ */
+public fun  me.tbsten.cream.test.copyTo.ComplexTypeSource.copyToComplexTypeTarget(
+    stringList: kotlin.collections.List<String> = this.stringList,
+    intMap: kotlin.collections.Map<String, Int> = this.intMap,
+    nullableSet: kotlin.collections.Set<Double>? = this.nullableSet,
+    newProperty: String,
+) : me.tbsten.cream.test.copyTo.ComplexTypeTarget = me.tbsten.cream.test.copyTo.ComplexTypeTarget(
+    stringList = stringList,
+    intMap = intMap,
+    nullableSet = nullableSet,
+    newProperty = newProperty,
+)
+

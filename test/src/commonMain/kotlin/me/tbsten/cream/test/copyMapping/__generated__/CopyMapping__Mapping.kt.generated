@@ -1,0 +1,66 @@
+package me.tbsten.cream.test.copyMapping
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CopyMapping] annotation of [Mapping])
+ * 
+ * LibXModel -> LibYModel copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = LibXModel(...)
+ * val target = source.copyToLibYModel()
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val source = LibXModel(...)
+ * val target = source.copyToLibYModel(property = value)
+ * ```
+ * 
+ * 
+ * @see LibXModel
+ * @see LibYModel
+ */
+public fun  me.tbsten.cream.test.copyMapping.LibXModel.copyToLibYModel(
+    shareProp: String = this.shareProp,
+    yProp: Int = this.xProp,
+) : me.tbsten.cream.test.copyMapping.LibYModel = me.tbsten.cream.test.copyMapping.LibYModel(
+    shareProp = shareProp,
+    yProp = yProp,
+)
+
+/**
+ * (Auto generate by @[CopyMapping] annotation of [Mapping])
+ * 
+ * LibYModel -> LibZModel copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = LibYModel(...)
+ * val target = source.copyToLibZModel()
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val source = LibYModel(...)
+ * val target = source.copyToLibZModel(property = value)
+ * ```
+ * 
+ * 
+ * @see LibYModel
+ * @see LibZModel
+ */
+public fun  me.tbsten.cream.test.copyMapping.LibYModel.copyToLibZModel(
+    shareProp: String = this.shareProp,
+    zProp: Int,
+) : me.tbsten.cream.test.copyMapping.LibZModel = me.tbsten.cream.test.copyMapping.LibZModel(
+    shareProp = shareProp,
+    zProp = zProp,
+)
+

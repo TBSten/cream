@@ -1,0 +1,39 @@
+package me.tbsten.cream.test.combineTo
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CombineTo] annotation of [NullableSourceB])
+ * 
+ * [NullableSourceB] + [NullableSourceA] -> [NullableTarget] copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val nullableSourceB = NullableSourceB(...)
+ * val nullableSourceA = NullableSourceA(...)
+ * val target = nullableSourceB.copyToNullableTarget(nullableSourceA = NullableSourceA(...))
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val nullableSourceB = NullableSourceB(...)
+ * val nullableSourceA = NullableSourceA(...)
+ * val target = nullableSourceB.copyToNullableTarget(nullableSourceA = NullableSourceA(...), property = value)
+ * ```
+ * 
+ * 
+ * @see NullableSourceB
+ * @see NullableSourceA
+ * @see NullableTarget
+ */
+public fun  me.tbsten.cream.test.combineTo.NullableSourceB.copyToNullableTarget(
+    nullableSourceA: me.tbsten.cream.test.combineTo.NullableSourceA,
+    nullableProperty: String? = nullableSourceA.nullableProperty,
+    requiredProperty: String = this.requiredProperty,
+) : me.tbsten.cream.test.combineTo.NullableTarget = me.tbsten.cream.test.combineTo.NullableTarget(
+    nullableProperty = nullableProperty,
+    requiredProperty = requiredProperty,
+)
+
