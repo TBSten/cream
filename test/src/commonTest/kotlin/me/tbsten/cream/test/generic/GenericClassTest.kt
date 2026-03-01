@@ -75,4 +75,20 @@ class GenericClassTest {
             assertEquals(actual, expected)
         }
     }
+
+    @Test
+    fun threeArgToObject() {
+        val source =
+            GenericSourceWithThreeTypeArg(
+                a = "test",
+                b = listOf("a", "b"),
+                c = "c",
+            )
+
+        mapOf(
+            source.copyToGenericTargetObject() to GenericTargetObject,
+        ).forEach { (actual, expected) ->
+            assertEquals(actual, expected)
+        }
+    }
 }

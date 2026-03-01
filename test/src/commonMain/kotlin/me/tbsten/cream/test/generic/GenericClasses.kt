@@ -12,7 +12,7 @@ data class GenericSourceWithTwoTypeArg<
     @CopyFrom.Map("Bbb")
     @CopyTo.Map("Bbb")
     B,
->(
+    >(
     val a: A?,
     val b: List<B>,
     val d: Int,
@@ -25,7 +25,7 @@ data class GenericTargetWithThreeTypeArg<Aaa, Bbb, Ccc>(
     val d: Int,
 ) where Aaa : Comparable<String>, Aaa : CharSequence
 
-@CopyTo(GenericTargetWithTwoTypeArg::class)
+@CopyTo(GenericTargetWithTwoTypeArg::class, GenericTargetObject::class)
 @CopyFrom(GenericTargetWithTwoTypeArg::class)
 data class GenericSourceWithThreeTypeArg<
     @CopyFrom.Map("Aaa")
@@ -33,7 +33,7 @@ data class GenericSourceWithThreeTypeArg<
     @CopyFrom.Map("Bbb")
     B,
     C,
->(
+    >(
     val a: A?,
     val b: List<B>,
     val c: C,
@@ -43,3 +43,5 @@ data class GenericTargetWithTwoTypeArg<Aaa, Bbb>(
     val a: Aaa?,
     val b: List<Bbb>,
 ) where Aaa : Comparable<String>, Aaa : CharSequence
+
+data object GenericTargetObject
