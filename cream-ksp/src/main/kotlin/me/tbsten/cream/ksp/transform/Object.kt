@@ -21,9 +21,20 @@ internal fun BufferedWriter.appendCopyToObjectFunction(
             options,
         )
     appendCopyToObjectKDoc(source, targetObject, generateSourceAnnotation, funName.toString())
-    appendLine(
-        "${targetObject.visibilityStr} fun ${source.fullName}.$funName() = ${targetObject.fullName}",
-    )
+    append("${targetObject.visibilityStr} fun ")
+    append(source.fullName)
+
+    if (source.typeParameters.isNotEmpty()) {
+        append("<")
+        append(
+            source.typeParameters
+                .joinToString(", ") { "*" },
+        )
+        append(">")
+    }
+
+    append(".$funName() = ${targetObject.fullName}")
+    appendLine()
 }
 
 internal fun BufferedWriter.appendCombineToObjectFunction(
@@ -72,15 +83,19 @@ private fun BufferedWriter.appendCombineToObjectKDoc(
         val exampleLines =
             buildString {
                 appendLine(
-                    "val ${primarySource.underPackageName.replaceFirstChar {
-                        it.lowercase()
-                    }} = ${primarySource.simpleName.asString()}(...)",
+                    "val ${
+                        primarySource.underPackageName.replaceFirstChar {
+                            it.lowercase()
+                        }
+                    } = ${primarySource.simpleName.asString()}(...)",
                 )
                 sources.drop(1).forEach { otherSource ->
                     appendLine(
-                        "val ${otherSource.underPackageName.replaceFirstChar {
-                            it.lowercase()
-                        }} = ${otherSource.simpleName.asString()}(...)",
+                        "val ${
+                            otherSource.underPackageName.replaceFirstChar {
+                                it.lowercase()
+                            }
+                        } = ${otherSource.simpleName.asString()}(...)",
                     )
                 }
                 append("val target = ${primarySource.underPackageName.replaceFirstChar { it.lowercase() }}.$funName($otherSourceParams)")
