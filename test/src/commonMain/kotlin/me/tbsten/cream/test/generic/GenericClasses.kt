@@ -12,7 +12,7 @@ data class GenericSourceWithTwoTypeArg<
     @CopyFrom.Map("Bbb")
     @CopyTo.Map("Bbb")
     B,
-    >(
+>(
     val a: A?,
     val b: List<B>,
     val d: Int,
@@ -33,7 +33,7 @@ data class GenericSourceWithThreeTypeArg<
     @CopyFrom.Map("Bbb")
     B,
     C,
-    >(
+>(
     val a: A?,
     val b: List<B>,
     val c: C,
