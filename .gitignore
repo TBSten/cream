@@ -13,3 +13,4 @@ xcuserdata
 *.gpg
 
 .claude/**/*.local.json
+.local/
