@@ -30,7 +30,8 @@ internal class BasicSnapshotTest {
         val result = compileWithCream(source)
 
         assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode, result.messages)
-        assertMatchesSnapshot("BasicSnapshotTest.copyTo", result.generatedSourceText()) {
+        assertMatchesSnapshot("BasicSnapshotTest.copyTo") {
+            "Generated" facetOf result.generatedSourceText()
             "Input" facetOf source
         }
     }

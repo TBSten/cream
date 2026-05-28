@@ -31,23 +31,9 @@ paths:
 
 ### Snapshot file format
 
-golden ファイルは `*.md` (Markdown)。最小形は単一の fenced code block:
-
-````md
-```kt
-// snapshot 対象のテキスト
-```
-````
-
-`assertMatchesSnapshot(name, actual, lang)` の `lang` でフェンス言語を指定する
-(default `kt`)。コンパイラ出力など非 Kotlin テキストは `lang = "text"` を渡す。
-
-#### Facets (multi-section)
-
-`assertMatchesSnapshot` に block を渡すと、main 部分が `## [mainTitle]` 配下に置かれ、
-block 内で宣言した facet が `## <facet 名>` セクションとして追加される。
-SSoT (test code と snapshot で input を二重管理しない) を保つため、input source は test
-code 側で local val として抽出し、`compileWithCream(...)` と facet の両方に渡す:
+golden ファイルは `*.md` (Markdown)。すべての captured 値は **facet** として宣言する
+(「最初が main」のような特別扱いはない)。各 facet は宣言順に `## <facet 名>` セクション
+として書き出される:
 
 ```kt
 val source = """
@@ -56,23 +42,38 @@ val source = """
 """.trimIndent()
 val result = compileWithCream(source)
 
-assertMatchesSnapshot("name", result.generatedSourceText()) {
-    "Input" facetOf source                              // default lang = "kt"
-    facet("KSP options", optionsText, lang = "properties")
+assertMatchesSnapshot("MyTest.scenario") {
+    "Generated" facetOf result.generatedSourceText()            // default lang = "kt"
+    "Input" facetOf source                                      // default lang = "kt"
+    facet("Compiler messages", result.messages, lang = "text")  // 明示で別言語
 }
 ```
 
-infix `facetOf` は default `lang = "kt"`。違う言語を使う facet は `facet(name, content, lang)`
-を使う。facet は宣言順に書き出される。
+infix `facetOf` は default `lang = "kt"`。違う言語が必要な facet は
+`facet(name, content, lang)` を使う。block 内で最低 1 つの facet が必要。
 
-diagnostic 系では main が compiler output なので `mainTitle = "Compiler output"` を渡す。
-それ以外 (snapshot 系) は default の `"Generated"` のまま。
+#### SSoT を保つ
+
+test code と snapshot で input を二重管理しないために、input source は test code 側で
+`val source = """...""".trimIndent()` として抽出し、`compileWithCream(source)` と
+`"Input" facetOf source` の両方に同じ値を渡す。
+
+#### Facet 名の規約
+
+呼び出し側が自由に付けられる。主用途での慣習:
+
+- snapshot 系 (生成された Kotlin source を見る): `"Generated"` + `"Input"`
+- diagnostic 系 (コンパイラ出力を見る): `facet("Compiler output", ..., lang = "text")` + `"Input"`
+
+順序は test 著者が決める。慣習は「主要な観測値が先、コンテキストが後」 (= `Generated` →
+`Input` / `Compiler output` → `Input`)。
 
 #### Backtick collision
 
 snapshot 本文に backtick run (例: cream が出す KDoc の ` ```kt ... ``` ` 例) が含まれる
 場合、各セクションのフェンスは独立に「内部の最長 backtick run + 1」の長さで拡張される
-(最小 3)。比較は fenced block 全体 (フェンス含む) で行うので、フェンスを直接書き換えると壊れる。
+(最小 3)。比較は file 全体 (見出し + フェンス含む) で行うので、フェンスを直接書き換えると
+壊れる。
 
 ### `normalizedCompilerOutput()`
 

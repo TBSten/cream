@@ -27,12 +27,8 @@ internal class CopyToChildrenDiagnosticTest {
             result.exitCode,
             "Compilation should fail. Output:\n${result.normalizedCompilerOutput()}",
         )
-        assertMatchesSnapshot(
-            "CopyToChildrenDiagnosticTest.nonSealedClass.output",
-            result.normalizedCompilerOutput(),
-            lang = "text",
-            mainTitle = "Compiler output",
-        ) {
+        assertMatchesSnapshot("CopyToChildrenDiagnosticTest.nonSealedClass.output") {
+            facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
             "Input" facetOf source
         }
     }
@@ -55,12 +51,8 @@ internal class CopyToChildrenDiagnosticTest {
             result.exitCode,
             "Compilation should fail. Output:\n${result.normalizedCompilerOutput()}",
         )
-        assertMatchesSnapshot(
-            "CopyToChildrenDiagnosticTest.dataClass.output",
-            result.normalizedCompilerOutput(),
-            lang = "text",
-            mainTitle = "Compiler output",
-        ) {
+        assertMatchesSnapshot("CopyToChildrenDiagnosticTest.dataClass.output") {
+            facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
             "Input" facetOf source
         }
     }

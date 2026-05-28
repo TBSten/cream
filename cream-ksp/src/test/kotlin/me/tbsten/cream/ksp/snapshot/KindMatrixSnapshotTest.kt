@@ -28,10 +28,8 @@ internal class KindMatrixSnapshotTest {
         val result = compileWithCream(source)
 
         assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode, result.messages)
-        assertMatchesSnapshot(
-            "KindMatrixSnapshotTest.copyToDataObject",
-            result.generatedSourceText(),
-        ) {
+        assertMatchesSnapshot("KindMatrixSnapshotTest.copyToDataObject") {
+            "Generated" facetOf result.generatedSourceText()
             "Input" facetOf source
         }
     }
@@ -57,10 +55,8 @@ internal class KindMatrixSnapshotTest {
         val result = compileWithCream(source)
 
         assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode, result.messages)
-        assertMatchesSnapshot(
-            "KindMatrixSnapshotTest.copyToSealedInterface",
-            result.generatedSourceText(),
-        ) {
+        assertMatchesSnapshot("KindMatrixSnapshotTest.copyToSealedInterface") {
+            "Generated" facetOf result.generatedSourceText()
             "Input" facetOf source
         }
     }
@@ -87,10 +83,8 @@ internal class KindMatrixSnapshotTest {
         val result = compileWithCream(source)
 
         assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode, result.messages)
-        assertMatchesSnapshot(
-            "KindMatrixSnapshotTest.copyFromBasic",
-            result.generatedSourceText(),
-        ) {
+        assertMatchesSnapshot("KindMatrixSnapshotTest.copyFromBasic") {
+            "Generated" facetOf result.generatedSourceText()
             "Input" facetOf source
         }
     }
@@ -117,10 +111,8 @@ internal class KindMatrixSnapshotTest {
         val result = compileWithCream(source)
 
         assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode, result.messages)
-        assertMatchesSnapshot(
-            "KindMatrixSnapshotTest.copyToChildrenMixed",
-            result.generatedSourceText(),
-        ) {
+        assertMatchesSnapshot("KindMatrixSnapshotTest.copyToChildrenMixed") {
+            "Generated" facetOf result.generatedSourceText()
             "Input" facetOf source
         }
     }

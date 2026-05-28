@@ -34,12 +34,8 @@ internal class OptionsDiagnosticTest {
             result.exitCode,
             "Compilation should fail. Output:\n${result.normalizedCompilerOutput()}",
         )
-        assertMatchesSnapshot(
-            "OptionsDiagnosticTest.invalidCopyFunNamingStrategy.output",
-            result.normalizedCompilerOutput(),
-            lang = "text",
-            mainTitle = "Compiler output",
-        ) {
+        assertMatchesSnapshot("OptionsDiagnosticTest.invalidCopyFunNamingStrategy.output") {
+            facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
             "Input" facetOf validSource
         }
     }
@@ -57,12 +53,8 @@ internal class OptionsDiagnosticTest {
             result.exitCode,
             "Compilation should fail. Output:\n${result.normalizedCompilerOutput()}",
         )
-        assertMatchesSnapshot(
-            "OptionsDiagnosticTest.invalidEscapeDot.output",
-            result.normalizedCompilerOutput(),
-            lang = "text",
-            mainTitle = "Compiler output",
-        ) {
+        assertMatchesSnapshot("OptionsDiagnosticTest.invalidEscapeDot.output") {
+            facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
             "Input" facetOf validSource
         }
     }

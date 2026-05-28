@@ -25,10 +25,8 @@ internal class ObjectTargetSnapshotTest {
         val result = compileWithCream(combineToObjectSource)
 
         assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode, result.messages)
-        assertMatchesSnapshot(
-            "ObjectTargetSnapshotTest.combineToObject.default",
-            result.generatedSourceText(),
-        ) {
+        assertMatchesSnapshot("ObjectTargetSnapshotTest.combineToObject.default") {
+            "Generated" facetOf result.generatedSourceText()
             "Input" facetOf combineToObjectSource
         }
     }
@@ -42,10 +40,8 @@ internal class ObjectTargetSnapshotTest {
             )
 
         assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode, result.messages)
-        assertMatchesSnapshot(
-            "ObjectTargetSnapshotTest.combineToObject.notCopyToObject",
-            result.generatedSourceText(),
-        ) {
+        assertMatchesSnapshot("ObjectTargetSnapshotTest.combineToObject.notCopyToObject") {
+            "Generated" facetOf result.generatedSourceText()
             "Input" facetOf combineToObjectSource
         }
     }

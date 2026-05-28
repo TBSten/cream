@@ -28,12 +28,8 @@ internal class CopyToDiagnosticTest {
             result.exitCode,
             "Compilation should fail. Output:\n${result.normalizedCompilerOutput()}",
         )
-        assertMatchesSnapshot(
-            "CopyToDiagnosticTest.enumTarget.output",
-            result.normalizedCompilerOutput(),
-            lang = "text",
-            mainTitle = "Compiler output",
-        ) {
+        assertMatchesSnapshot("CopyToDiagnosticTest.enumTarget.output") {
+            facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
             "Input" facetOf source
         }
     }
@@ -60,12 +56,8 @@ internal class CopyToDiagnosticTest {
             result.exitCode,
             "Compilation should fail. Output:\n${result.normalizedCompilerOutput()}",
         )
-        assertMatchesSnapshot(
-            "CopyToDiagnosticTest.nonSealedInterface.output",
-            result.normalizedCompilerOutput(),
-            lang = "text",
-            mainTitle = "Compiler output",
-        ) {
+        assertMatchesSnapshot("CopyToDiagnosticTest.nonSealedInterface.output") {
+            facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
             "Input" facetOf source
         }
     }
@@ -90,12 +82,8 @@ internal class CopyToDiagnosticTest {
             result.exitCode,
             "Compilation should fail. Output:\n${result.normalizedCompilerOutput()}",
         )
-        assertMatchesSnapshot(
-            "CopyToDiagnosticTest.annotationTarget.output",
-            result.normalizedCompilerOutput(),
-            lang = "text",
-            mainTitle = "Compiler output",
-        ) {
+        assertMatchesSnapshot("CopyToDiagnosticTest.annotationTarget.output") {
+            facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
             "Input" facetOf source
         }
     }

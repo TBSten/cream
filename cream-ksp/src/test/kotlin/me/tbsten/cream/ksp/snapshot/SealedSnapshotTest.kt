@@ -27,7 +27,8 @@ internal class SealedSnapshotTest {
         val result = compileWithCream(source)
 
         assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode, result.messages)
-        assertMatchesSnapshot("SealedSnapshotTest.copyToChildren", result.generatedSourceText()) {
+        assertMatchesSnapshot("SealedSnapshotTest.copyToChildren") {
+            "Generated" facetOf result.generatedSourceText()
             "Input" facetOf source
         }
     }

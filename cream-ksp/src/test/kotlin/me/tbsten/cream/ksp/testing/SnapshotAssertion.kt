@@ -16,49 +16,41 @@ private val snapshotRoot: File by lazy {
 }
 
 /**
- * Compare [actual] against a checked-in golden snapshot at
- * `src/test/resources/snapshots/<name>.md`.
+ * Compare a Markdown golden snapshot at `src/test/resources/snapshots/<name>.md`
+ * against the facets declared in [block].
  *
- * The golden is a Markdown document. When [block] is empty (the default) the file
- * is a single fenced code block whose language is [lang] — the minimal form,
- * back-compatible with snapshots authored before the facet DSL existed.
- *
- * When [block] adds facets, the file becomes a multi-section document: [actual]
- * appears under an `## [mainTitle]` heading, followed by one `## <name>` section per
- * facet in declaration order. Fence lengths are computed per section so embedded
- * backtick runs (e.g. cream emits KDoc with ` ```kt ... ``` ` examples) never
- * collide with the wrapping. Comparison stays whole-file, so any drift in headings
- * or fences is also caught.
- *
- * Pass `lang = "kt"` (the default) for Kotlin source. Pass `lang = "text"` for
- * compiler output, stack traces, or anything else that is not valid Kotlin. Each
- * facet may carry its own [SnapshotFacetBuilder.facet] `lang`.
+ * Every captured value is a facet — there is no special "main" content. Each facet
+ * becomes a `## <facet name>` section in declaration order, followed by a single
+ * fenced code block. Fence lengths are computed per section so embedded backtick
+ * runs (e.g. cream emits KDoc with ` ```kt ... ``` ` examples) never collide with
+ * the wrapping. Comparison is whole-file (headings + fences included), so any drift
+ * in the wrapping itself is also caught.
  *
  * ```kt
- * assertMatchesSnapshot("MyTest.scenario", result.generatedSourceText()) {
- *     "Input" facetOf result.inputSourceText()
+ * assertMatchesSnapshot("MyTest.scenario") {
+ *     "Output" facetOf result.generatedSourceText()
+ *     "Input" facetOf source
  *     facet("Compiler messages", result.messages, lang = "text")
  * }
  * ```
+ *
+ * At least one facet is required. The infix [SnapshotFacetBuilder.facetOf] form
+ * defaults `lang` to `"kt"`; use [SnapshotFacetBuilder.facet] to pick a different
+ * fence language.
  */
 internal fun assertMatchesSnapshot(
     name: String,
-    actual: String,
-    lang: String = "kt",
-    mainTitle: String = "Generated",
-    block: SnapshotFacetBuilder.() -> Unit = {},
+    block: SnapshotFacetBuilder.() -> Unit,
 ) {
     val builder = SnapshotFacetBuilderImpl()
     builder.block()
     val facets = builder.build()
+    require(facets.isNotEmpty()) {
+        "assertMatchesSnapshot(\"$name\") requires at least one facet inside its block."
+    }
 
     val file = File(snapshotRoot, "$name.md")
-    val normalizedActual =
-        if (facets.isEmpty()) {
-            renderSingleSection(actual, lang)
-        } else {
-            renderMultiSection(actual, lang, mainTitle, facets)
-        }
+    val normalizedActual = renderFacets(facets)
 
     if (!file.exists()) {
         if (updateSnapshots) {
@@ -96,12 +88,12 @@ internal fun assertMatchesSnapshot(
 }
 
 /**
- * Builder for the optional facets block of [assertMatchesSnapshot]. Each facet
- * becomes a `## <name>` section in the golden file, in declaration order.
+ * Builder for the facets block of [assertMatchesSnapshot]. Each facet becomes a
+ * `## <name>` section in the golden file, in declaration order.
  */
 internal interface SnapshotFacetBuilder {
     /**
-     * Add a facet whose language is `kt`. Equivalent to `facet(this, content)`.
+     * Add a facet whose fence language is `kt`. Equivalent to `facet(this, content)`.
      * Use the long form [facet] when a non-Kotlin language is needed.
      */
     infix fun String.facetOf(content: String)
@@ -138,22 +130,11 @@ private data class Facet(
     val lang: String,
 )
 
-private fun renderSingleSection(
-    content: String,
-    lang: String,
-): String = renderFencedBlock(content, lang) + "\n"
-
-private fun renderMultiSection(
-    main: String,
-    mainLang: String,
-    mainTitle: String,
-    facets: List<Facet>,
-): String =
+private fun renderFacets(facets: List<Facet>): String =
     buildString {
-        append("## ").append(mainTitle).append("\n\n")
-        append(renderFencedBlock(main, mainLang)).append('\n')
-        for (facet in facets) {
-            append("\n## ").append(facet.name).append("\n\n")
+        for ((index, facet) in facets.withIndex()) {
+            if (index > 0) append('\n')
+            append("## ").append(facet.name).append("\n\n")
             append(renderFencedBlock(facet.content, facet.lang)).append('\n')
         }
     }
