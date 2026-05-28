@@ -30,6 +30,7 @@ import kotlin.reflect.KClass
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS)
 annotation class CopyFrom(
     vararg val sources: KClass<*>,
+    val kdoc: KDoc = KDoc(),
 ) {
     @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE_PARAMETER)
     annotation class Map(

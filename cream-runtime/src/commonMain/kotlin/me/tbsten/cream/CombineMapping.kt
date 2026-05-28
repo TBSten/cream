@@ -92,6 +92,7 @@ annotation class CombineMapping(
     val sources: Array<KClass<*>>,
     val target: KClass<*>,
     val properties: Array<Map> = [],
+    val kdoc: KDoc = KDoc(),
 ) {
     /**
      * Defines a property name mapping between a source class and the target class.

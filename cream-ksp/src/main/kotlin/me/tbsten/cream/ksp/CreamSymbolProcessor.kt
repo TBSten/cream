@@ -38,12 +38,16 @@ import java.io.BufferedWriter
  * @property targetClass The target class for the mapping
  * @property canReverse Whether bidirectional mapping is enabled
  * @property propertyMappings List of property name mappings (source property name -> target property name)
+ * @property kdocDescription User-provided KDoc description (from `kdoc.description`)
+ * @property kdocExamples User-provided KDoc examples (from `kdoc.examples`)
  */
 private data class CopyMappingInfo(
     val sourceClass: KSClassDeclaration,
     val targetClass: KSClassDeclaration,
     val canReverse: Boolean,
     val propertyMappings: List<Pair<String, String>>,
+    val kdocDescription: String,
+    val kdocExamples: List<String>,
 )
 
 /**
@@ -52,12 +56,41 @@ private data class CopyMappingInfo(
  * @property sourceClasses The source classes to combine from (at least 2 sources)
  * @property targetClass The target class for the mapping
  * @property propertyMappings List of property name mappings (source property name -> target property name)
+ * @property kdocDescription User-provided KDoc description (from `kdoc.description`)
+ * @property kdocExamples User-provided KDoc examples (from `kdoc.examples`)
  */
 private data class CombineMappingInfo(
     val sourceClasses: List<KSClassDeclaration>,
     val targetClass: KSClassDeclaration,
     val propertyMappings: List<Pair<String, String>>,
+    val kdocDescription: String,
+    val kdocExamples: List<String>,
 )
+
+/**
+ * Extract `kdoc` argument (a [me.tbsten.cream.KDoc] annotation instance) into a
+ * (description, examples) pair. Returns empty when the argument is absent or empty.
+ */
+private fun KSAnnotation.extractKDoc(): Pair<String, List<String>> {
+    val kdocAnnotation =
+        arguments
+            .firstOrNull { it.name?.asString() == "kdoc" }
+            ?.value as? KSAnnotation
+            ?: return "" to emptyList()
+    val description =
+        kdocAnnotation.arguments
+            .firstOrNull { it.name?.asString() == "description" }
+            ?.value as? String
+            ?: ""
+    val examples =
+        (
+            kdocAnnotation.arguments
+                .firstOrNull { it.name?.asString() == "examples" }
+                ?.value as? List<*>
+        )?.filterIsInstance<String>()
+            ?: emptyList()
+    return description to examples
+}
 
 class CreamSymbolProcessor(
     options: Map<String, String>,
@@ -108,15 +141,19 @@ class CreamSymbolProcessor(
                     )
             val targetClass = targetDeclaration.requireClassDeclaration(annotationName = CopyFrom::class.simpleName!!)
 
-            // CopyFrom.sources: List<KClass<*>>
-            val sourceClasses =
+            val copyFromAnnotations =
                 target
                     .annotations
                     .filter {
                         it.annotationType
                             .resolve()
                             .declaration.fullName == CopyFrom::class.qualifiedName
-                    }.flatMap {
+                    }
+
+            // CopyFrom.sources: List<KClass<*>>
+            val sourceClasses =
+                copyFromAnnotations
+                    .flatMap {
                         it.arguments
                             .filter { it.name?.asString() == "sources" }
                             .map { it.value }
@@ -129,6 +166,9 @@ class CreamSymbolProcessor(
                             context = "Specified in @${CopyFrom::class.simpleName}.sources of ${target.fullName}",
                         )
                     }
+
+            val (kdocDescription, kdocExamples) =
+                copyFromAnnotations.firstOrNull()?.extractKDoc() ?: ("" to emptyList())
 
             codeGenerator
                 .createNewKotlinFile(
@@ -146,7 +186,11 @@ class CreamSymbolProcessor(
                             options = options,
                             omitPackages = listOf("kotlin", targetClass.packageName.asString()),
                             generateSourceAnnotation =
-                                GenerateSourceAnnotation.CopyFrom(annotationTarget = targetDeclaration),
+                                GenerateSourceAnnotation.CopyFrom(
+                                    annotationTarget = targetDeclaration,
+                                    kdocDescription = kdocDescription,
+                                    kdocExamples = kdocExamples,
+                                ),
                             notCopyToObject = false,
                         )
                     }
@@ -172,15 +216,19 @@ class CreamSymbolProcessor(
                     )
             val sourceClass = sourceDeclaration.requireClassDeclaration(annotationName = CopyTo::class.simpleName!!)
 
-            // CopyTo.targets: List<KClass<*>>
-            val targetClasses =
+            val copyToAnnotations =
                 target
                     .annotations
                     .filter {
                         it.annotationType
                             .resolve()
                             .declaration.fullName == CopyTo::class.qualifiedName
-                    }.flatMap {
+                    }
+
+            // CopyTo.targets: List<KClass<*>>
+            val targetClasses =
+                copyToAnnotations
+                    .flatMap {
                         it.arguments
                             .filter { it.name?.asString() == "targets" }
                             .map { it.value }
@@ -193,6 +241,9 @@ class CreamSymbolProcessor(
                             context = "Specified in @${CopyTo::class.simpleName}.targets of ${target.fullName}",
                         )
                     }
+
+            val (kdocDescription, kdocExamples) =
+                copyToAnnotations.firstOrNull()?.extractKDoc() ?: ("" to emptyList())
 
             codeGenerator
                 .createNewKotlinFile(
@@ -211,7 +262,11 @@ class CreamSymbolProcessor(
                             options = options,
                             omitPackages = listOf("kotlin", sourceClass.packageName.asString()),
                             generateSourceAnnotation =
-                                GenerateSourceAnnotation.CopyTo(annotationTarget = sourceDeclaration),
+                                GenerateSourceAnnotation.CopyTo(
+                                    annotationTarget = sourceDeclaration,
+                                    kdocDescription = kdocDescription,
+                                    kdocExamples = kdocExamples,
+                                ),
                             notCopyToObject = false,
                         )
                     }
@@ -263,6 +318,15 @@ class CreamSymbolProcessor(
                         ?: options.notCopyToObject
                 }.getOrDefault(false)
 
+            val (kdocDescription, kdocExamples) =
+                sourceSealedClass.annotations
+                    .firstOrNull {
+                        it.annotationType
+                            .resolve()
+                            .declaration.fullName == CopyToChildren::class.qualifiedName
+                    }?.extractKDoc()
+                    ?: ("" to emptyList())
+
             val targetClasses = sourceSealedClass.getSealedSubclasses()
 
             codeGenerator
@@ -290,7 +354,11 @@ class CreamSymbolProcessor(
                                 ),
                             options = options,
                             generateSourceAnnotation =
-                                GenerateSourceAnnotation.CopyToChildren(annotationTarget = sourceSealedClass),
+                                GenerateSourceAnnotation.CopyToChildren(
+                                    annotationTarget = sourceSealedClass,
+                                    kdocDescription = kdocDescription,
+                                    kdocExamples = kdocExamples,
+                                ),
                             notCopyToObject = notCopyToObject,
                         )
                     }
@@ -300,12 +368,18 @@ class CreamSymbolProcessor(
         return invalidCopyToChildrenTargets
     }
 
-    private class TargetSourcesMapForCombineTo : MutableMap<KSClassDeclaration, MutableList<KSDeclaration>> by mutableMapOf() {
+    private data class CombineToSourceEntry(
+        val sourceDeclaration: KSDeclaration,
+        val kdocDescription: String,
+        val kdocExamples: List<String>,
+    )
+
+    private class TargetSourcesMapForCombineTo : MutableMap<KSClassDeclaration, MutableList<CombineToSourceEntry>> by mutableMapOf() {
         fun put(
             targetClass: KSClassDeclaration,
-            sourceDeclaration: KSDeclaration,
+            entry: CombineToSourceEntry,
         ) {
-            getOrPut(targetClass) { mutableListOf() }.add(sourceDeclaration)
+            getOrPut(targetClass) { mutableListOf() }.add(entry)
         }
     }
 
@@ -328,15 +402,19 @@ class CreamSymbolProcessor(
                     )
             val sourceClass = sourceDeclaration.requireClassDeclaration(annotationName = CombineTo::class.simpleName!!)
 
-            // CombineTo.targets: List<KClass<*>>
-            val targetClasses =
+            val combineToAnnotations =
                 target
                     .annotations
                     .filter {
                         it.annotationType
                             .resolve()
                             .declaration.fullName == CombineTo::class.qualifiedName
-                    }.flatMap {
+                    }
+
+            // CombineTo.targets: List<KClass<*>>
+            val targetClasses =
+                combineToAnnotations
+                    .flatMap {
                         it.arguments
                             .filter { it.name?.asString() == "targets" }
                             .map { it.value }
@@ -350,20 +428,31 @@ class CreamSymbolProcessor(
                         )
                     }
 
+            val (kdocDescription, kdocExamples) =
+                combineToAnnotations.firstOrNull()?.extractKDoc() ?: ("" to emptyList())
+
             // Group source classes by target class
             targetClasses.forEach { targetClass ->
-                targetToSourcesMap.put(targetClass, sourceDeclaration)
+                targetToSourcesMap.put(
+                    targetClass,
+                    CombineToSourceEntry(
+                        sourceDeclaration = sourceDeclaration,
+                        kdocDescription = kdocDescription,
+                        kdocExamples = kdocExamples,
+                    ),
+                )
             }
         }
 
         // For each target class, generate copy functions for each source class
-        targetToSourcesMap.forEach { (targetClass, sourceDeclarations) ->
-            sourceDeclarations.forEach { sourceDeclaration ->
+        targetToSourcesMap.forEach { (targetClass, sourceEntries) ->
+            sourceEntries.forEach { sourceEntry ->
+                val sourceDeclaration = sourceEntry.sourceDeclaration
                 val sourceClass = sourceDeclaration.resolveToClassDeclaration()!!
                 val otherSourceClasses =
-                    sourceDeclarations
-                        .filter { it != sourceDeclaration }
-                        .map { it.resolveToClassDeclaration()!! }
+                    sourceEntries
+                        .filter { it.sourceDeclaration != sourceDeclaration }
+                        .map { it.sourceDeclaration.resolveToClassDeclaration()!! }
 
                 codeGenerator
                     .createNewKotlinFile(
@@ -382,7 +471,11 @@ class CreamSymbolProcessor(
                             options = options,
                             omitPackages = listOf("kotlin", sourceClass.packageName.asString()),
                             generateSourceAnnotation =
-                                GenerateSourceAnnotation.CombineTo(annotationTarget = sourceDeclaration),
+                                GenerateSourceAnnotation.CombineTo(
+                                    annotationTarget = sourceDeclaration,
+                                    kdocDescription = sourceEntry.kdocDescription,
+                                    kdocExamples = sourceEntry.kdocExamples,
+                                ),
                         )
                     }
             }
@@ -407,14 +500,18 @@ class CreamSymbolProcessor(
                     )
             val targetClass = targetDeclaration.requireClassDeclaration(annotationName = CombineFrom::class.simpleName!!)
 
-            val sourceClasses =
+            val combineFromAnnotations =
                 target
                     .annotations
                     .filter {
                         it.annotationType
                             .resolve()
                             .declaration.fullName == CombineFrom::class.qualifiedName
-                    }.flatMap {
+                    }
+
+            val sourceClasses =
+                combineFromAnnotations
+                    .flatMap {
                         it.arguments
                             .filter { it.name?.asString() == "sources" }
                             .map { it.value }
@@ -440,6 +537,9 @@ class CreamSymbolProcessor(
             val primarySource = sourceClasses.first()
             val otherSources = sourceClasses.drop(1)
 
+            val (kdocDescription, kdocExamples) =
+                combineFromAnnotations.firstOrNull()?.extractKDoc() ?: ("" to emptyList())
+
             codeGenerator
                 .createNewKotlinFile(
                     dependencies = Dependencies(aggregating = true, targetDeclaration.containingFile!!),
@@ -457,7 +557,11 @@ class CreamSymbolProcessor(
                         options = options,
                         omitPackages = listOf("kotlin", primarySource.packageName.asString()),
                         generateSourceAnnotation =
-                            GenerateSourceAnnotation.CombineFrom(annotationTarget = targetDeclaration),
+                            GenerateSourceAnnotation.CombineFrom(
+                                annotationTarget = targetDeclaration,
+                                kdocDescription = kdocDescription,
+                                kdocExamples = kdocExamples,
+                            ),
                     )
                 }
         }
@@ -552,7 +656,16 @@ class CreamSymbolProcessor(
                                     solution = "Specify a class in @${CopyMapping::class.simpleName}.target",
                                 )
 
-                        CopyMappingInfo(sourceClass, targetClass, canReverse, propertyMaps)
+                        val (kdocDescription, kdocExamples) = annotation.extractKDoc()
+
+                        CopyMappingInfo(
+                            sourceClass = sourceClass,
+                            targetClass = targetClass,
+                            canReverse = canReverse,
+                            propertyMappings = propertyMaps,
+                            kdocDescription = kdocDescription,
+                            kdocExamples = kdocExamples,
+                        )
                     }
 
             // Group by source class to create one file per source package
@@ -582,6 +695,8 @@ class CreamSymbolProcessor(
                                     GenerateSourceAnnotation.CopyMapping(
                                         annotationTarget = annotatedDeclaration,
                                         propertyMappings = mapping.propertyMappings,
+                                        kdocDescription = mapping.kdocDescription,
+                                        kdocExamples = mapping.kdocExamples,
                                     ),
                                 notCopyToObject = false,
                             )
@@ -600,6 +715,8 @@ class CreamSymbolProcessor(
                                         GenerateSourceAnnotation.CopyMapping(
                                             annotationTarget = annotatedDeclaration,
                                             propertyMappings = reversePropertyMappings,
+                                            kdocDescription = mapping.kdocDescription,
+                                            kdocExamples = mapping.kdocExamples,
                                         ),
                                     notCopyToObject = false,
                                 )
@@ -709,7 +826,15 @@ class CreamSymbolProcessor(
                                     solution = "Specify a class in @${CombineMapping::class.simpleName}.target",
                                 )
 
-                        CombineMappingInfo(sourceClasses, targetClass, propertyMaps)
+                        val (kdocDescription, kdocExamples) = annotation.extractKDoc()
+
+                        CombineMappingInfo(
+                            sourceClasses = sourceClasses,
+                            targetClass = targetClass,
+                            propertyMappings = propertyMaps,
+                            kdocDescription = kdocDescription,
+                            kdocExamples = kdocExamples,
+                        )
                     }
 
             // Group by first source class package to create one file per source package
@@ -747,6 +872,8 @@ class CreamSymbolProcessor(
                                     GenerateSourceAnnotation.CombineMapping(
                                         annotationTarget = annotatedDeclaration,
                                         propertyMappings = mapping.propertyMappings,
+                                        kdocDescription = mapping.kdocDescription,
+                                        kdocExamples = mapping.kdocExamples,
                                     ),
                             )
                         }

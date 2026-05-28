@@ -42,6 +42,7 @@ import kotlin.reflect.KClass
 @Repeatable
 annotation class CombineFrom(
     vararg val sources: KClass<*>,
+    val kdoc: KDoc = KDoc(),
 ) {
     @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE_PARAMETER)
     annotation class Map(

@@ -10,6 +10,7 @@ import me.tbsten.cream.*
  * (Auto generate by @[CopyToChildren] annotation of [State])
  * 
  * State -> State.Initial copy function.
+ * 
  * # Example: Basic
  * 
  * ```kt
