@@ -197,6 +197,14 @@ Unit tests for processor logic (naming strategies, property matching, etc.):
 ./gradlew :cream-ksp:test
 ```
 
+### KSP Compilation Tests (`cream-ksp/src/test/` with kctfork)
+
+JVM-only end-to-end tests built on kctfork live under
+`cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/`. See
+[.claude/rules/ksp-test.md](.claude/rules/ksp-test.md) for the layout
+(`testing/` / `diagnostic/` / `options/` / `snapshot/`), the snapshot
+regeneration command, and how to add new tests.
+
 ## Multiplatform Considerations
 
 **KSP Limitation:** KSP doesn't support intermediate source sets (e.g., `commonMain`) directly. The `test/` module uses a workaround:

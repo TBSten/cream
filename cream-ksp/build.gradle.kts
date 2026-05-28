@@ -9,6 +9,9 @@ kotlin {
         "com.google.devtools.ksp.KspExperimental",
         "me.tbsten.cream.InternalCreamApi",
     )
+    sourceSets.named("test") {
+        languageSettings.optIn("org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi")
+    }
 }
 
 dependencies {
@@ -18,6 +21,15 @@ dependencies {
     implementation(kotlin("reflect"))
     testImplementation(libs.kotlinTest)
     testImplementation(libs.mockk)
+    testImplementation(libs.kctforkCore)
+    testImplementation(libs.kctforkKsp)
+}
+
+tasks.named<Test>("test") {
+    // Allow snapshot regeneration via `-Dcream.snapshot.update=true` on the gradle command line.
+    System.getProperty("cream.snapshot.update")?.let {
+        systemProperty("cream.snapshot.update", it)
+    }
 }
 
 mavenPublishing {
