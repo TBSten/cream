@@ -57,7 +57,13 @@ internal fun compileWithCream(
  * Single-source convenience overload. Equivalent to:
  *
  * ```kt
- * compileWithCream(options) { sourceFileName source source }
+ * compileWithCream(
+ *     """
+ *         @CopyTo(Target::class)
+ *         data class Source(...)
+ *     """,
+ *     options,
+ * )
  * ```
  */
 internal fun compileWithCream(
