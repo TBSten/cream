@@ -10,24 +10,25 @@ import kotlin.test.assertEquals
 internal class SealedSnapshotTest {
     @Test
     fun `copyToChildren sealed interface generates expected source`() {
-        val result =
-            compileWithCream(
-                """
-                package snap.sealed
+        val source =
+            """
+            package snap.sealed
 
-                import me.tbsten.cream.CopyToChildren
+            import me.tbsten.cream.CopyToChildren
 
-                @CopyToChildren
-                sealed interface State {
-                    val id: String
+            @CopyToChildren
+            sealed interface State {
+                val id: String
 
-                    data class Loading(override val id: String) : State
-                    data class Loaded(override val id: String, val payload: Int) : State
-                }
-                """.trimIndent(),
-            )
+                data class Loading(override val id: String) : State
+                data class Loaded(override val id: String, val payload: Int) : State
+            }
+            """.trimIndent()
+        val result = compileWithCream(source)
 
         assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode, result.messages)
-        assertMatchesSnapshot("SealedSnapshotTest.copyToChildren", result.generatedSourceText())
+        assertMatchesSnapshot("SealedSnapshotTest.copyToChildren", result.generatedSourceText()) {
+            "Input" facetOf source
+        }
     }
 }

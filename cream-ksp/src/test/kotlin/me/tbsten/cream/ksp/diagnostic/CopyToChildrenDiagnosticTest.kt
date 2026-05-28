@@ -11,17 +11,16 @@ import kotlin.test.assertNotEquals
 internal class CopyToChildrenDiagnosticTest {
     @Test
     fun `non-sealed class with @CopyToChildren fails compilation`() {
-        val result =
-            compileWithCream(
-                """
-                package diag
+        val source =
+            """
+            package diag
 
-                import me.tbsten.cream.CopyToChildren
+            import me.tbsten.cream.CopyToChildren
 
-                @CopyToChildren
-                class NotSealed(val prop: String)
-                """.trimIndent(),
-            )
+            @CopyToChildren
+            class NotSealed(val prop: String)
+            """.trimIndent()
+        val result = compileWithCream(source)
 
         assertNotEquals(
             KotlinCompilation.ExitCode.OK,
@@ -32,22 +31,24 @@ internal class CopyToChildrenDiagnosticTest {
             "CopyToChildrenDiagnosticTest.nonSealedClass.output",
             result.normalizedCompilerOutput(),
             lang = "text",
-        )
+            mainTitle = "Compiler output",
+        ) {
+            "Input" facetOf source
+        }
     }
 
     @Test
     fun `data class with @CopyToChildren fails compilation`() {
-        val result =
-            compileWithCream(
-                """
-                package diag
+        val source =
+            """
+            package diag
 
-                import me.tbsten.cream.CopyToChildren
+            import me.tbsten.cream.CopyToChildren
 
-                @CopyToChildren
-                data class JustData(val prop: String)
-                """.trimIndent(),
-            )
+            @CopyToChildren
+            data class JustData(val prop: String)
+            """.trimIndent()
+        val result = compileWithCream(source)
 
         assertNotEquals(
             KotlinCompilation.ExitCode.OK,
@@ -58,7 +59,10 @@ internal class CopyToChildrenDiagnosticTest {
             "CopyToChildrenDiagnosticTest.dataClass.output",
             result.normalizedCompilerOutput(),
             lang = "text",
-        )
+            mainTitle = "Compiler output",
+        ) {
+            "Input" facetOf source
+        }
     }
 
     @Test

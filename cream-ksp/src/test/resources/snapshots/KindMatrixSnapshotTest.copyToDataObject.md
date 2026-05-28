@@ -1,3 +1,5 @@
+## Generated
+
 ````kt
 // file: CopyTo__Source.kt
 package snap.kind.classToObject
@@ -21,3 +23,16 @@ import me.tbsten.cream.*
  */
 public fun snap.kind.classToObject.Source.copyToLoaded() = snap.kind.classToObject.Loaded
 ````
+
+## Input
+
+```kt
+package snap.kind.classToObject
+
+import me.tbsten.cream.CopyTo
+
+@CopyTo(Loaded::class)
+data class Source(val id: String)
+
+data object Loaded
+```

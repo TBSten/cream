@@ -10,27 +10,28 @@ import kotlin.test.assertEquals
 internal class BasicSnapshotTest {
     @Test
     fun `copyTo class generates expected source`() {
-        val result =
-            compileWithCream(
-                """
-                package snap.basic
+        val source =
+            """
+            package snap.basic
 
-                import me.tbsten.cream.CopyTo
+            import me.tbsten.cream.CopyTo
 
-                @CopyTo(Target::class)
-                data class Source(
-                    val shared: String,
-                    val onlyOnSource: Int,
-                )
-
-                data class Target(
-                    val shared: String,
-                    val onlyOnTarget: Boolean,
-                )
-                """.trimIndent(),
+            @CopyTo(Target::class)
+            data class Source(
+                val shared: String,
+                val onlyOnSource: Int,
             )
 
+            data class Target(
+                val shared: String,
+                val onlyOnTarget: Boolean,
+            )
+            """.trimIndent()
+        val result = compileWithCream(source)
+
         assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode, result.messages)
-        assertMatchesSnapshot("BasicSnapshotTest.copyTo", result.generatedSourceText())
+        assertMatchesSnapshot("BasicSnapshotTest.copyTo", result.generatedSourceText()) {
+            "Input" facetOf source
+        }
     }
 }

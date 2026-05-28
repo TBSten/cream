@@ -1,3 +1,5 @@
+## Compiler output
+
 ```text
 Invalid cream usage: @CopyToChildren annotation must be applied to a sealed class/interface, but false
 
@@ -10,4 +12,15 @@ Solution:
   
 
 	<stack trace omitted>
+```
+
+## Input
+
+```kt
+package diag
+
+import me.tbsten.cream.CopyToChildren
+
+@CopyToChildren
+data class JustData(val prop: String)
 ```

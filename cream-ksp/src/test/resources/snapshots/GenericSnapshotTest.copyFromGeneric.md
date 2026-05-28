@@ -1,3 +1,5 @@
+## Generated
+
 ````kt
 // file: CopyFrom__Target.kt
 package snap.generic
@@ -35,3 +37,22 @@ public fun <T : Any?> snap.generic.Source<T>.copyToTarget(
     label = label,
 )
 ````
+
+## Input
+
+```kt
+package snap.generic
+
+import me.tbsten.cream.CopyFrom
+
+@CopyFrom(Source::class)
+data class Target<T>(
+    val value: T,
+    val label: String,
+)
+
+data class Source<T>(
+    val value: T,
+    val label: String,
+)
+```

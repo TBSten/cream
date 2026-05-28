@@ -38,7 +38,10 @@ internal class OptionsDiagnosticTest {
             "OptionsDiagnosticTest.invalidCopyFunNamingStrategy.output",
             result.normalizedCompilerOutput(),
             lang = "text",
-        )
+            mainTitle = "Compiler output",
+        ) {
+            "Input" facetOf validSource
+        }
     }
 
     @Test
@@ -58,7 +61,10 @@ internal class OptionsDiagnosticTest {
             "OptionsDiagnosticTest.invalidEscapeDot.output",
             result.normalizedCompilerOutput(),
             lang = "text",
-        )
+            mainTitle = "Compiler output",
+        ) {
+            "Input" facetOf validSource
+        }
     }
 
     @Test

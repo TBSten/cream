@@ -1,3 +1,5 @@
+## Generated
+
 ````kt
 // file: CopyToChildren__State.kt
 package snap.kind.sealedMixed
@@ -51,3 +53,22 @@ public fun  snap.kind.sealedMixed.State.copyToStateLoaded(
     payload = payload,
 )
 ````
+
+## Input
+
+```kt
+package snap.kind.sealedMixed
+
+import me.tbsten.cream.CopyToChildren
+
+@CopyToChildren
+sealed interface State {
+    val id: String
+
+    data object Initial : State {
+        override val id: String get() = "initial"
+    }
+
+    data class Loaded(override val id: String, val payload: Int) : State
+}
+```

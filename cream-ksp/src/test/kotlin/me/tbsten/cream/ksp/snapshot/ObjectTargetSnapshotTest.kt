@@ -28,7 +28,9 @@ internal class ObjectTargetSnapshotTest {
         assertMatchesSnapshot(
             "ObjectTargetSnapshotTest.combineToObject.default",
             result.generatedSourceText(),
-        )
+        ) {
+            "Input" facetOf combineToObjectSource
+        }
     }
 
     @Test
@@ -43,6 +45,8 @@ internal class ObjectTargetSnapshotTest {
         assertMatchesSnapshot(
             "ObjectTargetSnapshotTest.combineToObject.notCopyToObject",
             result.generatedSourceText(),
-        )
+        ) {
+            "Input" facetOf combineToObjectSource
+        }
     }
 }

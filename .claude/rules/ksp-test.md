@@ -31,7 +31,7 @@ paths:
 
 ### Snapshot file format
 
-golden ファイルは `*.md` (Markdown) で、中身は単一の fenced code block:
+golden ファイルは `*.md` (Markdown)。最小形は単一の fenced code block:
 
 ````md
 ```kt
@@ -39,14 +39,40 @@ golden ファイルは `*.md` (Markdown) で、中身は単一の fenced code bl
 ```
 ````
 
-`assertMatchesSnapshot(name, actual, lang)` の `lang` パラメータがフェンス言語を決める
-(default は `kt`)。生成 Kotlin source なら `kt` (default のまま)、コンパイラ出力など
-非 Kotlin テキストは `lang = "text"` を指定する。GitHub diff viewer で syntax highlight が
-効くのが主な狙い。
+`assertMatchesSnapshot(name, actual, lang)` の `lang` でフェンス言語を指定する
+(default `kt`)。コンパイラ出力など非 Kotlin テキストは `lang = "text"` を渡す。
+
+#### Facets (multi-section)
+
+`assertMatchesSnapshot` に block を渡すと、main 部分が `## [mainTitle]` 配下に置かれ、
+block 内で宣言した facet が `## <facet 名>` セクションとして追加される。
+SSoT (test code と snapshot で input を二重管理しない) を保つため、input source は test
+code 側で local val として抽出し、`compileWithCream(...)` と facet の両方に渡す:
+
+```kt
+val source = """
+    @CopyTo(Target::class)
+    data class Source(...)
+""".trimIndent()
+val result = compileWithCream(source)
+
+assertMatchesSnapshot("name", result.generatedSourceText()) {
+    "Input" facetOf source                              // default lang = "kt"
+    facet("KSP options", optionsText, lang = "properties")
+}
+```
+
+infix `facetOf` は default `lang = "kt"`。違う言語を使う facet は `facet(name, content, lang)`
+を使う。facet は宣言順に書き出される。
+
+diagnostic 系では main が compiler output なので `mainTitle = "Compiler output"` を渡す。
+それ以外 (snapshot 系) は default の `"Generated"` のまま。
+
+#### Backtick collision
 
 snapshot 本文に backtick run (例: cream が出す KDoc の ` ```kt ... ``` ` 例) が含まれる
-場合は、外側フェンスは「内部の最長 backtick run + 1」の長さで自動的に拡張される。
-比較は fenced block 全体 (フェンス含む) で行うので、フェンスを直接書き換えると壊れる。
+場合、各セクションのフェンスは独立に「内部の最長 backtick run + 1」の長さで拡張される
+(最小 3)。比較は fenced block 全体 (フェンス含む) で行うので、フェンスを直接書き換えると壊れる。
 
 ### `normalizedCompilerOutput()`
 

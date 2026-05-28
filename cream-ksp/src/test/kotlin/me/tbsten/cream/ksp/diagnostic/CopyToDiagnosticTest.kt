@@ -10,19 +10,18 @@ import kotlin.test.assertNotEquals
 internal class CopyToDiagnosticTest {
     @Test
     fun `@CopyTo targeting an enum class fails compilation`() {
-        val result =
-            compileWithCream(
-                """
-                package diag
+        val source =
+            """
+            package diag
 
-                import me.tbsten.cream.CopyTo
+            import me.tbsten.cream.CopyTo
 
-                enum class Color { RED, BLUE }
+            enum class Color { RED, BLUE }
 
-                @CopyTo(Color::class)
-                data class Source(val name: String)
-                """.trimIndent(),
-            )
+            @CopyTo(Color::class)
+            data class Source(val name: String)
+            """.trimIndent()
+        val result = compileWithCream(source)
 
         assertNotEquals(
             KotlinCompilation.ExitCode.OK,
@@ -33,26 +32,28 @@ internal class CopyToDiagnosticTest {
             "CopyToDiagnosticTest.enumTarget.output",
             result.normalizedCompilerOutput(),
             lang = "text",
-        )
+            mainTitle = "Compiler output",
+        ) {
+            "Input" facetOf source
+        }
     }
 
     @Test
     fun `@CopyTo targeting a non-sealed interface fails compilation`() {
-        val result =
-            compileWithCream(
-                """
-                package diag
+        val source =
+            """
+            package diag
 
-                import me.tbsten.cream.CopyTo
+            import me.tbsten.cream.CopyTo
 
-                interface Plain {
-                    val id: String
-                }
+            interface Plain {
+                val id: String
+            }
 
-                @CopyTo(Plain::class)
-                data class Source(val id: String)
-                """.trimIndent(),
-            )
+            @CopyTo(Plain::class)
+            data class Source(val id: String)
+            """.trimIndent()
+        val result = compileWithCream(source)
 
         assertNotEquals(
             KotlinCompilation.ExitCode.OK,
@@ -63,24 +64,26 @@ internal class CopyToDiagnosticTest {
             "CopyToDiagnosticTest.nonSealedInterface.output",
             result.normalizedCompilerOutput(),
             lang = "text",
-        )
+            mainTitle = "Compiler output",
+        ) {
+            "Input" facetOf source
+        }
     }
 
     @Test
     fun `@CopyTo targeting an annotation class fails compilation`() {
-        val result =
-            compileWithCream(
-                """
-                package diag
+        val source =
+            """
+            package diag
 
-                import me.tbsten.cream.CopyTo
+            import me.tbsten.cream.CopyTo
 
-                annotation class Marker
+            annotation class Marker
 
-                @CopyTo(Marker::class)
-                data class Source(val name: String)
-                """.trimIndent(),
-            )
+            @CopyTo(Marker::class)
+            data class Source(val name: String)
+            """.trimIndent()
+        val result = compileWithCream(source)
 
         assertNotEquals(
             KotlinCompilation.ExitCode.OK,
@@ -91,6 +94,9 @@ internal class CopyToDiagnosticTest {
             "CopyToDiagnosticTest.annotationTarget.output",
             result.normalizedCompilerOutput(),
             lang = "text",
-        )
+            mainTitle = "Compiler output",
+        ) {
+            "Input" facetOf source
+        }
     }
 }

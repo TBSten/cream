@@ -14,110 +14,114 @@ import kotlin.test.assertEquals
 internal class KindMatrixSnapshotTest {
     @Test
     fun `copyTo from data class to data object generates expected source`() {
-        val result =
-            compileWithCream(
-                """
-                package snap.kind.classToObject
+        val source =
+            """
+            package snap.kind.classToObject
 
-                import me.tbsten.cream.CopyTo
+            import me.tbsten.cream.CopyTo
 
-                @CopyTo(Loaded::class)
-                data class Source(val id: String)
+            @CopyTo(Loaded::class)
+            data class Source(val id: String)
 
-                data object Loaded
-                """.trimIndent(),
-            )
+            data object Loaded
+            """.trimIndent()
+        val result = compileWithCream(source)
 
         assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode, result.messages)
         assertMatchesSnapshot(
             "KindMatrixSnapshotTest.copyToDataObject",
             result.generatedSourceText(),
-        )
+        ) {
+            "Input" facetOf source
+        }
     }
 
     @Test
     fun `copyTo from data class to sealed interface expands across subclasses`() {
-        val result =
-            compileWithCream(
-                """
-                package snap.kind.classToSealed
+        val source =
+            """
+            package snap.kind.classToSealed
 
-                import me.tbsten.cream.CopyTo
+            import me.tbsten.cream.CopyTo
 
-                @CopyTo(State::class)
-                data class Source(val id: String)
+            @CopyTo(State::class)
+            data class Source(val id: String)
 
-                sealed interface State {
-                    val id: String
+            sealed interface State {
+                val id: String
 
-                    data class Loading(override val id: String) : State
-                    data class Loaded(override val id: String, val payload: Int) : State
-                }
-                """.trimIndent(),
-            )
+                data class Loading(override val id: String) : State
+                data class Loaded(override val id: String, val payload: Int) : State
+            }
+            """.trimIndent()
+        val result = compileWithCream(source)
 
         assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode, result.messages)
         assertMatchesSnapshot(
             "KindMatrixSnapshotTest.copyToSealedInterface",
             result.generatedSourceText(),
-        )
+        ) {
+            "Input" facetOf source
+        }
     }
 
     @Test
     fun `copyFrom basic data class to data class generates expected source`() {
-        val result =
-            compileWithCream(
-                """
-                package snap.kind.copyFromBasic
+        val source =
+            """
+            package snap.kind.copyFromBasic
 
-                import me.tbsten.cream.CopyFrom
+            import me.tbsten.cream.CopyFrom
 
-                data class Source(
-                    val shared: String,
-                    val onlyOnSource: Int,
-                )
-
-                @CopyFrom(Source::class)
-                data class Target(
-                    val shared: String,
-                    val onlyOnTarget: Boolean,
-                )
-                """.trimIndent(),
+            data class Source(
+                val shared: String,
+                val onlyOnSource: Int,
             )
+
+            @CopyFrom(Source::class)
+            data class Target(
+                val shared: String,
+                val onlyOnTarget: Boolean,
+            )
+            """.trimIndent()
+        val result = compileWithCream(source)
 
         assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode, result.messages)
         assertMatchesSnapshot(
             "KindMatrixSnapshotTest.copyFromBasic",
             result.generatedSourceText(),
-        )
+        ) {
+            "Input" facetOf source
+        }
     }
 
     @Test
     fun `copyToChildren with mixed data class and data object subclasses generates expected source`() {
-        val result =
-            compileWithCream(
-                """
-                package snap.kind.sealedMixed
+        val source =
+            """
+            package snap.kind.sealedMixed
 
-                import me.tbsten.cream.CopyToChildren
+            import me.tbsten.cream.CopyToChildren
 
-                @CopyToChildren
-                sealed interface State {
-                    val id: String
+            @CopyToChildren
+            sealed interface State {
+                val id: String
 
-                    data object Initial : State {
-                        override val id: String get() = "initial"
-                    }
-
-                    data class Loaded(override val id: String, val payload: Int) : State
+                data object Initial : State {
+                    override val id: String get() = "initial"
                 }
-                """.trimIndent(),
-            )
+
+                data class Loaded(override val id: String, val payload: Int) : State
+            }
+            """.trimIndent()
+        val result = compileWithCream(source)
 
         assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode, result.messages)
         assertMatchesSnapshot(
             "KindMatrixSnapshotTest.copyToChildrenMixed",
             result.generatedSourceText(),
-        )
+        ) {
+            "Input" facetOf source
+        }
     }
 }

@@ -1,3 +1,5 @@
+## Generated
+
 ````kt
 // file: CopyFrom__Target.kt
 package snap.kind.copyFromBasic
@@ -35,3 +37,22 @@ public fun  snap.kind.copyFromBasic.Source.copyToTarget(
     onlyOnTarget = onlyOnTarget,
 )
 ````
+
+## Input
+
+```kt
+package snap.kind.copyFromBasic
+
+import me.tbsten.cream.CopyFrom
+
+data class Source(
+    val shared: String,
+    val onlyOnSource: Int,
+)
+
+@CopyFrom(Source::class)
+data class Target(
+    val shared: String,
+    val onlyOnTarget: Boolean,
+)
+```

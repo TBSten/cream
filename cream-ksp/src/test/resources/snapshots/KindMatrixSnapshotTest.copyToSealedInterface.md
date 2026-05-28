@@ -1,3 +1,5 @@
+## Generated
+
 ````kt
 // file: CopyTo__Source.kt
 package snap.kind.classToSealed
@@ -124,3 +126,21 @@ public fun  snap.kind.classToSealed.State.copyToStateLoading(
     id = id,
 )
 ````
+
+## Input
+
+```kt
+package snap.kind.classToSealed
+
+import me.tbsten.cream.CopyTo
+
+@CopyTo(State::class)
+data class Source(val id: String)
+
+sealed interface State {
+    val id: String
+
+    data class Loading(override val id: String) : State
+    data class Loaded(override val id: String, val payload: Int) : State
+}
+```
