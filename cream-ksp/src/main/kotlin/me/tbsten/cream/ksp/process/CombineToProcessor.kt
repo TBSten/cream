@@ -1,0 +1,141 @@
+package me.tbsten.cream.ksp.process
+
+import com.google.devtools.ksp.getAnnotationsByType
+import com.google.devtools.ksp.processing.Dependencies
+import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.symbol.ClassKind
+import com.google.devtools.ksp.symbol.KSAnnotated
+import com.google.devtools.ksp.symbol.KSAnnotation
+import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSDeclaration
+import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.validate
+import me.tbsten.cream.CombineTo
+import me.tbsten.cream.ksp.CreamSymbolProcessor
+import me.tbsten.cream.ksp.GenerateSourceAnnotation
+import me.tbsten.cream.ksp.InvalidCreamUsageException
+import me.tbsten.cream.ksp.transform.appendCombineToFunction
+import me.tbsten.cream.ksp.transform.appendCopyFunction
+import me.tbsten.cream.ksp.util.createNewKotlinFile
+import me.tbsten.cream.ksp.util.extractKDoc
+import me.tbsten.cream.ksp.util.fullName
+import me.tbsten.cream.ksp.util.isSealed
+import me.tbsten.cream.ksp.util.requireClassDeclaration
+import me.tbsten.cream.ksp.util.resolveToClassDeclaration
+import me.tbsten.cream.ksp.util.underPackageName
+
+private data class CombineToSourceEntry(
+    val sourceDeclaration: KSDeclaration,
+    val kdocDescription: String,
+    val kdocExamples: List<String>,
+)
+
+private class TargetSourcesMapForCombineTo : MutableMap<KSClassDeclaration, MutableList<CombineToSourceEntry>> by mutableMapOf() {
+    fun put(
+        targetClass: KSClassDeclaration,
+        entry: CombineToSourceEntry,
+    ) {
+        getOrPut(targetClass) { mutableListOf() }.add(entry)
+    }
+}
+
+internal fun CreamSymbolProcessor.processCombineTo(resolver: Resolver): List<KSAnnotated> {
+    val (combineToTargets, invalidCombineToTargets) =
+        resolver
+            .getSymbolsWithAnnotation(
+                annotationName = CombineTo::class.fullName,
+            ).partition { it.validate() }
+
+    // Group source classes by their target classes
+    val targetToSourcesMap = TargetSourcesMapForCombineTo()
+
+    combineToTargets.forEach { target ->
+        val sourceDeclaration =
+            target as? KSDeclaration
+                ?: throw InvalidCreamUsageException(
+                    message = "@${CombineTo::class.simpleName} must be applied to a class, interface, or typealias.",
+                    solution = "Please apply @${CombineTo::class.simpleName} to `class`, `interface`, or `typealias`",
+                )
+        val sourceClass = sourceDeclaration.requireClassDeclaration(annotationName = CombineTo::class.simpleName!!)
+
+        val combineToAnnotations =
+            target
+                .annotations
+                .filter {
+                    it.annotationType
+                        .resolve()
+                        .declaration.fullName == CombineTo::class.qualifiedName
+                }
+
+        // CombineTo.targets: List<KClass<*>>
+        val targetClasses =
+            combineToAnnotations
+                .flatMap {
+                    it.arguments
+                        .filter { it.name?.asString() == "targets" }
+                        .map { it.value }
+                        .filterIsInstance<List<KSType>>()
+                        .flatten()
+                }.map { it.declaration }
+                .map { declaration ->
+                    declaration.requireClassDeclaration(
+                        annotationName = CombineTo::class.simpleName!!,
+                        context = "Specified in @${CombineTo::class.simpleName}.targets of ${target.fullName}",
+                    )
+                }
+
+        val (kdocDescription, kdocExamples) =
+            combineToAnnotations.firstOrNull()?.extractKDoc() ?: ("" to emptyList())
+
+        // Group source classes by target class
+        targetClasses.forEach { targetClass ->
+            targetToSourcesMap.put(
+                targetClass,
+                CombineToSourceEntry(
+                    sourceDeclaration = sourceDeclaration,
+                    kdocDescription = kdocDescription,
+                    kdocExamples = kdocExamples,
+                ),
+            )
+        }
+    }
+
+    // For each target class, generate copy functions for each source class
+    targetToSourcesMap.forEach { (targetClass, sourceEntries) ->
+        sourceEntries.forEach { sourceEntry ->
+            val sourceDeclaration = sourceEntry.sourceDeclaration
+            val sourceClass = sourceDeclaration.resolveToClassDeclaration()!!
+            val otherSourceClasses =
+                sourceEntries
+                    .filter { it.sourceDeclaration != sourceDeclaration }
+                    .map { it.sourceDeclaration.resolveToClassDeclaration()!! }
+
+            codeGenerator
+                .createNewKotlinFile(
+                    dependencies = Dependencies(aggregating = true, sourceDeclaration.containingFile!!),
+                    packageName = sourceClass.packageName,
+                    fileName = "CombineTo__${sourceClass.underPackageName}__${targetClass.underPackageName}",
+                ) {
+                    it.appendLine("import me.tbsten.cream.*")
+                    it.appendLine()
+
+                    // Generate combine function with multiple sources
+                    it.appendCombineToFunction(
+                        primarySource = sourceClass,
+                        otherSources = otherSourceClasses,
+                        target = targetClass,
+                        options = options,
+                        omitPackages = listOf("kotlin", sourceClass.packageName.asString()),
+                        generateSourceAnnotation =
+                            GenerateSourceAnnotation.CombineTo(
+                                annotationTarget = sourceDeclaration,
+                                kdocDescription = sourceEntry.kdocDescription,
+                                kdocExamples = sourceEntry.kdocExamples,
+                            ),
+                    )
+                }
+        }
+    }
+
+    return invalidCombineToTargets
+}
