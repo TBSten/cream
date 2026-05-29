@@ -16,8 +16,11 @@ import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.transform.appendCombineToFunction
 import me.tbsten.cream.ksp.transform.appendCopyFunction
+import me.tbsten.cream.ksp.util.annotationsOf
+import me.tbsten.cream.ksp.util.classListArgument
 import me.tbsten.cream.ksp.util.createNewKotlinFile
 import me.tbsten.cream.ksp.util.extractKDoc
+import me.tbsten.cream.ksp.util.extractPropertyMappings
 import me.tbsten.cream.ksp.util.fullName
 import me.tbsten.cream.ksp.util.isSealed
 import me.tbsten.cream.ksp.util.requireClassDeclaration
@@ -40,25 +43,13 @@ internal fun CreamSymbolProcessor.processCopyFrom(resolver: Resolver): List<KSAn
                 )
         val targetClass = targetDeclaration.requireClassDeclaration(annotationName = CopyFrom::class.simpleName!!)
 
-        val copyFromAnnotations =
-            target
-                .annotations
-                .filter {
-                    it.annotationType
-                        .resolve()
-                        .declaration.fullName == CopyFrom::class.qualifiedName
-                }
+        val copyFromAnnotations = target.annotationsOf(CopyFrom::class)
 
         // CopyFrom.sources: List<KClass<*>>
         val sourceClasses =
             copyFromAnnotations
-                .flatMap {
-                    it.arguments
-                        .filter { it.name?.asString() == "sources" }
-                        .map { it.value }
-                        .filterIsInstance<List<KSType>>()
-                        .flatten()
-                }.map { it.declaration }
+                .classListArgument("sources")
+                .map { it.declaration }
                 .map { declaration ->
                     declaration.requireClassDeclaration(
                         annotationName = CopyFrom::class.simpleName!!,

@@ -16,8 +16,11 @@ import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.transform.appendCombineToFunction
 import me.tbsten.cream.ksp.transform.appendCopyFunction
+import me.tbsten.cream.ksp.util.annotationsOf
+import me.tbsten.cream.ksp.util.classListArgument
 import me.tbsten.cream.ksp.util.createNewKotlinFile
 import me.tbsten.cream.ksp.util.extractKDoc
+import me.tbsten.cream.ksp.util.extractPropertyMappings
 import me.tbsten.cream.ksp.util.fullName
 import me.tbsten.cream.ksp.util.isSealed
 import me.tbsten.cream.ksp.util.requireClassDeclaration
@@ -58,25 +61,13 @@ internal fun CreamSymbolProcessor.processCombineTo(resolver: Resolver): List<KSA
                 )
         val sourceClass = sourceDeclaration.requireClassDeclaration(annotationName = CombineTo::class.simpleName!!)
 
-        val combineToAnnotations =
-            target
-                .annotations
-                .filter {
-                    it.annotationType
-                        .resolve()
-                        .declaration.fullName == CombineTo::class.qualifiedName
-                }
+        val combineToAnnotations = target.annotationsOf(CombineTo::class)
 
         // CombineTo.targets: List<KClass<*>>
         val targetClasses =
             combineToAnnotations
-                .flatMap {
-                    it.arguments
-                        .filter { it.name?.asString() == "targets" }
-                        .map { it.value }
-                        .filterIsInstance<List<KSType>>()
-                        .flatten()
-                }.map { it.declaration }
+                .classListArgument("targets")
+                .map { it.declaration }
                 .map { declaration ->
                     declaration.requireClassDeclaration(
                         annotationName = CombineTo::class.simpleName!!,

@@ -16,8 +16,11 @@ import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.transform.appendCombineToFunction
 import me.tbsten.cream.ksp.transform.appendCopyFunction
+import me.tbsten.cream.ksp.util.annotationsOf
+import me.tbsten.cream.ksp.util.classListArgument
 import me.tbsten.cream.ksp.util.createNewKotlinFile
 import me.tbsten.cream.ksp.util.extractKDoc
+import me.tbsten.cream.ksp.util.extractPropertyMappings
 import me.tbsten.cream.ksp.util.fullName
 import me.tbsten.cream.ksp.util.isSealed
 import me.tbsten.cream.ksp.util.requireClassDeclaration
@@ -59,12 +62,8 @@ internal fun CreamSymbolProcessor.processCombineMapping(resolver: Resolver): Lis
         // Extract all CombineMapping annotations from the target
         val combineMappings =
             target
-                .annotations
-                .filter {
-                    it.annotationType
-                        .resolve()
-                        .declaration.fullName == CombineMapping::class.qualifiedName
-                }.map { annotation ->
+                .annotationsOf(CombineMapping::class)
+                .map { annotation ->
                     val sourcesTypes =
                         annotation.arguments
                             .firstOrNull { it.name?.asString() == "sources" }
@@ -83,30 +82,7 @@ internal fun CreamSymbolProcessor.processCombineMapping(resolver: Resolver): Lis
                                 solution = "Specify target class in @${CombineMapping::class.simpleName}",
                             )
 
-                    val propertyMappings =
-                        annotation.arguments
-                            .firstOrNull { it.name?.asString() == "properties" }
-                            ?.value as? List<*>
-                            ?: emptyList<Any>()
-
-                    val propertyMaps =
-                        propertyMappings.mapNotNull { mapping ->
-                            val mapAnnotation = mapping as? KSAnnotation ?: return@mapNotNull null
-                            val sourceProperty =
-                                mapAnnotation.arguments
-                                    .firstOrNull { it.name?.asString() == "source" }
-                                    ?.value as? String
-                            val targetProperty =
-                                mapAnnotation.arguments
-                                    .firstOrNull { it.name?.asString() == "target" }
-                                    ?.value as? String
-
-                            if (sourceProperty != null && targetProperty != null) {
-                                sourceProperty to targetProperty
-                            } else {
-                                null
-                            }
-                        }
+                    val propertyMaps = annotation.extractPropertyMappings()
 
                     val sourceClasses =
                         sourcesTypes.mapNotNull { sourceType ->

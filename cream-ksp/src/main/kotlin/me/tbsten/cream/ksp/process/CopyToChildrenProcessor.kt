@@ -16,8 +16,11 @@ import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.transform.appendCombineToFunction
 import me.tbsten.cream.ksp.transform.appendCopyFunction
+import me.tbsten.cream.ksp.util.annotationsOf
+import me.tbsten.cream.ksp.util.classListArgument
 import me.tbsten.cream.ksp.util.createNewKotlinFile
 import me.tbsten.cream.ksp.util.extractKDoc
+import me.tbsten.cream.ksp.util.extractPropertyMappings
 import me.tbsten.cream.ksp.util.fullName
 import me.tbsten.cream.ksp.util.isSealed
 import me.tbsten.cream.ksp.util.requireClassDeclaration
@@ -68,12 +71,10 @@ internal fun CreamSymbolProcessor.processCopyToChildren(resolver: Resolver): Lis
             }.getOrDefault(false)
 
         val (kdocDescription, kdocExamples) =
-            sourceSealedClass.annotations
-                .firstOrNull {
-                    it.annotationType
-                        .resolve()
-                        .declaration.fullName == CopyToChildren::class.qualifiedName
-                }?.extractKDoc()
+            sourceSealedClass
+                .annotationsOf(CopyToChildren::class)
+                .firstOrNull()
+                ?.extractKDoc()
                 ?: ("" to emptyList())
 
         val targetClasses = sourceSealedClass.getSealedSubclasses()
