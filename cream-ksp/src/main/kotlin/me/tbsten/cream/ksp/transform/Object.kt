@@ -71,36 +71,10 @@ private fun BufferedWriter.appendCombineToObjectKDoc(
         generateSourceAnnotation = generateSourceAnnotation,
         seeClasses = sources + target,
         autoDescription = {
-            val sourcesStr = sources.joinToString(" + ") { "[${it.underPackageName}]" }
-            appendLine("$sourcesStr -> [${target.underPackageName}] copy function.")
+            appendCombineAutoDescription(sources, target)
         },
         autoExamples = {
-            val primarySource = sources.first()
-            val otherSourceParams =
-                sources.drop(1).joinToString(", ") {
-                    "${it.underPackageName.replaceFirstChar { c -> c.lowercase() }} = ${it.simpleName.asString()}(...)"
-                }
-            val exampleLines =
-                buildString {
-                    appendLine(
-                        "val ${
-                            primarySource.underPackageName.replaceFirstChar {
-                                it.lowercase()
-                            }
-                        } = ${primarySource.simpleName.asString()}(...)",
-                    )
-                    sources.drop(1).forEach { otherSource ->
-                        appendLine(
-                            "val ${
-                                otherSource.underPackageName.replaceFirstChar {
-                                    it.lowercase()
-                                }
-                            } = ${otherSource.simpleName.asString()}(...)",
-                        )
-                    }
-                    append("val target = ${primarySource.underPackageName.replaceFirstChar { it.lowercase() }}.$funName($otherSourceParams)")
-                }
-            appendExample("Example: Basic", exampleLines)
+            appendExample("Example: Basic", combineExampleBody(sources, funName))
         },
     )
 }
