@@ -460,6 +460,44 @@ fun LibXModel.copyToLibYModel(
 ): LibYModel = ...
 ```
 
+### KDoc
+
+Every source annotation (`@CopyTo`, `@CopyFrom`, `@CopyToChildren`, `@CombineTo`,
+`@CombineFrom`, `@CopyMapping`, `@CombineMapping`) accepts a `kdoc = KDoc(...)`
+parameter that lets you augment the KDoc of the generated function with your own
+notes and examples.
+
+```kt
+@CopyTo(
+    Target::class,
+    kdoc = KDoc(
+        description = "This function should not be used in the case of ~.",
+        examples = [
+            """
+            # Prefer this
+
+            ```kt
+            val target = source.copyToTarget()
+            ```
+            """,
+        ],
+    ),
+)
+data class Source(val shared: String)
+```
+
+The generated KDoc renders sections in this order:
+
+1. Auto-generated header (`(Auto generate by @[...] of [...])`)
+2. Auto-generated description (`Source -> Target copy function.`)
+3. `KDoc.description` (when supplied)
+4. Auto-generated `# Example: Basic` / `# Example: Override property values`
+5. `KDoc.examples` (each entry, rendered verbatim after `trimIndent`)
+6. `@see` references
+
+Each `examples` entry is rendered verbatim — provide your own `# heading` and
+` ```kt ... ``` ` fences inside each entry.
+
 ## 💻 4. Usage Example
 
 The primary use cases for cream.kt are outlined below.

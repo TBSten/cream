@@ -457,6 +457,43 @@ fun LibXModel.copyToLibYModel(
 ): LibYModel = ...
 ```
 
+### KDoc
+
+各ソースアノテーション (`@CopyTo`, `@CopyFrom`, `@CopyToChildren`, `@CombineTo`,
+`@CombineFrom`, `@CopyMapping`, `@CombineMapping`) には `kdoc = KDoc(...)`
+パラメータを指定でき、生成される関数の KDoc に独自の説明や例を追加できます。
+
+```kt
+@CopyTo(
+    Target::class,
+    kdoc = KDoc(
+        description = "この関数は ~ の場合は使わないでください。",
+        examples = [
+            """
+            # 推奨
+
+            ```kt
+            val target = source.copyToTarget()
+            ```
+            """,
+        ],
+    ),
+)
+data class Source(val shared: String)
+```
+
+生成される KDoc は以下の順序でレンダリングされます:
+
+1. 自動生成ヘッダ (`(Auto generate by @[...] of [...])`)
+2. 自動生成の説明行 (`Source -> Target copy function.`)
+3. `KDoc.description` (指定した場合のみ)
+4. 自動生成の `# Example: Basic` / `# Example: Override property values`
+5. `KDoc.examples` (各要素を `trimIndent` した上でそのまま挿入)
+6. `@see` 参照
+
+`examples` の各要素はそのまま挿入されるため、`# 見出し` や
+` ```kt ... ``` ` のフェンスは要素内で自由に記述してください。
+
 ## 💻 4. 利用例
 
 主に想定されている cream.kt のユースケースを以下に示します。

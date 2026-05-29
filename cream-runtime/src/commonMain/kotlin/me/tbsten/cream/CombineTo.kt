@@ -39,6 +39,7 @@ import kotlin.reflect.KClass
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS)
 annotation class CombineTo(
     vararg val targets: KClass<*>,
+    val kdoc: KDoc = KDoc(),
 ) {
     @Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE_PARAMETER)
     annotation class Map(

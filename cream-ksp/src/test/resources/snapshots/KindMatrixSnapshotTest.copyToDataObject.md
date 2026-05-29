@@ -10,6 +10,7 @@ import me.tbsten.cream.*
  * (Auto generate by @[CopyTo] annotation of [Source])
  * 
  * Source -> Loaded copy function.
+ * 
  * # Example: Basic
  * 
  * ```kt
