@@ -639,7 +639,7 @@ ksp {
 | Option name                       | Description                                                                 | Example                                                                  | Default            |
 |-----------------------------------|-----------------------------------------------------------------------------|--------------------------------------------------------------------------|--------------------|
 | **`cream.copyFunNamePrefix`**     | String prefixed to the generated copy function                              | `copyTo`, `transitionTo`, `to`, `mapTo`                                  | `copyTo`           |
-| **`cream.copyFunNamingStrategy`** | Copy function naming conventions.                                           | `under-package`, `diff-parent`, `simple-name`, `full-name`, `inner-name` | `under-package`    |
+| **`cream.copyFunNamingStrategy`** | Copy function naming conventions.                                           | `under-package`, `diff`, `simple-name`, `full-name`, `inner-name` | `under-package`    |
 | **`cream.escapeDot`**             | How to escape `. ` in the name given by `cream.copyFunNamingStrategy`.      | `replace-to-underscore`, `pascal-case`, `backquote`                      | `lower-camel-case` |
 | **`cream.notCopyToObject`**       | If `true`, @CopyToChildren will not generate a copy function to the object. | `true` , `false`                                                         | `false`            |
 
@@ -656,7 +656,7 @@ Set a straightforward string that describes the copy or state transition, such a
 
 | Default         | `under-package`                                                                 |
 |-----------------|---------------------------------------------------------------------------------|
-| Possible values | One of `under-package`, `diff-parent`, `simple-name`, `full-name`, `inner-name` |
+| Possible values | One of `under-package`, `diff`, `simple-name`, `full-name`, `inner-name` |
 
 How to set the class name string after the prefix of the copy function. The following table shows
 the supported configuration methods.
@@ -666,7 +666,7 @@ to [issue](https://github.com/TBSten/cream/issues?q=sort%3Aupdated-desc+is%3Aiss
 | Value           | Description                                                                                                         | Example of generating a copy function that transitions from `com.example.Aaa.Bbb` -> `com.example.Aaa.Bbb.Ccc.Ddd`. |
 |-----------------|---------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|
 | `under-package` | Use names that reflect the package hierarchy.                                                                       | Hoge.Fuga.copyTo **`Aaa.Bbb.Ccc.Ddd`** (...)                                                                        |
-| `diff-parent`   | Use a name that includes only the difference from the transition source class.                                      | Hoge.Fuga.copyTo **`CccDdd`** (...)                                                                                 |
+| `diff`          | Use a name that includes only the difference from the transition source class.                                      | Hoge.Fuga.copyTo **`CccDdd`** (...)                                                                                 |
 | `simple-name`   | Transition destination class::class.simpleName.                                                                     | Hoge.Fuga.copyTo **`Ddd`** (...)                                                                                    |
 | `full-name`     | Target class::class.qualifiedName.                                                                                  | Hoge.Fuga.copyTo **`ComExampleAaaBbbCccDdd`** (...)                                                                 |
 | `inner-name`    | Use the class name from the second level of the nested class onward. (Same as `simple-name` for non-nested classes) | Hoge.Fuga.copyTo **`BbbCccDdd`** (...)                                                                              |
