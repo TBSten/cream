@@ -33,7 +33,7 @@ MyUiState.Success(
 // With cream.kt
 // (toSuccess is generated automatically)
 // ✅ A quick glance at the data added
-prevState.toSuccess(data = newData)  // automatic copy
+prevState.copyToSuccess(data = newData)  // automatic copy
 ```
 
 ## 🤔 1. Motivation
@@ -84,7 +84,7 @@ Using cream.kt, the previous code can be simplified as follows:
 val prevState: MyUiState.Loading = TODO()
 val loadedData: List<String> = TODO()
 
-prevState.toStable(
+prevState.copyToStable(
     loadedData = loadedData,
 )
 ```
@@ -258,6 +258,104 @@ fun UiState.copyToUiStateSuccessRefreshing(
 
 This is much easier than specifying @CopyTo for each sealed class/interface.
 
+### SealedCopy
+
+When applied to a sealed class/interface, generates a `copy()` extension on the
+sealed parent that preserves the original subtype while updating shared abstract properties.
+
+Unlike `@CopyToChildren` (which generates per-child copy functions whose return type is the
+child), `@SealedCopy` keeps the parent type as both receiver and return type.
+
+```kt
+@SealedCopy
+sealed interface MyState {
+    val name: String
+    val count: Int
+
+    data class Loading(override val name: String, override val count: Int) : MyState
+    data class Success(
+        override val name: String,
+        override val count: Int,
+        val data: String,
+    ) : MyState
+}
+```
+
+<details>
+<summary> Generated code </summary>
+
+```kt
+fun MyState.copy(
+    name: String = this.name,
+    count: Int = this.count,
+): MyState = when (this) {
+    is MyState.Loading -> this.copy(name = name, count = count)
+    is MyState.Success -> this.copy(name = name, count = count)
+}
+```
+
+</details>
+
+```kt
+// usage
+val state: MyState = MyState.Loading("a", 1)
+val updated: MyState = state.copy(name = "b")  // MyState.Loading("b", 1)
+```
+
+By default, an `object` subtype (or a non-data class without a compatible `copy(...)`) is
+treated as non-copyable and triggers a compile-time error (`nonCopyableStrategy = ERROR`).
+Change `nonCopyableStrategy` to control how non-copyable subtypes are handled.
+
+<details>
+<summary> <code>nonCopyableStrategy = RETURN_AS_IS</code> </summary>
+
+Returns the instance **unchanged** (`-> this`) when it cannot be copied.
+
+```kt
+@SealedCopy(nonCopyableStrategy = NonCopyableStrategy.RETURN_AS_IS)
+sealed interface MyState {
+    val name: String
+
+    data class Loading(override val name: String) : MyState
+    data object Empty : MyState { override val name: String = "" }
+}
+
+// Generated code
+fun MyState.copy(
+    name: String = this.name,
+): MyState = when (this) {
+    is MyState.Empty -> this  // non-copyable: returned as-is
+    is MyState.Loading -> this.copy(name = name)
+}
+```
+
+</details>
+
+<details>
+<summary> <code>nonCopyableStrategy = RETURN_NULL</code> </summary>
+
+Returns **null** when it cannot be copied. The generated function's return type widens to `MyState?`.
+
+```kt
+@SealedCopy(nonCopyableStrategy = NonCopyableStrategy.RETURN_NULL)
+sealed interface MyState {
+    val name: String
+
+    data class Loading(override val name: String) : MyState
+    data object Empty : MyState { override val name: String = "" }
+}
+
+// Generated code
+fun MyState.copy(
+    name: String = this.name,
+): MyState? = when (this) {
+    is MyState.Empty -> null  // non-copyable: null
+    is MyState.Loading -> this.copy(name = name)
+}
+```
+
+</details>
+
 ### CombineTo
 
 Use `@CombineTo` to generate copy functions **from multiple source classes to a single target class**.
@@ -332,11 +430,13 @@ Both `@CombineTo` and `@CombineFrom` generate the same functions, but differ in 
 - Use `@CombineTo` if you can modify the source side
 - Use `@CombineFrom` if you can modify the target side
 
-### CopyTo.Map, CopyFrom.Map
+### CopyTo.Map, CopyFrom.Map, CombineTo.Map, CombineFrom.Map
 
-You can use `@CopyTo.Map` and `@CopyFrom.Map` to map properties between source and target
-classes when their property names differ. This is useful for cases where the property names are not
-the same but you want to copy values between them.
+You can use `@CopyTo.Map`, `@CopyFrom.Map`, `@CombineTo.Map`, and `@CombineFrom.Map` to map
+properties between source and target classes. This is useful when the property names differ
+between the source and target but you want to copy values between them.
+
+#### CopyTo.Map / CopyFrom.Map
 
 ```kt
 @CopyTo(DataModel::class)
@@ -372,7 +472,7 @@ fun DataModel.copyToDomainModel(
 )
 ```
 
-### CombineTo.Map, CombineFrom.Map
+#### CombineTo.Map / CombineFrom.Map
 
 `@CombineTo.Map` and `@CombineFrom.Map` can also be used for property mapping when copying from multiple source classes to a single target class.
 
@@ -462,8 +562,8 @@ fun LibXModel.copyToLibYModel(
 
 ### KDoc
 
-Every source annotation (`@CopyTo`, `@CopyFrom`, `@CopyToChildren`, `@CombineTo`,
-`@CombineFrom`, `@CopyMapping`, `@CombineMapping`) accepts a `kdoc = KDoc(...)`
+Every source annotation (`@CopyTo`, `@CopyFrom`, `@CopyToChildren`, `@SealedCopy`,
+`@CombineTo`, `@CombineFrom`, `@CopyMapping`, `@CombineMapping`) accepts a `kdoc = KDoc(...)`
 parameter that lets you augment the KDoc of the generated function with your own
 notes and examples.
 
