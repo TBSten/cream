@@ -41,12 +41,17 @@ package me.tbsten.cream
  *
  * @property notCopyToObject When `true`, skip generating copy functions whose target
  *   child is an `object` (those would just return the singleton). Defaults to `false`.
+ * @property visibility Visibility modifier applied to every generated per-child copy
+ *   function. Defaults to [CopyVisibility.INHERIT], which keeps cream's existing behaviour
+ *   (each function inherits its target child's visibility).
  *
  * @see SealedCopy
  * @see CopyTo
+ * @see CopyVisibility
  */
 @Target(AnnotationTarget.CLASS)
 annotation class CopyToChildren(
     val notCopyToObject: Boolean = false,
     val kdoc: KDoc = KDoc(),
+    val visibility: CopyVisibility = CopyVisibility.INHERIT,
 )

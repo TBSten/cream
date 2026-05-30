@@ -1,6 +1,7 @@
 package me.tbsten.cream.ksp.transform
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import me.tbsten.cream.CopyVisibility
 import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.options.CreamOptions
 import java.io.BufferedWriter
@@ -12,6 +13,7 @@ internal fun BufferedWriter.appendCopyToSealedClassFunction(
     options: CreamOptions,
     generateSourceAnnotation: GenerateSourceAnnotation<*>,
     notCopyToObject: Boolean,
+    visibility: CopyVisibility = CopyVisibility.INHERIT,
 ) {
     targetClass.getSealedSubclasses().forEach { subclass ->
         appendCopyFunction(
@@ -21,6 +23,7 @@ internal fun BufferedWriter.appendCopyToSealedClassFunction(
             generateSourceAnnotation,
             options,
             notCopyToObject,
+            visibility,
         )
     }
 
@@ -32,6 +35,7 @@ internal fun BufferedWriter.appendCopyToSealedClassFunction(
             generateSourceAnnotation,
             options,
             notCopyToObject,
+            visibility,
             generateTargetToSealedSubclasses = false,
         )
     }

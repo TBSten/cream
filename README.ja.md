@@ -592,6 +592,37 @@ data class Source(val shared: String)
 `examples` の各要素はそのまま挿入されるため、`# 見出し` や
 ` ```kt ... ``` ` のフェンスは要素内で自由に記述してください。
 
+### Visibility (可視性)
+
+デフォルトでは、生成される copy 関数は生成元となる target (または sealed) 宣言の可視性を引き継ぎます。
+特定の可視性を強制したい場合は、copy を生成する各アノテーション (`@CopyTo` / `@CopyFrom` /
+`@CopyToChildren` / `@SealedCopy` / `@CombineTo` / `@CombineFrom`) に
+`visibility = CopyVisibility.<...>` を渡します。
+
+```kt
+@CopyTo(MergedState::class, visibility = CopyVisibility.INTERNAL)
+data class ServerState(val shared: String)
+
+// 自動生成
+internal fun ServerState.copyToMergedState(
+    shared: String = this.shared,
+    /* ... */
+): MergedState = ...
+```
+
+`CopyVisibility` には以下の値があります。生成される copy 関数はトップレベルの拡張関数なので、
+使用可能なままになる修飾子だけを提供しています。`private` (生成されたファイル内でしか見えない) や
+`protected` (トップレベル宣言には付けられない) は生成された関数を使えなくしてしまうため、
+意図的に提供していません。
+
+| 値 | 生成される修飾子 |
+|----|------------------|
+| `INHERIT` (デフォルト) | target/sealed 宣言の可視性を引き継ぐ (このオプション追加前の挙動) |
+| `PUBLIC` | `public` |
+| `INTERNAL` | `internal` |
+
+`visibility` を省略した場合は完全に後方互換であり、これまで生成されていたコードは変わりません。
+
 ## 💻 4. 利用例
 
 主に想定されている cream.kt のユースケースを以下に示します。

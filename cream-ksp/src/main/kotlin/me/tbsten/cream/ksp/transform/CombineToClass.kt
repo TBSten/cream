@@ -3,6 +3,7 @@ package me.tbsten.cream.ksp.transform
 import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSTypeParameter
+import me.tbsten.cream.CopyVisibility
 import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.UnknownCreamException
 import me.tbsten.cream.ksp.options.CreamOptions
@@ -11,8 +12,8 @@ import me.tbsten.cream.ksp.util.asString
 import me.tbsten.cream.ksp.util.fullName
 import me.tbsten.cream.ksp.util.isCountMoreThan
 import me.tbsten.cream.ksp.util.lines
+import me.tbsten.cream.ksp.util.toModifierString
 import me.tbsten.cream.ksp.util.underPackageName
-import me.tbsten.cream.ksp.util.visibilityStr
 import java.io.BufferedWriter
 
 internal fun BufferedWriter.appendCombineToClassFunction(
@@ -22,6 +23,7 @@ internal fun BufferedWriter.appendCombineToClassFunction(
     generateSourceAnnotation: GenerateSourceAnnotation<*>,
     omitPackages: List<String>,
     options: CreamOptions,
+    visibility: CopyVisibility = CopyVisibility.INHERIT,
 ) {
     val allSources = listOf(primarySource) + otherSources
 
@@ -36,7 +38,7 @@ internal fun BufferedWriter.appendCombineToClassFunction(
         val funName = copyFunctionName(primarySource, targetClass, options)
         appendCombineToClassKDoc(allSources, targetClass, generateSourceAnnotation, funName.toString())
 
-        append("${targetClass.visibilityStr} fun ")
+        append("${visibility.toModifierString(targetClass)} fun ")
         if (typeParameters.isNotEmpty()) {
             append("<")
             append(

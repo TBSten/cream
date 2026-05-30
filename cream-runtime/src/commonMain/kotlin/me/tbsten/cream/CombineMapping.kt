@@ -80,10 +80,14 @@ import kotlin.reflect.KClass
  * @param sources The source classes to combine from (must have at least 2 sources)
  * @param target The target class to combine to
  * @param properties Property mappings that define how to map properties with different names between sources and target.
+ * @param visibility Visibility modifier of the generated copy function. Defaults to
+ *   [CopyVisibility.INHERIT], which keeps cream's existing behaviour (the function inherits
+ *   the target class's visibility).
  *
  * @see CombineTo
  * @see CombineFrom
  * @see CopyMapping
+ * @see CopyVisibility
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS)
 @Retention(AnnotationRetention.SOURCE)
@@ -93,6 +97,7 @@ annotation class CombineMapping(
     val target: KClass<*>,
     val properties: Array<Map> = [],
     val kdoc: KDoc = KDoc(),
+    val visibility: CopyVisibility = CopyVisibility.INHERIT,
 ) {
     /**
      * Defines a property name mapping between a source class and the target class.

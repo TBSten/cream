@@ -2,6 +2,7 @@ package me.tbsten.cream.ksp.transform
 
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import me.tbsten.cream.CopyVisibility
 import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.options.CreamOptions
@@ -16,6 +17,7 @@ internal fun BufferedWriter.appendCopyFunction(
     generateSourceAnnotation: GenerateSourceAnnotation<*>,
     options: CreamOptions,
     notCopyToObject: Boolean,
+    visibility: CopyVisibility = CopyVisibility.INHERIT,
     generateTargetToSealedSubclasses: Boolean = true,
 ) {
     when (target.classKind) {
@@ -26,11 +28,12 @@ internal fun BufferedWriter.appendCopyFunction(
                 generateSourceAnnotation,
                 omitPackages,
                 options,
+                visibility,
             )
 
         ClassKind.OBJECT ->
             if (!notCopyToObject) {
-                appendCopyToObjectFunction(source, target, generateSourceAnnotation, options)
+                appendCopyToObjectFunction(source, target, generateSourceAnnotation, options, visibility)
             }
 
         ClassKind.INTERFACE -> {
@@ -43,6 +46,7 @@ internal fun BufferedWriter.appendCopyFunction(
                         options,
                         generateSourceAnnotation,
                         notCopyToObject,
+                        visibility,
                     )
                 } else {
                     // no op
@@ -76,6 +80,7 @@ internal fun BufferedWriter.appendCombineToFunction(
     omitPackages: List<String>,
     generateSourceAnnotation: GenerateSourceAnnotation<*>,
     options: CreamOptions,
+    visibility: CopyVisibility = CopyVisibility.INHERIT,
 ) {
     when (target.classKind) {
         ClassKind.CLASS,
@@ -88,6 +93,7 @@ internal fun BufferedWriter.appendCombineToFunction(
                 generateSourceAnnotation,
                 omitPackages,
                 options,
+                visibility,
             )
 
         ClassKind.OBJECT ->
@@ -98,6 +104,7 @@ internal fun BufferedWriter.appendCombineToFunction(
                     target,
                     generateSourceAnnotation,
                     options,
+                    visibility,
                 )
             }
 

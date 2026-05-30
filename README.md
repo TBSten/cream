@@ -598,6 +598,37 @@ The generated KDoc renders sections in this order:
 Each `examples` entry is rendered verbatim — provide your own `# heading` and
 ` ```kt ... ``` ` fences inside each entry.
 
+### Visibility
+
+By default the generated copy function inherits the visibility of the target (or sealed)
+declaration it is derived from. Pass `visibility = CopyVisibility.<...>` to the copy-generating
+annotations (`@CopyTo`, `@CopyFrom`, `@CopyToChildren`, `@SealedCopy`, `@CombineTo`,
+`@CombineFrom`) to force a specific visibility instead.
+
+```kt
+@CopyTo(MergedState::class, visibility = CopyVisibility.INTERNAL)
+data class ServerState(val shared: String)
+
+// auto generate
+internal fun ServerState.copyToMergedState(
+    shared: String = this.shared,
+    /* ... */
+): MergedState = ...
+```
+
+`CopyVisibility` has the following values. Generated copy functions are top-level extension
+functions, so only modifiers that keep them usable are offered. `private` (visible only inside
+the generated file) and `protected` (not valid on top-level declarations) would make the
+generated function unusable, so they are intentionally not provided:
+
+| Value | Generated modifier |
+|-------|--------------------|
+| `INHERIT` (default) | Inherits the target/sealed declaration's visibility (cream's behaviour before this option existed) |
+| `PUBLIC` | `public` |
+| `INTERNAL` | `internal` |
+
+Omitting `visibility` is fully backward compatible — it keeps the previously generated code unchanged.
+
 ## 💻 4. Usage Example
 
 The primary use cases for cream.kt are outlined below.

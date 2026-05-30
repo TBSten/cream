@@ -11,6 +11,7 @@ import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CopyToChildren
+import me.tbsten.cream.CopyVisibility
 import me.tbsten.cream.ksp.CreamSymbolProcessor
 import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
@@ -18,6 +19,7 @@ import me.tbsten.cream.ksp.transform.appendCombineToFunction
 import me.tbsten.cream.ksp.transform.appendCopyFunction
 import me.tbsten.cream.ksp.util.annotationsOf
 import me.tbsten.cream.ksp.util.classListArgument
+import me.tbsten.cream.ksp.util.copyVisibilityArgument
 import me.tbsten.cream.ksp.util.createNewKotlinFile
 import me.tbsten.cream.ksp.util.extractKDoc
 import me.tbsten.cream.ksp.util.extractPropertyMappings
@@ -70,12 +72,16 @@ internal fun CreamSymbolProcessor.processCopyToChildren(resolver: Resolver): Lis
                     ?: options.notCopyToObject
             }.getOrDefault(false)
 
+        val copyToChildrenAnnotation =
+            sourceSealedClass.annotationsOf(CopyToChildren::class).firstOrNull()
+
         val (kdocDescription, kdocExamples) =
-            sourceSealedClass
-                .annotationsOf(CopyToChildren::class)
-                .firstOrNull()
+            copyToChildrenAnnotation
                 ?.extractKDoc()
                 ?: ("" to emptyList())
+
+        val visibility =
+            copyToChildrenAnnotation?.copyVisibilityArgument() ?: CopyVisibility.INHERIT
 
         val targetClasses = sourceSealedClass.getSealedSubclasses()
 
@@ -110,6 +116,7 @@ internal fun CreamSymbolProcessor.processCopyToChildren(resolver: Resolver): Lis
                                 kdocExamples = kdocExamples,
                             ),
                         notCopyToObject = notCopyToObject,
+                        visibility = visibility,
                     )
                 }
             }

@@ -11,6 +11,7 @@ import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CombineFrom
+import me.tbsten.cream.CopyVisibility
 import me.tbsten.cream.ksp.CreamSymbolProcessor
 import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
@@ -18,6 +19,7 @@ import me.tbsten.cream.ksp.transform.appendCombineToFunction
 import me.tbsten.cream.ksp.transform.appendCopyFunction
 import me.tbsten.cream.ksp.util.annotationsOf
 import me.tbsten.cream.ksp.util.classListArgument
+import me.tbsten.cream.ksp.util.copyVisibilityArgument
 import me.tbsten.cream.ksp.util.createNewKotlinFile
 import me.tbsten.cream.ksp.util.extractKDoc
 import me.tbsten.cream.ksp.util.extractPropertyMappings
@@ -71,6 +73,9 @@ internal fun CreamSymbolProcessor.processCombineFrom(resolver: Resolver): List<K
         val (kdocDescription, kdocExamples) =
             combineFromAnnotations.firstOrNull()?.extractKDoc() ?: ("" to emptyList())
 
+        val visibility =
+            combineFromAnnotations.firstOrNull()?.copyVisibilityArgument() ?: CopyVisibility.INHERIT
+
         codeGenerator
             .createNewKotlinFile(
                 dependencies = Dependencies(aggregating = true, targetDeclaration.containingFile!!),
@@ -93,6 +98,7 @@ internal fun CreamSymbolProcessor.processCombineFrom(resolver: Resolver): List<K
                             kdocDescription = kdocDescription,
                             kdocExamples = kdocExamples,
                         ),
+                    visibility = visibility,
                 )
             }
     }

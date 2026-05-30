@@ -79,9 +79,13 @@ package me.tbsten.cream
  *   [NonCopyableStrategy.ERROR].
  * @property kdoc Custom KDoc (description / examples) injected into the generated
  *   function's KDoc, the same way as cream's other source annotations. See [KDoc].
+ * @property visibility Visibility modifier of the generated extension function. Defaults to
+ *   [CopyVisibility.INHERIT], which keeps cream's existing behaviour (the function inherits
+ *   the sealed type's visibility).
  *
  * @see CopyToChildren
  * @see NonCopyableStrategy
+ * @see CopyVisibility
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.SOURCE)
@@ -90,6 +94,7 @@ annotation class SealedCopy(
     val funName: String = "copy",
     val nonCopyableStrategy: NonCopyableStrategy = NonCopyableStrategy.ERROR,
     val kdoc: KDoc = KDoc(),
+    val visibility: CopyVisibility = CopyVisibility.INHERIT,
 ) {
     /**
      * Mark the function `@SealedCopy` should delegate to for a subtype.
