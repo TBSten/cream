@@ -1,31 +1,31 @@
 package me.tbsten.cream.test.combineTo
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 
-class MultiSourceTest {
-    @Test
-    fun combineMultipleSources() {
-        val sourceA = MultiSourceA(propertyA = "A")
-        val sourceB = MultiSourceB(propertyB = 1)
-        val sourceC = MultiSourceC(propertyC = true)
-        val sourceD = MultiSourceD(propertyD = 3.14)
+class MultiSourceTest :
+    FunSpec({
+        test("combineMultipleSources") {
+            val sourceA = MultiSourceA(propertyA = "A")
+            val sourceB = MultiSourceB(propertyB = 1)
+            val sourceC = MultiSourceC(propertyC = true)
+            val sourceD = MultiSourceD(propertyD = 3.14)
 
-        val result =
-            sourceA.copyToMultiSourceTarget(
-                multiSourceB = sourceB,
-                multiSourceC = sourceC,
-                multiSourceD = sourceD,
-            )
+            val result =
+                sourceA.copyToMultiSourceTarget(
+                    multiSourceB = sourceB,
+                    multiSourceC = sourceC,
+                    multiSourceD = sourceD,
+                )
 
-        val expected =
-            MultiSourceTarget(
-                propertyA = "A",
-                propertyB = 1,
-                propertyC = true,
-                propertyD = 3.14,
-            )
+            val expected =
+                MultiSourceTarget(
+                    propertyA = "A",
+                    propertyB = 1,
+                    propertyC = true,
+                    propertyD = 3.14,
+                )
 
-        assertEquals(expected, result)
-    }
-}
+            result shouldBe expected
+        }
+    })

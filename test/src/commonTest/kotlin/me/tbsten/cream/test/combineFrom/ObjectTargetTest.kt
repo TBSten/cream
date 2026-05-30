@@ -1,20 +1,20 @@
 package me.tbsten.cream.test.combineFrom
 
-import kotlin.test.Test
-import kotlin.test.assertSame
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.types.shouldBeSameInstanceAs
 
-class ObjectTargetTest {
-    @Test
-    fun combineFromToObject() {
-        val sourceA = ObjectSourceA(propertyA = "test")
-        val sourceB = ObjectSourceB(propertyB = 42)
+class ObjectTargetTest :
+    FunSpec({
+        test("combineFromToObject") {
+            val sourceA = ObjectSourceA(propertyA = "test")
+            val sourceB = ObjectSourceB(propertyB = 42)
 
-        val result: TargetObject =
-            sourceA.copyToTargetObject(
-                objectSourceB = sourceB,
-            )
+            val result: TargetObject =
+                sourceA.copyToTargetObject(
+                    objectSourceB = sourceB,
+                )
 
-        // Objects are singletons, so the result should be the same instance
-        assertSame(TargetObject, result)
-    }
-}
+            // Objects are singletons, so the result should be the same instance
+            result shouldBeSameInstanceAs TargetObject
+        }
+    })

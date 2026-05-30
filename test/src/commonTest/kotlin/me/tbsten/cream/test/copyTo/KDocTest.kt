@@ -1,7 +1,7 @@
 package me.tbsten.cream.test.copyTo
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 
 /**
  * Smoke test for the `kdoc = KDoc(...)` parameter on `@CopyTo`.
@@ -10,13 +10,13 @@ import kotlin.test.assertEquals
  * here we just confirm that supplying a [me.tbsten.cream.KDoc] argument does not
  * break code generation or the runtime behavior of the generated copy function.
  */
-class KDocTest {
-    @Test
-    fun copyToKDocTarget_behavesNormally_evenWhenKDocIsProvided() {
-        val source = KDocSource(shared = "value", onlyOnSource = 1)
+class KDocTest :
+    FunSpec({
+        test("copyToKDocTarget_behavesNormally_evenWhenKDocIsProvided") {
+            val source = KDocSource(shared = "value", onlyOnSource = 1)
 
-        val target = source.copyToKDocTarget(extra = 42)
+            val target = source.copyToKDocTarget(extra = 42)
 
-        assertEquals(KDocTarget(shared = "value", extra = 42), target)
-    }
-}
+            target shouldBe KDocTarget(shared = "value", extra = 42)
+        }
+    })

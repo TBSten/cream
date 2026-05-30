@@ -1,68 +1,65 @@
 package me.tbsten.cream.test.combineFrom
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 
-class PropertyMappingTest {
-    @Test
-    fun simplePropertyNameMapping() {
-        val sourceA = MappingSourceA(sourcePropertyA = "Hello")
-        val sourceB = MappingSourceB(sourcePropertyB = 42)
+class PropertyMappingTest :
+    FunSpec({
+        test("simplePropertyNameMapping") {
+            val sourceA = MappingSourceA(sourcePropertyA = "Hello")
+            val sourceB = MappingSourceB(sourcePropertyB = 42)
 
-        val result: MappedTarget =
-            sourceA.copyToMappedTarget(
-                mappingSourceB = sourceB,
-                normalProperty = "World",
-            )
+            val result: MappedTarget =
+                sourceA.copyToMappedTarget(
+                    mappingSourceB = sourceB,
+                    normalProperty = "World",
+                )
 
-        assertEquals("Hello", result.targetPropertyA)
-        assertEquals(42, result.targetPropertyB)
-        assertEquals("World", result.normalProperty)
-    }
+            result.targetPropertyA shouldBe "Hello"
+            result.targetPropertyB shouldBe 42
+            result.normalProperty shouldBe "World"
+        }
 
-    @Test
-    fun multiplePropertyNamesMapping() {
-        val source = MultiMappingSource(sourceName = "SharedValue")
-        val sourceB = MultiMappingSourceB(otherProp = 100)
+        test("multiplePropertyNamesMapping") {
+            val source = MultiMappingSource(sourceName = "SharedValue")
+            val sourceB = MultiMappingSourceB(otherProp = 100)
 
-        val result: MultiMappedTarget =
-            source.copyToMultiMappedTarget(
-                multiMappingSourceB = sourceB,
-            )
+            val result: MultiMappedTarget =
+                source.copyToMultiMappedTarget(
+                    multiMappingSourceB = sourceB,
+                )
 
-        assertEquals("SharedValue", result.targetName1)
-        assertEquals("SharedValue", result.targetName2)
-        assertEquals(100, result.otherProp)
-    }
+            result.targetName1 shouldBe "SharedValue"
+            result.targetName2 shouldBe "SharedValue"
+            result.otherProp shouldBe 100
+        }
 
-    @Test
-    fun mixedMappingWithDirectMatch() {
-        val sourceA = MixedMappingSourceA(directMatch = "Direct")
-        val sourceB = MixedMappingSourceB(originalProperty = 999)
+        test("mixedMappingWithDirectMatch") {
+            val sourceA = MixedMappingSourceA(directMatch = "Direct")
+            val sourceB = MixedMappingSourceB(originalProperty = 999)
 
-        val result: MixedMappingTarget =
-            sourceA.copyToMixedMappingTarget(
-                mixedMappingSourceB = sourceB,
-                extraProperty = true,
-            )
+            val result: MixedMappingTarget =
+                sourceA.copyToMixedMappingTarget(
+                    mixedMappingSourceB = sourceB,
+                    extraProperty = true,
+                )
 
-        assertEquals("Direct", result.directMatch)
-        assertEquals(999, result.renamedProperty)
-        assertEquals(true, result.extraProperty)
-    }
+            result.directMatch shouldBe "Direct"
+            result.renamedProperty shouldBe 999
+            result.extraProperty shouldBe true
+        }
 
-    @Test
-    fun mergeMappingWithDirectMatch() {
-        val sourceA = MergeMappingSourceA(sourcePropertyA = "SourceA")
-        val sourceB = MergeMappingSourceB(sourcePropertyB = "SourceB")
+        test("mergeMappingWithDirectMatch") {
+            val sourceA = MergeMappingSourceA(sourcePropertyA = "SourceA")
+            val sourceB = MergeMappingSourceB(sourcePropertyB = "SourceB")
 
-        val result: MergeMappingTarget =
-            sourceA.copyToMergeMappingTarget(
-                mergeMappingSourceB = sourceB,
-            )
+            val result: MergeMappingTarget =
+                sourceA.copyToMergeMappingTarget(
+                    mergeMappingSourceB = sourceB,
+                )
 
-        // When both sources map to the same property,
-        // the last source class (SourceB) should take precedence
-        assertEquals("SourceB", result.sourcePropertyA)
-    }
-}
+            // When both sources map to the same property,
+            // the last source class (SourceB) should take precedence
+            result.sourcePropertyA shouldBe "SourceB"
+        }
+    })

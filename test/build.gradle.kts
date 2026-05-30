@@ -8,6 +8,8 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.ksp)
+    // kotest must be applied after ksp: its multiplatform framework wiring is KSP-based.
+    alias(libs.plugins.kotest)
     id("buildLogic.lint")
 }
 
@@ -42,16 +44,31 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotest)
-            implementation(libs.kotlinTest)
+            implementation(libs.kotestFrameworkEngine)
+        }
+        jvmTest.dependencies {
+            implementation(libs.kotestRunnerJunit5)
+        }
+        // Android unit tests run on the JVM via the JUnit Platform too, but androidUnitTest does not
+        // inherit jvmTest, so it needs the kotest JUnit5 runner independently to discover FunSpec.
+        androidUnitTest.dependencies {
+            implementation(libs.kotestRunnerJunit5)
         }
     }
 }
 
+// kotest runs on the JUnit Platform for the JVM and Android unit-test tasks.
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
+}
+
 dependencies {
+    // cream only processes commonMain annotations (collapsed into kspCommonMainKotlinMetadata by the
+    // workaround below). It is deliberately NOT wired into any *Test KSP configuration so that the
+    // kotest KSP processor owns the test source sets without a second processor running alongside it.
     listOf(
         "kspCommonMainMetadata",
         "kspJvm",
-        "kspJvmTest",
     ).forEach { it(project(":cream-ksp")) }
 }
 
@@ -70,7 +87,12 @@ fun Project.setupKspForMultiplatformWorkaround() {
     tasks.configureEach {
         if (name.startsWith("ksp") && name != "kspCommonMainKotlinMetadata") {
             dependsOn(tasks.named("kspCommonMainKotlinMetadata"))
-            enabled = false
+            // Disable only cream's redundant per-platform *main* generation; keep the *Test KSP tasks
+            // alive so the kotest framework can generate its per-target spec launchers (required for
+            // FunSpec to start on native/Android, and harmless on JVM).
+            if (!name.contains("Test")) {
+                enabled = false
+            }
         }
     }
 }

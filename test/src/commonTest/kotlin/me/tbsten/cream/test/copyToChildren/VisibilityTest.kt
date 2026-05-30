@@ -1,21 +1,19 @@
 package me.tbsten.cream.test.copyToChildren
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 
-class VisibilityTest {
-    @Test
-    fun visibilityProperties() {
-        val source = VisibilityChild1(publicProp = "public", internalProp = "internal")
-        val target: VisibilityChild2 = source.copyToVisibilityChild2(newProperty = "new")
+class VisibilityTest :
+    FunSpec({
+        test("visibilityProperties") {
+            val source = VisibilityChild1(publicProp = "public", internalProp = "internal")
+            val target: VisibilityChild2 = source.copyToVisibilityChild2(newProperty = "new")
 
-        assertEquals(
-            VisibilityChild2(
-                publicProp = "public",
-                internalProp = "internal",
-                newProperty = "new",
-            ),
-            target,
-        )
-    }
-}
+            target shouldBe
+                VisibilityChild2(
+                    publicProp = "public",
+                    internalProp = "internal",
+                    newProperty = "new",
+                )
+        }
+    })

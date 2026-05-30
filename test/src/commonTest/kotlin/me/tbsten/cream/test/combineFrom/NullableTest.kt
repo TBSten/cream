@@ -1,49 +1,47 @@
 package me.tbsten.cream.test.combineFrom
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNull
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 
-class NullableTest {
-    @Test
-    fun combineFromWithNullableProperties() {
-        val sourceA =
-            NullableSourceA(
-                nullableProperty = "value",
-                nonNullProperty = "required",
-            )
-        val sourceB = NullableSourceB(anotherNullable = 42)
+class NullableTest :
+    FunSpec({
+        test("combineFromWithNullableProperties") {
+            val sourceA =
+                NullableSourceA(
+                    nullableProperty = "value",
+                    nonNullProperty = "required",
+                )
+            val sourceB = NullableSourceB(anotherNullable = 42)
 
-        val result: NullableTarget =
-            sourceA.copyToNullableTarget(
-                nullableSourceB = sourceB,
-                extraProperty = true,
-            )
+            val result: NullableTarget =
+                sourceA.copyToNullableTarget(
+                    nullableSourceB = sourceB,
+                    extraProperty = true,
+                )
 
-        assertEquals("value", result.nullableProperty)
-        assertEquals("required", result.nonNullProperty)
-        assertEquals(42, result.anotherNullable)
-        assertEquals(true, result.extraProperty)
-    }
+            result.nullableProperty shouldBe "value"
+            result.nonNullProperty shouldBe "required"
+            result.anotherNullable shouldBe 42
+            result.extraProperty shouldBe true
+        }
 
-    @Test
-    fun combineFromWithNullValues() {
-        val sourceA =
-            NullableSourceA(
-                nullableProperty = null,
-                nonNullProperty = "required",
-            )
-        val sourceB = NullableSourceB(anotherNullable = null)
+        test("combineFromWithNullValues") {
+            val sourceA =
+                NullableSourceA(
+                    nullableProperty = null,
+                    nonNullProperty = "required",
+                )
+            val sourceB = NullableSourceB(anotherNullable = null)
 
-        val result: NullableTarget =
-            sourceA.copyToNullableTarget(
-                nullableSourceB = sourceB,
-                extraProperty = false,
-            )
+            val result: NullableTarget =
+                sourceA.copyToNullableTarget(
+                    nullableSourceB = sourceB,
+                    extraProperty = false,
+                )
 
-        assertNull(result.nullableProperty)
-        assertEquals("required", result.nonNullProperty)
-        assertNull(result.anotherNullable)
-        assertEquals(false, result.extraProperty)
-    }
-}
+            result.nullableProperty shouldBe null
+            result.nonNullProperty shouldBe "required"
+            result.anotherNullable shouldBe null
+            result.extraProperty shouldBe false
+        }
+    })

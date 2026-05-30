@@ -1,22 +1,19 @@
 package me.tbsten.cream.test.copyTo
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 
-class PropertyMappingTest {
-    @Test
-    fun propertyMapping() {
-        val domainSource =
-            DomainSourceModel(
-                domainId = "test-id",
-                name = "test-name",
-            )
+class PropertyMappingTest :
+    FunSpec({
+        test("propertyMapping") {
+            val domainSource =
+                DomainSourceModel(
+                    domainId = "test-id",
+                    name = "test-name",
+                )
 
-        val dataTarget: DataTargetModel = domainSource.copyToDataTargetModel()
+            val dataTarget: DataTargetModel = domainSource.copyToDataTargetModel()
 
-        assertEquals(
-            DataTargetModel(dataId = "test-id", name = "test-name"),
-            dataTarget,
-        )
-    }
-}
+            dataTarget shouldBe DataTargetModel(dataId = "test-id", name = "test-name")
+        }
+    })

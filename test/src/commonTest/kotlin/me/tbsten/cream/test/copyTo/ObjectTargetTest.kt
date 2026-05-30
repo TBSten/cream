@@ -1,14 +1,14 @@
 package me.tbsten.cream.test.copyTo
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 
-class ObjectTargetTest {
-    @Test
-    fun dataObjectToDataObject() {
-        val source = EmptySource
-        val target: EmptyTarget = source.copyToEmptyTarget()
+class ObjectTargetTest :
+    FunSpec({
+        test("dataObjectToDataObject") {
+            val source = EmptySource
+            val target: EmptyTarget = source.copyToEmptyTarget()
 
-        assertEquals(EmptyTarget, target)
-    }
-}
+            target shouldBe EmptyTarget
+        }
+    })
