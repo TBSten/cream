@@ -1,0 +1,410 @@
+package me.tbsten.cream.ksp.transform
+
+import com.google.devtools.ksp.isAbstract
+import com.google.devtools.ksp.symbol.ClassKind
+import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSTypeParameter
+import com.google.devtools.ksp.symbol.Modifier
+import me.tbsten.cream.NonCopyableStrategy
+import me.tbsten.cream.SealedCopy
+import me.tbsten.cream.ksp.GenerateSourceAnnotation
+import me.tbsten.cream.ksp.InvalidCreamUsageException
+import me.tbsten.cream.ksp.util.annotationsOf
+import me.tbsten.cream.ksp.util.asString
+import me.tbsten.cream.ksp.util.fullName
+import me.tbsten.cream.ksp.util.isSealed
+import me.tbsten.cream.ksp.util.underPackageName
+import me.tbsten.cream.ksp.util.visibilityStr
+import java.io.BufferedWriter
+
+/**
+ * Append a single `<sealedType>.<funName>(...)` extension that returns the sealed parent
+ * type itself (or its nullable form), dispatching to each leaf subclass's `copy(...)`.
+ *
+ * Behaviour follows the contract documented on [me.tbsten.cream.SealedCopy].
+ */
+internal fun BufferedWriter.appendSealedCopyFunction(
+    sealedClass: KSClassDeclaration,
+    funName: String,
+    nonCopyableStrategy: NonCopyableStrategy,
+    omitPackages: List<String>,
+    generateSourceAnnotation: GenerateSourceAnnotation.SealedCopy,
+) {
+    val abstractProperties = sealedClass.collectAbstractProperties()
+    val classifiedLeaves =
+        sealedClass
+            .collectConcreteSubclasses()
+            .map { it.classify(abstractProperties) }
+            .toList()
+    val nonCopyableLeaves = classifiedLeaves.filterIsInstance<SealedCopyLeaf.NonCopyable>()
+
+    if (nonCopyableStrategy == NonCopyableStrategy.ERROR && nonCopyableLeaves.isNotEmpty()) {
+        throw nonCopyableErrorException(sealedClass, nonCopyableLeaves, funName)
+    }
+
+    val nullable = nonCopyableStrategy == NonCopyableStrategy.RETURN_NULL && nonCopyableLeaves.isNotEmpty()
+    val returnTypeText = renderSealedReceiverType(sealedClass, omitPackages) + if (nullable) "?" else ""
+
+    appendSealedCopyKDoc(sealedClass, funName, classifiedLeaves, nullable, generateSourceAnnotation)
+    appendSealedCopyHeader(sealedClass, funName, returnTypeText, abstractProperties, omitPackages)
+    appendSealedCopyBody(sealedClass, classifiedLeaves, abstractProperties, nonCopyableStrategy)
+}
+
+private fun BufferedWriter.appendSealedCopyHeader(
+    sealedClass: KSClassDeclaration,
+    funName: String,
+    returnTypeText: String,
+    abstractProperties: List<KSPropertyDeclaration>,
+    omitPackages: List<String>,
+) {
+    append(sealedClass.visibilityStr)
+    append(" fun ")
+    append(renderTypeParameterList(sealedClass.typeParameters, omitPackages))
+    if (sealedClass.typeParameters.isNotEmpty()) append(" ")
+    append(renderSealedReceiverType(sealedClass, omitPackages))
+    append(".")
+    append(funName)
+    append("(")
+    appendLine()
+    abstractProperties.forEach { prop ->
+        val typeText = prop.type.resolve().asString(omitPackages = omitPackages)
+        val propName = prop.simpleName.asString()
+        appendLine("    $propName: $typeText = this.$propName,")
+    }
+    append("): ")
+    append(returnTypeText)
+    append(renderWhereClause(sealedClass.typeParameters, omitPackages))
+    append(" = when (this) {")
+    appendLine()
+}
+
+private fun BufferedWriter.appendSealedCopyBody(
+    sealedClass: KSClassDeclaration,
+    classifiedLeaves: List<SealedCopyLeaf>,
+    abstractProperties: List<KSPropertyDeclaration>,
+    nonCopyableStrategy: NonCopyableStrategy,
+) {
+    classifiedLeaves.forEach { leaf ->
+        when (leaf) {
+            is SealedCopyLeaf.Copyable -> {
+                val args =
+                    abstractProperties.joinToString(", ") { prop ->
+                        val name = prop.simpleName.asString()
+                        "$name = $name"
+                    }
+                appendLine("    is ${renderWhenBranchType(leaf.declaration, sealedClass)} -> this.${leaf.funName}($args)")
+            }
+
+            is SealedCopyLeaf.NonCopyable -> {
+                val whenBranchValue =
+                    when (nonCopyableStrategy) {
+                        NonCopyableStrategy.RETURN_AS_IS -> "this"
+                        NonCopyableStrategy.RETURN_NULL -> "null"
+                        // ERROR has already been handled above; emit RETURN_AS_IS as a defensive default.
+                        NonCopyableStrategy.ERROR -> "this"
+                    }
+                appendLine("    is ${renderWhenBranchType(leaf.declaration, sealedClass)} -> $whenBranchValue")
+            }
+        }
+    }
+    appendLine("}")
+    appendLine()
+}
+
+/**
+ * Render the type used in an `is <subtype>` when-branch.
+ *
+ * A subtype's type parameters are only inferable in a bare `is Sub` check when every one of
+ * them is pinned by the sealed parent (e.g. `Filled<T> : Box<T>`); Kotlin then narrows
+ * `this: Box<T>` to `Sub<T>` for free, so we keep the bare form. When the subtype declares an
+ * *extra* parameter the parent does not pin (e.g. `Tagged<T, M> : Box<T>`), a bare
+ * `is Box.Tagged` is rejected ("2 type arguments expected"), so we render the pinned
+ * parameters with the parent's names and star-project the rest: `is Box.Tagged<T, *>`.
+ */
+private fun renderWhenBranchType(
+    leaf: KSClassDeclaration,
+    sealedClass: KSClassDeclaration,
+): String {
+    if (leaf.typeParameters.isEmpty()) return leaf.fullName
+
+    val parentSuperType =
+        leaf.superTypes
+            .map { it.resolve() }
+            .firstOrNull { it.declaration.fullName == sealedClass.fullName }
+            ?: return leaf.fullName
+
+    val parentParamNames = sealedClass.typeParameters.map { it.name.asString() }
+    val leafParamToParentName = HashMap<String, String>()
+    parentSuperType.arguments.forEachIndexed { index, arg ->
+        val leafParamName = (arg.type?.resolve()?.declaration as? KSTypeParameter)?.name?.asString()
+        if (leafParamName != null && index < parentParamNames.size) {
+            leafParamToParentName[leafParamName] = parentParamNames[index]
+        }
+    }
+
+    val allPinned = leaf.typeParameters.all { it.name.asString() in leafParamToParentName }
+    if (allPinned) return leaf.fullName
+
+    val args =
+        leaf.typeParameters.joinToString(", ") { tp ->
+            leafParamToParentName[tp.name.asString()] ?: "*"
+        }
+    return "${leaf.fullName}<$args>"
+}
+
+private fun renderTypeParameterList(
+    typeParameters: List<KSTypeParameter>,
+    omitPackages: List<String>,
+): String {
+    if (typeParameters.isEmpty()) return ""
+    return buildString {
+        append("<")
+        append(
+            typeParameters.joinToString(", ") { tp ->
+                buildString {
+                    append(tp.name.asString())
+                    val bound =
+                        tp.bounds
+                            .singleOrNull()
+                            ?.resolve()
+                            ?.asString(omitPackages = omitPackages)
+                    if (bound != null && bound != "kotlin.Any?") {
+                        append(" : ")
+                        append(bound)
+                    }
+                }
+            },
+        )
+        append(">")
+    }
+}
+
+/**
+ * ` where T : A, T : B` for type parameters carrying *multiple* upper bounds. Kotlin can only
+ * express a single bound inline (handled by [renderTypeParameterList]); additional bounds must
+ * go in a where-clause, otherwise the generated `fun <T> Sealed<T>` drops them and fails the
+ * sealed type's own bound check. Returns "" when no parameter needs one.
+ */
+private fun renderWhereClause(
+    typeParameters: List<KSTypeParameter>,
+    omitPackages: List<String>,
+): String {
+    val entries =
+        typeParameters.flatMap { tp ->
+            val bounds = tp.bounds.toList()
+            if (bounds.size <= 1) {
+                emptyList()
+            } else {
+                bounds.map { "${tp.name.asString()} : ${it.resolve().asString(omitPackages = omitPackages)}" }
+            }
+        }
+    return if (entries.isEmpty()) "" else " where ${entries.joinToString(", ")}"
+}
+
+private fun renderSealedReceiverType(
+    sealedClass: KSClassDeclaration,
+    omitPackages: List<String>,
+): String =
+    buildString {
+        append(sealedClass.fullName)
+        if (sealedClass.typeParameters.isNotEmpty()) {
+            append("<")
+            append(sealedClass.typeParameters.joinToString(", ") { it.name.asString() })
+            append(">")
+        }
+        // omitPackages is reserved for future trimming; current rendering always uses fullName
+        // to stay safe across packages and nested types.
+        @Suppress("UNUSED_EXPRESSION")
+        omitPackages
+    }
+
+private fun BufferedWriter.appendSealedCopyKDoc(
+    sealedClass: KSClassDeclaration,
+    funName: String,
+    classifiedLeaves: List<SealedCopyLeaf>,
+    nullable: Boolean,
+    generateSourceAnnotation: GenerateSourceAnnotation.SealedCopy,
+) {
+    val sealedSimple = sealedClass.simpleName.asString()
+    val resultType = if (nullable) "$sealedSimple?" else sealedSimple
+    appendAutoGeneratedFunctionKDoc(
+        generateSourceAnnotation = generateSourceAnnotation,
+        seeClasses = listOf(sealedClass) + classifiedLeaves.map { it.declaration },
+        autoDescription = {
+            appendLine("Type-preserving $sealedSimple.$funName generated by @SealedCopy.")
+            appendLine()
+            appendLine("Updates shared abstract properties and dispatches to each subtype's copy.")
+        },
+        autoExamples = {
+            appendExample(
+                "Example: Basic",
+                """
+                val state: $sealedSimple = /* one of the subtypes */
+                val updated: $resultType = state.$funName()
+                """.trimIndent(),
+            )
+
+            appendExample(
+                "Example: Override property values",
+                """
+                val state: $sealedSimple = /* one of the subtypes */
+                val updated: $resultType = state.$funName(property = value)
+                """.trimIndent(),
+            )
+        },
+    )
+}
+
+private fun KSClassDeclaration.collectAbstractProperties(): List<KSPropertyDeclaration> =
+    getAllProperties()
+        .filter { it.isAbstract() }
+        .toList()
+
+/**
+ * Walk the sealed hierarchy down to the leaves (data class / object / non-sealed class),
+ * flattening intermediate sealed nodes. Lazy so callers can short-circuit and to mirror
+ * KSP's own [KSClassDeclaration.getSealedSubclasses] shape.
+ */
+private fun KSClassDeclaration.collectConcreteSubclasses(): Sequence<KSClassDeclaration> =
+    getSealedSubclasses().flatMap { sub ->
+        if (sub.isSealed()) {
+            sub.collectConcreteSubclasses()
+        } else {
+            sequenceOf(sub)
+        }
+    }
+
+/**
+ * A leaf is classified purely by whether it is **copyable** — whether there is a
+ * `copy`-shaped function we can delegate to. The subtype's *kind* (object / data class /
+ * plain class) is not a category in its own right; it only feeds the single
+ * copyable-or-not question answered by [hasDelegatableCopy].
+ *
+ * A subtype can also point cream at an explicit delegate by annotating that function with
+ * [SealedCopy.Map]; when present, the annotated function's own name is used.
+ */
+private fun KSClassDeclaration.classify(abstractProperties: List<KSPropertyDeclaration>): SealedCopyLeaf {
+    val mappedFunName =
+        getAllFunctions()
+            .firstOrNull { it.annotationsOf(SealedCopy.Map::class).any() }
+            ?.simpleName
+            ?.asString()
+    return when {
+        mappedFunName != null -> SealedCopyLeaf.Copyable(this, mappedFunName)
+        hasDelegatableCopy(abstractProperties) -> SealedCopyLeaf.Copyable(this, "copy")
+        else -> SealedCopyLeaf.NonCopyable(this)
+    }
+}
+
+/**
+ * Whether this leaf exposes a default `copy(...)` to delegate to (consulted only when the
+ * subtype does not mark an explicit delegate with [SealedCopy.Map]):
+ *  - an `object` is a singleton with nothing to copy → never copyable
+ *  - a `data class` has a synthetic `copy(...)` that KSP does not surface, so we trust it;
+ *    the Kotlin compiler still rejects the generated source if that synthetic shape
+ *    diverges from the abstract properties, giving a clear use-site diagnostic
+ *  - otherwise a `copy(...)` must actually be declared and accept every abstract property
+ */
+private fun KSClassDeclaration.hasDelegatableCopy(abstractProperties: List<KSPropertyDeclaration>): Boolean {
+    if (classKind == ClassKind.OBJECT) return false
+    if (modifiers.contains(Modifier.DATA) && classKind == ClassKind.CLASS) return true
+    return findCompatibleCopyFunction("copy", abstractProperties) != null
+}
+
+private fun KSClassDeclaration.findCompatibleCopyFunction(
+    funName: String,
+    abstractProperties: List<KSPropertyDeclaration>,
+): KSFunctionDeclaration? =
+    getAllFunctions()
+        .firstOrNull { func ->
+            if (func.simpleName.asString() != funName) return@firstOrNull false
+            abstractProperties.all { absProp ->
+                val propName = absProp.simpleName.asString()
+                val propType = absProp.type.resolve()
+                func.parameters.any { param ->
+                    param.name?.asString() == propName &&
+                        isParameterAssignableFromProperty(propType, param.type.resolve())
+                }
+            }
+        }
+
+private fun isParameterAssignableFromProperty(
+    propertyType: KSType,
+    parameterType: KSType,
+): Boolean {
+    if (parameterType.isAssignableFrom(propertyType)) return true
+    // Cover the generic case where both sides are unresolved type parameters
+    // sharing the same name (e.g. Result<T> → Success<T>'s ctor takes T).
+    val propDecl = propertyType.declaration
+    val paramDecl = parameterType.declaration
+    if (propDecl is KSTypeParameter && paramDecl is KSTypeParameter) {
+        return propDecl.name.asString() == paramDecl.name.asString()
+    }
+    return false
+}
+
+private fun nonCopyableErrorException(
+    sealedClass: KSClassDeclaration,
+    nonCopyableLeaves: List<SealedCopyLeaf.NonCopyable>,
+    funName: String,
+): InvalidCreamUsageException {
+    val objectLeaves = nonCopyableLeaves.filter { it.declaration.classKind == ClassKind.OBJECT }
+    val classLeaves = nonCopyableLeaves.filterNot { it.declaration.classKind == ClassKind.OBJECT }
+
+    val sealedName = sealedClass.underPackageName
+    val message =
+        buildString {
+            append("Cannot generate $funName() for sealed type '$sealedName' because ")
+            if (objectLeaves.isNotEmpty() && classLeaves.isEmpty()) {
+                append(
+                    "it contains object subtype(s): " +
+                        objectLeaves.joinToString { it.declaration.underPackageName },
+                )
+                append(". Objects are singletons and have no .copy() to delegate to.")
+            } else if (objectLeaves.isEmpty() && classLeaves.isNotEmpty()) {
+                append(
+                    "the following subclass(es) have no compatible 'copy(...)' function: " +
+                        classLeaves.joinToString { it.declaration.underPackageName },
+                )
+            } else {
+                append(
+                    "the following subtype(s) cannot be copied: " +
+                        nonCopyableLeaves.joinToString { it.declaration.underPackageName },
+                )
+            }
+        }
+
+    val solution =
+        buildString {
+            appendLine("Choose one of the following strategies on @SealedCopy:")
+            appendLine("  • @SealedCopy(nonCopyableStrategy = RETURN_AS_IS)")
+            appendLine("    → emits 'is X -> this' for non-copyable branches")
+            appendLine("  • @SealedCopy(nonCopyableStrategy = RETURN_NULL)")
+            appendLine("    → widens the return type to '$sealedName?' and emits 'is X -> null'")
+            if (classLeaves.isNotEmpty()) {
+                appendLine()
+                appendLine("For non-data class subtypes you can also:")
+                appendLine("  • Make the subtype a 'data class'")
+                appendLine("  • Add a 'copy(...)' member function that accepts the abstract properties")
+                appendLine("  • Or annotate that copy-shaped function with @SealedCopy.Map")
+            }
+        }
+
+    return InvalidCreamUsageException(message = message, solution = solution)
+}
+
+private sealed interface SealedCopyLeaf {
+    val declaration: KSClassDeclaration
+
+    data class Copyable(
+        override val declaration: KSClassDeclaration,
+        val funName: String,
+    ) : SealedCopyLeaf
+
+    data class NonCopyable(
+        override val declaration: KSClassDeclaration,
+    ) : SealedCopyLeaf
+}

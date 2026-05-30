@@ -4,7 +4,8 @@ package me.tbsten.cream
  * Customize the KDoc of cream-generated copy/combine functions.
  *
  * Use as the `kdoc` argument of cream's source annotations (`@CopyTo`, `@CopyFrom`,
- * `@CopyToChildren`, `@CombineTo`, `@CombineFrom`, `@CopyMapping`, `@CombineMapping`).
+ * `@CopyToChildren`, `@SealedCopy`, `@CombineTo`, `@CombineFrom`, `@CopyMapping`,
+ * `@CombineMapping`).
  *
  * # Example
  *
