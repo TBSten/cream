@@ -63,11 +63,6 @@ kotlin {
                 // put your multiplatform dependencies here
             }
         }
-        val commonTest by getting {
-            dependencies {
-                implementation(libs.kotlinTest)
-            }
-        }
     }
 }
 

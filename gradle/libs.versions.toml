@@ -21,7 +21,6 @@ kodeview = "0.9.0"
 buildkonfig = "0.17.1"
 
 [libraries]
-kotlinTest = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotest = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 kotestFrameworkEngine = { module = "io.kotest:kotest-framework-engine", version.ref = "kotest" }
 kotestRunnerJunit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
