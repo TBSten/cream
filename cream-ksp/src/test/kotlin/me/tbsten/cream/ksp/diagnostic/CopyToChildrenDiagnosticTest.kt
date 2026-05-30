@@ -1,85 +1,78 @@
 package me.tbsten.cream.ksp.diagnostic
 
 import com.tschuchort.compiletesting.KotlinCompilation
+import io.kotest.assertions.withClue
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import me.tbsten.cream.ksp.testing.assertMatchesSnapshot
 import me.tbsten.cream.ksp.testing.compileWithCream
 import me.tbsten.cream.ksp.testing.normalizedCompilerOutput
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
 
-internal class CopyToChildrenDiagnosticTest {
-    @Test
-    fun `non-sealed class with @CopyToChildren fails compilation`() {
-        val source =
-            """
-            package diag
-
-            import me.tbsten.cream.CopyToChildren
-
-            @CopyToChildren
-            class NotSealed(val prop: String)
-            """.trimIndent()
-        val result = compileWithCream(source)
-
-        assertNotEquals(
-            KotlinCompilation.ExitCode.OK,
-            result.exitCode,
-            "Compilation should fail. Output:\n${result.normalizedCompilerOutput()}",
-        )
-        assertMatchesSnapshot("CopyToChildrenDiagnosticTest.nonSealedClass.output") {
-            facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
-            "Input" facetOf source
-        }
-    }
-
-    @Test
-    fun `data class with @CopyToChildren fails compilation`() {
-        val source =
-            """
-            package diag
-
-            import me.tbsten.cream.CopyToChildren
-
-            @CopyToChildren
-            data class JustData(val prop: String)
-            """.trimIndent()
-        val result = compileWithCream(source)
-
-        assertNotEquals(
-            KotlinCompilation.ExitCode.OK,
-            result.exitCode,
-            "Compilation should fail. Output:\n${result.normalizedCompilerOutput()}",
-        )
-        assertMatchesSnapshot("CopyToChildrenDiagnosticTest.dataClass.output") {
-            facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
-            "Input" facetOf source
-        }
-    }
-
-    @Test
-    fun `sealed interface with @CopyToChildren compiles successfully`() {
-        val result =
-            compileWithCream(
+internal class CopyToChildrenDiagnosticTest :
+    FunSpec({
+        test("non-sealed class with @CopyToChildren fails compilation") {
+            val source =
                 """
                 package diag
 
                 import me.tbsten.cream.CopyToChildren
 
                 @CopyToChildren
-                sealed interface State {
-                    val id: String
+                class NotSealed(val prop: String)
+                """.trimIndent()
+            val result = compileWithCream(source)
 
-                    data class Loading(override val id: String) : State
-                    data class Loaded(override val id: String, val value: Int) : State
-                }
-                """.trimIndent(),
-            )
+            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
+                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+            }
+            assertMatchesSnapshot("CopyToChildrenDiagnosticTest.nonSealedClass.output") {
+                facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
+                "Input" facetOf source
+            }
+        }
 
-        assertEquals(
-            KotlinCompilation.ExitCode.OK,
-            result.exitCode,
-            "Compilation should succeed. Output:\n${result.normalizedCompilerOutput()}",
-        )
-    }
-}
+        test("data class with @CopyToChildren fails compilation") {
+            val source =
+                """
+                package diag
+
+                import me.tbsten.cream.CopyToChildren
+
+                @CopyToChildren
+                data class JustData(val prop: String)
+                """.trimIndent()
+            val result = compileWithCream(source)
+
+            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
+                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+            }
+            assertMatchesSnapshot("CopyToChildrenDiagnosticTest.dataClass.output") {
+                facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
+                "Input" facetOf source
+            }
+        }
+
+        test("sealed interface with @CopyToChildren compiles successfully") {
+            val result =
+                compileWithCream(
+                    """
+                    package diag
+
+                    import me.tbsten.cream.CopyToChildren
+
+                    @CopyToChildren
+                    sealed interface State {
+                        val id: String
+
+                        data class Loading(override val id: String) : State
+                        data class Loaded(override val id: String, val value: Int) : State
+                    }
+                    """.trimIndent(),
+                )
+
+            withClue("Compilation should succeed. Output:\n${result.normalizedCompilerOutput()}") {
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+            }
+        }
+    })

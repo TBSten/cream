@@ -19,13 +19,15 @@ dependencies {
     implementation(project(":cream-ksp:shared"))
     implementation(libs.kspApi)
     implementation(kotlin("reflect"))
-    testImplementation(libs.kotlinTest)
+    testImplementation(libs.kotest)
+    testImplementation(libs.kotestRunnerJunit5)
     testImplementation(libs.mockk)
     testImplementation(libs.kctforkCore)
     testImplementation(libs.kctforkKsp)
 }
 
 tasks.named<Test>("test") {
+    useJUnitPlatform()
     // Allow snapshot regeneration via `-Dcream.snapshot.update=true` on the gradle command line.
     System.getProperty("cream.snapshot.update")?.let {
         systemProperty("cream.snapshot.update", it)

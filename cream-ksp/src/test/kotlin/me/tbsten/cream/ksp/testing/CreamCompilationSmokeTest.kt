@@ -1,61 +1,63 @@
 package me.tbsten.cream.ksp.testing
 
 import com.tschuchort.compiletesting.KotlinCompilation
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import io.kotest.assertions.withClue
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 
-internal class CreamCompilationSmokeTest {
-    @Test
-    fun `compiles a minimal @CopyTo source and generates a copy function`() {
-        val result =
-            compileWithCream(
-                """
-                package smoke
-
-                import me.tbsten.cream.CopyTo
-
-                @CopyTo(Target::class)
-                data class Source(val shared: String)
-
-                data class Target(val shared: String, val extra: Int)
-                """.trimIndent(),
-            )
-
-        assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode, result.messages)
-
-        val generatedText = result.generatedSourceText()
-        assertTrue(
-            generatedText.contains("copyToTarget"),
-            "Generated source should contain copyToTarget function. Generated:\n$generatedText",
-        )
-    }
-
-    @Test
-    fun `multi-source DSL compiles when source and target live in separate files`() {
-        val result =
-            compileWithCream {
-                "Source.kt" source
+internal class CreamCompilationSmokeTest :
+    FunSpec({
+        test("compiles a minimal @CopyTo source and generates a copy function") {
+            val result =
+                compileWithCream(
                     """
-                    package smoke.multi
+                    package smoke
 
                     import me.tbsten.cream.CopyTo
 
                     @CopyTo(Target::class)
                     data class Source(val shared: String)
-                    """.trimIndent()
-                "Target.kt" source
-                    """
-                    package smoke.multi
 
                     data class Target(val shared: String, val extra: Int)
-                    """.trimIndent()
+                    """.trimIndent(),
+                )
+
+            withClue(result.messages) {
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
             }
 
-        assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode, result.messages)
-        assertTrue(
-            result.generatedSourceText().contains("copyToTarget"),
-            "Multi-source compilation should still produce copyToTarget. Generated:\n${result.generatedSourceText()}",
-        )
-    }
-}
+            val generatedText = result.generatedSourceText()
+            withClue("Generated source should contain copyToTarget function. Generated:\n$generatedText") {
+                generatedText shouldContain "copyToTarget"
+            }
+        }
+
+        test("multi-source DSL compiles when source and target live in separate files") {
+            val result =
+                compileWithCream {
+                    "Source.kt" source
+                        """
+                        package smoke.multi
+
+                        import me.tbsten.cream.CopyTo
+
+                        @CopyTo(Target::class)
+                        data class Source(val shared: String)
+                        """.trimIndent()
+                    "Target.kt" source
+                        """
+                        package smoke.multi
+
+                        data class Target(val shared: String, val extra: Int)
+                        """.trimIndent()
+                }
+
+            withClue(result.messages) {
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+            }
+            withClue("Multi-source compilation should still produce copyToTarget. Generated:\n${result.generatedSourceText()}") {
+                result.generatedSourceText() shouldContain "copyToTarget"
+            }
+        }
+    })

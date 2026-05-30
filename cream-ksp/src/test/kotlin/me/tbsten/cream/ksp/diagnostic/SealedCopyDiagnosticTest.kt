@@ -1,122 +1,111 @@
 package me.tbsten.cream.ksp.diagnostic
 
 import com.tschuchort.compiletesting.KotlinCompilation
+import io.kotest.assertions.withClue
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldNotBe
 import me.tbsten.cream.ksp.testing.assertMatchesSnapshot
 import me.tbsten.cream.ksp.testing.compileWithCream
 import me.tbsten.cream.ksp.testing.normalizedCompilerOutput
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
 
-internal class SealedCopyDiagnosticTest {
-    @Test
-    fun `object subtype under default ERROR strategy fails compilation`() {
-        val source =
-            """
-            package diag.sealedCopy
+internal class SealedCopyDiagnosticTest :
+    FunSpec({
+        test("object subtype under default ERROR strategy fails compilation") {
+            val source =
+                """
+                package diag.sealedCopy
 
-            import me.tbsten.cream.SealedCopy
+                import me.tbsten.cream.SealedCopy
 
-            @SealedCopy
-            sealed interface MyState {
-                val name: String
+                @SealedCopy
+                sealed interface MyState {
+                    val name: String
 
-                data class Loading(override val name: String) : MyState
-                data object Empty : MyState { override val name: String = "" }
+                    data class Loading(override val name: String) : MyState
+                    data object Empty : MyState { override val name: String = "" }
+                }
+                """.trimIndent()
+            val result = compileWithCream(source)
+
+            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
+                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
             }
-            """.trimIndent()
-        val result = compileWithCream(source)
-
-        assertNotEquals(
-            KotlinCompilation.ExitCode.OK,
-            result.exitCode,
-            "Compilation should fail. Output:\n${result.normalizedCompilerOutput()}",
-        )
-        assertMatchesSnapshot("SealedCopyDiagnosticTest.objectErrorDefault.output") {
-            facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
-            "Input" facetOf source
-        }
-    }
-
-    @Test
-    fun `non-data class without compatible copy under default ERROR strategy fails compilation`() {
-        val source =
-            """
-            package diag.sealedCopy
-
-            import me.tbsten.cream.SealedCopy
-
-            @SealedCopy
-            sealed interface MyState {
-                val name: String
-
-                data class Loading(override val name: String) : MyState
-                class Frozen(override val name: String) : MyState
+            assertMatchesSnapshot("SealedCopyDiagnosticTest.objectErrorDefault.output") {
+                facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
+                "Input" facetOf source
             }
-            """.trimIndent()
-        val result = compileWithCream(source)
-
-        assertNotEquals(
-            KotlinCompilation.ExitCode.OK,
-            result.exitCode,
-            "Compilation should fail. Output:\n${result.normalizedCompilerOutput()}",
-        )
-        assertMatchesSnapshot("SealedCopyDiagnosticTest.missingCopy.output") {
-            facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
-            "Input" facetOf source
         }
-    }
 
-    @Test
-    fun `missing-copy diagnostic names 'copy' even when funName is customized`() {
-        val source =
-            """
-            package diag.sealedCopy
+        test("non-data class without compatible copy under default ERROR strategy fails compilation") {
+            val source =
+                """
+                package diag.sealedCopy
 
-            import me.tbsten.cream.SealedCopy
+                import me.tbsten.cream.SealedCopy
 
-            @SealedCopy(funName = "updated")
-            sealed interface MyState {
-                val name: String
+                @SealedCopy
+                sealed interface MyState {
+                    val name: String
 
-                data class Loading(override val name: String) : MyState
-                class Frozen(override val name: String) : MyState
+                    data class Loading(override val name: String) : MyState
+                    class Frozen(override val name: String) : MyState
+                }
+                """.trimIndent()
+            val result = compileWithCream(source)
+
+            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
+                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
             }
-            """.trimIndent()
-        val result = compileWithCream(source)
-
-        assertNotEquals(
-            KotlinCompilation.ExitCode.OK,
-            result.exitCode,
-            "Compilation should fail. Output:\n${result.normalizedCompilerOutput()}",
-        )
-        assertMatchesSnapshot("SealedCopyDiagnosticTest.missingCopyCustomFunName.output") {
-            facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
-            "Input" facetOf source
+            assertMatchesSnapshot("SealedCopyDiagnosticTest.missingCopy.output") {
+                facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
+                "Input" facetOf source
+            }
         }
-    }
 
-    @Test
-    fun `non-sealed class with @SealedCopy fails compilation`() {
-        val source =
-            """
-            package diag.sealedCopy
+        test("missing-copy diagnostic names 'copy' even when funName is customized") {
+            val source =
+                """
+                package diag.sealedCopy
 
-            import me.tbsten.cream.SealedCopy
+                import me.tbsten.cream.SealedCopy
 
-            @SealedCopy
-            class NotSealed(val name: String)
-            """.trimIndent()
-        val result = compileWithCream(source)
+                @SealedCopy(funName = "updated")
+                sealed interface MyState {
+                    val name: String
 
-        assertNotEquals(
-            KotlinCompilation.ExitCode.OK,
-            result.exitCode,
-            "Compilation should fail. Output:\n${result.normalizedCompilerOutput()}",
-        )
-        assertMatchesSnapshot("SealedCopyDiagnosticTest.nonSealedClass.output") {
-            facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
-            "Input" facetOf source
+                    data class Loading(override val name: String) : MyState
+                    class Frozen(override val name: String) : MyState
+                }
+                """.trimIndent()
+            val result = compileWithCream(source)
+
+            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
+                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+            }
+            assertMatchesSnapshot("SealedCopyDiagnosticTest.missingCopyCustomFunName.output") {
+                facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
+                "Input" facetOf source
+            }
         }
-    }
-}
+
+        test("non-sealed class with @SealedCopy fails compilation") {
+            val source =
+                """
+                package diag.sealedCopy
+
+                import me.tbsten.cream.SealedCopy
+
+                @SealedCopy
+                class NotSealed(val name: String)
+                """.trimIndent()
+            val result = compileWithCream(source)
+
+            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
+                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+            }
+            assertMatchesSnapshot("SealedCopyDiagnosticTest.nonSealedClass.output") {
+                facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
+                "Input" facetOf source
+            }
+        }
+    })
