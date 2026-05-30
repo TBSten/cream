@@ -163,6 +163,13 @@ cream/
 
 ## Testing Approach
 
+All tests use the [kotest](https://kotest.io) `FunSpec` style (`class XxxTest : FunSpec({ test("...") { ... } })`)
+with kotest matchers (`actual shouldBe expected`, `shouldBeInstanceOf`, `shouldContain`, …). The JVM
+(`cream-ksp`, `test` jvm) and Android unit-test tasks run via the JUnit Platform (`kotest-runner-junit5`
++ `useJUnitPlatform()`); native/`commonTest` runs via `kotest-framework-engine` and the `io.kotest`
+KSP plugin (which generates a per-target spec launcher). Note for native: spec classes must have unique
+simple names across packages on older kotest, but 6.1.x emits aliased imports so duplicates are fine.
+
 ### Integration Tests (`test/` module)
 
 The `test/` module uses KSP to generate code from test data and verifies the generated functions work correctly:
@@ -179,15 +186,14 @@ data class Source(val prop: String)
 data class Target(val prop: String, val extra: Int)
 
 // test/src/commonTest/kotlin/me/tbsten/cream/test/copyTo/CopyToTest.kt
-class CopyToTest {
-    @Test
-    fun testCopyFunction() {
+class CopyToTest : FunSpec({
+    test("testCopyFunction") {
         val source = Source("value")
         val target = source.copyToTarget(extra = 42)
-        assertEquals("value", target.prop)
-        assertEquals(42, target.extra)
+        target.prop shouldBe "value"
+        target.extra shouldBe 42
     }
-}
+})
 ```
 
 ### Unit Tests (`cream-ksp/src/test/`)
