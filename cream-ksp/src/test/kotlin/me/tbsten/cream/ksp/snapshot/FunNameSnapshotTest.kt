@@ -462,4 +462,38 @@ internal class FunNameSnapshotTest :
                 "Input" facetOf source
             }
         }
+
+        // The duplicate-name guard must NOT reject legitimate overloads: the same funName to
+        // different targets (with different signatures) is two valid overloaded functions.
+        test("@CopyMapping reuses a funName across different targets as overloads") {
+            val source =
+                """
+                package snap.funname
+
+                import me.tbsten.cream.CopyMapping
+
+                data class A(val shared: String)
+                data class B(val shared: String, val extra: Int)
+                data class C(val shared: String, val flag: Boolean)
+
+                @CopyMapping(A::class, B::class, funName = "conv")
+                @CopyMapping(A::class, C::class, funName = "conv")
+                object Mapping
+                """.trimIndent()
+            val result = compileWithCream(source)
+
+            withClue(result.messages) {
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+            }
+            val generated = result.generatedSourceText()
+            withClue(generated) {
+                generated shouldContain ".conv("
+                generated shouldContain ": snap.funname.B"
+                generated shouldContain ": snap.funname.C"
+            }
+            assertMatchesSnapshot("FunNameSnapshotTest.edgeCase/copyMappingOverloads") {
+                "Generated" facetOf generated
+                "Input" facetOf source
+            }
+        }
     })

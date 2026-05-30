@@ -18,6 +18,9 @@ import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.transform.appendCombineToFunction
 import me.tbsten.cream.ksp.transform.appendCopyFunction
 import me.tbsten.cream.ksp.transform.requireFunNameSupportsFanout
+import me.tbsten.cream.ksp.transform.requireNoDuplicateGeneratedFunctions
+import me.tbsten.cream.ksp.transform.resolveFunNameTemplate
+import me.tbsten.cream.ksp.transform.toClassDeclarationInfo
 import me.tbsten.cream.ksp.util.annotationsOf
 import me.tbsten.cream.ksp.util.classListArgument
 import me.tbsten.cream.ksp.util.createNewKotlinFile
@@ -143,6 +146,45 @@ internal fun CreamSymbolProcessor.processCopyMapping(resolver: Resolver): List<K
                 val sourceFile =
                     mappings.first().sourceClass.containingFile
                         ?: annotatedDeclaration.containingFile!!
+
+                // Reject stacked @CopyMapping occurrences written more than once (same receiver +
+                // name + mapped classes) — the copy-paste duplicate. This is intentionally not a
+                // full overload-collision check: distinct targets that emit the same signature are
+                // left to the compiler (see requireNoDuplicateGeneratedFunctions — cream does not
+                // replicate Kotlin's overload-resolution rules).
+                requireNoDuplicateGeneratedFunctions(
+                    functions =
+                        buildList {
+                            mappings.forEach { mapping ->
+                                val fwd =
+                                    resolveFunNameTemplate(
+                                        mapping.funNameTemplate,
+                                        mapping.sourceClass.toClassDeclarationInfo(),
+                                        mapping.targetClass.toClassDeclarationInfo(),
+                                        options,
+                                    )
+                                add(
+                                    "${mapping.sourceClass.fullName}|$fwd|${mapping.targetClass.fullName}" to
+                                        "${mapping.sourceClass.fullName}.$fwd",
+                                )
+                                if (mapping.canReverse) {
+                                    val rev =
+                                        resolveFunNameTemplate(
+                                            mapping.funNameTemplate,
+                                            mapping.targetClass.toClassDeclarationInfo(),
+                                            mapping.sourceClass.toClassDeclarationInfo(),
+                                            options,
+                                        )
+                                    add(
+                                        "${mapping.targetClass.fullName}|$rev|${mapping.sourceClass.fullName}" to
+                                            "${mapping.targetClass.fullName}.$rev",
+                                    )
+                                }
+                            }
+                        },
+                    annotationSimpleName = CopyMapping::class.simpleName!!,
+                    declarationFullName = annotatedDeclaration.fullName,
+                )
 
                 codeGenerator.createNewKotlinFile(
                     dependencies = Dependencies(aggregating = true, sourceFile),

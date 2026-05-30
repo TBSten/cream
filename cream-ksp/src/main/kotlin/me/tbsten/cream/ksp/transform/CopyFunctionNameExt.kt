@@ -96,3 +96,39 @@ internal fun requireFunNameSupportsFanout(
             ),
     )
 }
+
+/**
+ * Fail when two of the [functions] share an identity key — i.e. the same mapping written more than
+ * once. Each entry is `identityKey to displayName`; the caller builds the key from the receiver,
+ * name, and mapped classes. This catches the common copy-paste duplicate with a clear cream error
+ * instead of a redeclaration at the user's compiler. Used by the repeatable mapping annotations,
+ * where stacked occurrences land in one file.
+ *
+ * It is deliberately not a full overload-collision check: two entries with *different* mapped
+ * classes get distinct keys and pass here even if they would emit the same Kotlin signature
+ * (Kotlin ignores the return type in overload resolution). Detecting that precisely would mean
+ * replicating Kotlin's signature rules, so cream leaves it to the compiler's "Conflicting
+ * overloads" instead — see the funName note: cream does not pre-validate what the compiler enforces.
+ */
+internal fun requireNoDuplicateGeneratedFunctions(
+    functions: List<Pair<String, String>>,
+    annotationSimpleName: String,
+    declarationFullName: String,
+) {
+    val seen = HashSet<String>()
+    for ((key, display) in functions) {
+        if (!seen.add(key)) {
+            throw InvalidCreamUsageException(
+                message =
+                    lines(
+                        "@$annotationSimpleName on $declarationFullName generates the function $display more than once.",
+                        "Stacked occurrences resolve to the same receiver and name (an identical signature), which collide.",
+                    ),
+                solution =
+                    lines(
+                        "Remove the duplicate occurrence, or give the occurrences distinct funName values.",
+                    ),
+            )
+        }
+    }
+}
