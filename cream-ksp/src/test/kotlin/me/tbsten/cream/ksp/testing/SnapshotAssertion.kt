@@ -16,8 +16,31 @@ private val snapshotRoot: File by lazy {
 }
 
 /**
- * Compare a Markdown golden snapshot at `src/test/resources/snapshots/<name>.md`
- * against the facets declared in [block].
+ * Map a dotted snapshot [name] to its golden file path relative to [snapshotRoot].
+ *
+ * The first `.` is the test-class/test-case boundary and becomes a directory
+ * separator, giving the `<TestName>/<testCase>.md` layout:
+ *
+ * - `"BasicSnapshotTest.copyTo"` → `BasicSnapshotTest/copyTo.md`
+ * - `"CopyToDiagnosticTest.enumTarget.output"` → `CopyToDiagnosticTest/enumTarget.output.md`
+ *
+ * Only the first `.` is rewritten, so dotted suffixes/variants in the test case
+ * (`.output`, `.default`, …) stay part of the file name. An `edgeCase` segment is
+ * expressed with a `/` in [name] and survives verbatim, supporting both
+ * `"<TestName>.edgeCase/<case>"` → `<TestName>/edgeCase/<case>.md` and
+ * `"edgeCase/<TestName>.<case>"` → `edgeCase/<TestName>/<case>.md`.
+ */
+private fun snapshotRelativePath(name: String): String = "${name.replaceFirst(".", "/")}.md"
+
+/**
+ * Compare a Markdown golden snapshot against the facets declared in [block].
+ *
+ * The golden file lives under `src/test/resources/snapshots/` in a per-test-class
+ * directory derived from [name]: the first `.` separates the test class from the
+ * test case and becomes a directory boundary. So `"MyTest.scenario"` resolves to
+ * `snapshots/MyTest/scenario.md` (see [snapshotRelativePath]). Edge-case scenarios
+ * embed an `edgeCase` path segment in [name], e.g. `"MyTest.edgeCase/scenario"` →
+ * `snapshots/MyTest/edgeCase/scenario.md`.
  *
  * Every captured value is a facet — there is no special "main" content. Each facet
  * becomes a `## <facet name>` section in declaration order, followed by a single
@@ -49,7 +72,7 @@ internal fun assertMatchesSnapshot(
         "assertMatchesSnapshot(\"$name\") requires at least one facet inside its block."
     }
 
-    val file = File(snapshotRoot, "$name.md")
+    val file = File(snapshotRoot, snapshotRelativePath(name))
     val normalizedActual = renderFacets(facets)
 
     if (!file.exists()) {
