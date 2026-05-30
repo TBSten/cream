@@ -53,8 +53,10 @@ internal fun CreamSymbolProcessor.processCopyToChildren(resolver: Resolver): Lis
 
                 if (!copyToChildren.isSealed()) {
                     throw InvalidCreamUsageException(
-                        message = "@${CopyToChildren::class.simpleName} annotation must be applied to a sealed class/interface, but ${copyToChildren.isSealed()}",
-                        solution = "",
+                        message =
+                            "@${CopyToChildren::class.simpleName} annotation must be applied to a sealed class/interface, " +
+                                "but ${copyToChildren.fullName} is not sealed (classKind: ${copyToChildren.classKind}).",
+                        solution = "Make ${copyToChildren.fullName} a sealed class/interface.",
                     )
                 }
 
