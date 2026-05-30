@@ -64,7 +64,7 @@ internal fun resolveValidatedFunName(
             message =
                 lines(
                     "@$annotationName on $annotatedName produced an invalid function name \"$name\".",
-                    "  funName template : \"$funNameTemplate\"",
+                    "  funName template : \"${displayFunNameTemplate(funNameTemplate)}\"",
                     "  target           : ${target.fullName}",
                 ),
             solution = invalidFunNameSolution(name, funNameTemplate),
@@ -128,7 +128,7 @@ internal fun resolveValidatedSealedCopyFunName(
             message =
                 lines(
                     "@SealedCopy on ${sealedClass.fullName} produced an invalid function name \"$name\".",
-                    "  funName template : \"$funNameTemplate\"",
+                    "  funName template : \"${displayFunNameTemplate(funNameTemplate)}\"",
                 ),
             solution = invalidFunNameSolution(name, funNameTemplate),
         )

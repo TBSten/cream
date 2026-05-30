@@ -2,7 +2,7 @@
 
 ```text
 Invalid cream usage: @CopyTo on diag.Source produced an invalid function name "bad-Target".
-  funName template : "bad-{{cream:CopyTargetSimpleName}}"
+  funName template : "bad-CopyTargetSimpleName"
   target           : diag.Target
 
 Solution: 
@@ -11,7 +11,7 @@ Solution:
   Adjust funName, or the tokens it expands to, so it produces one.
 
 me.tbsten.cream.ksp.InvalidCreamUsageException: Invalid cream usage: @CopyTo on diag.Source produced an invalid function name "bad-Target".
-  funName template : "bad-{{cream:CopyTargetSimpleName}}"
+  funName template : "bad-CopyTargetSimpleName"
   target           : diag.Target
 
 Solution: 
