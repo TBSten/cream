@@ -134,6 +134,10 @@ internal class VisibilitySnapshotTest {
             generated.contains("internal fun"),
             "expected an internal function, but got:\n$generated",
         )
+        assertMatchesSnapshot("VisibilitySnapshotTest.copyFromInternal") {
+            "Generated" facetOf generated
+            "Input" facetOf source
+        }
     }
 
     @Test
@@ -161,6 +165,10 @@ internal class VisibilitySnapshotTest {
             generated.contains("internal fun") && !generated.contains("public fun"),
             "expected only internal functions, but got:\n$generated",
         )
+        assertMatchesSnapshot("VisibilitySnapshotTest.copyToChildrenInternal") {
+            "Generated" facetOf generated
+            "Input" facetOf source
+        }
     }
 
     @Test
