@@ -52,6 +52,24 @@ assertMatchesSnapshot("MyTest.scenario") {
 infix `facetOf` は default `lang = "kt"`。違う言語が必要な facet は
 `facet(name, content, lang)` を使う。block 内で最低 1 つの facet が必要。
 
+#### ファイル階層
+
+golden は `snapshots/<TestName>/<testCase>.md` に test クラスごとのディレクトリで格納する。
+パスは `assertMatchesSnapshot(name)` の `name` から導出され、**最初の `.` が
+test クラスと test case の境界**としてディレクトリ区切りになる (`SnapshotAssertion.kt` の
+`snapshotRelativePath`):
+
+- `"BasicSnapshotTest.copyTo"` → `BasicSnapshotTest/copyTo.md`
+- `"CopyToDiagnosticTest.enumTarget.output"` → `CopyToDiagnosticTest/enumTarget.output.md`
+
+最初の `.` だけが置換されるので、test case 側の `.output` / `.default` などの
+ドット付き接尾辞・variant はファイル名の一部としてそのまま残る。
+
+edge case を扱う test case は `name` に `edgeCase` セグメントを `/` で含める。両形を取れる:
+
+- `"FooTest.edgeCase/scenario"` → `FooTest/edgeCase/scenario.md` (test クラス配下にまとめる / 推奨)
+- `"edgeCase/FooTest.scenario"` → `edgeCase/FooTest/scenario.md`
+
 #### SSoT を保つ
 
 test code と snapshot で input を二重管理しないために、input source は test code 側で

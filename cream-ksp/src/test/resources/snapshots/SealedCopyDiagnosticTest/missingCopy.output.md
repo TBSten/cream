@@ -1,6 +1,6 @@
 ## Compiler output
 
-```kt
+```text
 Invalid cream usage: Cannot generate copy() for sealed type 'MyState' because the following subclass(es) have no compatible 'copy(...)' function: MyState.Frozen
 
 Solution: 

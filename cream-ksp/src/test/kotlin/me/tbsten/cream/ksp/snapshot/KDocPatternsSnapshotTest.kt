@@ -92,7 +92,7 @@ internal class KDocPatternsSnapshotTest {
     fun `do-not-use warning`() {
         val q = "\"\"\""
         runSnapshot(
-            "KDocPatternsSnapshotTest.Warning",
+            "KDocPatternsSnapshotTest.edgeCase/Warning",
             """
             package snap.kdoc.warning
 
@@ -166,7 +166,7 @@ internal class KDocPatternsSnapshotTest {
     @Test
     fun `at-throws tag on CopyFrom`() {
         runSnapshot(
-            "KDocPatternsSnapshotTest.AtThrowsCopyFrom",
+            "KDocPatternsSnapshotTest.edgeCase/AtThrowsCopyFrom",
             """
             package snap.kdoc.atthrowscopyfrom
 
@@ -187,7 +187,7 @@ internal class KDocPatternsSnapshotTest {
     @Test
     fun `at-see tag`() {
         runSnapshot(
-            "KDocPatternsSnapshotTest.AtSee",
+            "KDocPatternsSnapshotTest.edgeCase/AtSee",
             """
             package snap.kdoc.atsee
 
@@ -208,7 +208,7 @@ internal class KDocPatternsSnapshotTest {
     @Test
     fun `at-sample tag`() {
         runSnapshot(
-            "KDocPatternsSnapshotTest.AtSample",
+            "KDocPatternsSnapshotTest.edgeCase/AtSample",
             """
             package snap.kdoc.atsample
 
@@ -229,7 +229,7 @@ internal class KDocPatternsSnapshotTest {
     @Test
     fun `at-since tag`() {
         runSnapshot(
-            "KDocPatternsSnapshotTest.AtSince",
+            "KDocPatternsSnapshotTest.edgeCase/AtSince",
             """
             package snap.kdoc.atsince
 
@@ -250,7 +250,7 @@ internal class KDocPatternsSnapshotTest {
     @Test
     fun `inline symbol link`() {
         runSnapshot(
-            "KDocPatternsSnapshotTest.InlineSymbolLink",
+            "KDocPatternsSnapshotTest.edgeCase/InlineSymbolLink",
             """
             package snap.kdoc.inlinesymbollink
 
@@ -293,7 +293,7 @@ internal class KDocPatternsSnapshotTest {
     fun `description with embedded code fence`() {
         val q = "\"\"\""
         runSnapshot(
-            "KDocPatternsSnapshotTest.CodeFenceInDescription",
+            "KDocPatternsSnapshotTest.edgeCase/CodeFenceInDescription",
             """
             package snap.kdoc.codefenceindescription
 
@@ -351,7 +351,7 @@ internal class KDocPatternsSnapshotTest {
     @Test
     fun `at-suppress tag`() {
         runSnapshot(
-            "KDocPatternsSnapshotTest.AtSuppress",
+            "KDocPatternsSnapshotTest.edgeCase/AtSuppress",
             """
             package snap.kdoc.atsuppress
 
@@ -373,7 +373,7 @@ internal class KDocPatternsSnapshotTest {
     fun `migration guidance`() {
         val q = "\"\"\""
         runSnapshot(
-            "KDocPatternsSnapshotTest.MigrationGuidance",
+            "KDocPatternsSnapshotTest.edgeCase/MigrationGuidance",
             """
             package snap.kdoc.migrationguidance
 
@@ -399,7 +399,7 @@ internal class KDocPatternsSnapshotTest {
     @Test
     fun `domain-language identifiers`() {
         runSnapshot(
-            "KDocPatternsSnapshotTest.DomainLanguage",
+            "KDocPatternsSnapshotTest.edgeCase/DomainLanguage",
             """
             package snap.kdoc.domainlanguage
 
@@ -420,7 +420,7 @@ internal class KDocPatternsSnapshotTest {
     @Test
     fun `external URL link`() {
         runSnapshot(
-            "KDocPatternsSnapshotTest.ExternalUrl",
+            "KDocPatternsSnapshotTest.edgeCase/ExternalUrl",
             """
             package snap.kdoc.externalurl
 
@@ -472,7 +472,7 @@ internal class KDocPatternsSnapshotTest {
     @Test
     fun `thread or coroutine safety note`() {
         runSnapshot(
-            "KDocPatternsSnapshotTest.ThreadSafety",
+            "KDocPatternsSnapshotTest.edgeCase/ThreadSafety",
             """
             package snap.kdoc.threadsafety
 
@@ -494,7 +494,7 @@ internal class KDocPatternsSnapshotTest {
     fun `lossy conversion warning`() {
         val q = "\"\"\""
         runSnapshot(
-            "KDocPatternsSnapshotTest.LossyConversion",
+            "KDocPatternsSnapshotTest.edgeCase/LossyConversion",
             """
             package snap.kdoc.lossyconversion
 
@@ -520,7 +520,7 @@ internal class KDocPatternsSnapshotTest {
     @Test
     fun `performance note`() {
         runSnapshot(
-            "KDocPatternsSnapshotTest.PerformanceNote",
+            "KDocPatternsSnapshotTest.edgeCase/PerformanceNote",
             """
             package snap.kdoc.performancenote
 
@@ -541,7 +541,7 @@ internal class KDocPatternsSnapshotTest {
     @Test
     fun `at-receiver tag`() {
         runSnapshot(
-            "KDocPatternsSnapshotTest.AtReceiver",
+            "KDocPatternsSnapshotTest.edgeCase/AtReceiver",
             """
             package snap.kdoc.atreceiver
 
@@ -562,7 +562,7 @@ internal class KDocPatternsSnapshotTest {
     @Test
     fun `domain invariant on CopyFrom`() {
         runSnapshot(
-            "KDocPatternsSnapshotTest.DomainInvariant",
+            "KDocPatternsSnapshotTest.edgeCase/DomainInvariant",
             """
             package snap.kdoc.domaininvariant
 
@@ -584,7 +584,7 @@ internal class KDocPatternsSnapshotTest {
     fun `CombineTo last-wins ordering`() {
         val q = "\"\"\""
         runSnapshot(
-            "KDocPatternsSnapshotTest.CombineToLastWins",
+            "KDocPatternsSnapshotTest.edgeCase/CombineToLastWins",
             """
             package snap.kdoc.combinetolastwins
 
@@ -612,7 +612,7 @@ internal class KDocPatternsSnapshotTest {
     @Test
     fun `CopyToChildren shared description`() {
         runSnapshot(
-            "KDocPatternsSnapshotTest.CopyToChildrenShared",
+            "KDocPatternsSnapshotTest.edgeCase/CopyToChildrenShared",
             """
             package snap.kdoc.copytochildrenshared
 
@@ -635,7 +635,7 @@ internal class KDocPatternsSnapshotTest {
     @Test
     fun `CopyMapping for library boundary`() {
         runSnapshot(
-            "KDocPatternsSnapshotTest.CopyMappingLibraryBoundary",
+            "KDocPatternsSnapshotTest.edgeCase/CopyMappingLibraryBoundary",
             """
             package snap.kdoc.copymappinglibraryboundary
 
@@ -664,7 +664,7 @@ internal class KDocPatternsSnapshotTest {
     @Test
     fun `TODO note for known limitation`() {
         runSnapshot(
-            "KDocPatternsSnapshotTest.TodoNote",
+            "KDocPatternsSnapshotTest.edgeCase/TodoNote",
             """
             package snap.kdoc.todonote
 
@@ -685,7 +685,7 @@ internal class KDocPatternsSnapshotTest {
     @Test
     fun `CombineFrom multi-source intent on target`() {
         runSnapshot(
-            "KDocPatternsSnapshotTest.CombineFromIntent",
+            "KDocPatternsSnapshotTest.edgeCase/CombineFromIntent",
             """
             package snap.kdoc.combinefromintent
 

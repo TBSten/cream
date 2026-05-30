@@ -33,7 +33,7 @@ internal class SealedCopyDiagnosticTest {
             "Compilation should fail. Output:\n${result.normalizedCompilerOutput()}",
         )
         assertMatchesSnapshot("SealedCopyDiagnosticTest.objectErrorDefault.output") {
-            "Compiler output" facetOf result.normalizedCompilerOutput()
+            facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
             "Input" facetOf source
         }
     }
@@ -62,7 +62,7 @@ internal class SealedCopyDiagnosticTest {
             "Compilation should fail. Output:\n${result.normalizedCompilerOutput()}",
         )
         assertMatchesSnapshot("SealedCopyDiagnosticTest.missingCopy.output") {
-            "Compiler output" facetOf result.normalizedCompilerOutput()
+            facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
             "Input" facetOf source
         }
     }
@@ -91,7 +91,7 @@ internal class SealedCopyDiagnosticTest {
             "Compilation should fail. Output:\n${result.normalizedCompilerOutput()}",
         )
         assertMatchesSnapshot("SealedCopyDiagnosticTest.missingCopyCustomFunName.output") {
-            "Compiler output" facetOf result.normalizedCompilerOutput()
+            facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
             "Input" facetOf source
         }
     }
@@ -115,7 +115,7 @@ internal class SealedCopyDiagnosticTest {
             "Compilation should fail. Output:\n${result.normalizedCompilerOutput()}",
         )
         assertMatchesSnapshot("SealedCopyDiagnosticTest.nonSealedClass.output") {
-            "Compiler output" facetOf result.normalizedCompilerOutput()
+            facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
             "Input" facetOf source
         }
     }
