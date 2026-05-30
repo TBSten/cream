@@ -629,6 +629,61 @@ generated function unusable, so they are intentionally not provided:
 
 Omitting `visibility` is fully backward compatible — it keeps the previously generated code unchanged.
 
+### Function Name (funName)
+
+By default cream derives the generated function name from the project-wide naming options
+(`cream.copyFunNamePrefix` / `cream.copyFunNamingStrategy` / `cream.escapeDot`). Pass `funName`
+to a copy/combine annotation (`@CopyTo`, `@CopyFrom`, `@CombineTo`, `@CombineFrom`,
+`@CopyMapping`, `@CombineMapping`, `@SealedCopy`) to override the name for that one declaration,
+without touching the project options.
+
+`funName` is a **template**: a few `const` tokens expand to pieces of the name, so you can keep
+the derived name and only add a prefix/suffix, or build a name from scratch:
+
+```kt
+import me.tbsten.cream.*
+
+@CopyTo(UiState.Success::class)                                              // copyToUiStateSuccess (default)
+@CopyTo(UiState.Success::class, funName = DefaultCopyFunctionName + "OrNull") // copyToUiStateSuccessOrNull
+@CopyTo(UiState.Success::class, funName = "to" + CopyTargetSimpleName)        // toSuccess
+@CopyTo(UiState.Success::class, funName = "to_" + copy_target_under_package)  // to_uistate_success
+@CopyTo(UiState.Success::class, funName = "toState")                          // toState (plain literal)
+data class Source(/* ... */)
+```
+
+Because the tokens are `const val`, they can be combined with `+` while staying a compile-time
+constant.
+
+| Token | Expands to (target `com.example.UiState.Success`) |
+|-------|---------------------------------------------------|
+| `DefaultCopyFunctionName` | cream's derived name (`copyToUiStateSuccess`; `copy` for `@SealedCopy`) |
+| `CopyTargetSimpleName` / `copy_target_simple_name` | `Success` / `success` |
+| `CopyTargetUnderPackage` / `copy_target_under_package` | `UiStateSuccess` / `uistate_success` |
+| `CopyTargetInnerName` / `copy_target_inner_name` | `Success` / `success` |
+| `CopyTargetFullName` / `copy_target_full_name` | `ComExampleUiStateSuccess` / `com_example_uistate_success` |
+
+The `PascalCase` tokens upper-case each dotted segment; the `snake_case` tokens lower-case each
+dotted segment and join them with `_`. Unlike `DefaultCopyFunctionName`, the `CopyTarget*` tokens
+render the target name with a fixed strategy, independent of `cream.copyFunNamingStrategy` /
+`cream.escapeDot`.
+
+When an annotation generates more than one function — multiple targets/sources, a sealed target,
+or a reversible (`canReverse`) `@CopyMapping` — a plain-literal `funName` would name them all the
+same and is rejected at build time; include a token so each function gets a distinct name. Omitting
+`funName` is fully backward compatible — it keeps the previously generated name unchanged.
+
+A plain-literal `funName` must be a valid Kotlin function name. To use a name that is a Kotlin
+keyword (`is`, `in`, `object`, …) or contains spaces, backtick-quote it; cream rejects an invalid
+`funName` at build time with a clear error:
+
+```kt
+@CopyTo(Target::class, funName = "`is`")   // generates: fun Source.`is`(...)
+```
+
+`@CopyToChildren` does not take `funName` — it always generates one function per child, so a single
+name cannot apply. Control those names with the project naming options, or with `@CopyTo` /
+`@CopyFrom` / `@SealedCopy` (which do take `funName`).
+
 ## 💻 4. Usage Example
 
 The primary use cases for cream.kt are outlined below.
@@ -671,7 +726,7 @@ ksp {
 |-----------------------------------|-----------------------------------------------------------------------------|--------------------------------------------------------------------------|--------------------|
 | **`cream.copyFunNamePrefix`**     | String prefixed to the generated copy function                              | `copyTo`, `transitionTo`, `to`, `mapTo`                                  | `copyTo`           |
 | **`cream.copyFunNamingStrategy`** | Copy function naming conventions.                                           | `under-package`, `diff`, `simple-name`, `full-name`, `inner-name` | `under-package`    |
-| **`cream.escapeDot`**             | How to escape `. ` in the name given by `cream.copyFunNamingStrategy`.      | `replace-to-underscore`, `pascal-case`, `backquote`                      | `lower-camel-case` |
+| **`cream.escapeDot`**             | How to escape `. ` in the name given by `cream.copyFunNamingStrategy`.      | `lower-camel-case`, `replace-to-underscore`, `backquote`                      | `lower-camel-case` |
 | **`cream.notCopyToObject`**       | If `true`, @CopyToChildren will not generate a copy function to the object. | `true` , `false`                                                         | `false`            |
 
 ### Option 1. `cream.copyFunNamePrefix`
@@ -708,7 +763,7 @@ to [issue](https://github.com/TBSten/cream/issues?q=sort%3Aupdated-desc+is%3Aiss
 
 | Default            | Possible values                                            |
 |--------------------|------------------------------------------------------------|
-| `lower-camel-case` | One of `replace-to-underscore`, `pascal-case`, `backquote` |
+| `lower-camel-case` | One of `lower-camel-case`, `replace-to-underscore`, `backquote` |
 
 Sets the method for escaping class names retrieved with `cream.copyFunNamingStrategy`.
 

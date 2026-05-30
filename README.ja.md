@@ -623,6 +623,59 @@ internal fun ServerState.copyToMergedState(
 
 `visibility` を省略した場合は完全に後方互換であり、これまで生成されていたコードは変わりません。
 
+### Function Name (関数名 / funName)
+
+デフォルトでは、生成される関数名はプロジェクト全体の命名オプション
+(`cream.copyFunNamePrefix` / `cream.copyFunNamingStrategy` / `cream.escapeDot`) から導出されます。
+特定の宣言だけ名前を上書きしたい場合は、copy/combine 系アノテーション (`@CopyTo` / `@CopyFrom` /
+`@CombineTo` / `@CombineFrom` / `@CopyMapping` / `@CombineMapping` / `@SealedCopy`) に `funName`
+を渡します。プロジェクト全体のオプションには影響しません。
+
+`funName` は **テンプレート** です。いくつかの `const` トークンが名前の一部に展開されるため、
+既定の名前に prefix/suffix を足したり、ゼロから名前を組み立てたりできます:
+
+```kt
+import me.tbsten.cream.*
+
+@CopyTo(UiState.Success::class)                                              // copyToUiStateSuccess (デフォルト)
+@CopyTo(UiState.Success::class, funName = DefaultCopyFunctionName + "OrNull") // copyToUiStateSuccessOrNull
+@CopyTo(UiState.Success::class, funName = "to" + CopyTargetSimpleName)        // toSuccess
+@CopyTo(UiState.Success::class, funName = "to_" + copy_target_under_package)  // to_uistate_success
+@CopyTo(UiState.Success::class, funName = "toState")                          // toState (リテラル)
+data class Source(/* ... */)
+```
+
+トークンは `const val` なので、`+` で連結してもコンパイル時定数のままです。
+
+| トークン | 展開結果 (target が `com.example.UiState.Success` の場合) |
+|----------|----------------------------------------------------------|
+| `DefaultCopyFunctionName` | cream の既定名 (`copyToUiStateSuccess`、`@SealedCopy` では `copy`) |
+| `CopyTargetSimpleName` / `copy_target_simple_name` | `Success` / `success` |
+| `CopyTargetUnderPackage` / `copy_target_under_package` | `UiStateSuccess` / `uistate_success` |
+| `CopyTargetInnerName` / `copy_target_inner_name` | `Success` / `success` |
+| `CopyTargetFullName` / `copy_target_full_name` | `ComExampleUiStateSuccess` / `com_example_uistate_success` |
+
+`PascalCase` トークンは `.` 区切りの各セグメントの先頭を大文字にし、`snake_case` トークンは各セグメントを
+小文字にして `_` で連結します。`DefaultCopyFunctionName` と異なり、`CopyTarget*` トークンは
+`cream.copyFunNamingStrategy` / `cream.escapeDot` に依存しない固定の描画になります。
+
+1 つのアノテーションが複数の関数を生成する場合 (複数 target/source、sealed target、`canReverse` な
+`@CopyMapping`) に純粋なリテラルの `funName` を指定すると、すべて同名になってしまうためビルド時に
+エラーになります。トークンを含めれば各関数が別名になります。`funName` を省略した場合は完全に後方互換で、
+これまで生成されていた名前は変わりません。
+
+純粋なリテラルの `funName` は有効な Kotlin の関数名である必要があります。Kotlin のキーワード
+(`is`、`in`、`object` など) やスペースを含む名前にしたい場合はバッククォートで囲みます。不正な `funName`
+はビルド時に明確なエラーになります:
+
+```kt
+@CopyTo(Target::class, funName = "`is`")   // 生成: fun Source.`is`(...)
+```
+
+`@CopyToChildren` は `funName` を取りません — 常に子ごとに1関数を生成するため、単一の名前を適用できない
+からです。それらの名前はプロジェクトの命名オプション、または `@CopyTo` / `@CopyFrom` / `@SealedCopy`
+(これらは `funName` を取ります) で制御してください。
+
 ## 💻 4. 利用例
 
 主に想定されている cream.kt のユースケースを以下に示します。
@@ -665,7 +718,7 @@ ksp {
 |-----------------------------------|-------------------------------------------------------------|--------------------------------------------------------------------------|--------------------|
 | **`cream.copyFunNamePrefix`**     | 生成されるコピー関数の先頭につく文字列                                         | `copyTo`, `transitionTo`, `to`, `mapTo`                                  | `copyTo`           |
 | **`cream.copyFunNamingStrategy`** | コピー関数の命名方法。                                                 | `under-package`, `diff`, `simple-name`, `full-name`, `inner-name` | `under-package`    |
-| **`cream.escapeDot`**             | `cream.copyFunNamingStrategy` で命名された名前に含まれる `.` をエスケープする方法。 | `replace-to-underscore`, `pascal-case`, `backquote`                      | `lower-camel-case` |
+| **`cream.escapeDot`**             | `cream.copyFunNamingStrategy` で命名された名前に含まれる `.` をエスケープする方法。 | `lower-camel-case`, `replace-to-underscore`, `backquote`                      | `lower-camel-case` |
 | **`cream.notCopyToObject`**       | `true` の場合 @CopyToChildren で object へのコピー関数を生成しないようにします。    | `true` , `false`                                                         | `false`            |
 
 ### オプション 1. `cream.copyFunNamePrefix`
@@ -701,7 +754,7 @@ ksp {
 
 | デフォルト              | 設定可能な値                                                     |
 |--------------------|------------------------------------------------------------|
-| `lower-camel-case` | `replace-to-underscore`, `pascal-case`, `backquote`　のいずれか。 |
+| `lower-camel-case` | `lower-camel-case`, `replace-to-underscore`, `backquote`　のいずれか。 |
 
 `cream.copyFunNamingStrategy` で取得したクラス名をエスケープする方法を設定します。
 

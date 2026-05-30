@@ -144,7 +144,7 @@ cream/
 **Annotation Tracking:**
 - `GenerateSourceAnnotation` sealed interface tracks which annotation triggered generation
 - Used in KDoc generation to reference source annotation
-- Three implementations: `CopyFrom`, `CopyTo`, `CopyToChildren`
+- Eight implementations: `CopyFrom`, `CopyTo`, `CopyToChildren`, `SealedCopy`, `CombineTo`, `CombineFrom`, `CopyMapping`, `CombineMapping`
 
 **Property Mapping:**
 - `@CopyTo.Map("targetProperty")` and `@CopyFrom.Map("sourceProperty")` map mismatched property names
@@ -254,6 +254,7 @@ fun Project.setupKspForMultiplatformWorkaround() {
 ### Modifying Code Generation
 
 - **Function naming:** Edit `CopyFunctionNameExt.kt` and `CopyFunctionName.kt`
+- **Per-declaration `funName` templates/tokens:** Edit `FunctionNameTemplate.kt` (cream-ksp/shared) and the public token consts in `CopyFunctionNameToken.kt` (cream-runtime)
 - **Property matching:** Edit `FindMatchedProperty.kt`
 - **Class generation:** Edit `Class.kt`, `Object.kt`, or `SealedClass.kt`
 - **Type parameters:** Edit `CopyFunctionTypeParameters.kt`
