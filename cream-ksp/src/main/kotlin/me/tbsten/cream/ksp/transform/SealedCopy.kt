@@ -8,6 +8,7 @@ import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.Modifier
+import me.tbsten.cream.CopyVisibility
 import me.tbsten.cream.NonCopyableStrategy
 import me.tbsten.cream.SealedCopy
 import me.tbsten.cream.ksp.GenerateSourceAnnotation
@@ -16,8 +17,8 @@ import me.tbsten.cream.ksp.util.annotationsOf
 import me.tbsten.cream.ksp.util.asString
 import me.tbsten.cream.ksp.util.fullName
 import me.tbsten.cream.ksp.util.isSealed
+import me.tbsten.cream.ksp.util.toModifierString
 import me.tbsten.cream.ksp.util.underPackageName
-import me.tbsten.cream.ksp.util.visibilityStr
 import java.io.BufferedWriter
 
 /**
@@ -32,6 +33,7 @@ internal fun BufferedWriter.appendSealedCopyFunction(
     nonCopyableStrategy: NonCopyableStrategy,
     omitPackages: List<String>,
     generateSourceAnnotation: GenerateSourceAnnotation.SealedCopy,
+    visibility: CopyVisibility = CopyVisibility.INHERIT,
 ) {
     val abstractProperties = sealedClass.collectAbstractProperties()
     val classifiedLeaves =
@@ -49,7 +51,7 @@ internal fun BufferedWriter.appendSealedCopyFunction(
     val returnTypeText = renderSealedReceiverType(sealedClass, omitPackages) + if (nullable) "?" else ""
 
     appendSealedCopyKDoc(sealedClass, funName, classifiedLeaves, nullable, generateSourceAnnotation)
-    appendSealedCopyHeader(sealedClass, funName, returnTypeText, abstractProperties, omitPackages)
+    appendSealedCopyHeader(sealedClass, funName, returnTypeText, abstractProperties, omitPackages, visibility)
     appendSealedCopyBody(sealedClass, classifiedLeaves, abstractProperties, nonCopyableStrategy)
 }
 
@@ -59,8 +61,9 @@ private fun BufferedWriter.appendSealedCopyHeader(
     returnTypeText: String,
     abstractProperties: List<KSPropertyDeclaration>,
     omitPackages: List<String>,
+    visibility: CopyVisibility,
 ) {
-    append(sealedClass.visibilityStr)
+    append(visibility.toModifierString(sealedClass))
     append(" fun ")
     append(renderTypeParameterList(sealedClass.typeParameters, omitPackages))
     if (sealedClass.typeParameters.isNotEmpty()) append(" ")

@@ -1,9 +1,11 @@
 package me.tbsten.cream.ksp.transform
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import me.tbsten.cream.CopyVisibility
 import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.util.fullName
+import me.tbsten.cream.ksp.util.toModifierString
 import me.tbsten.cream.ksp.util.underPackageName
 import me.tbsten.cream.ksp.util.visibilityStr
 import java.io.BufferedWriter
@@ -13,6 +15,7 @@ internal fun BufferedWriter.appendCopyToObjectFunction(
     targetObject: KSClassDeclaration,
     generateSourceAnnotation: GenerateSourceAnnotation<*>,
     options: CreamOptions,
+    visibility: CopyVisibility = CopyVisibility.INHERIT,
 ) {
     val funName =
         copyFunctionName(
@@ -21,7 +24,7 @@ internal fun BufferedWriter.appendCopyToObjectFunction(
             options,
         )
     appendCopyToObjectKDoc(source, targetObject, generateSourceAnnotation, funName.toString())
-    append("${targetObject.visibilityStr} fun ")
+    append("${visibility.toModifierString(targetObject)} fun ")
     append(source.fullName)
 
     if (source.typeParameters.isNotEmpty()) {
