@@ -34,10 +34,13 @@ internal fun copyFunctionName(
  * Resolve [funNameTemplate] into the concrete name for the function generated from
  * [source] to [target], then validate it.
  *
- * A bare [DefaultCopyFunctionName] (the value when `funName` is omitted) is cream's own
- * derived name and is emitted as-is, preserving behaviour for every naming option. Any
- * other template is something the user composed, so its result is validated and an invalid
- * name fails the build with an [InvalidCreamUsageException].
+ * The resolved name is always validated. A user-composed name that is not a valid Kotlin
+ * function name fails the build with an [InvalidCreamUsageException]. When `funName` was
+ * omitted, every supported option (`lower-camel-case` / `replace-to-underscore`) yields a
+ * valid name and the derived name is emitted unchanged; the one exception is
+ * `escapeDot=backquote` with a non-empty prefix, which produces an invalid name (e.g.
+ * `` copyTo`Target` ``) and is now reported against the naming option rather than silently
+ * emitted as broken code.
  */
 internal fun resolveValidatedFunName(
     funNameTemplate: String,
@@ -53,24 +56,44 @@ internal fun resolveValidatedFunName(
             target = target.toClassDeclarationInfo(),
             options = options,
         )
-    if (funNameTemplate != DefaultCopyFunctionName && !isValidGeneratedFunctionName(name)) {
-        val annotationName = generateSourceAnnotation.annotationClass.simpleName ?: "cream annotation"
-        // Name the *annotated* declaration, not `source`: for @CopyMapping / @CombineMapping the
-        // source is a mapped (often un-owned) class with no annotation, and for @CopyFrom it is the
-        // copied-from class. The annotation actually lives on annotationTarget.
-        val annotatedName =
-            generateSourceAnnotation.annotationTarget.let { it.qualifiedName?.asString() ?: it.simpleName.asString() }
+    if (isValidGeneratedFunctionName(name)) return name
+
+    val annotationName = generateSourceAnnotation.annotationClass.simpleName ?: "cream annotation"
+    // Name the *annotated* declaration, not `source`: for @CopyMapping / @CombineMapping the
+    // source is a mapped (often un-owned) class with no annotation, and for @CopyFrom it is the
+    // copied-from class. The annotation actually lives on annotationTarget.
+    val annotatedName =
+        generateSourceAnnotation.annotationTarget.let { it.qualifiedName?.asString() ?: it.simpleName.asString() }
+
+    if (funNameTemplate == DefaultCopyFunctionName) {
+        // funName was omitted, yet cream's derived name is not a valid Kotlin function name. A
+        // project naming option produced it — in practice cream.escapeDot=backquote together with a
+        // non-empty cream.copyFunNamePrefix (e.g. "copyTo`Target`"). Report it against the option,
+        // which the user actually set, rather than funName, which they did not.
         throw InvalidCreamUsageException(
             message =
                 lines(
-                    "@$annotationName on $annotatedName produced an invalid function name \"$name\".",
-                    "  funName template : \"$funNameTemplate\"",
-                    "  target           : ${target.fullName}",
+                    "cream's derived name \"$name\" for ${target.fullName} (from @$annotationName on $annotatedName)",
+                    "is not a valid Kotlin function name. A project naming option produced it — most likely",
+                    "cream.escapeDot=backquote together with a non-empty cream.copyFunNamePrefix.",
                 ),
-            solution = invalidFunNameSolution(name, funNameTemplate),
+            solution =
+                lines(
+                    "Use cream.escapeDot=lower-camel-case or replace-to-underscore, set cream.copyFunNamePrefix",
+                    "to \"\", or set funName explicitly on the declaration.",
+                ),
         )
     }
-    return name
+
+    throw InvalidCreamUsageException(
+        message =
+            lines(
+                "@$annotationName on $annotatedName produced an invalid function name \"$name\".",
+                "  funName template : \"$funNameTemplate\"",
+                "  target           : ${target.fullName}",
+            ),
+        solution = invalidFunNameSolution(name, funNameTemplate),
+    )
 }
 
 /**

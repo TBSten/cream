@@ -4,9 +4,11 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import me.tbsten.cream.ksp.testing.compileWithCream
 import me.tbsten.cream.ksp.testing.generatedSourceText
+import me.tbsten.cream.ksp.testing.normalizedCompilerOutput
 
 internal class EscapeDotOptionTest :
     FunSpec({
@@ -59,11 +61,11 @@ internal class EscapeDotOptionTest :
             }
         }
 
-        test("backquote wraps the target name in backticks in generated source") {
-            // backquote produces the literal substring `copyTo\`Target\`` in the generated function
-            // name. Note that Kotlin currently cannot parse a function declaration whose name has
-            // a non-quoted prefix followed by a backquote-wrapped suffix, so downstream compilation
-            // would fail — this test only verifies the KSP code-generation behavior of the option.
+        test("backquote with a non-empty prefix is rejected with a clear error") {
+            // escapeDot=backquote + the default "copyTo" prefix yields the literal `copyTo`Target``
+            // — not a valid Kotlin function name (a non-quoted prefix followed by a backtick-wrapped
+            // suffix). cream now rejects it with a clear message pointed at the naming option,
+            // instead of emitting code that fails downstream at the user's compiler.
             val result =
                 compileWithCream(
                     fullNameSource,
@@ -73,13 +75,11 @@ internal class EscapeDotOptionTest :
                             "cream.escapeDot" to "backquote",
                         ),
                 )
-            // simple-name -> "Target"
-            // backquote -> "`Target`"
-            // first char `\`` non-letter -> no capitalize change
-            // -> "copyTo`Target`" (matches CopyFunctionNameTest unit-test expectations)
-            val generated = result.generatedSourceText()
-            withClue("Expected 'copyTo`Target`' in generated source. Actual:\n$generated") {
-                generated shouldContain "copyTo`Target`"
+            withClue("Expected compilation failure. Output:\n${result.normalizedCompilerOutput()}") {
+                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+            }
+            withClue(result.normalizedCompilerOutput()) {
+                result.normalizedCompilerOutput() shouldContain "cream.escapeDot=backquote"
             }
         }
     })
