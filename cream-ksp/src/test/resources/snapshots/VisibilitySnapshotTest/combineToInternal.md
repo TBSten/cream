@@ -22,7 +22,7 @@ import me.tbsten.cream.*
  * 
  * ```kt
  * val source = Source(...)
- * val target = source.copyToTarget(, property = value)
+ * val target = source.copyToTarget(property = value)
  * ```
  * 
  * 
