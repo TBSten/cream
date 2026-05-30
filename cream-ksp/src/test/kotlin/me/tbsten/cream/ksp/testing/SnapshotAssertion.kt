@@ -26,9 +26,13 @@ private val snapshotRoot: File by lazy {
  *
  * Only the first `.` is rewritten, so dotted suffixes/variants in the test case
  * (`.output`, `.default`, …) stay part of the file name. An `edgeCase` segment is
- * expressed with a `/` in [name] and survives verbatim, supporting both
- * `"<TestName>.edgeCase/<case>"` → `<TestName>/edgeCase/<case>.md` and
- * `"edgeCase/<TestName>.<case>"` → `edgeCase/<TestName>/<case>.md`.
+ * expressed with a `/` in [name] and survives verbatim. The convention is to group
+ * edge cases under the test directory:
+ *
+ * - `"<TestName>.edgeCase/<case>"` → `<TestName>/edgeCase/<case>.md`
+ *
+ * (`replaceFirst` here is the literal `String` overload, so the `.` is a literal dot,
+ * not a regex wildcard.)
  */
 private fun snapshotRelativePath(name: String): String = "${name.replaceFirst(".", "/")}.md"
 
