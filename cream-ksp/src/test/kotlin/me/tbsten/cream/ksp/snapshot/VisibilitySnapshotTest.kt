@@ -43,39 +43,6 @@ internal class VisibilitySnapshotTest {
     }
 
     @Test
-    fun `copyTo private visibility generates private function`() {
-        val source =
-            """
-            package snap.visibility
-
-            import me.tbsten.cream.CopyTo
-            import me.tbsten.cream.CopyVisibility
-
-            @CopyTo(Target::class, visibility = CopyVisibility.PRIVATE)
-            data class Source(
-                val shared: String,
-            )
-
-            data class Target(
-                val shared: String,
-                val extra: Int,
-            )
-            """.trimIndent()
-        val result = compileWithCream(source)
-
-        assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode, result.messages)
-        val generated = result.generatedSourceText()
-        assertTrue(
-            generated.contains("private fun"),
-            "expected a private function, but got:\n$generated",
-        )
-        assertMatchesSnapshot("VisibilitySnapshotTest.copyToPrivate") {
-            "Generated" facetOf generated
-            "Input" facetOf source
-        }
-    }
-
-    @Test
     fun `copyTo without visibility keeps public default`() {
         val source =
             """
@@ -166,6 +133,72 @@ internal class VisibilitySnapshotTest {
             "expected only internal functions, but got:\n$generated",
         )
         assertMatchesSnapshot("VisibilitySnapshotTest.copyToChildrenInternal") {
+            "Generated" facetOf generated
+            "Input" facetOf source
+        }
+    }
+
+    @Test
+    fun `combineTo internal visibility generates internal function`() {
+        val source =
+            """
+            package snap.visibility
+
+            import me.tbsten.cream.CombineTo
+            import me.tbsten.cream.CopyVisibility
+
+            @CombineTo(Target::class, visibility = CopyVisibility.INTERNAL)
+            data class Source(
+                val shared: String,
+            )
+
+            data class Target(
+                val shared: String,
+                val extra: Int,
+            )
+            """.trimIndent()
+        val result = compileWithCream(source)
+
+        assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode, result.messages)
+        val generated = result.generatedSourceText()
+        assertTrue(
+            generated.contains("internal fun"),
+            "expected an internal function, but got:\n$generated",
+        )
+        assertMatchesSnapshot("VisibilitySnapshotTest.combineToInternal") {
+            "Generated" facetOf generated
+            "Input" facetOf source
+        }
+    }
+
+    @Test
+    fun `combineFrom internal visibility generates internal function`() {
+        val source =
+            """
+            package snap.visibility
+
+            import me.tbsten.cream.CombineFrom
+            import me.tbsten.cream.CopyVisibility
+
+            data class Source(
+                val shared: String,
+            )
+
+            @CombineFrom(Source::class, visibility = CopyVisibility.INTERNAL)
+            data class Target(
+                val shared: String,
+                val extra: Int,
+            )
+            """.trimIndent()
+        val result = compileWithCream(source)
+
+        assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode, result.messages)
+        val generated = result.generatedSourceText()
+        assertTrue(
+            generated.contains("internal fun"),
+            "expected an internal function, but got:\n$generated",
+        )
+        assertMatchesSnapshot("VisibilitySnapshotTest.combineFromInternal") {
             "Generated" facetOf generated
             "Input" facetOf source
         }

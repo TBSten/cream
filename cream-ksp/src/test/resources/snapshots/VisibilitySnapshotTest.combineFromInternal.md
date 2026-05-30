@@ -1,15 +1,15 @@
 ## Generated
 
 ````kt
-// file: CopyTo__Source.kt
+// file: CombineFrom__Source__Target.kt
 package snap.visibility
 
 import me.tbsten.cream.*
 
 /**
- * (Auto generate by @[CopyTo] annotation of [Source])
+ * (Auto generate by @[CombineFrom] annotation of [Target])
  * 
- * Source -> Target copy function.
+ * [Source] -> [Target] copy function.
  * 
  * # Example: Basic
  * 
@@ -22,14 +22,14 @@ import me.tbsten.cream.*
  * 
  * ```kt
  * val source = Source(...)
- * val target = source.copyToTarget(property = value)
+ * val target = source.copyToTarget(, property = value)
  * ```
  * 
  * 
  * @see Source
  * @see Target
  */
-private fun  snap.visibility.Source.copyToTarget(
+internal fun  snap.visibility.Source.copyToTarget(
     shared: String = this.shared,
     extra: Int,
 ) : snap.visibility.Target = snap.visibility.Target(
@@ -43,14 +43,14 @@ private fun  snap.visibility.Source.copyToTarget(
 ```kt
 package snap.visibility
 
-import me.tbsten.cream.CopyTo
+import me.tbsten.cream.CombineFrom
 import me.tbsten.cream.CopyVisibility
 
-@CopyTo(Target::class, visibility = CopyVisibility.PRIVATE)
 data class Source(
     val shared: String,
 )
 
+@CombineFrom(Source::class, visibility = CopyVisibility.INTERNAL)
 data class Target(
     val shared: String,
     val extra: Int,
