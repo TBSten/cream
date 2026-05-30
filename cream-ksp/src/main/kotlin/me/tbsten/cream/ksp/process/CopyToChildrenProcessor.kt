@@ -54,9 +54,16 @@ internal fun CreamSymbolProcessor.processCopyToChildren(resolver: Resolver): Lis
                 }
 
                 if (!copyToChildren.isSealed()) {
+                    // Avoid `fullName`, which throws UnknownCreamException when qualifiedName is null
+                    // (e.g. local/anonymous declarations) and would mask this InvalidCreamUsageException.
+                    val displayName =
+                        copyToChildren.qualifiedName?.asString()
+                            ?: copyToChildren.simpleName.asString()
                     throw InvalidCreamUsageException(
-                        message = "@${CopyToChildren::class.simpleName} annotation must be applied to a sealed class/interface, but ${copyToChildren.isSealed()}",
-                        solution = "",
+                        message =
+                            "@${CopyToChildren::class.simpleName} annotation must be applied to a sealed class/interface, " +
+                                "but $displayName is not sealed (classKind: ${copyToChildren.classKind}).",
+                        solution = "Make $displayName a sealed class/interface.",
                     )
                 }
 

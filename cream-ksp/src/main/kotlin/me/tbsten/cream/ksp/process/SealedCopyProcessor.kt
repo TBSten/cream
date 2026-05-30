@@ -34,11 +34,14 @@ internal fun CreamSymbolProcessor.processSealedCopy(resolver: Resolver): List<KS
             )
         }
         if (!annotated.isSealed()) {
+            // Avoid `fullName`, which throws UnknownCreamException when qualifiedName is null
+            // (e.g. local/anonymous declarations) and would mask this InvalidCreamUsageException.
+            val displayName = annotated.qualifiedName?.asString() ?: annotated.simpleName.asString()
             throw InvalidCreamUsageException(
                 message =
                     "@${SealedCopy::class.simpleName} must be applied to a sealed class/interface, " +
-                        "but ${annotated.fullName} is not sealed.",
-                solution = "Make ${annotated.fullName} a `sealed class` or `sealed interface`.",
+                        "but $displayName is not sealed.",
+                solution = "Make $displayName a `sealed class` or `sealed interface`.",
             )
         }
 
