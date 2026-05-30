@@ -28,15 +28,23 @@ import kotlin.reflect.KClass
  * @property visibility Visibility modifier of the generated copy function. Defaults to
  *   [CopyVisibility.INHERIT], which keeps cream's existing behaviour (the function inherits
  *   the target class's visibility).
+ * @property funName Template for the generated function name. Defaults to
+ *   [DefaultCopyFunctionName] (cream's derived name). Embed naming tokens such as
+ *   [CopyTargetSimpleName] to compose a name, e.g. `funName = "to" + CopyTargetSimpleName`,
+ *   or pass a plain literal for a fixed name. When this annotation generates more than one
+ *   function (multiple `targets` or a sealed target), use a token so each gets a distinct
+ *   name. See `CopyFunctionNameToken.kt`.
  *
  * @see CopyFrom
  * @see CopyVisibility
+ * @see DefaultCopyFunctionName
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS)
 annotation class CopyTo(
     vararg val targets: KClass<*>,
     val kdoc: KDoc = KDoc(),
     val visibility: CopyVisibility = CopyVisibility.INHERIT,
+    val funName: String = DefaultCopyFunctionName,
 ) {
     @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE_PARAMETER)
     annotation class Map(

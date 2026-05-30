@@ -85,9 +85,14 @@ import kotlin.reflect.KClass
  * @param target The target class to copy to
  * @param canReverse If true, also generates a reverse copy function (target -> source). Default is false.
  * @param properties Property mappings that define how to map properties with different names between source and target.
+ * @param funName Template for the generated function name. Defaults to [DefaultCopyFunctionName]
+ *   (cream's derived name). Embed naming tokens such as [CopyTargetSimpleName] to compose a name.
+ *   When `canReverse` is true (or the target is sealed) use a token so the forward and reverse
+ *   functions get distinct names. See `CopyFunctionNameToken.kt`.
  *
  * @see CopyTo
  * @see CopyFrom
+ * @see DefaultCopyFunctionName
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS)
 @Retention(AnnotationRetention.SOURCE)
@@ -98,6 +103,7 @@ annotation class CopyMapping(
     val canReverse: Boolean = false,
     val properties: Array<Map> = [],
     val kdoc: KDoc = KDoc(),
+    val funName: String = DefaultCopyFunctionName,
 ) {
     /**
      * Defines a property name mapping between source and target classes.
