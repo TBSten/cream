@@ -1,7 +1,7 @@
 package me.tbsten.cream.ksp.testing
 
+import io.kotest.assertions.fail
 import java.io.File
-import kotlin.test.fail
 
 /**
  * Run with `-Dcream.snapshot.update=true` to (re-)generate snapshot files.

@@ -1,54 +1,53 @@
 package me.tbsten.cream.test.combineFrom
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 
-class MultiSourceTest {
-    @Test
-    fun combineFromFourSources() {
-        val sourceA = MultiSourceA(propertyA = "A")
-        val sourceB = MultiSourceB(propertyB = 42)
-        val sourceC = MultiSourceC(propertyC = true)
-        val sourceD = MultiSourceD(propertyD = 3.14)
+class MultiSourceTest :
+    FunSpec({
+        test("combineFromFourSources") {
+            val sourceA = MultiSourceA(propertyA = "A")
+            val sourceB = MultiSourceB(propertyB = 42)
+            val sourceC = MultiSourceC(propertyC = true)
+            val sourceD = MultiSourceD(propertyD = 3.14)
 
-        val result: MultiSourceTarget =
-            sourceA.copyToMultiSourceTarget(
-                multiSourceB = sourceB,
-                multiSourceC = sourceC,
-                multiSourceD = sourceD,
-                extraProperty = "extra",
-            )
+            val result: MultiSourceTarget =
+                sourceA.copyToMultiSourceTarget(
+                    multiSourceB = sourceB,
+                    multiSourceC = sourceC,
+                    multiSourceD = sourceD,
+                    extraProperty = "extra",
+                )
 
-        assertEquals("A", result.propertyA)
-        assertEquals(42, result.propertyB)
-        assertEquals(true, result.propertyC)
-        assertEquals(3.14, result.propertyD)
-        assertEquals("extra", result.extraProperty)
-    }
+            result.propertyA shouldBe "A"
+            result.propertyB shouldBe 42
+            result.propertyC shouldBe true
+            result.propertyD shouldBe 3.14
+            result.extraProperty shouldBe "extra"
+        }
 
-    @Test
-    fun combineFromFourSourcesWithOverride() {
-        val sourceA = MultiSourceA(propertyA = "A")
-        val sourceB = MultiSourceB(propertyB = 42)
-        val sourceC = MultiSourceC(propertyC = true)
-        val sourceD = MultiSourceD(propertyD = 3.14)
+        test("combineFromFourSourcesWithOverride") {
+            val sourceA = MultiSourceA(propertyA = "A")
+            val sourceB = MultiSourceB(propertyB = 42)
+            val sourceC = MultiSourceC(propertyC = true)
+            val sourceD = MultiSourceD(propertyD = 3.14)
 
-        val result: MultiSourceTarget =
-            sourceA.copyToMultiSourceTarget(
-                multiSourceB = sourceB,
-                multiSourceC = sourceC,
-                multiSourceD = sourceD,
-                propertyA = "Overridden",
-                propertyB = 100,
-                propertyC = false,
-                propertyD = 2.71,
-                extraProperty = "extra",
-            )
+            val result: MultiSourceTarget =
+                sourceA.copyToMultiSourceTarget(
+                    multiSourceB = sourceB,
+                    multiSourceC = sourceC,
+                    multiSourceD = sourceD,
+                    propertyA = "Overridden",
+                    propertyB = 100,
+                    propertyC = false,
+                    propertyD = 2.71,
+                    extraProperty = "extra",
+                )
 
-        assertEquals("Overridden", result.propertyA)
-        assertEquals(100, result.propertyB)
-        assertEquals(false, result.propertyC)
-        assertEquals(2.71, result.propertyD)
-        assertEquals("extra", result.extraProperty)
-    }
-}
+            result.propertyA shouldBe "Overridden"
+            result.propertyB shouldBe 100
+            result.propertyC shouldBe false
+            result.propertyD shouldBe 2.71
+            result.extraProperty shouldBe "extra"
+        }
+    })

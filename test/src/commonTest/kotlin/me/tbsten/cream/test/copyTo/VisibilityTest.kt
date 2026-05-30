@@ -1,14 +1,14 @@
 package me.tbsten.cream.test.copyTo
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 
-class VisibilityTest {
-    @Test
-    fun visibilityProperties() {
-        val source = VisibilitySource("public", 42, true)
-        val target: VisibilityTarget = source.copyToVisibilityTarget(newProperty = "new")
+class VisibilityTest :
+    FunSpec({
+        test("visibilityProperties") {
+            val source = VisibilitySource("public", 42, true)
+            val target: VisibilityTarget = source.copyToVisibilityTarget(newProperty = "new")
 
-        assertEquals(VisibilityTarget("public", "new"), target)
-    }
-}
+            target shouldBe VisibilityTarget("public", "new")
+        }
+    })

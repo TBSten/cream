@@ -1,23 +1,23 @@
 package me.tbsten.cream.test.generic
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 
-class GenericClassTest {
-    @Test
-    fun twoArgToThreeArg() {
-        val source =
-            GenericSourceWithTwoTypeArg(
-                a = "test",
-                b = listOf("a", "b"),
-                d = 123,
-            )
+class GenericClassTest :
+    FunSpec({
+        test("twoArgToThreeArg") {
+            val source =
+                GenericSourceWithTwoTypeArg(
+                    a = "test",
+                    b = listOf("a", "b"),
+                    d = 123,
+                )
 
-        mapOf(
-            // FIXME
-            // https://github.com/TBSten/cream/issues/12
-            // Default value cannot be set correctly in a copy function using type parameters.
-            // KSType.isAssignableFrom(KSType) in FindMatchedProperty.kt does not seem to work.
+            mapOf(
+                // FIXME
+                // https://github.com/TBSten/cream/issues/12
+                // Default value cannot be set correctly in a copy function using type parameters.
+                // KSType.isAssignableFrom(KSType) in FindMatchedProperty.kt does not seem to work.
 //            source.copyToGenericTargetWithThreeTypeArg(
 //                c = "c",
 //            ) to GenericTargetWithThreeTypeArg(
@@ -25,37 +25,36 @@ class GenericClassTest {
 //                b = source.b,
 //                c = "c",
 //            ),
-            source.copyToGenericTargetWithThreeTypeArg(
-                a = "aaa",
-                b = listOf("bbb", "bbb", "bbb"),
-                c = "c",
-                d = 456,
-            ) to
-                GenericTargetWithThreeTypeArg(
+                source.copyToGenericTargetWithThreeTypeArg(
                     a = "aaa",
                     b = listOf("bbb", "bbb", "bbb"),
                     c = "c",
                     d = 456,
-                ),
-        ).forEach { (actual, expected) ->
-            assertEquals(actual, expected)
+                ) to
+                    GenericTargetWithThreeTypeArg(
+                        a = "aaa",
+                        b = listOf("bbb", "bbb", "bbb"),
+                        c = "c",
+                        d = 456,
+                    ),
+            ).forEach { (actual, expected) ->
+                actual shouldBe expected
+            }
         }
-    }
 
-    @Test
-    fun threeArgToTwoArg() {
-        val source =
-            GenericSourceWithThreeTypeArg(
-                a = "test",
-                b = listOf("a", "b"),
-                c = "c",
-            )
+        test("threeArgToTwoArg") {
+            val source =
+                GenericSourceWithThreeTypeArg(
+                    a = "test",
+                    b = listOf("a", "b"),
+                    c = "c",
+                )
 
-        mapOf(
-            // FIXME
-            // https://github.com/TBSten/cream/issues/12
-            // Default value cannot be set correctly in a copy function using type parameters.
-            // KSType.isAssignableFrom(KSType) in FindMatchedProperty.kt does not seem to work.
+            mapOf(
+                // FIXME
+                // https://github.com/TBSten/cream/issues/12
+                // Default value cannot be set correctly in a copy function using type parameters.
+                // KSType.isAssignableFrom(KSType) in FindMatchedProperty.kt does not seem to work.
 //            source.copyToGenericTargetWithTwoTypeArg(
 //                a = source.a,
 //                b = source.b,
@@ -63,32 +62,31 @@ class GenericClassTest {
 //                a = source.a,
 //                b = source.b,
 //            ),
-            source.copyToGenericTargetWithTwoTypeArg(
-                a = "aaa",
-                b = listOf("bbb", "bbb", "bbb"),
-            ) to
-                GenericTargetWithTwoTypeArg(
+                source.copyToGenericTargetWithTwoTypeArg(
                     a = "aaa",
                     b = listOf("bbb", "bbb", "bbb"),
-                ),
-        ).forEach { (actual, expected) ->
-            assertEquals(actual, expected)
+                ) to
+                    GenericTargetWithTwoTypeArg(
+                        a = "aaa",
+                        b = listOf("bbb", "bbb", "bbb"),
+                    ),
+            ).forEach { (actual, expected) ->
+                actual shouldBe expected
+            }
         }
-    }
 
-    @Test
-    fun threeArgToObject() {
-        val source =
-            GenericSourceWithThreeTypeArg(
-                a = "test",
-                b = listOf("a", "b"),
-                c = "c",
-            )
+        test("threeArgToObject") {
+            val source =
+                GenericSourceWithThreeTypeArg(
+                    a = "test",
+                    b = listOf("a", "b"),
+                    c = "c",
+                )
 
-        mapOf(
-            source.copyToGenericTargetObject() to GenericTargetObject,
-        ).forEach { (actual, expected) ->
-            assertEquals(actual, expected)
+            mapOf(
+                source.copyToGenericTargetObject() to GenericTargetObject,
+            ).forEach { (actual, expected) ->
+                actual shouldBe expected
+            }
         }
-    }
-}
+    })

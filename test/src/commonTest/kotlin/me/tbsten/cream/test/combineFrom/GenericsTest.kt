@@ -1,54 +1,53 @@
 package me.tbsten.cream.test.combineFrom
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 
-class GenericsTest {
-    @Test
-    fun combineFromWithGenerics() {
-        val sourceA =
-            GenericSourceA(
-                genericProperty = "generic string",
-                normalProperty = "normal",
-            )
-        val sourceB =
-            GenericSourceB(
-                anotherGeneric = 42,
-            )
+class GenericsTest :
+    FunSpec({
+        test("combineFromWithGenerics") {
+            val sourceA =
+                GenericSourceA(
+                    genericProperty = "generic string",
+                    normalProperty = "normal",
+                )
+            val sourceB =
+                GenericSourceB(
+                    anotherGeneric = 42,
+                )
 
-        val result: GenericTarget<String, Int> =
-            sourceA.copyToGenericTarget(
-                genericSourceB = sourceB,
-                extraProperty = 100,
-            )
+            val result: GenericTarget<String, Int> =
+                sourceA.copyToGenericTarget(
+                    genericSourceB = sourceB,
+                    extraProperty = 100,
+                )
 
-        assertEquals("generic string", result.genericProperty)
-        assertEquals("normal", result.normalProperty)
-        assertEquals(42, result.anotherGeneric)
-        assertEquals(100, result.extraProperty)
-    }
+            result.genericProperty shouldBe "generic string"
+            result.normalProperty shouldBe "normal"
+            result.anotherGeneric shouldBe 42
+            result.extraProperty shouldBe 100
+        }
 
-    @Test
-    fun combineFromWithComplexGenerics() {
-        val sourceA =
-            GenericSourceA(
-                genericProperty = listOf("a", "b", "c"),
-                normalProperty = "normal",
-            )
-        val sourceB =
-            GenericSourceB(
-                anotherGeneric = mapOf("key" to "value"),
-            )
+        test("combineFromWithComplexGenerics") {
+            val sourceA =
+                GenericSourceA(
+                    genericProperty = listOf("a", "b", "c"),
+                    normalProperty = "normal",
+                )
+            val sourceB =
+                GenericSourceB(
+                    anotherGeneric = mapOf("key" to "value"),
+                )
 
-        val result: GenericTarget<List<String>, Map<String, String>> =
-            sourceA.copyToGenericTarget(
-                genericSourceB = sourceB,
-                extraProperty = 200,
-            )
+            val result: GenericTarget<List<String>, Map<String, String>> =
+                sourceA.copyToGenericTarget(
+                    genericSourceB = sourceB,
+                    extraProperty = 200,
+                )
 
-        assertEquals(listOf("a", "b", "c"), result.genericProperty)
-        assertEquals("normal", result.normalProperty)
-        assertEquals(mapOf("key" to "value"), result.anotherGeneric)
-        assertEquals(200, result.extraProperty)
-    }
-}
+            result.genericProperty shouldBe listOf("a", "b", "c")
+            result.normalProperty shouldBe "normal"
+            result.anotherGeneric shouldBe mapOf("key" to "value")
+            result.extraProperty shouldBe 200
+        }
+    })

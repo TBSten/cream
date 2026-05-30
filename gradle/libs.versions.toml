@@ -5,7 +5,7 @@ kotlin = "2.2.20"
 android-minSdk = "24"
 android-compileSdk = "36"
 ksp = "2.2.20-2.0.4"
-kotest = "6.0.4"
+kotest = "6.1.11"
 mockk = "1.14.6"
 kctfork = "0.12.1"
 ktlint = "1.7.1"
@@ -21,8 +21,9 @@ kodeview = "0.9.0"
 buildkonfig = "0.17.1"
 
 [libraries]
-kotlinTest = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotest = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
+kotestFrameworkEngine = { module = "io.kotest:kotest-framework-engine", version.ref = "kotest" }
+kotestRunnerJunit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
 kspApi = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 kctforkCore = { module = "dev.zacsweers.kctfork:core", version.ref = "kctfork" }
@@ -42,6 +43,7 @@ kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref =
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 vanniktech-mavenPublish = { id = "com.vanniktech.maven.publish", version = "0.34.0" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+kotest = { id = "io.kotest", version.ref = "kotest" }
 ktlintGradle = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintGradlePlugin" }
 
 # option builder

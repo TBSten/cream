@@ -1,58 +1,56 @@
 package me.tbsten.cream.test.sealedCopy
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
-import kotlin.test.assertNull
+import io.kotest.assertions.withClue
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.shouldBeSameInstanceAs
 
-class MultipleTest {
-    @Test
-    fun withUpdated_andWithUpdatedOrNull_areBothGenerated() {
-        val loading: MultiSealedCopyState =
-            MultiSealedCopyState.Loading(sessionId = "abc")
+class MultipleTest :
+    FunSpec({
+        test("withUpdated_andWithUpdatedOrNull_areBothGenerated") {
+            val loading: MultiSealedCopyState =
+                MultiSealedCopyState.Loading(sessionId = "abc")
 
-        // Both extensions exist independently. Distinct names → distinct
-        // overload-resolution results; no shadowing.
-        val viaAsIs: MultiSealedCopyState = loading.withUpdated(sessionId = "x")
-        val viaNullable: MultiSealedCopyState? = loading.withUpdatedOrNull(sessionId = "y")
+            // Both extensions exist independently. Distinct names → distinct
+            // overload-resolution results; no shadowing.
+            val viaAsIs: MultiSealedCopyState = loading.withUpdated(sessionId = "x")
+            val viaNullable: MultiSealedCopyState? = loading.withUpdatedOrNull(sessionId = "y")
 
-        assertEquals(MultiSealedCopyState.Loading(sessionId = "x"), viaAsIs)
-        assertEquals(MultiSealedCopyState.Loading(sessionId = "y"), viaNullable)
-    }
-
-    @Test
-    fun withUpdated_returnsEmptyAsIs_forObjectBranch() {
-        val empty: MultiSealedCopyState = MultiSealedCopyState.Empty
-
-        val result = empty.withUpdated(sessionId = "ignored")
-
-        // RETURN_AS_IS: object branch collapses to `this`. The supplied sessionId
-        // never reaches the singleton.
-        assertEquals(MultiSealedCopyState.Empty, result)
-        check(result === MultiSealedCopyState.Empty) {
-            "RETURN_AS_IS on an object branch must return the singleton itself"
+            viaAsIs shouldBe MultiSealedCopyState.Loading(sessionId = "x")
+            viaNullable shouldBe MultiSealedCopyState.Loading(sessionId = "y")
         }
-    }
 
-    @Test
-    fun withUpdatedOrNull_returnsNull_forObjectBranch() {
-        val empty: MultiSealedCopyState = MultiSealedCopyState.Empty
+        test("withUpdated_returnsEmptyAsIs_forObjectBranch") {
+            val empty: MultiSealedCopyState = MultiSealedCopyState.Empty
 
-        val result: MultiSealedCopyState? = empty.withUpdatedOrNull(sessionId = "ignored")
+            val result = empty.withUpdated(sessionId = "ignored")
 
-        // RETURN_NULL: object branch collapses to null. Caller must handle it.
-        assertNull(result)
-    }
+            // RETURN_AS_IS: object branch collapses to `this`. The supplied sessionId
+            // never reaches the singleton.
+            result shouldBe MultiSealedCopyState.Empty
+            withClue("RETURN_AS_IS on an object branch must return the singleton itself") {
+                result shouldBeSameInstanceAs MultiSealedCopyState.Empty
+            }
+        }
 
-    @Test
-    fun bothStrategies_delegateToCopy_forDataClassBranch() {
-        val loading: MultiSealedCopyState = MultiSealedCopyState.Loading(sessionId = "abc")
+        test("withUpdatedOrNull_returnsNull_forObjectBranch") {
+            val empty: MultiSealedCopyState = MultiSealedCopyState.Empty
 
-        val viaAsIs = loading.withUpdated(sessionId = "x")
-        val viaNullable = assertNotNull(loading.withUpdatedOrNull(sessionId = "x"))
+            val result: MultiSealedCopyState? = empty.withUpdatedOrNull(sessionId = "ignored")
 
-        // Data class branches behave identically across both strategies — the
-        // strategy only affects how non-copyable branches are emitted.
-        assertEquals(viaAsIs, viaNullable)
-    }
-}
+            // RETURN_NULL: object branch collapses to null. Caller must handle it.
+            result shouldBe null
+        }
+
+        test("bothStrategies_delegateToCopy_forDataClassBranch") {
+            val loading: MultiSealedCopyState = MultiSealedCopyState.Loading(sessionId = "abc")
+
+            val viaAsIs = loading.withUpdated(sessionId = "x")
+            val viaNullable = loading.withUpdatedOrNull(sessionId = "x").shouldNotBeNull()
+
+            // Data class branches behave identically across both strategies — the
+            // strategy only affects how non-copyable branches are emitted.
+            viaNullable shouldBe viaAsIs
+        }
+    })

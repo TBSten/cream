@@ -1,15 +1,15 @@
 package me.tbsten.cream.test.copyTo
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
 
-class NestedTest {
-    @Test
-    fun nestedClasses() {
-        val parent = ParentClass("parent", 100)
-        val source = NestedSource(parent)
-        val target: NestedTarget = source.copyToNestedTarget(newProperty = "new")
+class NestedTest :
+    FunSpec({
+        test("nestedClasses") {
+            val parent = ParentClass("parent", 100)
+            val source = NestedSource(parent)
+            val target: NestedTarget = source.copyToNestedTarget(newProperty = "new")
 
-        assertEquals(NestedTarget(parent, "new"), target)
-    }
-}
+            target shouldBe NestedTarget(parent, "new")
+        }
+    })

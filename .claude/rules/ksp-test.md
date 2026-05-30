@@ -10,6 +10,12 @@ paths:
 (`dev.zacsweers.kctfork:core` / `:ksp`) を使った JVM 専用の end-to-end テストを置いている。
 マルチプラットフォームの `test/` モジュールでは表現しにくいシナリオを補完する。
 
+テストは [kotest](https://kotest.io) の `FunSpec` スタイルで書く
+(`internal class XxxTest : FunSpec({ test("...") { ... } })`)。assert は kotest matcher を使い、
+**語順は `actual shouldBe expected`** (kotlin.test の `assertEquals(expected, actual)` とは逆)。
+失敗時メッセージは `withClue(message) { ... }` で保持する。cream-ksp は JVM のみなので
+`kotest-runner-junit5` + `tasks.test { useJUnitPlatform() }` で動く (KSP も io.kotest プラグインも不要)。
+
 ## レイアウト
 
 - `testing/` — テスト基盤
@@ -21,8 +27,8 @@ paths:
   - `SnapshotAssertion.kt` — golden 比較ヘルパー
 - `diagnostic/` — 不正な annotation 使用や不正な KSP option 値に対して、`InvalidCreamUsageException` /
   `InvalidCreamOptionException` がコンパイル失敗としてメッセージに乗ることを assert する。
-  exit code を `assertNotEquals(OK, ...)` で確認したうえで、`normalizedCompilerOutput()` を
-  `*.output.md` の golden と突き合わせて error message 全文を固定化する
+  exit code を `result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK` で確認したうえで、
+  `normalizedCompilerOutput()` を `*.output.md` の golden と突き合わせて error message 全文を固定化する
 - `options/` — `cream.copyFunNamePrefix` / `cream.copyFunNamingStrategy` / `cream.escapeDot`
   / `cream.notCopyToObject` のあらゆる値を end-to-end で走らせ、生成された関数名を検証
 - `snapshot/` — 代表的な成功シナリオ (basic `@CopyTo`, sealed `@CopyToChildren`, generic `@CopyFrom`,
@@ -36,17 +42,21 @@ golden ファイルは `*.md` (Markdown)。すべての captured 値は **facet*
 として書き出される:
 
 ```kt
-val source = """
-    @CopyTo(Target::class)
-    data class Source(...)
-""".trimIndent()
-val result = compileWithCream(source)
+internal class MyTest : FunSpec({
+    test("scenario") {
+        val source = """
+            @CopyTo(Target::class)
+            data class Source(...)
+        """.trimIndent()
+        val result = compileWithCream(source)
 
-assertMatchesSnapshot("MyTest.scenario") {
-    "Generated" facetOf result.generatedSourceText()            // default lang = "kt"
-    "Input" facetOf source                                      // default lang = "kt"
-    facet("Compiler messages", result.messages, lang = "text")  // 明示で別言語
-}
+        assertMatchesSnapshot("MyTest.scenario") {
+            "Generated" facetOf result.generatedSourceText()            // default lang = "kt"
+            "Input" facetOf source                                      // default lang = "kt"
+            facet("Compiler messages", result.messages, lang = "text")  // 明示で別言語
+        }
+    }
+})
 ```
 
 infix `facetOf` は default `lang = "kt"`。違う言語が必要な facet は
@@ -103,7 +113,7 @@ snapshot 本文に backtick run (例: cream が出す KDoc の ` ```kt ... ``` `
 
 stack frame は Gradle / JUnit / KSP / cream 自身の line 変更や `... NN more` の depth count
 で簡単にずれるため、diagnostic snapshot で固定化しているのは「error message 本文」だけ。
-特定 frame の存在を assert したいなら、snapshot とは別に `messages.contains(...)` を併用する。
+特定 frame の存在を assert したいなら、snapshot とは別に `result.messages shouldContain "..."` を併用する。
 
 ## 運用
 

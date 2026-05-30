@@ -1,76 +1,69 @@
 package me.tbsten.cream.ksp.diagnostic
 
 import com.tschuchort.compiletesting.KotlinCompilation
+import io.kotest.assertions.withClue
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import me.tbsten.cream.ksp.testing.assertMatchesSnapshot
 import me.tbsten.cream.ksp.testing.compileWithCream
 import me.tbsten.cream.ksp.testing.normalizedCompilerOutput
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotEquals
 
-internal class OptionsDiagnosticTest {
-    private val validSource: String =
-        """
-        package diag
+internal class OptionsDiagnosticTest :
+    FunSpec({
+        val validSource: String =
+            """
+            package diag
 
-        import me.tbsten.cream.CopyTo
+            import me.tbsten.cream.CopyTo
 
-        @CopyTo(Target::class)
-        data class Source(val prop: String)
+            @CopyTo(Target::class)
+            data class Source(val prop: String)
 
-        data class Target(val prop: String)
-        """.trimIndent()
+            data class Target(val prop: String)
+            """.trimIndent()
 
-    @Test
-    fun `invalid copyFunNamingStrategy fails compilation with helpful message`() {
-        val result =
-            compileWithCream(
-                validSource,
-                options = mapOf("cream.copyFunNamingStrategy" to "not-a-strategy"),
-            )
+        test("invalid copyFunNamingStrategy fails compilation with helpful message") {
+            val result =
+                compileWithCream(
+                    validSource,
+                    options = mapOf("cream.copyFunNamingStrategy" to "not-a-strategy"),
+                )
 
-        assertNotEquals(
-            KotlinCompilation.ExitCode.OK,
-            result.exitCode,
-            "Compilation should fail. Output:\n${result.normalizedCompilerOutput()}",
-        )
-        assertMatchesSnapshot("OptionsDiagnosticTest.invalidCopyFunNamingStrategy.output") {
-            facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
-            "Input" facetOf validSource
+            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
+                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+            }
+            assertMatchesSnapshot("OptionsDiagnosticTest.invalidCopyFunNamingStrategy.output") {
+                facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
+                "Input" facetOf validSource
+            }
         }
-    }
 
-    @Test
-    fun `invalid escapeDot fails compilation with helpful message`() {
-        val result =
-            compileWithCream(
-                validSource,
-                options = mapOf("cream.escapeDot" to "not-an-escape"),
-            )
+        test("invalid escapeDot fails compilation with helpful message") {
+            val result =
+                compileWithCream(
+                    validSource,
+                    options = mapOf("cream.escapeDot" to "not-an-escape"),
+                )
 
-        assertNotEquals(
-            KotlinCompilation.ExitCode.OK,
-            result.exitCode,
-            "Compilation should fail. Output:\n${result.normalizedCompilerOutput()}",
-        )
-        assertMatchesSnapshot("OptionsDiagnosticTest.invalidEscapeDot.output") {
-            facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
-            "Input" facetOf validSource
+            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
+                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+            }
+            assertMatchesSnapshot("OptionsDiagnosticTest.invalidEscapeDot.output") {
+                facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
+                "Input" facetOf validSource
+            }
         }
-    }
 
-    @Test
-    fun `valid copyFunNamingStrategy value compiles successfully`() {
-        val result =
-            compileWithCream(
-                validSource,
-                options = mapOf("cream.copyFunNamingStrategy" to "full-name"),
-            )
+        test("valid copyFunNamingStrategy value compiles successfully") {
+            val result =
+                compileWithCream(
+                    validSource,
+                    options = mapOf("cream.copyFunNamingStrategy" to "full-name"),
+                )
 
-        assertEquals(
-            KotlinCompilation.ExitCode.OK,
-            result.exitCode,
-            "Compilation should succeed. Output:\n${result.normalizedCompilerOutput()}",
-        )
-    }
-}
+            withClue("Compilation should succeed. Output:\n${result.normalizedCompilerOutput()}") {
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+            }
+        }
+    })

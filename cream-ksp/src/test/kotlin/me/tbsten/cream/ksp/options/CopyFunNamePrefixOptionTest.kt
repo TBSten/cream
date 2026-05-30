@@ -1,71 +1,72 @@
 package me.tbsten.cream.ksp.options
 
 import com.tschuchort.compiletesting.KotlinCompilation
+import io.kotest.assertions.withClue
+import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotContain
 import me.tbsten.cream.ksp.testing.compileWithCream
 import me.tbsten.cream.ksp.testing.generatedSourceText
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
-internal class CopyFunNamePrefixOptionTest {
-    private val sampleSource: String =
-        """
-        package opts.prefix
+internal class CopyFunNamePrefixOptionTest :
+    FunSpec({
+        val sampleSource: String =
+            """
+            package opts.prefix
 
-        import me.tbsten.cream.CopyTo
+            import me.tbsten.cream.CopyTo
 
-        @CopyTo(Target::class)
-        data class Source(val prop: String)
+            @CopyTo(Target::class)
+            data class Source(val prop: String)
 
-        data class Target(val prop: String)
-        """.trimIndent()
+            data class Target(val prop: String)
+            """.trimIndent()
 
-    @Test
-    fun `default prefix copyTo is used when option is not set`() {
-        val result = compileWithCream(sampleSource)
+        test("default prefix copyTo is used when option is not set") {
+            val result = compileWithCream(sampleSource)
 
-        assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode, result.messages)
-        val generated = result.generatedSourceText()
-        assertTrue(
-            generated.contains("copyToTarget"),
-            "Generated source should contain 'copyToTarget'. Actual:\n$generated",
-        )
-    }
+            withClue(result.messages) {
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+            }
+            val generated = result.generatedSourceText()
+            withClue("Generated source should contain 'copyToTarget'. Actual:\n$generated") {
+                generated shouldContain "copyToTarget"
+            }
+        }
 
-    @Test
-    fun `prefix transitionTo is used when configured`() {
-        val result =
-            compileWithCream(
-                sampleSource,
-                options = mapOf("cream.copyFunNamePrefix" to "transitionTo"),
-            )
+        test("prefix transitionTo is used when configured") {
+            val result =
+                compileWithCream(
+                    sampleSource,
+                    options = mapOf("cream.copyFunNamePrefix" to "transitionTo"),
+                )
 
-        assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode, result.messages)
-        val generated = result.generatedSourceText()
-        assertTrue(
-            generated.contains("transitionToTarget"),
-            "Generated source should contain 'transitionToTarget'. Actual:\n$generated",
-        )
-        assertFalse(
-            generated.contains("copyToTarget"),
-            "Default prefix should not appear when custom prefix is set. Actual:\n$generated",
-        )
-    }
+            withClue(result.messages) {
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+            }
+            val generated = result.generatedSourceText()
+            withClue("Generated source should contain 'transitionToTarget'. Actual:\n$generated") {
+                generated shouldContain "transitionToTarget"
+            }
+            withClue("Default prefix should not appear when custom prefix is set. Actual:\n$generated") {
+                generated shouldNotContain "copyToTarget"
+            }
+        }
 
-    @Test
-    fun `prefix ending with non-letter does not capitalize target name`() {
-        val result =
-            compileWithCream(
-                sampleSource,
-                options = mapOf("cream.copyFunNamePrefix" to "to_"),
-            )
+        test("prefix ending with non-letter does not capitalize target name") {
+            val result =
+                compileWithCream(
+                    sampleSource,
+                    options = mapOf("cream.copyFunNamePrefix" to "to_"),
+                )
 
-        assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode, result.messages)
-        val generated = result.generatedSourceText()
-        assertTrue(
-            generated.contains("to_target"),
-            "Generated source should contain 'to_target' (no capitalization rewrite for underscore-ending prefix). Actual:\n$generated",
-        )
-    }
-}
+            withClue(result.messages) {
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+            }
+            val generated = result.generatedSourceText()
+            withClue("Generated source should contain 'to_target' (no capitalization rewrite for underscore-ending prefix). Actual:\n$generated") {
+                generated shouldContain "to_target"
+            }
+        }
+    })
