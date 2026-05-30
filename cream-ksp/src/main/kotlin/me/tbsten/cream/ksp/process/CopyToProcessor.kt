@@ -12,11 +12,13 @@ import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CopyTo
 import me.tbsten.cream.CopyVisibility
+import me.tbsten.cream.DefaultCopyFunctionName
 import me.tbsten.cream.ksp.CreamSymbolProcessor
 import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.transform.appendCombineToFunction
 import me.tbsten.cream.ksp.transform.appendCopyFunction
+import me.tbsten.cream.ksp.transform.requireFunNameSupportsFanout
 import me.tbsten.cream.ksp.util.annotationsOf
 import me.tbsten.cream.ksp.util.classListArgument
 import me.tbsten.cream.ksp.util.copyVisibilityArgument
@@ -24,6 +26,7 @@ import me.tbsten.cream.ksp.util.createNewKotlinFile
 import me.tbsten.cream.ksp.util.extractKDoc
 import me.tbsten.cream.ksp.util.extractPropertyMappings
 import me.tbsten.cream.ksp.util.fullName
+import me.tbsten.cream.ksp.util.funNameTemplate
 import me.tbsten.cream.ksp.util.isSealed
 import me.tbsten.cream.ksp.util.requireClassDeclaration
 import me.tbsten.cream.ksp.util.resolveToClassDeclaration
@@ -57,13 +60,23 @@ internal fun CreamSymbolProcessor.processCopyTo(resolver: Resolver): List<KSAnno
                         annotationName = CopyTo::class.simpleName!!,
                         context = "Specified in @${CopyTo::class.simpleName}.targets of ${target.fullName}",
                     )
-                }
+                }.toList()
 
         val (kdocDescription, kdocExamples) =
             copyToAnnotations.firstOrNull()?.extractKDoc() ?: ("" to emptyList())
 
         val visibility =
             copyToAnnotations.firstOrNull()?.copyVisibilityArgument() ?: CopyVisibility.INHERIT
+
+        val funNameTemplate =
+            copyToAnnotations.firstOrNull()?.funNameTemplate() ?: DefaultCopyFunctionName
+
+        requireFunNameSupportsFanout(
+            funNameTemplate = funNameTemplate,
+            generatesMultipleFunctions = targetClasses.size > 1 || targetClasses.any { it.isSealed() },
+            annotationSimpleName = CopyTo::class.simpleName!!,
+            declarationFullName = sourceClass.fullName,
+        )
 
         codeGenerator
             .createNewKotlinFile(
@@ -89,6 +102,7 @@ internal fun CreamSymbolProcessor.processCopyTo(resolver: Resolver): List<KSAnno
                             ),
                         notCopyToObject = false,
                         visibility = visibility,
+                        funNameTemplate = funNameTemplate,
                     )
                 }
             }

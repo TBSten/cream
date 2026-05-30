@@ -4,6 +4,7 @@ import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import me.tbsten.cream.CopyVisibility
+import me.tbsten.cream.DefaultCopyFunctionName
 import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.UnknownCreamException
 import me.tbsten.cream.ksp.options.CreamOptions
@@ -24,6 +25,7 @@ internal fun BufferedWriter.appendCombineToClassFunction(
     omitPackages: List<String>,
     options: CreamOptions,
     visibility: CopyVisibility = CopyVisibility.INHERIT,
+    funNameTemplate: String = DefaultCopyFunctionName,
 ) {
     val allSources = listOf(primarySource) + otherSources
 
@@ -35,8 +37,15 @@ internal fun BufferedWriter.appendCombineToClassFunction(
             )
 
         // Generate copy function
-        val funName = copyFunctionName(primarySource, targetClass, options)
-        appendCombineToClassKDoc(allSources, targetClass, generateSourceAnnotation, funName.toString())
+        val funName =
+            resolveValidatedFunName(
+                funNameTemplate = funNameTemplate,
+                source = primarySource,
+                target = targetClass,
+                options = options,
+                generateSourceAnnotation = generateSourceAnnotation,
+            )
+        appendCombineToClassKDoc(allSources, targetClass, generateSourceAnnotation, funName)
 
         append("${visibility.toModifierString(targetClass)} fun ")
         if (typeParameters.isNotEmpty()) {

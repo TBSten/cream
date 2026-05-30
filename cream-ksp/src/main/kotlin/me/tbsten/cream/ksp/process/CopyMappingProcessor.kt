@@ -11,17 +11,20 @@ import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CopyMapping
+import me.tbsten.cream.DefaultCopyFunctionName
 import me.tbsten.cream.ksp.CreamSymbolProcessor
 import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.transform.appendCombineToFunction
 import me.tbsten.cream.ksp.transform.appendCopyFunction
+import me.tbsten.cream.ksp.transform.requireFunNameSupportsFanout
 import me.tbsten.cream.ksp.util.annotationsOf
 import me.tbsten.cream.ksp.util.classListArgument
 import me.tbsten.cream.ksp.util.createNewKotlinFile
 import me.tbsten.cream.ksp.util.extractKDoc
 import me.tbsten.cream.ksp.util.extractPropertyMappings
 import me.tbsten.cream.ksp.util.fullName
+import me.tbsten.cream.ksp.util.funNameTemplate
 import me.tbsten.cream.ksp.util.isSealed
 import me.tbsten.cream.ksp.util.requireClassDeclaration
 import me.tbsten.cream.ksp.util.resolveToClassDeclaration
@@ -44,6 +47,7 @@ private data class CopyMappingInfo(
     val propertyMappings: List<Pair<String, String>>,
     val kdocDescription: String,
     val kdocExamples: List<String>,
+    val funNameTemplate: String,
 )
 
 internal fun CreamSymbolProcessor.processCopyMapping(resolver: Resolver): List<KSAnnotated> {
@@ -115,8 +119,21 @@ internal fun CreamSymbolProcessor.processCopyMapping(resolver: Resolver): List<K
                         propertyMappings = propertyMaps,
                         kdocDescription = kdocDescription,
                         kdocExamples = kdocExamples,
+                        funNameTemplate = annotation.funNameTemplate(),
                     )
-                }
+                }.toList()
+
+        // Fail fast (before opening any output file) when a plain-literal funName would
+        // fan out to multiple colliding names. Mirrors CopyTo/CopyFrom, which guard before
+        // createNewKotlinFile so a rejected funName never leaves a partial generated file.
+        copyMappings.forEach { mapping ->
+            requireFunNameSupportsFanout(
+                funNameTemplate = mapping.funNameTemplate,
+                generatesMultipleFunctions = mapping.canReverse || mapping.targetClass.isSealed(),
+                annotationSimpleName = CopyMapping::class.simpleName!!,
+                declarationFullName = annotatedDeclaration.fullName,
+            )
+        }
 
         // Group by source class to create one file per source package
         copyMappings
@@ -149,6 +166,7 @@ internal fun CreamSymbolProcessor.processCopyMapping(resolver: Resolver): List<K
                                     kdocExamples = mapping.kdocExamples,
                                 ),
                             notCopyToObject = false,
+                            funNameTemplate = mapping.funNameTemplate,
                         )
 
                         if (mapping.canReverse) {
@@ -169,6 +187,7 @@ internal fun CreamSymbolProcessor.processCopyMapping(resolver: Resolver): List<K
                                         kdocExamples = mapping.kdocExamples,
                                     ),
                                 notCopyToObject = false,
+                                funNameTemplate = mapping.funNameTemplate,
                             )
                         }
                     }

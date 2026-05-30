@@ -12,6 +12,7 @@ import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CombineMapping
 import me.tbsten.cream.CopyVisibility
+import me.tbsten.cream.DefaultCopyFunctionName
 import me.tbsten.cream.ksp.CreamSymbolProcessor
 import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
@@ -24,6 +25,7 @@ import me.tbsten.cream.ksp.util.createNewKotlinFile
 import me.tbsten.cream.ksp.util.extractKDoc
 import me.tbsten.cream.ksp.util.extractPropertyMappings
 import me.tbsten.cream.ksp.util.fullName
+import me.tbsten.cream.ksp.util.funNameTemplate
 import me.tbsten.cream.ksp.util.isSealed
 import me.tbsten.cream.ksp.util.requireClassDeclaration
 import me.tbsten.cream.ksp.util.resolveToClassDeclaration
@@ -45,6 +47,7 @@ private data class CombineMappingInfo(
     val kdocDescription: String,
     val kdocExamples: List<String>,
     val visibility: CopyVisibility,
+    val funNameTemplate: String,
 )
 
 internal fun CreamSymbolProcessor.processCombineMapping(resolver: Resolver): List<KSAnnotated> {
@@ -128,6 +131,7 @@ internal fun CreamSymbolProcessor.processCombineMapping(resolver: Resolver): Lis
                         kdocDescription = kdocDescription,
                         kdocExamples = kdocExamples,
                         visibility = visibility,
+                        funNameTemplate = annotation.funNameTemplate(),
                     )
                 }
 
@@ -170,6 +174,7 @@ internal fun CreamSymbolProcessor.processCombineMapping(resolver: Resolver): Lis
                                     kdocExamples = mapping.kdocExamples,
                                 ),
                             visibility = mapping.visibility,
+                            funNameTemplate = mapping.funNameTemplate,
                         )
                     }
                 }

@@ -4,6 +4,7 @@ import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import me.tbsten.cream.CopyVisibility
+import me.tbsten.cream.DefaultCopyFunctionName
 import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.UnknownCreamException
 import me.tbsten.cream.ksp.options.CreamOptions
@@ -23,6 +24,7 @@ internal fun BufferedWriter.appendCopyToClassFunction(
     omitPackages: List<String>,
     options: CreamOptions,
     visibility: CopyVisibility = CopyVisibility.INHERIT,
+    funNameTemplate: String = DefaultCopyFunctionName,
 ) {
     targetClass.getConstructors().forEach { constructor ->
         val typeParameters =
@@ -32,8 +34,15 @@ internal fun BufferedWriter.appendCopyToClassFunction(
             )
 
         // Generate copy function
-        val funName = copyFunctionName(source, targetClass, options)
-        appendCopyToClassKDoc(source, targetClass, generateSourceAnnotation, funName.toString())
+        val funName =
+            resolveValidatedFunName(
+                funNameTemplate = funNameTemplate,
+                source = source,
+                target = targetClass,
+                options = options,
+                generateSourceAnnotation = generateSourceAnnotation,
+            )
+        appendCopyToClassKDoc(source, targetClass, generateSourceAnnotation, funName)
 
         append("${visibility.toModifierString(targetClass)} fun ")
         if (typeParameters.isNotEmpty()) {

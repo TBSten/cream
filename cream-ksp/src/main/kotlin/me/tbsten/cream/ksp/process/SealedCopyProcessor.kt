@@ -12,11 +12,14 @@ import me.tbsten.cream.ksp.CreamSymbolProcessor
 import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.transform.appendSealedCopyFunction
+import me.tbsten.cream.ksp.transform.resolveValidatedSealedCopyFunName
 import me.tbsten.cream.ksp.util.copyVisibilityArgument
 import me.tbsten.cream.ksp.util.createNewKotlinFile
 import me.tbsten.cream.ksp.util.extractKDoc
 import me.tbsten.cream.ksp.util.fullName
+import me.tbsten.cream.ksp.util.funNameTemplate
 import me.tbsten.cream.ksp.util.isSealed
+import me.tbsten.cream.ksp.util.lines
 import me.tbsten.cream.ksp.util.underPackageName
 
 internal fun CreamSymbolProcessor.processSealedCopy(resolver: Resolver): List<KSAnnotated> {
@@ -63,6 +66,41 @@ internal fun CreamSymbolProcessor.processSealedCopy(resolver: Resolver): List<KS
             return@forEach
         }
 
+        // Resolve and validate every stacked @SealedCopy funName up front, before opening the
+        // output file. @SealedCopy is @Repeatable and all variants are written to one file, so two
+        // annotations that resolve to the same name would emit conflicting overloads — reject that
+        // with a clear cream error instead of letting it fail at the user's compiler.
+        val annotationsWithFunName =
+            sealedAnnotations.map { sealedAnnotation ->
+                sealedAnnotation to
+                    resolveValidatedSealedCopyFunName(
+                        funNameTemplate = sealedAnnotation.funNameTemplate(),
+                        sealedClass = annotated,
+                        options = options,
+                    )
+            }
+        val duplicateFunName =
+            annotationsWithFunName
+                .groupingBy { (_, funName) -> funName }
+                .eachCount()
+                .entries
+                .firstOrNull { it.value > 1 }
+                ?.key
+        if (duplicateFunName != null) {
+            val displayName = annotated.qualifiedName?.asString() ?: annotated.simpleName.asString()
+            throw InvalidCreamUsageException(
+                message =
+                    lines(
+                        "@${SealedCopy::class.simpleName} on $displayName generates more than one function named \"$duplicateFunName\".",
+                        "Stacked @${SealedCopy::class.simpleName} annotations are written to one file, so each must produce a distinct name.",
+                    ),
+                solution =
+                    lines(
+                        "Give each @${SealedCopy::class.simpleName} a distinct funName, e.g. funName = \"copyOrNull\".",
+                    ),
+            )
+        }
+
         codeGenerator
             .createNewKotlinFile(
                 dependencies =
@@ -76,12 +114,7 @@ internal fun CreamSymbolProcessor.processSealedCopy(resolver: Resolver): List<KS
                 it.appendLine("import me.tbsten.cream.*")
                 it.appendLine()
 
-                sealedAnnotations.forEach { sealedAnnotation ->
-                    val funName =
-                        sealedAnnotation.arguments
-                            .firstOrNull { it.name?.asString() == "funName" }
-                            ?.value as? String
-                            ?: "copy"
+                annotationsWithFunName.forEach { (sealedAnnotation, funName) ->
                     val nonCopyableStrategy =
                         sealedAnnotation.arguments
                             .firstOrNull { it.name?.asString() == "nonCopyableStrategy" }

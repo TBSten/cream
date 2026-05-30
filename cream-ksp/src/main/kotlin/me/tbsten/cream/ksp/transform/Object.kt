@@ -2,6 +2,7 @@ package me.tbsten.cream.ksp.transform
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import me.tbsten.cream.CopyVisibility
+import me.tbsten.cream.DefaultCopyFunctionName
 import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.util.fullName
@@ -15,14 +16,17 @@ internal fun BufferedWriter.appendCopyToObjectFunction(
     generateSourceAnnotation: GenerateSourceAnnotation<*>,
     options: CreamOptions,
     visibility: CopyVisibility = CopyVisibility.INHERIT,
+    funNameTemplate: String = DefaultCopyFunctionName,
 ) {
     val funName =
-        copyFunctionName(
-            source.toClassDeclarationInfo(),
-            targetObject.toClassDeclarationInfo(),
-            options,
+        resolveValidatedFunName(
+            funNameTemplate = funNameTemplate,
+            source = source,
+            target = targetObject,
+            options = options,
+            generateSourceAnnotation = generateSourceAnnotation,
         )
-    appendCopyToObjectKDoc(source, targetObject, generateSourceAnnotation, funName.toString())
+    appendCopyToObjectKDoc(source, targetObject, generateSourceAnnotation, funName)
     append("${visibility.toModifierString(targetObject)} fun ")
     append(source.fullName)
 
@@ -46,15 +50,18 @@ internal fun BufferedWriter.appendCombineToObjectFunction(
     generateSourceAnnotation: GenerateSourceAnnotation<*>,
     options: CreamOptions,
     visibility: CopyVisibility = CopyVisibility.INHERIT,
+    funNameTemplate: String = DefaultCopyFunctionName,
 ) {
     val allSources = listOf(primarySource) + otherSources
     val funName =
-        copyFunctionName(
-            primarySource.toClassDeclarationInfo(),
-            targetObject.toClassDeclarationInfo(),
-            options,
+        resolveValidatedFunName(
+            funNameTemplate = funNameTemplate,
+            source = primarySource,
+            target = targetObject,
+            options = options,
+            generateSourceAnnotation = generateSourceAnnotation,
         )
-    appendCombineToObjectKDoc(allSources, targetObject, generateSourceAnnotation, funName.toString())
+    appendCombineToObjectKDoc(allSources, targetObject, generateSourceAnnotation, funName)
     appendLine(
         "${visibility.toModifierString(targetObject)} fun ${primarySource.fullName}.$funName(${
             otherSources.joinToString(", ") { otherSource ->

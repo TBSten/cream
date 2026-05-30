@@ -3,6 +3,7 @@ package me.tbsten.cream.ksp.transform
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import me.tbsten.cream.CopyVisibility
+import me.tbsten.cream.DefaultCopyFunctionName
 import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.options.CreamOptions
@@ -18,6 +19,7 @@ internal fun BufferedWriter.appendCopyFunction(
     options: CreamOptions,
     notCopyToObject: Boolean,
     visibility: CopyVisibility = CopyVisibility.INHERIT,
+    funNameTemplate: String = DefaultCopyFunctionName,
     generateTargetToSealedSubclasses: Boolean = true,
 ) {
     when (target.classKind) {
@@ -29,11 +31,12 @@ internal fun BufferedWriter.appendCopyFunction(
                 omitPackages,
                 options,
                 visibility,
+                funNameTemplate,
             )
 
         ClassKind.OBJECT ->
             if (!notCopyToObject) {
-                appendCopyToObjectFunction(source, target, generateSourceAnnotation, options, visibility)
+                appendCopyToObjectFunction(source, target, generateSourceAnnotation, options, visibility, funNameTemplate)
             }
 
         ClassKind.INTERFACE -> {
@@ -47,6 +50,7 @@ internal fun BufferedWriter.appendCopyFunction(
                         generateSourceAnnotation,
                         notCopyToObject,
                         visibility,
+                        funNameTemplate,
                     )
                 } else {
                     // no op
@@ -81,6 +85,7 @@ internal fun BufferedWriter.appendCombineToFunction(
     generateSourceAnnotation: GenerateSourceAnnotation<*>,
     options: CreamOptions,
     visibility: CopyVisibility = CopyVisibility.INHERIT,
+    funNameTemplate: String = DefaultCopyFunctionName,
 ) {
     when (target.classKind) {
         ClassKind.CLASS,
@@ -94,6 +99,7 @@ internal fun BufferedWriter.appendCombineToFunction(
                 omitPackages,
                 options,
                 visibility,
+                funNameTemplate,
             )
 
         ClassKind.OBJECT ->
@@ -105,6 +111,7 @@ internal fun BufferedWriter.appendCombineToFunction(
                     generateSourceAnnotation,
                     options,
                     visibility,
+                    funNameTemplate,
                 )
             }
 
