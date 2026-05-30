@@ -11,6 +11,7 @@ import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CombineMapping
+import me.tbsten.cream.CopyVisibility
 import me.tbsten.cream.ksp.CreamSymbolProcessor
 import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
@@ -18,6 +19,7 @@ import me.tbsten.cream.ksp.transform.appendCombineToFunction
 import me.tbsten.cream.ksp.transform.appendCopyFunction
 import me.tbsten.cream.ksp.util.annotationsOf
 import me.tbsten.cream.ksp.util.classListArgument
+import me.tbsten.cream.ksp.util.copyVisibilityArgument
 import me.tbsten.cream.ksp.util.createNewKotlinFile
 import me.tbsten.cream.ksp.util.extractKDoc
 import me.tbsten.cream.ksp.util.extractPropertyMappings
@@ -42,6 +44,7 @@ private data class CombineMappingInfo(
     val propertyMappings: List<Pair<String, String>>,
     val kdocDescription: String,
     val kdocExamples: List<String>,
+    val visibility: CopyVisibility,
 )
 
 internal fun CreamSymbolProcessor.processCombineMapping(resolver: Resolver): List<KSAnnotated> {
@@ -116,12 +119,15 @@ internal fun CreamSymbolProcessor.processCombineMapping(resolver: Resolver): Lis
 
                     val (kdocDescription, kdocExamples) = annotation.extractKDoc()
 
+                    val visibility = annotation.copyVisibilityArgument()
+
                     CombineMappingInfo(
                         sourceClasses = sourceClasses,
                         targetClass = targetClass,
                         propertyMappings = propertyMaps,
                         kdocDescription = kdocDescription,
                         kdocExamples = kdocExamples,
+                        visibility = visibility,
                     )
                 }
 
@@ -163,6 +169,7 @@ internal fun CreamSymbolProcessor.processCombineMapping(resolver: Resolver): Lis
                                     kdocDescription = mapping.kdocDescription,
                                     kdocExamples = mapping.kdocExamples,
                                 ),
+                            visibility = mapping.visibility,
                         )
                     }
                 }

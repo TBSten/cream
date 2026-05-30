@@ -7,7 +7,6 @@ import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.util.fullName
 import me.tbsten.cream.ksp.util.toModifierString
 import me.tbsten.cream.ksp.util.underPackageName
-import me.tbsten.cream.ksp.util.visibilityStr
 import java.io.BufferedWriter
 
 internal fun BufferedWriter.appendCopyToObjectFunction(
@@ -46,6 +45,7 @@ internal fun BufferedWriter.appendCombineToObjectFunction(
     targetObject: KSClassDeclaration,
     generateSourceAnnotation: GenerateSourceAnnotation<*>,
     options: CreamOptions,
+    visibility: CopyVisibility = CopyVisibility.INHERIT,
 ) {
     val allSources = listOf(primarySource) + otherSources
     val funName =
@@ -56,7 +56,7 @@ internal fun BufferedWriter.appendCombineToObjectFunction(
         )
     appendCombineToObjectKDoc(allSources, targetObject, generateSourceAnnotation, funName.toString())
     appendLine(
-        "${targetObject.visibilityStr} fun ${primarySource.fullName}.$funName(${
+        "${visibility.toModifierString(targetObject)} fun ${primarySource.fullName}.$funName(${
             otherSources.joinToString(", ") { otherSource ->
                 "${otherSource.underPackageName.replaceFirstChar { it.lowercase() }}: ${otherSource.fullName}"
             }

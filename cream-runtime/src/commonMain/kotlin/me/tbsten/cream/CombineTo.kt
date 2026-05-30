@@ -33,13 +33,19 @@ import kotlin.reflect.KClass
  * ): SuccessState = SuccessState(...)
  * ```
  *
+ * @property visibility Visibility modifier of the generated copy function. Defaults to
+ *   [CopyVisibility.INHERIT], which keeps cream's existing behaviour (the function inherits
+ *   the target class's visibility).
+ *
  * @see CopyTo
  * @see CopyFrom
+ * @see CopyVisibility
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS)
 annotation class CombineTo(
     vararg val targets: KClass<*>,
     val kdoc: KDoc = KDoc(),
+    val visibility: CopyVisibility = CopyVisibility.INHERIT,
 ) {
     @Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE_PARAMETER)
     annotation class Map(

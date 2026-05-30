@@ -80,6 +80,7 @@ internal fun BufferedWriter.appendCombineToFunction(
     omitPackages: List<String>,
     generateSourceAnnotation: GenerateSourceAnnotation<*>,
     options: CreamOptions,
+    visibility: CopyVisibility = CopyVisibility.INHERIT,
 ) {
     when (target.classKind) {
         ClassKind.CLASS,
@@ -92,6 +93,7 @@ internal fun BufferedWriter.appendCombineToFunction(
                 generateSourceAnnotation,
                 omitPackages,
                 options,
+                visibility,
             )
 
         ClassKind.OBJECT ->
@@ -102,6 +104,7 @@ internal fun BufferedWriter.appendCombineToFunction(
                     target,
                     generateSourceAnnotation,
                     options,
+                    visibility,
                 )
             }
 

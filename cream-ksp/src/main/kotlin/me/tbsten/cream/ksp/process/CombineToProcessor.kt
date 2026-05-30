@@ -11,6 +11,7 @@ import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CombineTo
+import me.tbsten.cream.CopyVisibility
 import me.tbsten.cream.ksp.CreamSymbolProcessor
 import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
@@ -18,6 +19,7 @@ import me.tbsten.cream.ksp.transform.appendCombineToFunction
 import me.tbsten.cream.ksp.transform.appendCopyFunction
 import me.tbsten.cream.ksp.util.annotationsOf
 import me.tbsten.cream.ksp.util.classListArgument
+import me.tbsten.cream.ksp.util.copyVisibilityArgument
 import me.tbsten.cream.ksp.util.createNewKotlinFile
 import me.tbsten.cream.ksp.util.extractKDoc
 import me.tbsten.cream.ksp.util.extractPropertyMappings
@@ -31,6 +33,7 @@ private data class CombineToSourceEntry(
     val sourceDeclaration: KSDeclaration,
     val kdocDescription: String,
     val kdocExamples: List<String>,
+    val visibility: CopyVisibility,
 )
 
 private class TargetSourcesMapForCombineTo : MutableMap<KSClassDeclaration, MutableList<CombineToSourceEntry>> by mutableMapOf() {
@@ -78,6 +81,9 @@ internal fun CreamSymbolProcessor.processCombineTo(resolver: Resolver): List<KSA
         val (kdocDescription, kdocExamples) =
             combineToAnnotations.firstOrNull()?.extractKDoc() ?: ("" to emptyList())
 
+        val visibility =
+            combineToAnnotations.firstOrNull()?.copyVisibilityArgument() ?: CopyVisibility.INHERIT
+
         // Group source classes by target class
         targetClasses.forEach { targetClass ->
             targetToSourcesMap.put(
@@ -86,6 +92,7 @@ internal fun CreamSymbolProcessor.processCombineTo(resolver: Resolver): List<KSA
                     sourceDeclaration = sourceDeclaration,
                     kdocDescription = kdocDescription,
                     kdocExamples = kdocExamples,
+                    visibility = visibility,
                 ),
             )
         }
@@ -123,6 +130,7 @@ internal fun CreamSymbolProcessor.processCombineTo(resolver: Resolver): List<KSA
                                 kdocDescription = sourceEntry.kdocDescription,
                                 kdocExamples = sourceEntry.kdocExamples,
                             ),
+                        visibility = sourceEntry.visibility,
                     )
                 }
         }
