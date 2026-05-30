@@ -23,26 +23,29 @@ internal fun KDocWriter.appendCombineAutoDescription(
  * ```
  * val a = A(...)
  * val b = B(...)
- * val target = a.funName(b = B(...)<extraArgs>)
+ * val target = a.funName(b = B(...), <extraArgs>)
  * ```
  *
- * [extraArgs] is appended inside the call parentheses after the source params — e.g.
- * `", property = value"` for the "Override property values" example.
+ * [extraArgs] are appended inside the call parentheses after the source params — e.g.
+ * `listOf("property = value")` for the "Override property values" example. The source
+ * params and extra args are comma-joined together, so no dangling comma is produced when
+ * either side is empty (e.g. a single source with no extra args -> `funName()`).
  */
 internal fun combineExampleBody(
     sources: List<KSClassDeclaration>,
     funName: String,
-    extraArgs: String = "",
+    extraArgs: List<String> = emptyList(),
 ): String {
     val primarySource = sources.first()
     val otherSourceParams =
-        sources.drop(1).joinToString(", ") {
+        sources.drop(1).map {
             "${it.lowerCamelName()} = ${it.simpleName.asString()}(...)"
         }
+    val callArgs = (otherSourceParams + extraArgs).joinToString(", ")
     return buildString {
         sources.forEach { source ->
             appendLine("val ${source.lowerCamelName()} = ${source.simpleName.asString()}(...)")
         }
-        append("val target = ${primarySource.lowerCamelName()}.$funName($otherSourceParams$extraArgs)")
+        append("val target = ${primarySource.lowerCamelName()}.$funName($callArgs)")
     }
 }

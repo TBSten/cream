@@ -25,7 +25,7 @@ import me.tbsten.cream.*
  * 
  * ```kt
  * val serverState = ServerState(...)
- * val target = serverState.copyToMergedState(, property = value)
+ * val target = serverState.copyToMergedState(property = value)
  * ```
  * 
  * 
