@@ -1,6 +1,6 @@
 ## Compiler output
 
-```kt
+```text
 Invalid cream usage: @SealedCopy must be applied to a sealed class/interface, but diag.sealedCopy.NotSealed is not sealed.
 
 Solution: 

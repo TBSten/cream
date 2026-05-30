@@ -1,6 +1,6 @@
 ## Compiler output
 
-```kt
+```text
 Invalid cream usage: Cannot generate copy() for sealed type 'MyState' because it contains object subtype(s): MyState.Empty. Objects are singletons and have no .copy() to delegate to.
 
 Solution: 
