@@ -25,12 +25,18 @@ import kotlin.reflect.KClass
  * ) = Success(...)
  * ```
  *
+ * @property visibility Visibility modifier of the generated copy function. Defaults to
+ *   [CopyVisibility.INHERIT], which keeps cream's existing behaviour (the function inherits
+ *   the target class's visibility).
+ *
  * @see CopyFrom
+ * @see CopyVisibility
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS)
 annotation class CopyTo(
     vararg val targets: KClass<*>,
     val kdoc: KDoc = KDoc(),
+    val visibility: CopyVisibility = CopyVisibility.INHERIT,
 ) {
     @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE_PARAMETER)
     annotation class Map(
