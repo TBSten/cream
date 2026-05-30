@@ -31,7 +31,6 @@ internal fun CopyVisibility.toModifierString(inheritFrom: KSClassDeclaration): S
         CopyVisibility.INHERIT -> inheritFrom.visibilityStr
         CopyVisibility.PUBLIC -> "public"
         CopyVisibility.INTERNAL -> "internal"
-        CopyVisibility.PRIVATE -> "private"
     }
 
 /**

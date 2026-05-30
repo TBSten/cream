@@ -3,9 +3,13 @@ package me.tbsten.cream
 /**
  * Visibility modifier applied to the copy function cream generates.
  *
- * Generated copy functions are **top-level extension functions**. Kotlin only allows
- * `public` / `internal` / `private` on top-level declarations (`protected` is not valid
- * for them), so only those three concrete modifiers are exposed here.
+ * Generated copy functions are **top-level extension functions**, so only modifiers that
+ * keep them usable are offered: [PUBLIC] and [INTERNAL] (plus [INHERIT]).
+ *
+ * `private` and `protected` are intentionally **not** provided: a `private` top-level
+ * function would only be visible inside its generated file, and `protected` is not even
+ * valid on top-level declarations. Either one would make the generated function unusable,
+ * defeating the purpose of generating it, so they are excluded.
  *
  * # Example
  *
@@ -22,6 +26,8 @@ package me.tbsten.cream
  * @see CopyFrom
  * @see CopyToChildren
  * @see SealedCopy
+ * @see CombineTo
+ * @see CombineFrom
  */
 enum class CopyVisibility {
     /**
@@ -36,7 +42,4 @@ enum class CopyVisibility {
 
     /** Emit an `internal` copy function. */
     INTERNAL,
-
-    /** Emit a `private` copy function (visible only within the generated file's scope). */
-    PRIVATE,
 }
