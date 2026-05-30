@@ -28,6 +28,11 @@ dependencies {
 
 tasks.named<Test>("test") {
     useJUnitPlatform()
+    // Each kctfork test runs an in-process Kotlin/KSP compilation whose classloaders accumulate,
+    // so the default 512m worker heap is exhausted by the full suite (OutOfMemoryError cascading
+    // into unrelated test failures). Give the worker headroom and recycle it periodically.
+    maxHeapSize = "2g"
+    forkEvery = 25L
     // Allow snapshot regeneration via `-Dcream.snapshot.update=true` on the gradle command line.
     System.getProperty("cream.snapshot.update")?.let {
         systemProperty("cream.snapshot.update", it)
