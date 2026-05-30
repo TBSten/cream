@@ -12,6 +12,7 @@ import me.tbsten.cream.ksp.process.processCopyFrom
 import me.tbsten.cream.ksp.process.processCopyMapping
 import me.tbsten.cream.ksp.process.processCopyTo
 import me.tbsten.cream.ksp.process.processCopyToChildren
+import me.tbsten.cream.ksp.process.processSealedCopy
 
 class CreamSymbolProcessor(
     options: Map<String, String>,
@@ -29,6 +30,9 @@ class CreamSymbolProcessor(
             .also { invalidTargets.addAll(it) }
 
         processCopyToChildren(resolver)
+            .also { invalidTargets.addAll(it) }
+
+        processSealedCopy(resolver)
             .also { invalidTargets.addAll(it) }
 
         processCombineTo(resolver)

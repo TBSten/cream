@@ -40,6 +40,15 @@ internal sealed interface GenerateSourceAnnotation<A : Annotation> {
             me.tbsten.cream.CopyToChildren::class
     }
 
+    data class SealedCopy(
+        override val annotationTarget: KSDeclaration,
+        override val kdocDescription: String = "",
+        override val kdocExamples: List<String> = emptyList(),
+    ) : GenerateSourceAnnotation<me.tbsten.cream.SealedCopy> {
+        override val annotationClass: KClass<me.tbsten.cream.SealedCopy> =
+            me.tbsten.cream.SealedCopy::class
+    }
+
     data class CombineTo(
         override val annotationTarget: KSDeclaration,
         override val kdocDescription: String = "",
