@@ -161,7 +161,7 @@ internal class SealedCopySnapshotTest {
     @Test
     fun `forwards type parameters across the generated copy`() {
         runSnapshot(
-            "SealedCopySnapshotTest.typeParameterPropagation",
+            "SealedCopySnapshotTest.edgeCase/typeParameterPropagation",
             """
             package snap.sealedCopy.generic
 
@@ -181,7 +181,7 @@ internal class SealedCopySnapshotTest {
     @Test
     fun `keeps subtype type arguments when copying a property of the type parameter`() {
         runSnapshot(
-            "SealedCopySnapshotTest.genericProperty",
+            "SealedCopySnapshotTest.edgeCase/genericProperty",
             """
             package snap.sealedCopy.genericProp
 
@@ -201,7 +201,7 @@ internal class SealedCopySnapshotTest {
     @Test
     fun `forwards multiple type parameters into each subtype branch`() {
         runSnapshot(
-            "SealedCopySnapshotTest.multipleTypeParameters",
+            "SealedCopySnapshotTest.edgeCase/multipleTypeParameters",
             """
             package snap.sealedCopy.multiGeneric
 
@@ -221,7 +221,7 @@ internal class SealedCopySnapshotTest {
     @Test
     fun `covariant out type parameter is preserved`() {
         runSnapshot(
-            "SealedCopySnapshotTest.covariantOutTypeParameter",
+            "SealedCopySnapshotTest.edgeCase/covariantOutTypeParameter",
             """
             package snap.sealedCopy.cov
 
@@ -241,7 +241,7 @@ internal class SealedCopySnapshotTest {
     @Test
     fun `subtype with an extra type parameter is star-projected`() {
         runSnapshot(
-            "SealedCopySnapshotTest.subtypeExtraTypeParameter",
+            "SealedCopySnapshotTest.edgeCase/subtypeExtraTypeParameter",
             """
             package snap.sealedCopy.extra
 
@@ -261,7 +261,7 @@ internal class SealedCopySnapshotTest {
     @Test
     fun `flattens a nested generic sealed hierarchy`() {
         runSnapshot(
-            "SealedCopySnapshotTest.nestedGenericSealed",
+            "SealedCopySnapshotTest.edgeCase/nestedGenericSealed",
             """
             package snap.sealedCopy.nestedGen
 
@@ -283,7 +283,7 @@ internal class SealedCopySnapshotTest {
     @Test
     fun `renders a where clause for multiple upper bounds`() {
         runSnapshot(
-            "SealedCopySnapshotTest.multipleUpperBounds",
+            "SealedCopySnapshotTest.edgeCase/multipleUpperBounds",
             """
             package snap.sealedCopy.bounds
 
@@ -302,7 +302,7 @@ internal class SealedCopySnapshotTest {
     @Test
     fun `supports a subtype that fixes the type parameter to a concrete type`() {
         runSnapshot(
-            "SealedCopySnapshotTest.subtypeFixesTypeParameter",
+            "SealedCopySnapshotTest.edgeCase/subtypeFixesTypeParameter",
             """
             package snap.sealedCopy.fixed
 
@@ -322,7 +322,7 @@ internal class SealedCopySnapshotTest {
     @Test
     fun `recursively flattens nested sealed into concrete subclasses`() {
         runSnapshot(
-            "SealedCopySnapshotTest.flattensIntermediateSealed",
+            "SealedCopySnapshotTest.edgeCase/flattensIntermediateSealed",
             """
             package snap.sealedCopy.nested
 
