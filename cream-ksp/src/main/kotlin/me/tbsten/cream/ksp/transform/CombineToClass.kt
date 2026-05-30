@@ -242,7 +242,7 @@ private fun BufferedWriter.appendCombineToClassKDoc(
             appendExample("Example: Basic", combineExampleBody(sources, funName))
             appendExample(
                 "Example: Override property values",
-                combineExampleBody(sources, funName, extraArgs = ", property = value"),
+                combineExampleBody(sources, funName, extraArgs = listOf("property = value")),
             )
         },
     )

@@ -27,7 +27,7 @@ import me.tbsten.cream.*
  * 
  * ```kt
  * val cartState = CartState(...)
- * val target = cartState.copyToCheckout(, property = value)
+ * val target = cartState.copyToCheckout(property = value)
  * ```
  * 
  * 
