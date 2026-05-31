@@ -2,7 +2,7 @@
 
 ```text
 Invalid cream usage: @CopyTo on diag.Source produced an invalid function name "copyTo`Target`OrNull".
-  funName template : "{{cream:DefaultCopyFunctionName}}OrNull"
+  funName template : "${DefaultCopyFunctionName}OrNull"
   target           : diag.Target
 
 Solution: 
@@ -12,7 +12,7 @@ Solution:
   Note: when cream.escapeDot=backquote, DefaultCopyFunctionName is itself a backtick-quoted name and cannot take a prefix/suffix — use a CopyTarget* token instead.
 
 me.tbsten.cream.ksp.InvalidCreamUsageException: Invalid cream usage: @CopyTo on diag.Source produced an invalid function name "copyTo`Target`OrNull".
-  funName template : "{{cream:DefaultCopyFunctionName}}OrNull"
+  funName template : "${DefaultCopyFunctionName}OrNull"
   target           : diag.Target
 
 Solution: 

@@ -55,6 +55,16 @@ fun containsAnyCopyFunNameToken(template: String): Boolean =
         copyTargetTokenExpanders.any { (placeholder, _) -> template.contains(placeholder) }
 
 /**
+ * Render [template] for display in diagnostics: rewrite each internal token placeholder
+ * `{{cream:X}}` as `${X}`, so a message shows the tokens the user referenced delimited from the
+ * surrounding literal — e.g. `bad-${CopyTargetSimpleName}` instead of the internal
+ * `bad-{{cream:CopyTargetSimpleName}}`.
+ */
+@InternalCreamApi
+fun displayFunNameTemplate(template: String): String =
+    Regex("\\{\\{cream:([^}]*)}}").replace(template) { "\${${it.groupValues[1]}}" }
+
+/**
  * Whether [name] is usable as the simple name of the top-level function cream generates:
  * a plain identifier (`toSuccess`) or a backtick-quoted identifier (`` `to success` ``).
  * Rejects the empty string and any name containing a character illegal in a Kotlin
