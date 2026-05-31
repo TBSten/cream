@@ -20,14 +20,14 @@ import me.tbsten.cream.*
  * 
  * ```kt
  * val cartState = CartState(...)
- * val target = cartState.copyToCheckout()
+ * val target = cartState.copyToCheckout(method = method)
  * ```
  * 
  * # Example: Override property values
  * 
  * ```kt
  * val cartState = CartState(...)
- * val target = cartState.copyToCheckout(property = value)
+ * val target = cartState.copyToCheckout(method = method, property = value)
  * ```
  * 
  * 

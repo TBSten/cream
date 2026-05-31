@@ -15,14 +15,14 @@ import me.tbsten.cream.*
  * 
  * ```kt
  * val source = Source(...)
- * val target = source.copyToStateLoaded()
+ * val target = source.copyToStateLoaded(payload = payload)
  * ```
  * 
  * # Example: Override property values
  * 
  * ```kt
  * val source = Source(...)
- * val target = source.copyToStateLoaded(property = value)
+ * val target = source.copyToStateLoaded(payload = payload, property = value)
  * ```
  * 
  * 
@@ -75,14 +75,14 @@ public fun  snap.kind.classToSealed.Source.copyToStateLoading(
  * 
  * ```kt
  * val source = State(...)
- * val target = source.copyToStateLoaded()
+ * val target = source.copyToStateLoaded(payload = payload)
  * ```
  * 
  * # Example: Override property values
  * 
  * ```kt
  * val source = State(...)
- * val target = source.copyToStateLoaded(property = value)
+ * val target = source.copyToStateLoaded(payload = payload, property = value)
  * ```
  * 
  * 

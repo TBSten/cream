@@ -48,14 +48,14 @@ public fun  snap.kdoc.copytochildrenshared.UiState.copyToUiStateLoading(
  * 
  * ```kt
  * val source = UiState(...)
- * val target = source.copyToUiStateSuccess()
+ * val target = source.copyToUiStateSuccess(data = data)
  * ```
  * 
  * # Example: Override property values
  * 
  * ```kt
  * val source = UiState(...)
- * val target = source.copyToUiStateSuccess(property = value)
+ * val target = source.copyToUiStateSuccess(data = data, property = value)
  * ```
  * 
  * 

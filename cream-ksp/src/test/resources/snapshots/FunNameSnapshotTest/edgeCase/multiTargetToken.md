@@ -15,14 +15,14 @@ import me.tbsten.cream.*
  * 
  * ```kt
  * val source = Source(...)
- * val target = source.toApple()
+ * val target = source.toApple(a = a)
  * ```
  * 
  * # Example: Override property values
  * 
  * ```kt
  * val source = Source(...)
- * val target = source.toApple(property = value)
+ * val target = source.toApple(a = a, property = value)
  * ```
  * 
  * 
@@ -46,14 +46,14 @@ public fun  snap.funname.Source.toApple(
  * 
  * ```kt
  * val source = Source(...)
- * val target = source.toBanana()
+ * val target = source.toBanana(b = b)
  * ```
  * 
  * # Example: Override property values
  * 
  * ```kt
  * val source = Source(...)
- * val target = source.toBanana(property = value)
+ * val target = source.toBanana(b = b, property = value)
  * ```
  * 
  * 

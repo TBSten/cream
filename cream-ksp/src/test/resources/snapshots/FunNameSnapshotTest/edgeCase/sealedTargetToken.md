@@ -15,14 +15,14 @@ import me.tbsten.cream.*
  * 
  * ```kt
  * val source = Source(...)
- * val target = source.toLoaded()
+ * val target = source.toLoaded(payload = payload)
  * ```
  * 
  * # Example: Override property values
  * 
  * ```kt
  * val source = Source(...)
- * val target = source.toLoaded(property = value)
+ * val target = source.toLoaded(payload = payload, property = value)
  * ```
  * 
  * 
@@ -75,14 +75,14 @@ public fun  snap.funname.Source.toLoading(
  * 
  * ```kt
  * val source = State(...)
- * val target = source.toLoaded()
+ * val target = source.toLoaded(payload = payload)
  * ```
  * 
  * # Example: Override property values
  * 
  * ```kt
  * val source = State(...)
- * val target = source.toLoaded(property = value)
+ * val target = source.toLoaded(payload = payload, property = value)
  * ```
  * 
  * 

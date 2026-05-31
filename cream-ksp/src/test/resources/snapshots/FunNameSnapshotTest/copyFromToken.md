@@ -15,14 +15,14 @@ import me.tbsten.cream.*
  * 
  * ```kt
  * val source = Source(...)
- * val target = source.toTarget()
+ * val target = source.toTarget(extra = extra)
  * ```
  * 
  * # Example: Override property values
  * 
  * ```kt
  * val source = Source(...)
- * val target = source.toTarget(property = value)
+ * val target = source.toTarget(extra = extra, property = value)
  * ```
  * 
  * 
