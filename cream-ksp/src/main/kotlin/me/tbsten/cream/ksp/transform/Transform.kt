@@ -1,5 +1,6 @@
 package me.tbsten.cream.ksp.transform
 
+import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import me.tbsten.cream.CopyVisibility
@@ -21,6 +22,7 @@ internal fun BufferedWriter.appendCopyFunction(
     visibility: CopyVisibility = CopyVisibility.INHERIT,
     funNameTemplate: String = DefaultCopyFunctionName,
     generateTargetToSealedSubclasses: Boolean = true,
+    logger: KSPLogger? = null,
 ) {
     when (target.classKind) {
         ClassKind.CLASS ->
@@ -32,6 +34,7 @@ internal fun BufferedWriter.appendCopyFunction(
                 options,
                 visibility,
                 funNameTemplate,
+                logger,
             )
 
         ClassKind.OBJECT ->
@@ -51,6 +54,7 @@ internal fun BufferedWriter.appendCopyFunction(
                         notCopyToObject,
                         visibility,
                         funNameTemplate,
+                        logger,
                     )
                 } else {
                     // no op
@@ -86,6 +90,7 @@ internal fun BufferedWriter.appendCombineToFunction(
     options: CreamOptions,
     visibility: CopyVisibility = CopyVisibility.INHERIT,
     funNameTemplate: String = DefaultCopyFunctionName,
+    logger: KSPLogger? = null,
 ) {
     when (target.classKind) {
         ClassKind.CLASS,
@@ -100,6 +105,7 @@ internal fun BufferedWriter.appendCombineToFunction(
                 options,
                 visibility,
                 funNameTemplate,
+                logger,
             )
 
         ClassKind.OBJECT ->

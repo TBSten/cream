@@ -1,6 +1,7 @@
 package me.tbsten.cream.ksp.transform
 
 import com.google.devtools.ksp.getConstructors
+import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import me.tbsten.cream.CopyVisibility
@@ -25,6 +26,7 @@ internal fun BufferedWriter.appendCopyToClassFunction(
     options: CreamOptions,
     visibility: CopyVisibility = CopyVisibility.INHERIT,
     funNameTemplate: String = DefaultCopyFunctionName,
+    logger: KSPLogger? = null,
 ) {
     targetClass.getConstructors().forEach { constructor ->
         val typeParameters =
@@ -126,10 +128,15 @@ internal fun BufferedWriter.appendCopyToClassFunction(
                     )
             append("    $paramName: $paramType")
 
-            parameter
-                .findMatchedProperty(source, generateSourceAnnotation)
-                ?.let { " = this.${it.simpleName.asString()}" }
-                ?.let(::append)
+            val matchedProperty = parameter.findMatchedProperty(source, generateSourceAnnotation)
+            if (logger != null) {
+                parameter.warnIfTargetExcludeHasNoEffect(matchedProperty, generateSourceAnnotation, logger)
+            }
+            if (matchedProperty != null &&
+                !parameter.isExcludedFromCopy(matchedProperty, source, generateSourceAnnotation)
+            ) {
+                append(" = this.${matchedProperty.simpleName.asString()}")
+            }
             append(",\n")
         }
         append(") : ")

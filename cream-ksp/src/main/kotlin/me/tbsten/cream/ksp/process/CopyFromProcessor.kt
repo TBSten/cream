@@ -102,6 +102,7 @@ internal fun CreamSymbolProcessor.processCopyFrom(resolver: Resolver): List<KSAn
                         notCopyToObject = false,
                         visibility = visibility,
                         funNameTemplate = funNameTemplate,
+                        logger = logger,
                     )
                 }
             }

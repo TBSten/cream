@@ -75,7 +75,12 @@ private fun BufferedWriter.appendSealedCopyHeader(
     abstractProperties.forEach { prop ->
         val typeText = prop.type.resolve().asString(omitPackages = omitPackages)
         val propName = prop.simpleName.asString()
-        appendLine("    $propName: $typeText = this.$propName,")
+        val excluded = prop.annotationsOf(SealedCopy.Exclude::class).any()
+        if (excluded) {
+            appendLine("    $propName: $typeText,")
+        } else {
+            appendLine("    $propName: $typeText = this.$propName,")
+        }
     }
     append("): ")
     append(returnTypeText)

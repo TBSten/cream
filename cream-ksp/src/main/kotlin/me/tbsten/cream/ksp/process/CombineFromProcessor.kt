@@ -138,6 +138,7 @@ internal fun CreamSymbolProcessor.processCombineFrom(resolver: Resolver): List<K
                         ),
                     visibility = visibility,
                     funNameTemplate = funNameTemplate,
+                    logger = logger,
                 )
             }
     }

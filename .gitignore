@@ -13,4 +13,5 @@ xcuserdata
 *.gpg
 
 .claude/**/*.local.json
+.claude/worktrees/
 .local/

@@ -1,6 +1,7 @@
 package me.tbsten.cream.ksp.transform
 
 import com.google.devtools.ksp.getConstructors
+import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import me.tbsten.cream.CopyVisibility
@@ -26,6 +27,7 @@ internal fun BufferedWriter.appendCombineToClassFunction(
     options: CreamOptions,
     visibility: CopyVisibility = CopyVisibility.INHERIT,
     funNameTemplate: String = DefaultCopyFunctionName,
+    logger: KSPLogger? = null,
 ) {
     val allSources = listOf(primarySource) + otherSources
 
@@ -166,14 +168,31 @@ internal fun BufferedWriter.appendCombineToClassFunction(
                         ?.let { property -> source to property }
                 }
 
+            // Suppress the auto-copy default when the matched property is @Exclude-marked in ANY
+            // contributing source — not only the "winning" source that supplies the value. With
+            // overlapping property names the winner differs per generated function, so checking
+            // only the winner would make an explicit @CombineTo.Exclude silently ineffective in
+            // some generated functions.
+            val excluded =
+                allSources.any { source ->
+                    parameter
+                        .findMatchedProperty(source, generateSourceAnnotation)
+                        ?.let { property -> parameter.isExcludedFromCopy(property, source, generateSourceAnnotation) }
+                        ?: false
+                }
+
             if (matchedSourceAndProperty != null) {
                 val (matchedSource, matchedProperty) = matchedSourceAndProperty
-                if (matchedSource == primarySource) {
-                    append(" = this.${matchedProperty.simpleName.asString()}")
-                } else {
-                    val sourceParamName = matchedSource.simpleName.asString().replaceFirstChar { it.lowercase() }
-                    append(" = $sourceParamName.${matchedProperty.simpleName.asString()}")
+                if (!excluded) {
+                    if (matchedSource == primarySource) {
+                        append(" = this.${matchedProperty.simpleName.asString()}")
+                    } else {
+                        val sourceParamName = matchedSource.simpleName.asString().replaceFirstChar { it.lowercase() }
+                        append(" = $sourceParamName.${matchedProperty.simpleName.asString()}")
+                    }
                 }
+            } else if (logger != null) {
+                parameter.warnIfTargetExcludeHasNoEffect(null, generateSourceAnnotation, logger)
             }
 
             append(",\n")

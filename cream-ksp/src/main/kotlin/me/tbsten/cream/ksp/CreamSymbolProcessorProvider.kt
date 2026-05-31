@@ -9,5 +9,6 @@ class CreamSymbolProcessorProvider : SymbolProcessorProvider {
         CreamSymbolProcessor(
             options = environment.options,
             codeGenerator = environment.codeGenerator,
+            logger = environment.logger,
         )
 }
