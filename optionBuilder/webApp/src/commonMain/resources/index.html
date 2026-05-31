@@ -18,6 +18,22 @@
             overflow: hidden;
         }
     </style>
+    <!--
+      Lets the app override the UI language at runtime (see LocalAppLocale in :sharedUI).
+      Compose Resources reads navigator.languages; this shim returns window.__customLocale
+      (set by the app) when present, otherwise the real browser languages.
+    -->
+    <script>
+        var nativeLanguages = Object.getOwnPropertyDescriptor(Navigator.prototype, "languages");
+        Object.defineProperty(Navigator.prototype, "languages", Object.assign({}, nativeLanguages, {
+            get: function () {
+                if (window.__customLocale) {
+                    return [window.__customLocale];
+                }
+                return nativeLanguages.get.apply(this);
+            }
+        }));
+    </script>
 </head>
 
 <meta content="cream.kt option builder" property="og:title">
