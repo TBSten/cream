@@ -12,11 +12,13 @@ import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CombineTo
 import me.tbsten.cream.CopyVisibility
+import me.tbsten.cream.DefaultCopyFunctionName
 import me.tbsten.cream.ksp.CreamSymbolProcessor
 import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.transform.appendCombineToFunction
 import me.tbsten.cream.ksp.transform.appendCopyFunction
+import me.tbsten.cream.ksp.transform.requireFunNameSupportsFanout
 import me.tbsten.cream.ksp.util.annotationsOf
 import me.tbsten.cream.ksp.util.classListArgument
 import me.tbsten.cream.ksp.util.copyVisibilityArgument
@@ -24,6 +26,7 @@ import me.tbsten.cream.ksp.util.createNewKotlinFile
 import me.tbsten.cream.ksp.util.extractKDoc
 import me.tbsten.cream.ksp.util.extractPropertyMappings
 import me.tbsten.cream.ksp.util.fullName
+import me.tbsten.cream.ksp.util.funNameTemplate
 import me.tbsten.cream.ksp.util.isSealed
 import me.tbsten.cream.ksp.util.requireClassDeclaration
 import me.tbsten.cream.ksp.util.resolveToClassDeclaration
@@ -34,6 +37,7 @@ private data class CombineToSourceEntry(
     val kdocDescription: String,
     val kdocExamples: List<String>,
     val visibility: CopyVisibility,
+    val funNameTemplate: String,
 )
 
 private class TargetSourcesMapForCombineTo : MutableMap<KSClassDeclaration, MutableList<CombineToSourceEntry>> by mutableMapOf() {
@@ -76,13 +80,23 @@ internal fun CreamSymbolProcessor.processCombineTo(resolver: Resolver): List<KSA
                         annotationName = CombineTo::class.simpleName!!,
                         context = "Specified in @${CombineTo::class.simpleName}.targets of ${target.fullName}",
                     )
-                }
+                }.toList()
 
         val (kdocDescription, kdocExamples) =
             combineToAnnotations.firstOrNull()?.extractKDoc() ?: ("" to emptyList())
 
         val visibility =
             combineToAnnotations.firstOrNull()?.copyVisibilityArgument() ?: CopyVisibility.INHERIT
+
+        val funNameTemplate =
+            combineToAnnotations.firstOrNull()?.funNameTemplate() ?: DefaultCopyFunctionName
+
+        requireFunNameSupportsFanout(
+            funNameTemplate = funNameTemplate,
+            generatesMultipleFunctions = targetClasses.size > 1,
+            annotationSimpleName = CombineTo::class.simpleName!!,
+            declarationFullName = sourceClass.fullName,
+        )
 
         // Group source classes by target class
         targetClasses.forEach { targetClass ->
@@ -93,6 +107,7 @@ internal fun CreamSymbolProcessor.processCombineTo(resolver: Resolver): List<KSA
                     kdocDescription = kdocDescription,
                     kdocExamples = kdocExamples,
                     visibility = visibility,
+                    funNameTemplate = funNameTemplate,
                 ),
             )
         }
@@ -131,6 +146,7 @@ internal fun CreamSymbolProcessor.processCombineTo(resolver: Resolver): List<KSA
                                 kdocExamples = sourceEntry.kdocExamples,
                             ),
                         visibility = sourceEntry.visibility,
+                        funNameTemplate = sourceEntry.funNameTemplate,
                     )
                 }
         }

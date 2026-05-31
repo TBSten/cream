@@ -38,10 +38,15 @@ import kotlin.reflect.KClass
  * @property visibility Visibility modifier of the generated copy function. Defaults to
  *   [CopyVisibility.INHERIT], which keeps cream's existing behaviour (the function inherits
  *   the target class's visibility).
+ * @property funName Template for the generated function name. Defaults to
+ *   [DefaultCopyFunctionName] (cream's derived name). Embed naming tokens such as
+ *   [CopyTargetSimpleName] to compose a name, or pass a plain literal for a fixed name.
+ *   `@CombineFrom` always generates a single function. See `CopyFunctionNameToken.kt`.
  *
  * @see CombineTo
  * @see CopyFrom
  * @see CopyVisibility
+ * @see DefaultCopyFunctionName
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS)
 @Repeatable
@@ -49,6 +54,7 @@ annotation class CombineFrom(
     vararg val sources: KClass<*>,
     val kdoc: KDoc = KDoc(),
     val visibility: CopyVisibility = CopyVisibility.INHERIT,
+    val funName: String = DefaultCopyFunctionName,
 ) {
     @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE_PARAMETER)
     annotation class Map(

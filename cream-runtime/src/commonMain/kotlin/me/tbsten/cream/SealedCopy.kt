@@ -71,9 +71,12 @@ package me.tbsten.cream
  * sealed interface MyState { /* ... */ }
  * ```
  *
- * @property funName Name of the generated extension function. Defaults to `"copy"`.
- *   Override if an extension with the same name already exists on the sealed type,
- *   or when you stack multiple `@SealedCopy` annotations and need distinct names.
+ * @property funName Template for the generated extension function name. Defaults to
+ *   [DefaultCopyFunctionName], which for `@SealedCopy` resolves to `"copy"`. Override with a
+ *   plain name (e.g. `"withUpdated"`) when an extension with the same name already exists or
+ *   when you stack multiple `@SealedCopy` annotations, or embed a token such as
+ *   [CopyTargetSimpleName] (which renders the sealed type's own name). See
+ *   `CopyFunctionNameToken.kt`.
  * @property nonCopyableStrategy How to handle subtypes that have no `copy(...)` to delegate to
  *   (objects, or normal classes without a compatible copy function). Defaults to
  *   [NonCopyableStrategy.ERROR].
@@ -86,12 +89,13 @@ package me.tbsten.cream
  * @see CopyToChildren
  * @see NonCopyableStrategy
  * @see CopyVisibility
+ * @see DefaultCopyFunctionName
  */
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.SOURCE)
 @Repeatable
 annotation class SealedCopy(
-    val funName: String = "copy",
+    val funName: String = DefaultCopyFunctionName,
     val nonCopyableStrategy: NonCopyableStrategy = NonCopyableStrategy.ERROR,
     val kdoc: KDoc = KDoc(),
     val visibility: CopyVisibility = CopyVisibility.INHERIT,
