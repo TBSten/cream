@@ -530,6 +530,100 @@ fun SourceA.copyToTargetState(
 ): TargetState = ...
 ```
 
+### CopyTo.Exclude, CopyFrom.Exclude, CombineTo.Exclude, CombineFrom.Exclude, SealedCopy.Exclude, CopyToChildren.Exclude
+
+Marks a property so the generated copy function **removes its auto-copy default**, making the parameter required.
+The parameter itself remains in the function signature; it just loses the `= this.<property>` default and the caller
+must supply an explicit value.
+
+| Annotation | Where to place it |
+|---|---|
+| `@CopyTo.Exclude` | Source class constructor parameter |
+| `@CopyFrom.Exclude` | Target class constructor parameter |
+| `@CombineTo.Exclude` | Source class property |
+| `@CombineFrom.Exclude` | Target class constructor parameter |
+| `@SealedCopy.Exclude` | Abstract property on the sealed parent |
+| `@CopyToChildren.Exclude` | Property on the sealed parent (applied to all per-child copy functions) |
+
+```kt
+sealed interface State {
+    val name: String
+    val count: Int
+
+    @CopyFrom(State::class)
+    data class Success(
+        val name: String,
+        @CopyFrom.Exclude val count: Int, // no auto-copy default — caller must specify
+    )
+}
+
+// Generated:
+fun State.copyToStateSuccess(
+    name: String = this.name,
+    count: Int,              // required — no default
+): State.Success = State.Success(name = name, count = count)
+```
+
+Applying `@Exclude` to a parameter that is not matched to any source property has **no effect** and emits a KSP
+warning.
+
+`@SealedCopy.Exclude` only affects the `@SealedCopy`-generated `copy()` function; `@CopyToChildren.Exclude` only
+affects the `@CopyToChildren`-generated per-child copy functions. Both annotations can coexist on the same sealed
+type without interfering.
+
+`@CopyMapping` and `@CombineMapping` do not support `@Exclude` (the source and target classes are not in your own
+code, so annotating their properties is not possible).
+
+<details>
+<summary>Generated code examples</summary>
+
+**@SealedCopy.Exclude** — abstract property on sealed parent:
+
+```kt
+@SealedCopy
+sealed interface MyState {
+    val name: String
+    @SealedCopy.Exclude val count: Int  // caller must specify count
+
+    data class Loading(override val name: String, override val count: Int) : MyState
+}
+
+// Generated:
+fun MyState.copy(
+    name: String = this.name,
+    count: Int,               // required
+): MyState = when (this) {
+    is MyState.Loading -> this.copy(name = name, count = count)
+}
+```
+
+**@CopyToChildren.Exclude** — property on sealed parent applies to all per-child functions:
+
+```kt
+@CopyToChildren
+sealed interface UiState {
+    val sessionId: String
+    @CopyToChildren.Exclude val count: Int  // required in every copyToCn
+
+    data class Loading(override val sessionId: String, override val count: Int) : UiState
+    data class Success(override val sessionId: String, override val count: Int, val data: String) : UiState
+}
+
+// Generated:
+fun UiState.copyToUiStateLoading(
+    sessionId: String = this.sessionId,
+    count: Int,   // required
+): UiState.Loading = ...
+
+fun UiState.copyToUiStateSuccess(
+    sessionId: String = this.sessionId,
+    count: Int,   // required
+    data: String,
+): UiState.Success = ...
+```
+
+</details>
+
 ### CopyMapping
 
 If you want to generate a copy function between classes where neither the source nor destination is in your own source
