@@ -10,7 +10,9 @@ import androidx.compose.ui.unit.dp
 import me.tbsten.cream.components.CommonInputCard
 import me.tbsten.cream.components.ToggleHeadingText
 import me.tbsten.cream.sharedui.generated.resources.Res
+import me.tbsten.cream.sharedui.generated.resources.class_names_class_name_label
 import me.tbsten.cream.sharedui.generated.resources.class_names_heading
+import me.tbsten.cream.sharedui.generated.resources.class_names_package_label
 import me.tbsten.cream.sharedui.generated.resources.class_names_source_sub_heading
 import me.tbsten.cream.sharedui.generated.resources.class_names_target_sub_heading
 import me.tbsten.cream.sharedui.generated.resources.icon_slab
@@ -66,7 +68,7 @@ private fun ClassInputCard(
         OutlinedTextField(
             value = value.packageName,
             onValueChange = { onValueChange(value.copy(packageName = it)) },
-            label = { Text("package:") },
+            label = { Text(stringResource(Res.string.class_names_package_label)) },
             placeholder = { Text("com.myapp") },
             singleLine = true,
         )
@@ -74,7 +76,7 @@ private fun ClassInputCard(
         OutlinedTextField(
             value = value.underPackageName,
             onValueChange = { onValueChange(value.copy(underPackageName = it)) },
-            label = { Text("class name:") },
+            label = { Text(stringResource(Res.string.class_names_class_name_label)) },
             placeholder = { Text("MyUiState") },
             singleLine = true,
         )

@@ -17,6 +17,8 @@
     <string name="class_names_heading">2. Set Source/Target Class Names (optional)</string>
     <string name="class_names_source_sub_heading">Source Class</string>
     <string name="class_names_target_sub_heading">Target Class</string>
+    <string name="class_names_package_label">package:</string>
+    <string name="class_names_class_name_label">class name:</string>
     <string name="result_heading">3. Check Copy Function Name</string>
     <string name="gradle_setting_heading">4. Setup</string>
     <string name="show_all">Show All</string>

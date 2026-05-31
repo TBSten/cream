@@ -17,6 +17,8 @@
     <string name="class_names_heading">2. コピー元/コピー先のクラス名を設定する (option)</string>
     <string name="class_names_source_sub_heading">コピー元のクラス</string>
     <string name="class_names_target_sub_heading">コピー先のクラス</string>
+    <string name="class_names_package_label">パッケージ:</string>
+    <string name="class_names_class_name_label">クラス名:</string>
     <string name="result_heading">3. Copy 関数名を確認</string>
     <string name="gradle_setting_heading">4. セットアップする</string>
     <string name="show_all">全て表示</string>
