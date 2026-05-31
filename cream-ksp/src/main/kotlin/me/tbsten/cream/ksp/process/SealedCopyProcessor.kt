@@ -12,7 +12,7 @@ import me.tbsten.cream.ksp.CreamSymbolProcessor
 import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.transform.appendSealedCopyFunction
-import me.tbsten.cream.ksp.transform.resolveValidatedSealedCopyFunName
+import me.tbsten.cream.ksp.transform.resolveSealedCopyFunName
 import me.tbsten.cream.ksp.util.copyVisibilityArgument
 import me.tbsten.cream.ksp.util.createNewKotlinFile
 import me.tbsten.cream.ksp.util.extractKDoc
@@ -73,7 +73,7 @@ internal fun CreamSymbolProcessor.processSealedCopy(resolver: Resolver): List<KS
         val annotationsWithFunName =
             sealedAnnotations.map { sealedAnnotation ->
                 sealedAnnotation to
-                    resolveValidatedSealedCopyFunName(
+                    resolveSealedCopyFunName(
                         funNameTemplate = sealedAnnotation.funNameTemplate(),
                         sealedClass = annotated,
                         options = options,

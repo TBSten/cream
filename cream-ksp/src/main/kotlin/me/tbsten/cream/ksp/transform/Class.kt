@@ -35,12 +35,11 @@ internal fun BufferedWriter.appendCopyToClassFunction(
 
         // Generate copy function
         val funName =
-            resolveValidatedFunName(
+            resolveFunName(
                 funNameTemplate = funNameTemplate,
                 source = source,
                 target = targetClass,
                 options = options,
-                generateSourceAnnotation = generateSourceAnnotation,
             )
         appendCopyToClassKDoc(source, targetClass, generateSourceAnnotation, funName)
 

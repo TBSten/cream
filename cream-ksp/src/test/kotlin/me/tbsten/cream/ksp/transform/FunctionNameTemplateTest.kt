@@ -88,40 +88,6 @@ internal class FunctionNameTemplateTest :
             resolve(DefaultCopyFunctionName, nonDefault) shouldBe "copyTo_Success"
         }
 
-        test("isValidGeneratedFunctionName accepts identifiers and backtick-quoted names") {
-            isValidGeneratedFunctionName("toSuccess") shouldBe true
-            isValidGeneratedFunctionName("copyToTarget") shouldBe true
-            isValidGeneratedFunctionName("to_uistate_success") shouldBe true
-            isValidGeneratedFunctionName("_x") shouldBe true
-            isValidGeneratedFunctionName("`weird name`") shouldBe true
-            // soft / modifier keywords are valid function names
-            isValidGeneratedFunctionName("value") shouldBe true
-            isValidGeneratedFunctionName("data") shouldBe true
-            // a hard keyword is fine once backtick-quoted
-            isValidGeneratedFunctionName("`is`") shouldBe true
-        }
-
-        test("isValidGeneratedFunctionName rejects empty, illegal characters, and leftover tokens") {
-            isValidGeneratedFunctionName("") shouldBe false
-            isValidGeneratedFunctionName("to-target") shouldBe false
-            isValidGeneratedFunctionName("to.target") shouldBe false
-            isValidGeneratedFunctionName("1abc") shouldBe false
-            isValidGeneratedFunctionName(CopyTargetSimpleName) shouldBe false
-            isValidGeneratedFunctionName("``") shouldBe false
-            isValidGeneratedFunctionName("`a.b`") shouldBe false
-        }
-
-        test("isValidGeneratedFunctionName rejects bare Kotlin hard keywords") {
-            // `fun X.is(...)` etc. do not compile without backticks, so a bare keyword is invalid.
-            isValidGeneratedFunctionName("is") shouldBe false
-            isValidGeneratedFunctionName("in") shouldBe false
-            isValidGeneratedFunctionName("fun") shouldBe false
-            isValidGeneratedFunctionName("object") shouldBe false
-            isValidGeneratedFunctionName("return") shouldBe false
-            isKotlinHardKeyword("is") shouldBe true
-            isKotlinHardKeyword("value") shouldBe false
-        }
-
         test("containsAnyCopyFunNameToken detects tokens") {
             containsAnyCopyFunNameToken("to" + CopyTargetSimpleName) shouldBe true
             containsAnyCopyFunNameToken(DefaultCopyFunctionName) shouldBe true

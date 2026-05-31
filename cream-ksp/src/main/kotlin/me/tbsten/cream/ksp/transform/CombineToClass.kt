@@ -38,12 +38,11 @@ internal fun BufferedWriter.appendCombineToClassFunction(
 
         // Generate copy function
         val funName =
-            resolveValidatedFunName(
+            resolveFunName(
                 funNameTemplate = funNameTemplate,
                 source = primarySource,
                 target = targetClass,
                 options = options,
-                generateSourceAnnotation = generateSourceAnnotation,
             )
         appendCombineToClassKDoc(allSources, targetClass, generateSourceAnnotation, funName)
 

@@ -23,6 +23,10 @@ import me.tbsten.cream.ksp.options.CreamOptions
  * (e.g. `@SealedCopy`, whose default is `"copy"`) pass [defaultName] explicitly. The
  * `CopyTarget*` tokens render [target] with a fixed Pascal/snake strategy, independent of
  * `copyFunNamingStrategy` / `escapeDot`. A [template] with no token is returned verbatim.
+ *
+ * cream does not validate that the result is a legal Kotlin function name: an invalid name
+ * (a keyword, illegal characters, …) simply fails to compile at the use site, and encoding
+ * Kotlin's identifier rules here would only become a maintenance burden as they change.
  */
 @InternalCreamApi
 fun resolveFunNameTemplate(
@@ -53,56 +57,6 @@ fun resolveFunNameTemplate(
 fun containsAnyCopyFunNameToken(template: String): Boolean =
     template.contains(DefaultCopyFunctionName) ||
         copyTargetTokenExpanders.any { (placeholder, _) -> template.contains(placeholder) }
-
-/**
- * Render [template] for display in diagnostics: rewrite each internal token placeholder
- * `{{cream:X}}` as `${X}`, so a message shows the tokens the user referenced delimited from the
- * surrounding literal — e.g. `bad-${CopyTargetSimpleName}` instead of the internal
- * `bad-{{cream:CopyTargetSimpleName}}`.
- */
-@InternalCreamApi
-fun displayFunNameTemplate(template: String): String =
-    Regex("\\{\\{cream:([^}]*)}}").replace(template) { "\${${it.groupValues[1]}}" }
-
-/**
- * Whether [name] is usable as the simple name of the top-level function cream generates:
- * a plain identifier (`toSuccess`) or a backtick-quoted identifier (`` `to success` ``).
- * Rejects the empty string and any name containing a character illegal in a Kotlin
- * function name — including a leftover, unexpanded token placeholder (which contains
- * `:` / `{` / `}`).
- */
-@InternalCreamApi
-fun isValidGeneratedFunctionName(name: String): Boolean {
-    if (name.isEmpty()) return false
-    if (name.startsWith("`")) {
-        if (name.length < 3 || !name.endsWith("`")) return false
-        val inner = name.substring(1, name.length - 1)
-        return inner.isNotEmpty() && inner.none { it == '`' || it in forbiddenFunctionNameChars }
-    }
-    if (name.firstOrNull()?.isDigit() == true) return false
-    // A bare Kotlin hard keyword (`is`, `fun`, `in`, ...) is a valid identifier characters-wise
-    // but cannot be a function name without backticks; reject it so cream reports a clear error
-    // instead of emitting `fun X.is(...)` that fails at the user's compiler.
-    if (isKotlinHardKeyword(name)) return false
-    return name.all { it.isLetterOrDigit() || it == '_' }
-}
-
-/**
- * Whether [name] is a Kotlin hard keyword — one that cannot be used as a plain (non-backtick)
- * function name. Soft/modifier keywords (`data`, `value`, `field`, ...) are deliberately not
- * included because they are valid function names.
- */
-@InternalCreamApi
-fun isKotlinHardKeyword(name: String): Boolean = name in kotlinHardKeywords
-
-private val kotlinHardKeywords =
-    setOf(
-        "as", "break", "class", "continue", "do", "else", "false", "for", "fun", "if",
-        "in", "interface", "is", "null", "object", "package", "return", "super", "this",
-        "throw", "true", "try", "typealias", "typeof", "val", "var", "when", "while",
-    )
-
-private val forbiddenFunctionNameChars = charArrayOf('.', ';', '[', ']', '/', '<', '>', ':', '\\', '\r', '\n')
 
 private fun pascalCase(raw: String): String = raw.split(".").joinToString("") { segment -> segment.replaceFirstChar { it.uppercase() } }
 

@@ -8,55 +8,12 @@ import me.tbsten.cream.ksp.testing.assertMatchesSnapshot
 import me.tbsten.cream.ksp.testing.compileWithCream
 import me.tbsten.cream.ksp.testing.normalizedCompilerOutput
 
+// cream does not validate the Kotlin-legality of a funName (keywords, illegal characters, …) —
+// such names simply fail to compile at the use site. These diagnostics cover the cases cream
+// *does* reject up front: fan-out / repeatable collisions, where a fixed name would produce more
+// than one function with the same signature.
 internal class FunNameDiagnosticTest :
     FunSpec({
-        test("a plain-literal funName that is not a valid identifier fails compilation") {
-            val source =
-                """
-                package diag
-
-                import me.tbsten.cream.CopyTo
-
-                @CopyTo(Target::class, funName = "to-target")
-                data class Source(val shared: String)
-
-                data class Target(val shared: String, val extra: Int)
-                """.trimIndent()
-            val result = compileWithCream(source)
-
-            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
-                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
-            }
-            assertMatchesSnapshot("FunNameDiagnosticTest.invalidLiteral.output") {
-                facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
-                "Input" facetOf source
-            }
-        }
-
-        test("a token that expands to an invalid identifier fails compilation") {
-            val source =
-                """
-                package diag
-
-                import me.tbsten.cream.CopyTo
-                import me.tbsten.cream.CopyTargetSimpleName
-
-                @CopyTo(Target::class, funName = "bad-" + CopyTargetSimpleName)
-                data class Source(val shared: String)
-
-                data class Target(val shared: String, val extra: Int)
-                """.trimIndent()
-            val result = compileWithCream(source)
-
-            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
-                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
-            }
-            assertMatchesSnapshot("FunNameDiagnosticTest.invalidViaToken.output") {
-                facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
-                "Input" facetOf source
-            }
-        }
-
         test("a plain-literal funName with multiple targets fails compilation") {
             val source =
                 """
@@ -104,29 +61,6 @@ internal class FunNameDiagnosticTest :
                 result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
             }
             assertMatchesSnapshot("FunNameDiagnosticTest.literalFanoutSealed.output") {
-                facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
-                "Input" facetOf source
-            }
-        }
-
-        test("an empty funName fails compilation") {
-            val source =
-                """
-                package diag
-
-                import me.tbsten.cream.CopyTo
-
-                @CopyTo(Target::class, funName = "")
-                data class Source(val shared: String)
-
-                data class Target(val shared: String, val extra: Int)
-                """.trimIndent()
-            val result = compileWithCream(source)
-
-            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
-                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
-            }
-            assertMatchesSnapshot("FunNameDiagnosticTest.emptyName.output") {
                 facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
                 "Input" facetOf source
             }
@@ -204,89 +138,8 @@ internal class FunNameDiagnosticTest :
             }
         }
 
-        test("an invalid funName on @SealedCopy fails compilation") {
-            val source =
-                """
-                package diag
-
-                import me.tbsten.cream.SealedCopy
-
-                @SealedCopy(funName = "bad-name")
-                sealed interface State {
-                    val id: String
-
-                    data class Loading(override val id: String) : State
-                    data class Loaded(override val id: String, val payload: Int) : State
-                }
-                """.trimIndent()
-            val result = compileWithCream(source)
-
-            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
-                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
-            }
-            assertMatchesSnapshot("FunNameDiagnosticTest.sealedCopyInvalid.output") {
-                facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
-                "Input" facetOf source
-            }
-        }
-
-        // The design left this combination as an open question; pin the chosen behaviour:
-        // under escapeDot=backquote the derived default name is already backtick-quoted, so
-        // appending a suffix yields an invalid name and cream rejects it with a clear error
-        // (rather than silently emitting code that fails at the user's compiler).
-        test("DefaultCopyFunctionName plus a suffix is rejected under escapeDot=backquote") {
-            val source =
-                """
-                package diag
-
-                import me.tbsten.cream.CopyTo
-                import me.tbsten.cream.DefaultCopyFunctionName
-
-                @CopyTo(Target::class, funName = DefaultCopyFunctionName + "OrNull")
-                data class Source(val shared: String)
-
-                data class Target(val shared: String, val extra: Int)
-                """.trimIndent()
-            val result = compileWithCream(source, options = mapOf("cream.escapeDot" to "backquote"))
-
-            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
-                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
-            }
-            assertMatchesSnapshot("FunNameDiagnosticTest.defaultPlusSuffixBackquote.output") {
-                facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
-                "Input" facetOf source
-            }
-        }
-
-        // A plain-literal funName that is a Kotlin hard keyword would generate `fun X.is(...)`,
-        // which fails at the user's compiler. cream rejects it with a clear error that points
-        // the user at backtick-quoting.
-        test("a funName that is a Kotlin keyword fails compilation with a clear error") {
-            val source =
-                """
-                package diag
-
-                import me.tbsten.cream.CopyTo
-
-                @CopyTo(Target::class, funName = "is")
-                data class Source(val shared: String)
-
-                data class Target(val shared: String, val extra: Int)
-                """.trimIndent()
-            val result = compileWithCream(source)
-
-            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
-                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
-            }
-            assertMatchesSnapshot("FunNameDiagnosticTest.keywordName.output") {
-                facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
-                "Input" facetOf source
-            }
-        }
-
         // @CombineFrom is @Repeatable and merges all occurrences into one function, so stacked
-        // occurrences with different explicit funName values are ambiguous and rejected (rather
-        // than silently honouring only the first).
+        // occurrences with different explicit funName values are ambiguous and rejected.
         test("repeated @CombineFrom with conflicting funName fails compilation") {
             val source =
                 """
@@ -307,32 +160,6 @@ internal class FunNameDiagnosticTest :
                 result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
             }
             assertMatchesSnapshot("FunNameDiagnosticTest.combineFromConflictingFunName.output") {
-                facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
-                "Input" facetOf source
-            }
-        }
-
-        // The invalid-funName error must name the *annotated* declaration (the object), not the
-        // mapped source class (which the user does not own and never annotated).
-        test("an invalid funName on @CopyMapping names the annotated object, not the source class") {
-            val source =
-                """
-                package diag
-
-                import me.tbsten.cream.CopyMapping
-
-                data class LibX(val shared: String)
-                data class LibY(val shared: String, val extra: Int)
-
-                @CopyMapping(LibX::class, LibY::class, funName = "to-y")
-                object Mapping
-                """.trimIndent()
-            val result = compileWithCream(source)
-
-            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
-                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
-            }
-            assertMatchesSnapshot("FunNameDiagnosticTest.copyMappingInvalidAttribution.output") {
                 facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
                 "Input" facetOf source
             }

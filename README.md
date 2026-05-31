@@ -673,8 +673,8 @@ same and is rejected at build time; include a token so each function gets a dist
 `funName` is fully backward compatible — it keeps the previously generated name unchanged.
 
 A plain-literal `funName` must be a valid Kotlin function name. To use a name that is a Kotlin
-keyword (`is`, `in`, `object`, …) or contains spaces, backtick-quote it; cream rejects an invalid
-`funName` at build time with a clear error:
+keyword (`is`, `in`, `object`, …) or contains spaces, backtick-quote it — otherwise it simply
+won't compile (cream does not pre-validate the name; the Kotlin compiler reports it):
 
 ```kt
 @CopyTo(Target::class, funName = "`is`")   // generates: fun Source.`is`(...)

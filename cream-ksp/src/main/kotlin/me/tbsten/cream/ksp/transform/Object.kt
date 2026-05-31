@@ -19,12 +19,11 @@ internal fun BufferedWriter.appendCopyToObjectFunction(
     funNameTemplate: String = DefaultCopyFunctionName,
 ) {
     val funName =
-        resolveValidatedFunName(
+        resolveFunName(
             funNameTemplate = funNameTemplate,
             source = source,
             target = targetObject,
             options = options,
-            generateSourceAnnotation = generateSourceAnnotation,
         )
     appendCopyToObjectKDoc(source, targetObject, generateSourceAnnotation, funName)
     append("${visibility.toModifierString(targetObject)} fun ")
@@ -54,12 +53,11 @@ internal fun BufferedWriter.appendCombineToObjectFunction(
 ) {
     val allSources = listOf(primarySource) + otherSources
     val funName =
-        resolveValidatedFunName(
+        resolveFunName(
             funNameTemplate = funNameTemplate,
             source = primarySource,
             target = targetObject,
             options = options,
-            generateSourceAnnotation = generateSourceAnnotation,
         )
     appendCombineToObjectKDoc(allSources, targetObject, generateSourceAnnotation, funName)
     appendLine(
