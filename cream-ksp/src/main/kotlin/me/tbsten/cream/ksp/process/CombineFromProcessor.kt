@@ -18,6 +18,7 @@ import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.transform.appendCombineToFunction
 import me.tbsten.cream.ksp.transform.appendCopyFunction
+import me.tbsten.cream.ksp.transform.resolveFunName
 import me.tbsten.cream.ksp.util.annotationsOf
 import me.tbsten.cream.ksp.util.classListArgument
 import me.tbsten.cream.ksp.util.copyVisibilityArgument
@@ -89,12 +90,20 @@ internal fun CreamSymbolProcessor.processCombineFrom(resolver: Resolver): List<K
                 .filter { it != DefaultCopyFunctionName }
                 .distinct()
                 .toList()
-        if (explicitFunNameTemplates.size > 1) {
+        // Compare the *resolved* names, not the raw (KSP-folded) templates: the occurrences are
+        // merged into one function that takes a single name, so they are only ambiguous when they
+        // resolve to different names. Resolving also keeps the diagnostic readable — it shows
+        // "toFoo" rather than the internal "to{{cream:CopyTargetSimpleName}}" placeholder form.
+        val explicitFunNames =
+            explicitFunNameTemplates
+                .map { resolveFunName(it, primarySource, targetClass, options) }
+                .distinct()
+        if (explicitFunNames.size > 1) {
             throw InvalidCreamUsageException(
                 message =
                     lines(
                         "@${CombineFrom::class.simpleName} on ${targetClass.fullName} is repeated with conflicting funName values:",
-                        explicitFunNameTemplates.joinToString(", ") { "\"$it\"" },
+                        explicitFunNames.joinToString(", ") { "\"$it\"" },
                         "Stacked @${CombineFrom::class.simpleName} annotations are merged into a single generated function, so funName must be unambiguous.",
                     ),
                 solution =
