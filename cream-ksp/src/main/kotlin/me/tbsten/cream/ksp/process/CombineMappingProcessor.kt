@@ -18,6 +18,9 @@ import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.transform.appendCombineToFunction
 import me.tbsten.cream.ksp.transform.appendCopyFunction
+import me.tbsten.cream.ksp.transform.requireNoDuplicateGeneratedFunctions
+import me.tbsten.cream.ksp.transform.resolveFunNameTemplate
+import me.tbsten.cream.ksp.transform.toClassDeclarationInfo
 import me.tbsten.cream.ksp.util.annotationsOf
 import me.tbsten.cream.ksp.util.classListArgument
 import me.tbsten.cream.ksp.util.copyVisibilityArgument
@@ -147,6 +150,29 @@ internal fun CreamSymbolProcessor.processCombineMapping(resolver: Resolver): Lis
                         .first()
                         .containingFile
                         ?: annotatedDeclaration.containingFile!!
+
+                // Reject stacked @CombineMapping occurrences written more than once (same
+                // primary-source receiver + name + the same combined source/target classes) — the
+                // copy-paste duplicate. This is intentionally not a full overload-collision check:
+                // distinct class sets that emit the same signature are left to the compiler (cream
+                // does not replicate Kotlin's overload-resolution rules).
+                requireNoDuplicateGeneratedFunctions(
+                    functions =
+                        mappings.map { mapping ->
+                            val primarySource = mapping.sourceClasses.first()
+                            val name =
+                                resolveFunNameTemplate(
+                                    mapping.funNameTemplate,
+                                    primarySource.toClassDeclarationInfo(),
+                                    mapping.targetClass.toClassDeclarationInfo(),
+                                    options,
+                                )
+                            val classes = mapping.sourceClasses.joinToString(",") { it.fullName } + "->" + mapping.targetClass.fullName
+                            "${primarySource.fullName}|$name|$classes" to "${primarySource.fullName}.$name"
+                        },
+                    annotationSimpleName = CombineMapping::class.simpleName!!,
+                    declarationFullName = annotatedDeclaration.fullName,
+                )
 
                 codeGenerator.createNewKotlinFile(
                     dependencies = Dependencies(aggregating = true, sourceFile),

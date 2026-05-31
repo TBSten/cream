@@ -195,4 +195,58 @@ internal class FunNameDiagnosticTest :
                 "Input" facetOf source
             }
         }
+
+        // Stacked @CopyMapping occurrences that resolve to an identical function (same source +
+        // target + name) collide; cream rejects them. (Different targets = overloads are allowed —
+        // see the snapshot test.)
+        test("duplicate @CopyMapping occurrences fail compilation") {
+            val source =
+                """
+                package diag
+
+                import me.tbsten.cream.CopyMapping
+
+                data class A(val shared: String)
+                data class B(val shared: String, val extra: Int)
+
+                @CopyMapping(A::class, B::class, funName = "conv")
+                @CopyMapping(A::class, B::class, funName = "conv")
+                object Mapping
+                """.trimIndent()
+            val result = compileWithCream(source)
+
+            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
+                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+            }
+            assertMatchesSnapshot("FunNameDiagnosticTest.copyMappingDuplicate.output") {
+                facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
+                "Input" facetOf source
+            }
+        }
+
+        test("duplicate @CombineMapping occurrences fail compilation") {
+            val source =
+                """
+                package diag
+
+                import me.tbsten.cream.CombineMapping
+
+                data class A(val a: String)
+                data class B(val b: Int)
+                data class C(val a: String, val b: Int, val extra: Long)
+
+                @CombineMapping(sources = [A::class, B::class], target = C::class, funName = "combine")
+                @CombineMapping(sources = [A::class, B::class], target = C::class, funName = "combine")
+                object Mapping
+                """.trimIndent()
+            val result = compileWithCream(source)
+
+            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
+                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+            }
+            assertMatchesSnapshot("FunNameDiagnosticTest.combineMappingDuplicate.output") {
+                facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
+                "Input" facetOf source
+            }
+        }
     })
