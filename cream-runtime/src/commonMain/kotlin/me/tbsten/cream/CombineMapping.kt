@@ -126,6 +126,7 @@ annotation class CombineMapping(
      * )
      * ```
      */
+    @Target()
     annotation class Map(
         val source: String,
         val target: String,
