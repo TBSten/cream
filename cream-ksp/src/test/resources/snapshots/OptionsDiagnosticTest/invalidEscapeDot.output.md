@@ -8,7 +8,6 @@ Solution:
   
     - lower-camel-case
     - replace-to-underscore
-    - backquote
   
 
 me.tbsten.cream.ksp.InvalidCreamOptionException: Invalid cream usage: Invalid option: Invalid ksp.arg["cream.escapeDot"] = not-an-escape
@@ -18,7 +17,6 @@ Solution:
   
     - lower-camel-case
     - replace-to-underscore
-    - backquote
   
 
 	<stack trace omitted>

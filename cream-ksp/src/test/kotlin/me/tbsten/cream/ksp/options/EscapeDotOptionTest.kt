@@ -58,28 +58,4 @@ internal class EscapeDotOptionTest :
                 result.generatedSourceText() shouldContain "copyTo_opts_escape_Target"
             }
         }
-
-        test("backquote wraps the target name in backticks in generated source") {
-            // backquote produces the literal substring `copyTo\`Target\`` in the generated function
-            // name. Note that Kotlin currently cannot parse a function declaration whose name has
-            // a non-quoted prefix followed by a backquote-wrapped suffix, so downstream compilation
-            // would fail — this test only verifies the KSP code-generation behavior of the option.
-            val result =
-                compileWithCream(
-                    fullNameSource,
-                    options =
-                        mapOf(
-                            "cream.copyFunNamingStrategy" to "simple-name",
-                            "cream.escapeDot" to "backquote",
-                        ),
-                )
-            // simple-name -> "Target"
-            // backquote -> "`Target`"
-            // first char `\`` non-letter -> no capitalize change
-            // -> "copyTo`Target`" (matches CopyFunctionNameTest unit-test expectations)
-            val generated = result.generatedSourceText()
-            withClue("Expected 'copyTo`Target`' in generated source. Actual:\n$generated") {
-                generated shouldContain "copyTo`Target`"
-            }
-        }
     })
