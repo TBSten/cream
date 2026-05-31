@@ -24,14 +24,14 @@ import me.tbsten.cream.*
  * 
  * ```kt
  * val source = OrderCart(...)
- * val target = source.copyToOrderConfirmed()
+ * val target = source.copyToOrderConfirmed(paidAt = paidAt)
  * ```
  * 
  * # Example: Override property values
  * 
  * ```kt
  * val source = OrderCart(...)
- * val target = source.copyToOrderConfirmed(property = value)
+ * val target = source.copyToOrderConfirmed(paidAt = paidAt, property = value)
  * ```
  * 
  * 

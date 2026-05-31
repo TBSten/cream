@@ -16,7 +16,7 @@ import me.tbsten.cream.*
  * ```kt
  * val first = First(...)
  * val second = Second(...)
- * val target = first.toCombined(second = Second(...))
+ * val target = first.toCombined(second = Second(...), extra = extra)
  * ```
  * 
  * # Example: Override property values
@@ -24,7 +24,7 @@ import me.tbsten.cream.*
  * ```kt
  * val first = First(...)
  * val second = Second(...)
- * val target = first.toCombined(second = Second(...), property = value)
+ * val target = first.toCombined(second = Second(...), extra = extra, property = value)
  * ```
  * 
  * 

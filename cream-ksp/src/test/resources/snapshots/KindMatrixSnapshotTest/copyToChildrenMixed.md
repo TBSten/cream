@@ -32,14 +32,14 @@ public fun snap.kind.sealedMixed.State.copyToStateInitial() = snap.kind.sealedMi
  * 
  * ```kt
  * val source = State(...)
- * val target = source.copyToStateLoaded()
+ * val target = source.copyToStateLoaded(payload = payload)
  * ```
  * 
  * # Example: Override property values
  * 
  * ```kt
  * val source = State(...)
- * val target = source.copyToStateLoaded(property = value)
+ * val target = source.copyToStateLoaded(payload = payload, property = value)
  * ```
  * 
  * 

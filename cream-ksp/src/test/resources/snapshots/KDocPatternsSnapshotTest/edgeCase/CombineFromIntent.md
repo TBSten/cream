@@ -18,7 +18,7 @@ import me.tbsten.cream.*
  * ```kt
  * val loadingState = LoadingState(...)
  * val successAction = SuccessAction(...)
- * val target = loadingState.copyToSuccessState(successAction = SuccessAction(...))
+ * val target = loadingState.copyToSuccessState(successAction = SuccessAction(...), lastUpdateAt = lastUpdateAt)
  * ```
  * 
  * # Example: Override property values
@@ -26,7 +26,7 @@ import me.tbsten.cream.*
  * ```kt
  * val loadingState = LoadingState(...)
  * val successAction = SuccessAction(...)
- * val target = loadingState.copyToSuccessState(successAction = SuccessAction(...), property = value)
+ * val target = loadingState.copyToSuccessState(successAction = SuccessAction(...), lastUpdateAt = lastUpdateAt, property = value)
  * ```
  * 
  * 

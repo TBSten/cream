@@ -9,6 +9,7 @@ import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CopyTo
 import me.tbsten.cream.CopyVisibility
@@ -19,6 +20,7 @@ import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.transform.appendCombineToFunction
 import me.tbsten.cream.ksp.transform.appendCopyFunction
 import me.tbsten.cream.ksp.transform.requireFunNameSupportsFanout
+import me.tbsten.cream.ksp.transform.warnIfSourceExcludeHasNoEffect
 import me.tbsten.cream.ksp.util.annotationsOf
 import me.tbsten.cream.ksp.util.classListArgument
 import me.tbsten.cream.ksp.util.copyVisibilityArgument
@@ -78,6 +80,31 @@ internal fun CreamSymbolProcessor.processCopyTo(resolver: Resolver): List<KSAnno
             declarationFullName = sourceClass.fullName,
         )
 
+        val gsa =
+            GenerateSourceAnnotation.CopyTo(
+                annotationTarget = sourceDeclaration,
+                kdocDescription = kdocDescription,
+                kdocExamples = kdocExamples,
+            )
+
+        // Warn for @CopyTo.Exclude on source properties that match no target parameter (no-op).
+        // Sealed interface targets have no primary constructor; expand them to their concrete
+        // subclasses to mirror the fan-out done by appendCopyToSealedClassFunction.
+        val allTargetParams: List<KSValueParameter> =
+            targetClasses.flatMap { target ->
+                if (target.isSealed()) {
+                    target
+                        .getSealedSubclasses()
+                        .flatMap { it.primaryConstructor?.parameters.orEmpty() }
+                        .toList()
+                } else {
+                    target.primaryConstructor?.parameters.orEmpty()
+                }
+            }
+        sourceClass.getAllProperties().forEach { prop ->
+            prop.warnIfSourceExcludeHasNoEffect(allTargetParams, sourceClass, gsa, logger)
+        }
+
         codeGenerator
             .createNewKotlinFile(
                 dependencies = Dependencies(aggregating = true, sourceDeclaration.containingFile!!),
@@ -94,15 +121,11 @@ internal fun CreamSymbolProcessor.processCopyTo(resolver: Resolver): List<KSAnno
                         target = targetClass,
                         options = options,
                         omitPackages = listOf("kotlin", sourceClass.packageName.asString()),
-                        generateSourceAnnotation =
-                            GenerateSourceAnnotation.CopyTo(
-                                annotationTarget = sourceDeclaration,
-                                kdocDescription = kdocDescription,
-                                kdocExamples = kdocExamples,
-                            ),
+                        generateSourceAnnotation = gsa,
                         notCopyToObject = false,
                         visibility = visibility,
                         funNameTemplate = funNameTemplate,
+                        logger = logger,
                     )
                 }
             }

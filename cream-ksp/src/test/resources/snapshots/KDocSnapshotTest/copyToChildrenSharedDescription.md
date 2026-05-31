@@ -48,14 +48,14 @@ public fun  snap.kdoc.State.copyToStateInitial(
  * 
  * ```kt
  * val source = State(...)
- * val target = source.copyToStateLoaded()
+ * val target = source.copyToStateLoaded(payload = payload)
  * ```
  * 
  * # Example: Override property values
  * 
  * ```kt
  * val source = State(...)
- * val target = source.copyToStateLoaded(property = value)
+ * val target = source.copyToStateLoaded(payload = payload, property = value)
  * ```
  * 
  * 

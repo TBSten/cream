@@ -1,5 +1,6 @@
 package me.tbsten.cream.ksp.process
 
+import com.google.devtools.ksp.isAbstract
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSAnnotated
@@ -13,6 +14,7 @@ import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.transform.appendSealedCopyFunction
 import me.tbsten.cream.ksp.transform.resolveSealedCopyFunName
+import me.tbsten.cream.ksp.util.annotationsOf
 import me.tbsten.cream.ksp.util.copyVisibilityArgument
 import me.tbsten.cream.ksp.util.createNewKotlinFile
 import me.tbsten.cream.ksp.util.extractKDoc
@@ -100,6 +102,17 @@ internal fun CreamSymbolProcessor.processSealedCopy(resolver: Resolver): List<KS
                     ),
             )
         }
+
+        // Warn for @SealedCopy.Exclude on non-abstract properties (no-op: they are not in copy())
+        annotated
+            .getAllProperties()
+            .filter { !it.isAbstract() && it.annotationsOf(SealedCopy.Exclude::class).any() }
+            .forEach { prop ->
+                logger.warn(
+                    "@Exclude on '${prop.simpleName.asString()}' has no effect: not a matched property",
+                    prop,
+                )
+            }
 
         codeGenerator
             .createNewKotlinFile(

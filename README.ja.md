@@ -526,6 +526,98 @@ fun SourceA.copyToTargetState(
 ): TargetState = ...
 ```
 
+### CopyTo.Exclude, CopyFrom.Exclude, CombineTo.Exclude, CombineFrom.Exclude, SealedCopy.Exclude, CopyToChildren.Exclude
+
+プロパティに付与することで、生成コピー関数から**自動コピーのデフォルト値を除去**し、その引数を必須にします。
+引数自体は関数シグネチャに残りますが、`= this.<プロパティ>` というデフォルトが消え、呼び出し側が明示的に値を指定する必要があります。
+
+| アノテーション | 付与する場所 |
+|---|---|
+| `@CopyTo.Exclude` | ソースクラスのコンストラクタパラメータ |
+| `@CopyFrom.Exclude` | ターゲットクラスのコンストラクタパラメータ |
+| `@CombineTo.Exclude` | ソースクラスのプロパティ |
+| `@CombineFrom.Exclude` | ターゲットクラスのコンストラクタパラメータ |
+| `@SealedCopy.Exclude` | sealed 親の abstract プロパティ |
+| `@CopyToChildren.Exclude` | sealed 親のプロパティ（全ての per-child コピー関数に適用） |
+
+```kt
+sealed interface State {
+    val name: String
+    val count: Int
+
+    @CopyFrom(State::class)
+    data class Success(
+        val name: String,
+        @CopyFrom.Exclude val count: Int, // 自動コピーのデフォルトなし — 呼び出し側が指定
+    )
+}
+
+// 生成されるコード:
+fun State.copyToStateSuccess(
+    name: String = this.name,
+    count: Int,              // 必須 — デフォルトなし
+): State.Success = State.Success(name = name, count = count)
+```
+
+matched でない引数に `@Exclude` を付けても**効果がなく**、KSP の warning が出ます。
+
+`@SealedCopy.Exclude` は `@SealedCopy` が生成する `copy()` 関数のみに効き、`@CopyToChildren.Exclude` は
+`@CopyToChildren` が生成する per-child コピー関数のみに効きます。
+同じ sealed 型に両方のアノテーションが共存しても互いに干渉しません。
+
+`@CopyMapping` および `@CombineMapping` は `@Exclude` に対応していません
+（コピー元/コピー先クラスが自分のコードでないため、プロパティへのアノテーション付与が不可能です）。
+
+<details>
+<summary>生成されるコード例</summary>
+
+**@SealedCopy.Exclude** — sealed 親の abstract プロパティに付与:
+
+```kt
+@SealedCopy
+sealed interface MyState {
+    val name: String
+    @SealedCopy.Exclude val count: Int  // 呼び出し側が count を指定
+
+    data class Loading(override val name: String, override val count: Int) : MyState
+}
+
+// 生成されるコード:
+fun MyState.copy(
+    name: String = this.name,
+    count: Int,               // 必須
+): MyState = when (this) {
+    is MyState.Loading -> this.copy(name = name, count = count)
+}
+```
+
+**@CopyToChildren.Exclude** — sealed 親のプロパティ → 全 per-child 関数に適用:
+
+```kt
+@CopyToChildren
+sealed interface UiState {
+    val sessionId: String
+    @CopyToChildren.Exclude val count: Int  // 全 copyToCn で必須
+
+    data class Loading(override val sessionId: String, override val count: Int) : UiState
+    data class Success(override val sessionId: String, override val count: Int, val data: String) : UiState
+}
+
+// 生成されるコード:
+fun UiState.copyToUiStateLoading(
+    sessionId: String = this.sessionId,
+    count: Int,   // 必須
+): UiState.Loading = ...
+
+fun UiState.copyToUiStateSuccess(
+    sessionId: String = this.sessionId,
+    count: Int,   // 必須
+    data: String,
+): UiState.Success = ...
+```
+
+</details>
+
 ### CopyMapping
 
 コピー元/コピー先クラスが両方とも自分のソースコードではないが、コピー関数を生成したい場合は CopyMapping を使用できます。

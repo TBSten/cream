@@ -19,6 +19,7 @@ import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.transform.appendCombineToFunction
 import me.tbsten.cream.ksp.transform.appendCopyFunction
 import me.tbsten.cream.ksp.transform.requireFunNameSupportsFanout
+import me.tbsten.cream.ksp.transform.warnIfSourceExcludeHasNoEffect
 import me.tbsten.cream.ksp.util.annotationsOf
 import me.tbsten.cream.ksp.util.classListArgument
 import me.tbsten.cream.ksp.util.copyVisibilityArgument
@@ -98,6 +99,21 @@ internal fun CreamSymbolProcessor.processCombineTo(resolver: Resolver): List<KSA
             declarationFullName = sourceClass.fullName,
         )
 
+        // Warn ONCE per source for @CombineTo.Exclude properties that match no parameter in ANY of
+        // this source's target classes. Computed here (per source, union of all targets) rather than
+        // inside the per-(target, source) generation loop below — doing it there duplicated the
+        // warning once per target and falsely warned for a property matched in a sibling target.
+        val gsaForWarning =
+            GenerateSourceAnnotation.CombineTo(
+                annotationTarget = sourceDeclaration,
+                kdocDescription = kdocDescription,
+                kdocExamples = kdocExamples,
+            )
+        val allTargetParams = targetClasses.flatMap { it.primaryConstructor?.parameters.orEmpty() }
+        sourceClass.getAllProperties().forEach { prop ->
+            prop.warnIfSourceExcludeHasNoEffect(allTargetParams, sourceClass, gsaForWarning, logger)
+        }
+
         // Group source classes by target class
         targetClasses.forEach { targetClass ->
             targetToSourcesMap.put(
@@ -123,6 +139,13 @@ internal fun CreamSymbolProcessor.processCombineTo(resolver: Resolver): List<KSA
                     .filter { it.sourceDeclaration != sourceDeclaration }
                     .map { it.sourceDeclaration.resolveToClassDeclaration()!! }
 
+            val gsa =
+                GenerateSourceAnnotation.CombineTo(
+                    annotationTarget = sourceDeclaration,
+                    kdocDescription = sourceEntry.kdocDescription,
+                    kdocExamples = sourceEntry.kdocExamples,
+                )
+
             codeGenerator
                 .createNewKotlinFile(
                     dependencies = Dependencies(aggregating = true, sourceDeclaration.containingFile!!),
@@ -139,14 +162,10 @@ internal fun CreamSymbolProcessor.processCombineTo(resolver: Resolver): List<KSA
                         target = targetClass,
                         options = options,
                         omitPackages = listOf("kotlin", sourceClass.packageName.asString()),
-                        generateSourceAnnotation =
-                            GenerateSourceAnnotation.CombineTo(
-                                annotationTarget = sourceDeclaration,
-                                kdocDescription = sourceEntry.kdocDescription,
-                                kdocExamples = sourceEntry.kdocExamples,
-                            ),
+                        generateSourceAnnotation = gsa,
                         visibility = sourceEntry.visibility,
                         funNameTemplate = sourceEntry.funNameTemplate,
+                        logger = logger,
                     )
                 }
         }

@@ -71,6 +71,14 @@ package me.tbsten.cream
  * sealed interface MyState { /* ... */ }
  * ```
  *
+ * # Exclude
+ *
+ * Annotate an **abstract property declared on the sealed parent** with [SealedCopy.Exclude] to
+ * drop its `= this.<property>` auto-copy default. The matching parameter stays in the generated
+ * `copy()` signature but becomes required at the call site. This affects only the
+ * `@SealedCopy`-generated `copy()` and not any `@CopyToChildren` functions. See
+ * [SealedCopy.Exclude] for details and an example.
+ *
  * @property funName Template for the generated extension function name. Defaults to
  *   [DefaultCopyFunctionName], which for `@SealedCopy` resolves to `"copy"`. Override with a
  *   plain name (e.g. `"withUpdated"`) when an extension with the same name already exists or
@@ -87,6 +95,7 @@ package me.tbsten.cream
  *   the sealed type's visibility).
  *
  * @see CopyToChildren
+ * @see SealedCopy.Exclude
  * @see NonCopyableStrategy
  * @see CopyVisibility
  * @see DefaultCopyFunctionName
@@ -128,6 +137,44 @@ annotation class SealedCopy(
      */
     @Target(AnnotationTarget.FUNCTION)
     annotation class Map
+
+    /**
+     * Remove the auto-copy default from a sealed parent's abstract property, making the
+     * corresponding parameter required in the generated `copy()` function.
+     *
+     * Place this annotation on an **abstract property declared on the sealed parent**. The
+     * corresponding parameter in the generated `copy(...)` keeps its position but loses the
+     * `= this.<property>` default, forcing the caller to provide an explicit value.
+     *
+     * This annotation only affects the `@SealedCopy`-generated `copy()` and does **not**
+     * affect any `@CopyToChildren`-generated functions on the same sealed type.
+     *
+     * Applying `@SealedCopy.Exclude` to a property that does not appear in the generated
+     * function's parameter list has no effect and emits a KSP warning.
+     *
+     * # Example
+     *
+     * ```kt
+     * @SealedCopy
+     * sealed interface MyState {
+     *   val name: String
+     *   @SealedCopy.Exclude val count: Int  // caller must specify count explicitly
+     *   data class Loading(override val name: String, override val count: Int) : MyState
+     * }
+     *
+     * // Generated:
+     * fun MyState.copy(
+     *   name: String = this.name,
+     *   count: Int,                          // no default — required
+     * ): MyState = when (this) { ... }
+     * ```
+     *
+     * @see SealedCopy.Map
+     * @see SealedCopy
+     * @see CopyToChildren.Exclude
+     */
+    @Target(AnnotationTarget.PROPERTY)
+    annotation class Exclude
 }
 
 /**

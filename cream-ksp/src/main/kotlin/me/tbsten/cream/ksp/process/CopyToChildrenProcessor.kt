@@ -1,6 +1,7 @@
 package me.tbsten.cream.ksp.process
 
 import com.google.devtools.ksp.getAnnotationsByType
+import com.google.devtools.ksp.isAbstract
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.ClassKind
@@ -92,6 +93,17 @@ internal fun CreamSymbolProcessor.processCopyToChildren(resolver: Resolver): Lis
 
         val targetClasses = sourceSealedClass.getSealedSubclasses()
 
+        // Warn for @CopyToChildren.Exclude on non-abstract properties (no-op: not in generated copy functions)
+        sourceSealedClass
+            .getAllProperties()
+            .filter { !it.isAbstract() && it.annotationsOf(CopyToChildren.Exclude::class).any() }
+            .forEach { prop ->
+                logger.warn(
+                    "@Exclude on '${prop.simpleName.asString()}' has no effect: not a matched property",
+                    prop,
+                )
+            }
+
         codeGenerator
             .createNewKotlinFile(
                 dependencies =
@@ -124,6 +136,7 @@ internal fun CreamSymbolProcessor.processCopyToChildren(resolver: Resolver): Lis
                             ),
                         notCopyToObject = notCopyToObject,
                         visibility = visibility,
+                        logger = logger,
                     )
                 }
             }
