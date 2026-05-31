@@ -726,7 +726,7 @@ ksp {
 |-----------------------------------|-----------------------------------------------------------------------------|--------------------------------------------------------------------------|--------------------|
 | **`cream.copyFunNamePrefix`**     | String prefixed to the generated copy function                              | `copyTo`, `transitionTo`, `to`, `mapTo`                                  | `copyTo`           |
 | **`cream.copyFunNamingStrategy`** | Copy function naming conventions.                                           | `under-package`, `diff`, `simple-name`, `full-name`, `inner-name` | `under-package`    |
-| **`cream.escapeDot`**             | How to escape `. ` in the name given by `cream.copyFunNamingStrategy`.      | `lower-camel-case`, `replace-to-underscore`, `backquote`                      | `lower-camel-case` |
+| **`cream.escapeDot`**             | How to escape `. ` in the name given by `cream.copyFunNamingStrategy`.      | `lower-camel-case`, `replace-to-underscore`                      | `lower-camel-case` |
 | **`cream.notCopyToObject`**       | If `true`, @CopyToChildren will not generate a copy function to the object. | `true` , `false`                                                         | `false`            |
 
 ### Option 1. `cream.copyFunNamePrefix`
@@ -763,7 +763,7 @@ to [issue](https://github.com/TBSten/cream/issues?q=sort%3Aupdated-desc+is%3Aiss
 
 | Default            | Possible values                                            |
 |--------------------|------------------------------------------------------------|
-| `lower-camel-case` | One of `lower-camel-case`, `replace-to-underscore`, `backquote` |
+| `lower-camel-case` | One of `lower-camel-case`, `replace-to-underscore` |
 
 Sets the method for escaping class names retrieved with `cream.copyFunNamingStrategy`.
 
@@ -774,7 +774,6 @@ string that can be named in one of the ways shown in the configuration examples.
 |-------------------------|------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------|
 | `lower-camel-case`      | Concatenate each dotted element with camelCase, beginning with a lowercase letter. | Hoge.Fuga.copyTohogePiyo(...)                                                                                   |
 | `replace-to-underscore` | Replace dots with underscores                                                      | Hoge.Fuga.copyTo_hoge_piyo(...)                                                                                 |
-| `backquote`             | The full name, including the dot, is enclosed in backquotes (\``...`\`).           | Hoge.Fuga.\`copyTocom.example.Hoge.Piyo`\(...)                                                                  |
 
 ### Option 4. `cream.notCopyToObject`
 
