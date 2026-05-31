@@ -25,6 +25,13 @@ import kotlin.reflect.KClass
  * ) = Success(...)
  * ```
  *
+ * # Exclude
+ *
+ * Annotate a **source-class constructor parameter** (or property) with [CopyTo.Exclude] to drop
+ * its `= this.<property>` auto-copy default. The matching parameter stays in the generated copy
+ * function's signature but becomes required at the call site. See [CopyTo.Exclude] for details
+ * and an example.
+ *
  * @property visibility Visibility modifier of the generated copy function. Defaults to
  *   [CopyVisibility.INHERIT], which keeps cream's existing behaviour (the function inherits
  *   the target class's visibility).
@@ -36,6 +43,7 @@ import kotlin.reflect.KClass
  *   name. See `CopyFunctionNameToken.kt`.
  *
  * @see CopyFrom
+ * @see CopyTo.Exclude
  * @see CopyVisibility
  * @see DefaultCopyFunctionName
  */
@@ -50,4 +58,39 @@ annotation class CopyTo(
     annotation class Map(
         vararg val propertyNames: String,
     )
+
+    /**
+     * Remove the auto-copy default from a matched constructor parameter, making it required.
+     *
+     * Place this annotation on a **source-class constructor parameter** (or property) that should
+     * not be copied automatically. The corresponding parameter in the generated copy function keeps
+     * its position in the signature but loses the `= this.<property>` default, forcing the caller
+     * to provide an explicit value.
+     *
+     * Applying `@CopyTo.Exclude` to a parameter that is not matched to any target parameter has
+     * no effect and emits a KSP warning.
+     *
+     * # Example
+     *
+     * ```kt
+     * @CopyTo(Target::class)
+     * data class Source(
+     *     val name: String,
+     *     @CopyTo.Exclude val count: Int,  // caller must specify count explicitly
+     * )
+     *
+     * data class Target(val name: String, val count: Int)
+     *
+     * // Generated:
+     * fun Source.copyToTarget(
+     *     name: String = this.name,
+     *     count: Int,                       // no default — required
+     * ): Target = Target(name = name, count = count)
+     * ```
+     *
+     * @see CopyTo.Map
+     * @see CopyTo
+     */
+    @Target(AnnotationTarget.VALUE_PARAMETER)
+    annotation class Exclude
 }

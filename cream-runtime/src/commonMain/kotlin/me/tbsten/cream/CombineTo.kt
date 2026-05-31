@@ -33,6 +33,13 @@ import kotlin.reflect.KClass
  * ): SuccessState = SuccessState(...)
  * ```
  *
+ * # Exclude
+ *
+ * Annotate a **source-class property** with [CombineTo.Exclude] to drop its
+ * `= this.<property>` (or `= sourceParam.<property>`) auto-copy default. The matching parameter
+ * stays in the generated copy function's signature but becomes required at the call site. See
+ * [CombineTo.Exclude] for details and an example.
+ *
  * @property visibility Visibility modifier of the generated copy function. Defaults to
  *   [CopyVisibility.INHERIT], which keeps cream's existing behaviour (the function inherits
  *   the target class's visibility).
@@ -44,6 +51,7 @@ import kotlin.reflect.KClass
  *
  * @see CopyTo
  * @see CopyFrom
+ * @see CombineTo.Exclude
  * @see CopyVisibility
  * @see DefaultCopyFunctionName
  */
@@ -58,4 +66,38 @@ annotation class CombineTo(
     annotation class Map(
         vararg val propertyNames: String,
     )
+
+    /**
+     * Remove the auto-copy default from a matched constructor parameter, making it required.
+     *
+     * Place this annotation on a **source-class property** that should not be copied
+     * automatically. The corresponding parameter in the generated copy function keeps its
+     * position but loses the `= this.<property>` (or `= sourceParam.<property>`) default,
+     * forcing the caller to provide an explicit value.
+     *
+     * Applying `@CombineTo.Exclude` to a property that is not matched to any target parameter
+     * has no effect and emits a KSP warning.
+     *
+     * # Example
+     *
+     * ```kt
+     * @CombineTo(SuccessState::class)
+     * data class LoadingState(
+     *     val itemId: String,
+     *     @CombineTo.Exclude val sessionId: String,  // caller must specify sessionId explicitly
+     * )
+     *
+     * // Generated:
+     * fun LoadingState.copyToSuccessState(
+     *     ...,
+     *     itemId: String = this.itemId,
+     *     sessionId: String,               // no default — required
+     * ): SuccessState = SuccessState(...)
+     * ```
+     *
+     * @see CombineTo.Map
+     * @see CombineTo
+     */
+    @Target(AnnotationTarget.PROPERTY)
+    annotation class Exclude
 }

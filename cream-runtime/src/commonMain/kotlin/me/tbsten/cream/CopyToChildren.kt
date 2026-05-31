@@ -39,6 +39,14 @@ package me.tbsten.cream
  *
  * Both annotations may coexist on the same sealed type when both shapes are useful.
  *
+ * # Exclude
+ *
+ * Annotate a **property declared on the sealed parent** with [CopyToChildren.Exclude] to drop its
+ * `= this.<property>` auto-copy default. The matching parameter becomes required at the call site
+ * across **all** per-child copy functions. This affects only the `@CopyToChildren`-generated
+ * functions and not any `@SealedCopy`-generated `copy()`. See [CopyToChildren.Exclude] for details
+ * and an example.
+ *
  * @property notCopyToObject When `true`, skip generating copy functions whose target
  *   child is an `object` (those would just return the singleton). Defaults to `false`.
  * @property visibility Visibility modifier applied to every generated per-child copy
@@ -47,6 +55,7 @@ package me.tbsten.cream
  *
  * @see SealedCopy
  * @see CopyTo
+ * @see CopyToChildren.Exclude
  * @see CopyVisibility
  */
 @Target(AnnotationTarget.CLASS)
@@ -54,4 +63,50 @@ annotation class CopyToChildren(
     val notCopyToObject: Boolean = false,
     val kdoc: KDoc = KDoc(),
     val visibility: CopyVisibility = CopyVisibility.INHERIT,
-)
+) {
+    /**
+     * Remove the auto-copy default from a sealed parent's property across **all**
+     * `@CopyToChildren`-generated per-child copy functions, making the corresponding
+     * parameter required in every generated function.
+     *
+     * Place this annotation on a **property declared on the sealed parent**. The
+     * corresponding parameter in every generated `copyTo<Child>(...)` function loses the
+     * `= this.<property>` default, forcing the caller to supply an explicit value regardless
+     * of which child type they are transitioning to.
+     *
+     * This annotation only affects the `@CopyToChildren`-generated per-child functions and
+     * does **not** affect any `@SealedCopy`-generated `copy()` on the same sealed type.
+     *
+     * Applying `@CopyToChildren.Exclude` to a property that does not appear in any
+     * generated per-child function's parameter list has no effect and emits a KSP warning.
+     *
+     * # Example
+     *
+     * ```kt
+     * @CopyToChildren
+     * sealed interface UiState {
+     *   val sessionId: String
+     *   @CopyToChildren.Exclude val count: Int  // caller must specify count explicitly
+     *   data class Loading(override val sessionId: String, override val count: Int) : UiState
+     *   data class Success(override val sessionId: String, override val count: Int, val data: String) : UiState
+     * }
+     *
+     * // Generated:
+     * fun UiState.copyToUiStateLoading(
+     *   sessionId: String = this.sessionId,
+     *   count: Int,                             // no default — required
+     * ): UiState.Loading = /* ... */
+     *
+     * fun UiState.copyToUiStateSuccess(
+     *   sessionId: String = this.sessionId,
+     *   count: Int,                             // no default — required
+     *   data: String,
+     * ): UiState.Success = /* ... */
+     * ```
+     *
+     * @see CopyToChildren
+     * @see SealedCopy.Exclude
+     */
+    @Target(AnnotationTarget.PROPERTY)
+    annotation class Exclude
+}

@@ -25,6 +25,13 @@ import kotlin.reflect.KClass
  * ) = Success(...)
  * ```
  *
+ * # Exclude
+ *
+ * Annotate a **target-class constructor parameter** with [CopyFrom.Exclude] to drop its
+ * `= this.<property>` auto-copy default. The matching parameter stays in the generated copy
+ * function's signature but becomes required at the call site. See [CopyFrom.Exclude] for details
+ * and an example.
+ *
  * @property visibility Visibility modifier of the generated copy function. Defaults to
  *   [CopyVisibility.INHERIT], which keeps cream's existing behaviour (the function inherits
  *   the target class's visibility).
@@ -35,6 +42,7 @@ import kotlin.reflect.KClass
  *   gets a distinct name. See `CopyFunctionNameToken.kt`.
  *
  * @see CopyTo
+ * @see CopyFrom.Exclude
  * @see CopyVisibility
  * @see DefaultCopyFunctionName
  */
@@ -50,8 +58,36 @@ annotation class CopyFrom(
         vararg val propertyNames: String,
     )
 
-    @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE_PARAMETER)
-    annotation class Exclude(
-        val value: String,
-    )
+    /**
+     * Remove the auto-copy default from a matched constructor parameter, making it required.
+     *
+     * Place this annotation on a **target-class constructor parameter** that should not receive
+     * the auto-copied value from the source. The parameter keeps its position in the generated
+     * copy function's signature but loses the `= this.<property>` default, forcing the caller
+     * to provide an explicit value.
+     *
+     * Applying `@CopyFrom.Exclude` to a parameter that is not matched to any source property
+     * has no effect and emits a KSP warning.
+     *
+     * # Example
+     *
+     * ```kt
+     * @CopyFrom(State::class)
+     * data class Success(
+     *     val name: String,
+     *     @CopyFrom.Exclude val count: Int,  // caller must specify count explicitly
+     * )
+     *
+     * // Generated:
+     * fun State.copyToSuccess(
+     *     name: String = this.name,
+     *     count: Int,                         // no default — required
+     * ): Success = Success(name = name, count = count)
+     * ```
+     *
+     * @see CopyFrom.Map
+     * @see CopyFrom
+     */
+    @Target(AnnotationTarget.VALUE_PARAMETER)
+    annotation class Exclude
 }
