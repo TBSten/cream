@@ -85,8 +85,8 @@ internal fun requireFunNameSupportsFanout(
         message =
             lines(
                 "@$annotationSimpleName on $declarationFullName sets a fixed funName \"$funNameTemplate\",",
-                "but it generates more than one function (multiple targets, a sealed target,",
-                "or a reversible mapping). Those functions would all share that name and collide.",
+                "but it generates more than one function (multiple targets or sources, a sealed",
+                "target, or a reversible mapping). Those functions would all share that name and collide.",
             ),
         solution =
             lines(
