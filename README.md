@@ -101,7 +101,7 @@ copying state across classes from .Loading -> .Stable).
 
 |                   |                                                                         |
 |-------------------|-------------------------------------------------------------------------|
-| `<cream-version>` | ![GitHub Release](https://img.shields.io/github/v/release/TBSten/cream) |
+| `<cream-version>` | ![GitHub Release](https://img.shields.io/github/v/release/TBSten/cream?) |
 | `<ksp-version>`   | ![GitHub Release](https://img.shields.io/github/v/release/google/ksp)   |
 
 ```kts
