@@ -126,6 +126,7 @@ annotation class CopyMapping(
      * @param target The property name in the target class
      * ```
      */
+    @Target()
     annotation class Map(
         val source: String,
         val target: String,
