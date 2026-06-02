@@ -17,12 +17,16 @@ import me.tbsten.cream.ksp.GenerateSourceAnnotation
 /**
  * Source properties eligible for auto-copy (`= this.x`).
  *
- * Auto-copy reads `this.x` at call time, so a source property qualifies only when reading it on a
- * fully-constructed instance is safe and side-effect-free:
+ * Auto-copy reads `this.x` at call time, so the filter applies a best-effort heuristic (not a
+ * guarantee) for "reading this on a fully-constructed instance is likely safe and free of
+ * surprising side effects": having a backing field still permits a custom getter that runs side
+ * effects, so this only excludes the clearly-unsafe shapes below.
  * - Constructor parameters and plain initialised properties have a backing field -> included.
  * - Abstract properties (an `abstract`/interface contract, e.g. the shared property of a sealed
- *   source used by `@CopyToChildren`) are included: the source declares no read implementation, so
- *   `this.x` dispatches to the concrete subclass's (stored) override, which is safe to read.
+ *   source used by `@CopyToChildren`) are included as a compatibility carve-out: this preserves the
+ *   existing sealed-source behavior. The concrete subclass's override is typically stored in common
+ *   patterns, though it can also be computed/delegated/lateinit, so inclusion is not a safety
+ *   guarantee.
  * - Computed (`get()`-only) and delegated (`by`) members have no backing field -> excluded
  *   (a delegate must not be force-evaluated, e.g. `by lazy`, and a getter body must not be run).
  * - `lateinit var` members do have a backing field but may be uninitialised, so reading them can
