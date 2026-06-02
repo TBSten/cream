@@ -1,16 +1,39 @@
 package me.tbsten.cream.ksp.transform
 
 import com.google.devtools.ksp.getAnnotationsByType
+import com.google.devtools.ksp.isAbstract
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSValueParameter
+import com.google.devtools.ksp.symbol.Modifier
 import me.tbsten.cream.CombineFrom
 import me.tbsten.cream.CombineTo
 import me.tbsten.cream.CopyFrom
 import me.tbsten.cream.CopyTo
 import me.tbsten.cream.ksp.GenerateSourceAnnotation
+
+/**
+ * Source properties eligible for auto-copy (`= this.x`).
+ *
+ * Auto-copy reads `this.x` at call time, so a source property qualifies only when reading it on a
+ * fully-constructed instance is safe and side-effect-free:
+ * - Constructor parameters and plain initialised properties have a backing field -> included.
+ * - Abstract properties (an `abstract`/interface contract, e.g. the shared property of a sealed
+ *   source used by `@CopyToChildren`) are included: the source declares no read implementation, so
+ *   `this.x` dispatches to the concrete subclass's (stored) override, which is safe to read.
+ * - Computed (`get()`-only) and delegated (`by`) members have no backing field -> excluded
+ *   (a delegate must not be force-evaluated, e.g. `by lazy`, and a getter body must not be run).
+ * - `lateinit var` members do have a backing field but may be uninitialised, so reading them can
+ *   throw `UninitializedPropertyAccessException` -> excluded via the [Modifier.LATEINIT] check.
+ *
+ * Excluded source properties simply do not match any target parameter, so that parameter stays
+ * REQUIRED (no `= this.x` default), exactly like a target parameter with no source counterpart.
+ */
+private fun KSClassDeclaration.autoCopyableProperties(): Sequence<KSPropertyDeclaration> =
+    getAllProperties()
+        .filter { it.isAbstract() || (it.hasBackingField && Modifier.LATEINIT !in it.modifiers) }
 
 internal fun KSValueParameter.findMatchedProperty(
     source: KSClassDeclaration,
@@ -73,7 +96,7 @@ private fun KSValueParameter.findSourcePropertyWithCopyMappingAnnotation(
             }?.first ?: return null
 
     return source
-        .getAllProperties()
+        .autoCopyableProperties()
         .firstOrNull {
             it.simpleName.asString() == sourcePropertyName &&
                 this.matchesSourcePropertyType(it.type.resolve())
@@ -99,7 +122,7 @@ private fun KSValueParameter.findSourcePropertyWithCombineMappingAnnotation(
             }?.first ?: return null
 
     return source
-        .getAllProperties()
+        .autoCopyableProperties()
         .firstOrNull {
             it.simpleName.asString() == sourcePropertyName &&
                 this.matchesSourcePropertyType(it.type.resolve())
@@ -111,7 +134,7 @@ private fun KSValueParameter.findSourcePropertyWithCopyToAnnotation(
     parameterName: String,
 ): KSPropertyDeclaration? =
     source
-        .getAllProperties()
+        .autoCopyableProperties()
         .firstOrNull { sourceProperty ->
             // First try to get annotation from property itself
             val propertyAnnotation =
@@ -146,7 +169,7 @@ private fun KSValueParameter.findSourcePropertyWithCombineToAnnotation(
     parameterName: String,
 ): KSPropertyDeclaration? =
     source
-        .getAllProperties()
+        .autoCopyableProperties()
         .firstOrNull { sourceProperty ->
             // First try to get annotation from property itself
             val propertyAnnotation =
@@ -191,7 +214,7 @@ private fun KSValueParameter.findSourcePropertyWithCombineFromAnnotationOnTarget
         val sourcePropertyNames = combineFromPropertyAnnotation.propertyNames
 
         return source
-            .getAllProperties()
+            .autoCopyableProperties()
             .firstOrNull {
                 it.simpleName.asString() in sourcePropertyNames &&
                     this.matchesSourcePropertyType(it.type.resolve())
@@ -211,7 +234,7 @@ private fun KSValueParameter.findSourcePropertyWithCombineFromAnnotationOnSource
     parameterName: String,
 ): KSPropertyDeclaration? =
     source
-        .getAllProperties()
+        .autoCopyableProperties()
         .firstOrNull { sourceProperty ->
             // First try to get annotation from property itself
             val propertyAnnotation =
@@ -251,7 +274,7 @@ private fun KSValueParameter.findSourcePropertyWithCopyFromAnnotation(source: KS
         val sourcePropertyNames = copyFromPropertyAnnotation.propertyNames
 
         return source
-            .getAllProperties()
+            .autoCopyableProperties()
             .firstOrNull {
                 it.simpleName.asString() in sourcePropertyNames &&
                     this.matchesSourcePropertyType(it.type.resolve())
@@ -266,7 +289,7 @@ private fun KSValueParameter.findSourcePropertyByName(
     parameterName: String,
 ): KSPropertyDeclaration? =
     source
-        .getAllProperties()
+        .autoCopyableProperties()
         .firstOrNull {
             it.simpleName.asString() == parameterName &&
                 this.matchesSourcePropertyType(it.type.resolve())
