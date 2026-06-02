@@ -136,7 +136,8 @@ internal fun BufferedWriter.appendCopyToClassFunction(
                                 )
                         },
                     )
-            append("    $paramName: $paramType")
+            val modifiers = if (parameter.isVararg) "vararg " else ""
+            append("    $modifiers$paramName: $paramType")
 
             val matchedProperty = parameter.findMatchedProperty(source, generateSourceAnnotation)
             if (logger != null) {

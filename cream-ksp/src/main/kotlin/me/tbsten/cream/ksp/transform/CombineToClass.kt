@@ -178,7 +178,8 @@ internal fun BufferedWriter.appendCombineToClassFunction(
                                 )
                         },
                     )
-            append("    $paramName: $paramType")
+            val modifiers = if (parameter.isVararg) "vararg " else ""
+            append("    $modifiers$paramName: $paramType")
 
             // Try to find matching property in any of the source classes
             // Use asReversed() to prioritize later source classes when properties overlap
