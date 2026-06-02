@@ -70,6 +70,8 @@ internal fun BufferedWriter.appendCombineToClassFunction(
 
         appendCombineToClassKDoc(allSources, targetClass, generateSourceAnnotation, funName, requiredCtorParamNames)
 
+        deprecatedAnnotationLine(allSources)?.let { appendLine(it) }
+
         append("${visibility.toModifierString(targetClass)} fun ")
         if (typeParameters.isNotEmpty()) {
             append("<")

@@ -56,6 +56,8 @@ internal fun BufferedWriter.appendCopyToClassFunction(
 
         appendCopyToClassKDoc(source, targetClass, generateSourceAnnotation, funName, requiredParamNames)
 
+        deprecatedAnnotationLine(listOf(source))?.let { appendLine(it) }
+
         append("${visibility.toModifierString(targetClass)} fun ")
         if (typeParameters.isNotEmpty()) {
             append("<")
