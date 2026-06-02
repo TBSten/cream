@@ -390,4 +390,23 @@ internal class SealedCopySnapshotTest :
                 """.trimIndent(),
             )
         }
+
+        test("delegates correctly when subtypes share an Array property") {
+            runSnapshot(
+                "SealedCopySnapshotTest.sealedCopyArrayProperty",
+                """
+                package snap.sealedCopy.arrayProp
+
+                import me.tbsten.cream.SealedCopy
+
+                @SealedCopy
+                sealed interface MyState {
+                    val tags: Array<String>
+
+                    data class Loading(override val tags: Array<String>) : MyState
+                    data class Success(override val tags: Array<String>, val data: String) : MyState
+                }
+                """.trimIndent(),
+            )
+        }
     })
