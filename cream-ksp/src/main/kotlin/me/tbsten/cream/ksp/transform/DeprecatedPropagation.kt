@@ -15,9 +15,12 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
  * the annotation onto the generated function moves those references inside a deprecated declaration,
  * which suppresses the warnings (issue #103).
  *
- * The first deprecation found wins, in this precedence: each source class (in [sources] order),
- * then the properties of each source class. message and level are preserved; level is only rendered
- * when it differs from the default [DeprecationLevel.WARNING] to keep output minimal.
+ * The first deprecation found wins, scanning [sources] in order and, within each source, checking
+ * its class-level `@Deprecated` before that same source's properties before moving to the next
+ * source. So a class-level deprecation wins over its own properties, yet an earlier source's
+ * deprecated property still wins over a later source's deprecated class. message and level are
+ * preserved; level is only rendered when it differs from the default [DeprecationLevel.WARNING] to
+ * keep output minimal.
  */
 internal fun deprecatedAnnotationLine(sources: List<KSClassDeclaration>): String? {
     val deprecated = sources.firstDeprecation() ?: return null
@@ -33,15 +36,16 @@ internal fun deprecatedAnnotationLine(sources: List<KSClassDeclaration>): String
 }
 
 /**
- * The first `@Deprecated` among these source classes, preferring a deprecation on the class itself
- * over one on a property, so a class-level message/level wins when both are present.
+ * The first `@Deprecated` among these source classes, evaluated per source in declaration order:
+ * each source is fully checked (its class-level annotation, then its own properties) before moving
+ * on to the next source. So a class-level deprecation wins over that same source's properties, but
+ * an earlier source's property deprecation still wins over a later source's class deprecation.
  */
-private fun List<KSClassDeclaration>.firstDeprecation(): Deprecated? {
-    firstNotNullOfOrNull { it.deprecatedAnnotation() }?.let { return it }
-    return firstNotNullOfOrNull { source ->
-        source.getAllProperties().firstNotNullOfOrNull { it.deprecatedAnnotation() }
+private fun List<KSClassDeclaration>.firstDeprecation(): Deprecated? =
+    firstNotNullOfOrNull { source ->
+        source.deprecatedAnnotation()
+            ?: source.getAllProperties().firstNotNullOfOrNull { it.deprecatedAnnotation() }
     }
-}
 
 private fun KSAnnotated.deprecatedAnnotation(): Deprecated? = getAnnotationsByType(Deprecated::class).firstOrNull()
 

@@ -143,4 +143,36 @@ internal class DeprecatedSnapshotTest :
                 )
             generated shouldContain "@Deprecated(\"primary is deprecated\")"
         }
+
+        // Precedence is evaluated per source in declaration order: for each source, its class-level
+        // @Deprecated is checked before that same source's property-level @Deprecated. With multiple
+        // @CombineTo sources, the receiver source comes first, so an earlier source's deprecated
+        // PROPERTY must win over a later source's deprecated CLASS. The earlier (`First`) receiver
+        // has only a deprecated property; the later (`Second`) source is class-deprecated. The
+        // function on the `First` receiver must therefore carry the property's message, not the
+        // later class's message — otherwise a later class-level deprecation would shadow an earlier
+        // property-level one.
+        test("前の source の Deprecated プロパティが後の source の Deprecated クラスより優先される") {
+            val generated =
+                runSnapshot(
+                    "DeprecatedSnapshotTest.combineToPropertyBeforeLaterClass",
+                    """
+                    package snap.deprecated.combinetoorder
+
+                    import me.tbsten.cream.CombineTo
+
+                    @CombineTo(Target::class)
+                    data class First(@Deprecated("first property gone") val id: Int)
+
+                    @Deprecated("second class gone")
+                    @CombineTo(Target::class)
+                    data class Second(val extra: String)
+
+                    data class Target(val id: Int, val extra: String)
+                    """.trimIndent(),
+                )
+            // Buggy precedence (all classes first) would attach "second class gone" to the `First`
+            // receiver and never emit "first property gone"; the per-source order makes it appear.
+            generated shouldContain "@Deprecated(\"first property gone\")"
+        }
     })
