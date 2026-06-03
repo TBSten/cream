@@ -47,10 +47,6 @@ internal enum class CopyTargetRejection(
         message = "Unsupported target interface (%s). A combine target must be directly constructable.",
         solution = "Specify a class, annotation class, or object as the target.",
     ),
-    ANNOTATION_CLASS(
-        message = "Unsupported target annotation class (%s). An annotation class cannot be used as a target.",
-        solution = "Specify a class, object, or sealed interface as the target.",
-    ),
     ENUM_CLASS(
         message = "Unsupported target enum class (%s). An enum entry cannot be constructed as a target.",
         solution = "Specify a class, object, or annotation class as the target.",

@@ -55,9 +55,20 @@ internal fun BufferedWriter.appendCopyFunction(
     logger: KSPLogger? = null,
 ) {
     when (target.classKind) {
-        // An annotation class cannot currently be used as a copy target; it is rejected with a
-        // clean diagnostic.
-        ClassKind.ANNOTATION_CLASS -> logger.reportRejection(CopyTargetRejection.ANNOTATION_CLASS, target)
+        // An annotation class has a real, callable primary constructor, so it is built exactly
+        // like a regular class. A regular class is rejected when it cannot be instantiated
+        // (sealed / abstract / inner) or its primary constructor is not reachable.
+        ClassKind.ANNOTATION_CLASS ->
+            appendCopyToClassFunction(
+                source,
+                target,
+                generateSourceAnnotation,
+                omitPackages,
+                options,
+                visibility,
+                funNameTemplate,
+                logger,
+            )
 
         ClassKind.CLASS ->
             when (val rejection = target.concreteClassRejection()) {
