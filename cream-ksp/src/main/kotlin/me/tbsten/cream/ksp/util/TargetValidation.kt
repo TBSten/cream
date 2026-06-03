@@ -11,10 +11,12 @@ import me.tbsten.cream.ksp.InvalidCreamUsageException
  * Why a class declaration cannot be used as the *target* of a generated copy / combine function.
  *
  * cream generates `Target(prop = ...)` to build the target, so a valid target must be a concrete
- * class (or object) whose primary constructor the generated code can call. `@CopyTo` / `@CopyFrom`
- * additionally accept a sealed interface, which fans out to its concrete subclasses. The
- * dispatcher ([me.tbsten.cream.ksp.transform.appendCopyFunction]) decides which rejection applies
- * per [com.google.devtools.ksp.symbol.ClassKind]; this enum is the single source of truth for the
+ * class (or annotation class / object) whose primary constructor the generated code can call.
+ * `@CopyTo` / `@CopyFrom` additionally accept a sealed interface, which fans out to its concrete
+ * subclasses; `@CombineTo` / `@CombineFrom` do not, so they reject interfaces outright. The
+ * dispatcher ([me.tbsten.cream.ksp.transform.appendCopyFunction] /
+ * [me.tbsten.cream.ksp.transform.appendCombineToFunction]) decides which rejection applies per
+ * [com.google.devtools.ksp.symbol.ClassKind]; this enum is the single source of truth for the
  * reason text so it can be snapshot-tested in isolation.
  *
  * Each constant carries the human-facing [message] / [solution] (`%s` is replaced with the target
@@ -40,6 +42,10 @@ internal enum class CopyTargetRejection(
     NON_SEALED_INTERFACE(
         message = "Unsupported target interface (%s). It must be a sealed interface.",
         solution = "Please make %s a sealed interface.",
+    ),
+    INTERFACE_NOT_COMBINABLE(
+        message = "Unsupported target interface (%s). A combine target must be directly constructable.",
+        solution = "Specify a class, annotation class, or object as the target.",
     ),
     ANNOTATION_CLASS(
         message = "Unsupported target annotation class (%s). An annotation class cannot be used as a target.",
