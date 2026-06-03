@@ -11,6 +11,7 @@ import me.tbsten.cream.ksp.UnknownCreamException
 import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.reportToGithub
 import me.tbsten.cream.ksp.util.asString
+import me.tbsten.cream.ksp.util.escapeKotlinIdentifier
 import me.tbsten.cream.ksp.util.fullName
 import me.tbsten.cream.ksp.util.isCountMoreThan
 import me.tbsten.cream.ksp.util.lines
@@ -54,6 +55,8 @@ internal fun BufferedWriter.appendCopyToClassFunction(
                 }.map { it.name!!.asString() }
 
         appendCopyToClassKDoc(source, targetClass, generateSourceAnnotation, funName, requiredParamNames)
+
+        deprecatedAnnotationLine(listOf(source))?.let { appendLine(it) }
 
         append("${visibility.toModifierString(targetClass)} fun ")
         if (typeParameters.isNotEmpty()) {
@@ -137,7 +140,7 @@ internal fun BufferedWriter.appendCopyToClassFunction(
                         },
                     )
             val modifiers = if (parameter.isVararg) "vararg " else ""
-            append("    $modifiers$paramName: $paramType")
+            append("    $modifiers${paramName.escapeKotlinIdentifier()}: $paramType")
 
             val matchedProperty = parameter.findMatchedProperty(source, generateSourceAnnotation)
             if (logger != null) {
@@ -146,7 +149,7 @@ internal fun BufferedWriter.appendCopyToClassFunction(
             if (matchedProperty != null &&
                 !parameter.isExcludedFromCopy(matchedProperty, source, generateSourceAnnotation)
             ) {
-                append(" = this.${matchedProperty.simpleName.asString()}")
+                append(" = this.${matchedProperty.simpleName.asString().escapeKotlinIdentifier()}")
             }
             append(",\n")
         }
@@ -200,7 +203,8 @@ internal fun BufferedWriter.appendCopyToClassFunction(
         appendLine()
 
         constructor.parameters.forEach { param ->
-            appendLine("    ${param.name!!.asString()} = ${param.name!!.asString()},")
+            val escaped = param.name!!.asString().escapeKotlinIdentifier()
+            appendLine("    $escaped = $escaped,")
         }
 
         appendLine(")")
