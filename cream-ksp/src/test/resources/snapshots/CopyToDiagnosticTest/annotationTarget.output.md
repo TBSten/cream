@@ -1,17 +1,11 @@
 ## Compiler output
 
 ```text
-Invalid cream usage: Unsupported copy to annotation class (diag.Marker).
+e: Error occurred in KSP, check log for detail
+e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/Test.kt:5: Invalid cream usage: Unsupported target annotation class (diag.Marker). An annotation class cannot be used as a target.
 
 Solution: 
-  Please make diag.Marker a class or object or sealed interface.
-
-me.tbsten.cream.ksp.InvalidCreamUsageException: Invalid cream usage: Unsupported copy to annotation class (diag.Marker).
-
-Solution: 
-  Please make diag.Marker a class or object or sealed interface.
-
-	<stack trace omitted>
+  Specify a class, object, or sealed interface as the target.
 ```
 
 ## Input
