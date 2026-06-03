@@ -1,6 +1,7 @@
 package me.tbsten.cream.ksp.snapshot
 
 import com.tschuchort.compiletesting.KotlinCompilation
+import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -42,7 +43,7 @@ internal class DeprecatedSnapshotTest :
             return generated
         }
 
-        test("Deprecated な source クラスから生成された copy 関数に @Deprecated が付与される") {
+        test("propagates @Deprecated onto the copy function generated from a deprecated source class") {
             val generated =
                 runSnapshot(
                     "DeprecatedSnapshotTest.deprecatedSourceClass",
@@ -61,7 +62,7 @@ internal class DeprecatedSnapshotTest :
             generated shouldContain "@Deprecated(\"source is deprecated\")"
         }
 
-        test("Deprecated な source プロパティから生成された copy 関数に @Deprecated が付与される") {
+        test("propagates @Deprecated onto the copy function generated from a deprecated source property") {
             val generated =
                 runSnapshot(
                     "DeprecatedSnapshotTest.deprecatedSourceProperty",
@@ -84,7 +85,7 @@ internal class DeprecatedSnapshotTest :
         // is a hard error at every use site even inside another @Deprecated declaration. So this
         // case pins only that the propagated annotation PRESERVES the level, without requiring the
         // generated code to compile.
-        test("DeprecationLevel ERROR の source は level を保持して @Deprecated が付与される") {
+        test("preserves DeprecationLevel.ERROR when propagating @Deprecated from the source") {
             val source =
                 """
                 package snap.deprecated.levelerror
@@ -98,14 +99,16 @@ internal class DeprecatedSnapshotTest :
                 data class DpT(val old: Int)
                 """.trimIndent()
             val generated = compileWithCream(source).generatedSourceText()
-            generated shouldContain "@Deprecated(\"gone\", level = DeprecationLevel.ERROR)"
-            assertMatchesSnapshot("DeprecatedSnapshotTest.deprecatedLevelError") {
-                "Generated" facetOf generated
-                "Input" facetOf source
+            assertSoftly {
+                generated shouldContain "@Deprecated(\"gone\", level = DeprecationLevel.ERROR)"
+                assertMatchesSnapshot("DeprecatedSnapshotTest.deprecatedLevelError") {
+                    "Generated" facetOf generated
+                    "Input" facetOf source
+                }
             }
         }
 
-        test("Deprecated でない source からは @Deprecated が付与されない") {
+        test("does not propagate @Deprecated from a non-deprecated source") {
             val generated =
                 runSnapshot(
                     "DeprecatedSnapshotTest.notDeprecated",
@@ -123,7 +126,7 @@ internal class DeprecatedSnapshotTest :
             generated shouldNotContain "@Deprecated"
         }
 
-        test("Deprecated な primary source から生成された combineTo の copy 関数に @Deprecated が付与される") {
+        test("propagates @Deprecated onto a @CombineTo copy function generated from a deprecated primary source") {
             val generated =
                 runSnapshot(
                     "DeprecatedSnapshotTest.deprecatedCombineToSource",
@@ -152,7 +155,7 @@ internal class DeprecatedSnapshotTest :
         // function on the `First` receiver must therefore carry the property's message, not the
         // later class's message — otherwise a later class-level deprecation would shadow an earlier
         // property-level one.
-        test("前の source の Deprecated プロパティが後の source の Deprecated クラスより優先される") {
+        test("prefers an earlier source's deprecated property over a later source's deprecated class") {
             val generated =
                 runSnapshot(
                     "DeprecatedSnapshotTest.combineToPropertyBeforeLaterClass",

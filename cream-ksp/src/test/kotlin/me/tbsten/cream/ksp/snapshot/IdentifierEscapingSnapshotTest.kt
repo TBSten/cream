@@ -1,6 +1,7 @@
 package me.tbsten.cream.ksp.snapshot
 
 import com.tschuchort.compiletesting.KotlinCompilation
+import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -44,7 +45,7 @@ internal class IdentifierEscapingSnapshotTest :
             return generated
         }
 
-        test("keyword 名のプロパティを持つ copyTo が backquote で escape して compile できるコードを生成する") {
+        test("escapes keyword-named properties of a @CopyTo source so the generated code compiles") {
             val generated =
                 runSnapshot(
                     "IdentifierEscapingSnapshotTest.copyToKeyword",
@@ -59,13 +60,15 @@ internal class IdentifierEscapingSnapshotTest :
                     data class KwTarget(val `in`: Int, val `is`: Boolean)
                     """.trimIndent(),
                 )
-            generated shouldContain "`in`: Int = this.`in`"
-            generated shouldContain "`is`: Boolean = this.`is`"
-            generated shouldContain "`in` = `in`"
-            generated shouldContain "`is` = `is`"
+            assertSoftly {
+                generated shouldContain "`in`: Int = this.`in`"
+                generated shouldContain "`is`: Boolean = this.`is`"
+                generated shouldContain "`in` = `in`"
+                generated shouldContain "`is` = `is`"
+            }
         }
 
-        test("空白入り名のプロパティを持つ copyTo が backquote で escape して compile できるコードを生成する") {
+        test("escapes space-containing property names of a @CopyTo source so the generated code compiles") {
             val generated =
                 runSnapshot(
                     "IdentifierEscapingSnapshotTest.copyToSpaceName",
@@ -80,11 +83,13 @@ internal class IdentifierEscapingSnapshotTest :
                     data class SpTarget(val `my prop`: Int)
                     """.trimIndent(),
                 )
-            generated shouldContain "`my prop`: Int = this.`my prop`"
-            generated shouldContain "`my prop` = `my prop`"
+            assertSoftly {
+                generated shouldContain "`my prop`: Int = this.`my prop`"
+                generated shouldContain "`my prop` = `my prop`"
+            }
         }
 
-        test("keyword 名のプロパティを持つ copyFrom が backquote で escape して compile できるコードを生成する") {
+        test("escapes keyword-named properties of a @CopyFrom source so the generated code compiles") {
             val generated =
                 runSnapshot(
                     "IdentifierEscapingSnapshotTest.copyFromKeyword",
@@ -99,11 +104,13 @@ internal class IdentifierEscapingSnapshotTest :
                     data class KwTarget(val `object`: String)
                     """.trimIndent(),
                 )
-            generated shouldContain "`object`: String = this.`object`"
-            generated shouldContain "`object` = `object`"
+            assertSoftly {
+                generated shouldContain "`object`: String = this.`object`"
+                generated shouldContain "`object` = `object`"
+            }
         }
 
-        test("keyword 名のプロパティを持つ combineTo が backquote で escape して compile できるコードを生成する") {
+        test("escapes keyword-named properties of @CombineTo sources so the generated code compiles") {
             val generated =
                 runSnapshot(
                     "IdentifierEscapingSnapshotTest.combineToKeyword",
@@ -120,13 +127,15 @@ internal class IdentifierEscapingSnapshotTest :
                     data class KwTarget(val `in`: Int, val `return`: String)
                     """.trimIndent(),
                 )
-            // primary source contributes `this.` reference, other source contributes a param + ref
-            generated shouldContain "`in`: Int = this.`in`"
-            generated shouldContain "`in` = `in`"
-            generated shouldContain "`return` = `return`"
+            assertSoftly {
+                // primary source contributes `this.` reference, other source contributes a param + ref
+                generated shouldContain "`in`: Int = this.`in`"
+                generated shouldContain "`in` = `in`"
+                generated shouldContain "`return` = `return`"
+            }
         }
 
-        test("非 ASCII の正当な identifier は backquote で escape されない") {
+        test("does not escape a valid non-ASCII identifier") {
             val generated =
                 runSnapshot(
                     "IdentifierEscapingSnapshotTest.nonAsciiIdentifier",
@@ -141,7 +150,9 @@ internal class IdentifierEscapingSnapshotTest :
                     data class 注文(val 税込金額: Int)
                     """.trimIndent(),
                 )
-            generated shouldContain "税込金額: Int = this.税込金額"
-            generated shouldNotContain "`税込金額`"
+            assertSoftly {
+                generated shouldContain "税込金額: Int = this.税込金額"
+                generated shouldNotContain "`税込金額`"
+            }
         }
     })
