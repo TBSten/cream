@@ -4,10 +4,14 @@ package me.tbsten.cream.ksp.util
  * Kotlin hard keywords. These can never be used as a bare identifier and must be backquoted
  * when they appear as a property / parameter name in generated code.
  *
+ * This is the complete set of hard keywords from the Kotlin reference:
+ * https://kotlinlang.org/docs/reference/keyword-reference.html ("Hard keywords"). The
+ * operator-spelled variants listed there (`as?`, `!in`, `!is`) are omitted because they are not
+ * identifier strings a property / parameter could be named, so they never reach this check.
+ *
  * Soft / modifier keywords (e.g. `data`, `out`, `sealed`) are intentionally NOT listed: they are
  * valid bare identifiers in identifier position, so backquoting them is unnecessary (a redundant
- * backquote would also be valid, but we keep output minimal). The list mirrors the "Hard keywords"
- * section of the Kotlin grammar.
+ * backquote would also be valid, but we keep output minimal).
  */
 private val kotlinHardKeywords =
     setOf(
