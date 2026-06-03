@@ -1,9 +1,12 @@
 package me.tbsten.cream.ksp.diagnostic
 
 import com.tschuchort.compiletesting.KotlinCompilation
+import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldNotContain
 import me.tbsten.cream.ksp.testing.assertMatchesSnapshot
 import me.tbsten.cream.ksp.testing.compileWithCream
 import me.tbsten.cream.ksp.testing.normalizedCompilerOutput
@@ -36,6 +39,34 @@ internal class CombineTargetKindDiagnosticTest :
                 result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
             }
             assertMatchesSnapshot("CombineTargetKindDiagnosticTest.sealedInterface.output") {
+                facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
+                "Input" facetOf source
+            }
+        }
+
+        test("rejects an enum class target without suggesting a sealed interface as alternative") {
+            val source =
+                """
+                package diag
+
+                import me.tbsten.cream.CombineTo
+
+                enum class Status { ACTIVE, INACTIVE }
+
+                @CombineTo(Status::class)
+                data class Source(val name: String)
+                """.trimIndent()
+            val result = compileWithCream(source)
+
+            assertSoftly {
+                withClue("Output:\n${result.normalizedCompilerOutput()}") {
+                    result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
+                }
+                // The solution must not mention "sealed interface" since combine rejects interfaces.
+                result.messages shouldContain "enum class"
+                result.messages shouldNotContain "sealed interface"
+            }
+            assertMatchesSnapshot("CombineTargetKindDiagnosticTest.enumClass.output") {
                 facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
                 "Input" facetOf source
             }

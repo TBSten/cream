@@ -53,7 +53,7 @@ internal enum class CopyTargetRejection(
     ),
     ENUM_CLASS(
         message = "Unsupported target enum class (%s). An enum entry cannot be constructed as a target.",
-        solution = "Specify a class, object, annotation class, or sealed interface as the target.",
+        solution = "Specify a class, object, or annotation class as the target.",
     ),
     PRIVATE_CONSTRUCTOR(
         message = "Unsupported target %s: its primary constructor is private and cannot be called from generated code.",

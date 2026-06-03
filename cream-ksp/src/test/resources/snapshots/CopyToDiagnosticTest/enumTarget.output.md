@@ -5,7 +5,7 @@ e: Error occurred in KSP, check log for detail
 e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/Test.kt:5: Invalid cream usage: Unsupported target enum class (diag.Color). An enum entry cannot be constructed as a target.
 
 Solution: 
-  Specify a class, object, annotation class, or sealed interface as the target.
+  Specify a class, object, or annotation class as the target.
 ```
 
 ## Input
