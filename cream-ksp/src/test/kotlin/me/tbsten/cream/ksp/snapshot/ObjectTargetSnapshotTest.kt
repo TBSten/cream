@@ -7,6 +7,7 @@ import io.kotest.matchers.shouldBe
 import me.tbsten.cream.ksp.testing.assertMatchesSnapshot
 import me.tbsten.cream.ksp.testing.compileWithCream
 import me.tbsten.cream.ksp.testing.generatedSourceText
+import me.tbsten.cream.ksp.testing.normalizedCompilerOutput
 
 private val combineToObjectSource: String =
     """
@@ -47,6 +48,31 @@ internal class ObjectTargetSnapshotTest :
             assertMatchesSnapshot("ObjectTargetSnapshotTest.combineToObject.notCopyToObject") {
                 "Generated" facetOf result.generatedSourceText()
                 "Input" facetOf combineToObjectSource
+            }
+        }
+
+        test("combineTo keeps a vararg ctor param on the target and gives it a default") {
+            val source =
+                """
+                package snap.objtarget.vararg
+
+                import me.tbsten.cream.CombineTo
+
+                @CombineTo(Target::class)
+                class Primary(val id: Int, vararg val tags: String)
+
+                class Other(val extra: String)
+
+                class Target(val id: Int, val extra: String, vararg val tags: String)
+                """.trimIndent()
+            val result = compileWithCream(source)
+
+            withClue("Compilation should succeed. Output:\n${result.normalizedCompilerOutput()}") {
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+            }
+            assertMatchesSnapshot("ObjectTargetSnapshotTest.combineToVararg") {
+                "Generated" facetOf result.generatedSourceText()
+                "Input" facetOf source
             }
         }
     })

@@ -76,7 +76,7 @@ private fun KSValueParameter.findSourcePropertyWithCopyMappingAnnotation(
         .getAllProperties()
         .firstOrNull {
             it.simpleName.asString() == sourcePropertyName &&
-                isTypeCompatible(this.type.resolve(), it.type.resolve())
+                this.matchesSourcePropertyType(it.type.resolve())
         }
 }
 
@@ -102,7 +102,7 @@ private fun KSValueParameter.findSourcePropertyWithCombineMappingAnnotation(
         .getAllProperties()
         .firstOrNull {
             it.simpleName.asString() == sourcePropertyName &&
-                isTypeCompatible(this.type.resolve(), it.type.resolve())
+                this.matchesSourcePropertyType(it.type.resolve())
         }
 }
 
@@ -135,7 +135,7 @@ private fun KSValueParameter.findSourcePropertyWithCopyToAnnotation(
 
             if (copyToPropertyAnnotation != null) {
                 parameterName in copyToPropertyAnnotation.propertyNames &&
-                    isTypeCompatible(this.type.resolve(), sourceProperty.type.resolve())
+                    this.matchesSourcePropertyType(sourceProperty.type.resolve())
             } else {
                 false
             }
@@ -170,7 +170,7 @@ private fun KSValueParameter.findSourcePropertyWithCombineToAnnotation(
 
             if (combineToPropertyAnnotation != null) {
                 parameterName in combineToPropertyAnnotation.propertyNames &&
-                    isTypeCompatible(this.type.resolve(), sourceProperty.type.resolve())
+                    this.matchesSourcePropertyType(sourceProperty.type.resolve())
             } else {
                 false
             }
@@ -194,7 +194,7 @@ private fun KSValueParameter.findSourcePropertyWithCombineFromAnnotationOnTarget
             .getAllProperties()
             .firstOrNull {
                 it.simpleName.asString() in sourcePropertyNames &&
-                    isTypeCompatible(this.type.resolve(), it.type.resolve())
+                    this.matchesSourcePropertyType(it.type.resolve())
             }
     }
 
@@ -235,7 +235,7 @@ private fun KSValueParameter.findSourcePropertyWithCombineFromAnnotationOnSource
 
             if (combineFromPropertyAnnotation != null) {
                 parameterName in combineFromPropertyAnnotation.propertyNames &&
-                    isTypeCompatible(this.type.resolve(), sourceProperty.type.resolve())
+                    this.matchesSourcePropertyType(sourceProperty.type.resolve())
             } else {
                 false
             }
@@ -254,7 +254,7 @@ private fun KSValueParameter.findSourcePropertyWithCopyFromAnnotation(source: KS
             .getAllProperties()
             .firstOrNull {
                 it.simpleName.asString() in sourcePropertyNames &&
-                    isTypeCompatible(this.type.resolve(), it.type.resolve())
+                    this.matchesSourcePropertyType(it.type.resolve())
             }
     }
 
@@ -269,8 +269,72 @@ private fun KSValueParameter.findSourcePropertyByName(
         .getAllProperties()
         .firstOrNull {
             it.simpleName.asString() == parameterName &&
-                isTypeCompatible(this.type.resolve(), it.type.resolve())
+                this.matchesSourcePropertyType(it.type.resolve())
         }
+
+/**
+ * Element qualified name -> the primitive array qualified name a non-null primitive `vararg`
+ * exposes. A `vararg nums: Int` property is an `IntArray` (not `Array<Int>`), so a source
+ * property matching it must be that exact primitive array. Nullable primitives box to
+ * `Array<out E?>` and are handled via the [kotlin.Array] branch instead.
+ */
+private val primitiveArrayByElement =
+    mapOf(
+        "kotlin.Int" to "kotlin.IntArray",
+        "kotlin.Long" to "kotlin.LongArray",
+        "kotlin.Short" to "kotlin.ShortArray",
+        "kotlin.Byte" to "kotlin.ByteArray",
+        "kotlin.Char" to "kotlin.CharArray",
+        "kotlin.Boolean" to "kotlin.BooleanArray",
+        "kotlin.Float" to "kotlin.FloatArray",
+        "kotlin.Double" to "kotlin.DoubleArray",
+        "kotlin.UInt" to "kotlin.UIntArray",
+        "kotlin.ULong" to "kotlin.ULongArray",
+        "kotlin.UShort" to "kotlin.UShortArray",
+        "kotlin.UByte" to "kotlin.UByteArray",
+    )
+
+/**
+ * Compatibility check between this target constructor parameter and a candidate source
+ * property's type, accounting for `vararg`.
+ *
+ * For a non-`vararg` parameter this is the plain [isTypeCompatible] element comparison.
+ * For a `vararg` parameter, `this.type.resolve()` is the ELEMENT type but the property the
+ * source exposes is an ARRAY, so the element type must be lifted to the corresponding array
+ * type before comparing:
+ * - non-null primitive element -> source must be the matching primitive array (e.g. `IntArray`)
+ * - object element (or nullable primitive, which boxes to `Array<out E?>`) -> source must be
+ *   `kotlin.Array<out E'>` whose element `E'` is compatible with `E`.
+ */
+private fun KSValueParameter.matchesSourcePropertyType(sourceType: KSType): Boolean {
+    val targetElementType = this.type.resolve()
+    if (!this.isVararg) return isTypeCompatible(targetElementType, sourceType)
+
+    // A vararg parameter is backed by a NON-NULL array (`Array<out E>` / `IntArray`), so a
+    // nullable source array cannot supply its `= this.x` default without a type error. Reject it
+    // here; the parameter then becomes a required vararg, which compiles.
+    if (sourceType.isMarkedNullable) return false
+
+    val sourceName = sourceType.declaration.qualifiedName?.asString()
+    val targetElementName = targetElementType.declaration.qualifiedName?.asString()
+
+    if (!targetElementType.isMarkedNullable) {
+        val expectedArrayName = targetElementName?.let { primitiveArrayByElement[it] }
+        if (expectedArrayName != null) return sourceName == expectedArrayName
+    }
+
+    if (sourceName == "kotlin.Array") {
+        val sourceElementType =
+            sourceType.arguments
+                .firstOrNull()
+                ?.type
+                ?.resolve()
+                ?: return false
+        return isTypeCompatible(targetElementType, sourceElementType)
+    }
+
+    return false
+}
 
 /**
  * Check if two types are compatible for property matching.
