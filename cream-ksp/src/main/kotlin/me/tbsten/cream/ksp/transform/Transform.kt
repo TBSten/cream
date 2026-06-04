@@ -163,12 +163,34 @@ internal fun BufferedWriter.appendCombineToFunction(
                 )
             }
 
-        else -> throw InvalidCreamUsageException(
+        // A combine target must be constructable (class / annotation class / object). Interfaces and
+        // enums cannot be built, so reject them — branches are listed explicitly (no `else`) so a new
+        // ClassKind forces a compile-time decision here.
+        ClassKind.INTERFACE,
+        ClassKind.ENUM_CLASS,
+        ClassKind.ENUM_ENTRY,
+        -> logger.reportUnsupportedCombineTarget(target)
+    }
+}
+
+/**
+ * Report a [target] whose [ClassKind] cannot be a `@CombineTo` / `@CombineFrom` / `@CombineMapping`
+ * target. Mirrors [reportRejection]: a clean positioned `COMPILATION_ERROR` via [KSPLogger.error]
+ * when a logger is available (leaving no partial generated file), falling back to a `throw` (an
+ * `INTERNAL_ERROR`) only when no logger was threaded, so the misuse is never silently dropped.
+ */
+private fun KSPLogger?.reportUnsupportedCombineTarget(target: KSClassDeclaration) {
+    val exception =
+        InvalidCreamUsageException(
             message =
                 "Unsupported combine to ${
                     target.classKind.name.lowercase().replace("_", " ")
                 } (${target.fullName}).",
             solution = "Please make ${target.fullName} a class or object.",
         )
+    if (this != null) {
+        error(exception.message.orEmpty(), target)
+    } else {
+        throw exception
     }
 }

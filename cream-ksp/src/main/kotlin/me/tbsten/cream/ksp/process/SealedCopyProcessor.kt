@@ -33,21 +33,29 @@ internal fun CreamSymbolProcessor.processSealedCopy(resolver: Resolver): List<KS
 
     sealedCopyTargets.forEach { annotated ->
         if (annotated !is KSClassDeclaration) {
-            throw InvalidCreamUsageException(
-                message = "@${SealedCopy::class.simpleName} must be applied to a sealed class/interface.",
-                solution = "Please apply @${SealedCopy::class.simpleName} to a `sealed class` or `sealed interface`.",
+            logger.reportCreamError(
+                InvalidCreamUsageException(
+                    message = "@${SealedCopy::class.simpleName} must be applied to a sealed class/interface.",
+                    solution = "Please apply @${SealedCopy::class.simpleName} to a `sealed class` or `sealed interface`.",
+                ),
+                annotated,
             )
+            return@forEach
         }
         if (!annotated.isSealed()) {
             // Avoid `fullName`, which throws UnknownCreamException when qualifiedName is null
             // (e.g. local/anonymous declarations) and would mask this InvalidCreamUsageException.
             val displayName = annotated.qualifiedName?.asString() ?: annotated.simpleName.asString()
-            throw InvalidCreamUsageException(
-                message =
-                    "@${SealedCopy::class.simpleName} must be applied to a sealed class/interface, " +
-                        "but $displayName is not sealed.",
-                solution = "Make $displayName a `sealed class` or `sealed interface`.",
+            logger.reportCreamError(
+                InvalidCreamUsageException(
+                    message =
+                        "@${SealedCopy::class.simpleName} must be applied to a sealed class/interface, " +
+                            "but $displayName is not sealed.",
+                    solution = "Make $displayName a `sealed class` or `sealed interface`.",
+                ),
+                annotated,
             )
+            return@forEach
         }
 
         // Read directly from KSAnnotation rather than via getAnnotationsByType:
@@ -90,17 +98,21 @@ internal fun CreamSymbolProcessor.processSealedCopy(resolver: Resolver): List<KS
                 ?.key
         if (duplicateFunName != null) {
             val displayName = annotated.qualifiedName?.asString() ?: annotated.simpleName.asString()
-            throw InvalidCreamUsageException(
-                message =
-                    lines(
-                        "@${SealedCopy::class.simpleName} on $displayName generates more than one function named \"$duplicateFunName\".",
-                        "Stacked @${SealedCopy::class.simpleName} annotations are written to one file, so each must produce a distinct name.",
-                    ),
-                solution =
-                    lines(
-                        "Give each @${SealedCopy::class.simpleName} a distinct funName, e.g. funName = \"copyOrNull\".",
-                    ),
+            logger.reportCreamError(
+                InvalidCreamUsageException(
+                    message =
+                        lines(
+                            "@${SealedCopy::class.simpleName} on $displayName generates more than one function named \"$duplicateFunName\".",
+                            "Stacked @${SealedCopy::class.simpleName} annotations are written to one file, so each must produce a distinct name.",
+                        ),
+                    solution =
+                        lines(
+                            "Give each @${SealedCopy::class.simpleName} a distinct funName, e.g. funName = \"copyOrNull\".",
+                        ),
+                ),
+                annotated,
             )
+            return@forEach
         }
 
         // Warn for @SealedCopy.Exclude on non-abstract properties (no-op: they are not in copy())
@@ -152,6 +164,7 @@ internal fun CreamSymbolProcessor.processSealedCopy(resolver: Resolver): List<KS
                                 kdocExamples = kdocExamples,
                             ),
                         visibility = visibility,
+                        logger = logger,
                     )
                 }
             }

@@ -1,6 +1,7 @@
 package me.tbsten.cream.ksp.transform
 
 import com.google.devtools.ksp.isAbstract
+import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
@@ -34,6 +35,7 @@ internal fun BufferedWriter.appendSealedCopyFunction(
     omitPackages: List<String>,
     generateSourceAnnotation: GenerateSourceAnnotation.SealedCopy,
     visibility: CopyVisibility = CopyVisibility.INHERIT,
+    logger: KSPLogger? = null,
 ) {
     val abstractProperties = sealedClass.collectAbstractProperties()
     val classifiedLeaves =
@@ -44,7 +46,17 @@ internal fun BufferedWriter.appendSealedCopyFunction(
     val nonCopyableLeaves = classifiedLeaves.filterIsInstance<SealedCopyLeaf.NonCopyable>()
 
     if (nonCopyableStrategy == NonCopyableStrategy.ERROR && nonCopyableLeaves.isNotEmpty()) {
-        throw nonCopyableErrorException(sealedClass, nonCopyableLeaves, funName)
+        val exception = nonCopyableErrorException(sealedClass, nonCopyableLeaves, funName)
+        // Report a clean positioned COMPILATION_ERROR and emit nothing for this function so the
+        // transactional writer leaves no partial file behind. The `null` branch fails closed: a
+        // future caller without a logger still surfaces the misuse (as an INTERNAL_ERROR) rather
+        // than silently dropping it.
+        if (logger != null) {
+            logger.error(exception.message.orEmpty(), sealedClass)
+            return
+        } else {
+            throw exception
+        }
     }
 
     val nullable = nonCopyableStrategy == NonCopyableStrategy.RETURN_NULL && nonCopyableLeaves.isNotEmpty()

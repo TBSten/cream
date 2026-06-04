@@ -29,7 +29,7 @@ import me.tbsten.cream.ksp.util.extractPropertyMappings
 import me.tbsten.cream.ksp.util.fullName
 import me.tbsten.cream.ksp.util.funNameTemplate
 import me.tbsten.cream.ksp.util.isSealed
-import me.tbsten.cream.ksp.util.requireClassDeclaration
+import me.tbsten.cream.ksp.util.resolveClassDeclarationOrReport
 import me.tbsten.cream.ksp.util.resolveToClassDeclaration
 import me.tbsten.cream.ksp.util.underPackageName
 
@@ -63,25 +63,40 @@ internal fun CreamSymbolProcessor.processCombineTo(resolver: Resolver): List<KSA
     combineToTargets.forEach { target ->
         val sourceDeclaration =
             target as? KSDeclaration
-                ?: throw InvalidCreamUsageException(
-                    message = "@${CombineTo::class.simpleName} must be applied to a class, interface, or typealias.",
-                    solution = "Please apply @${CombineTo::class.simpleName} to `class`, `interface`, or `typealias`",
-                )
-        val sourceClass = sourceDeclaration.requireClassDeclaration(annotationName = CombineTo::class.simpleName!!)
+                ?: run {
+                    logger.reportCreamError(
+                        InvalidCreamUsageException(
+                            message = "@${CombineTo::class.simpleName} must be applied to a class, interface, or typealias.",
+                            solution = "Please apply @${CombineTo::class.simpleName} to `class`, `interface`, or `typealias`",
+                        ),
+                        target,
+                    )
+                    return@forEach
+                }
+        val sourceClass =
+            sourceDeclaration.resolveClassDeclarationOrReport(
+                annotationName = CombineTo::class.simpleName!!,
+                logger = logger,
+            ) ?: return@forEach
 
         val combineToAnnotations = target.annotationsOf(CombineTo::class)
 
-        // CombineTo.targets: List<KClass<*>>
-        val targetClasses =
+        // CombineTo.targets: List<KClass<*>>. If any target cannot be resolved to a class, an error
+        // has been reported and we skip this source so no partial file is emitted.
+        val resolvedTargets =
             combineToAnnotations
                 .classListArgument("targets")
                 .map { it.declaration }
                 .map { declaration ->
-                    declaration.requireClassDeclaration(
+                    declaration.resolveClassDeclarationOrReport(
                         annotationName = CombineTo::class.simpleName!!,
+                        logger = logger,
                         context = "Specified in @${CombineTo::class.simpleName}.targets of ${target.fullName}",
+                        ksNode = sourceDeclaration,
                     )
                 }.toList()
+        if (resolvedTargets.any { it == null }) return@forEach
+        val targetClasses = resolvedTargets.filterNotNull()
 
         // @CombineTo is NOT @Repeatable: it lists its targets in a single `vararg targets`. Listing
         // the same target twice (`@CombineTo(Foo::class, Foo::class)`) is an unambiguous user
@@ -117,12 +132,16 @@ internal fun CreamSymbolProcessor.processCombineTo(resolver: Resolver): List<KSA
         val funNameTemplate =
             combineToAnnotations.firstOrNull()?.funNameTemplate() ?: DefaultCopyFunctionName
 
-        requireFunNameSupportsFanout(
-            funNameTemplate = funNameTemplate,
-            generatesMultipleFunctions = targetClasses.size > 1,
-            annotationSimpleName = CombineTo::class.simpleName!!,
-            declarationFullName = sourceClass.fullName,
-        )
+        val funNameOk =
+            requireFunNameSupportsFanout(
+                funNameTemplate = funNameTemplate,
+                generatesMultipleFunctions = targetClasses.size > 1,
+                annotationSimpleName = CombineTo::class.simpleName!!,
+                declarationFullName = sourceClass.fullName,
+                logger = logger,
+                ksNode = sourceDeclaration,
+            )
+        if (!funNameOk) return@forEach
 
         // Warn ONCE per source for @CombineTo.Exclude properties that match no parameter in ANY of
         // this source's target classes. Computed here (per source, union of all targets) rather than

@@ -1,6 +1,8 @@
 package me.tbsten.cream.ksp.transform
 
+import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSNode
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.options.ClassDeclarationInfo
 import me.tbsten.cream.ksp.options.CreamOptions
@@ -68,20 +70,15 @@ internal fun resolveSealedCopyFunName(
 }
 
 /**
- * Fail the build when [funNameTemplate] is a plain literal (contains no naming token) yet the
- * annotation generates more than one function: the functions would all share that one name
- * and collide. A template containing any token is fine because each generated function then
- * derives a distinct name from its own target.
+ * Build the [InvalidCreamUsageException] reported when a plain-literal [funNameTemplate] would
+ * fan out to more than one identically named function. Single source of truth for the message.
  */
-internal fun requireFunNameSupportsFanout(
+private fun fixedFunNameFanoutException(
     funNameTemplate: String,
-    generatesMultipleFunctions: Boolean,
     annotationSimpleName: String,
     declarationFullName: String,
-) {
-    if (!generatesMultipleFunctions) return
-    if (containsAnyCopyFunNameToken(funNameTemplate)) return
-    throw InvalidCreamUsageException(
+): InvalidCreamUsageException =
+    InvalidCreamUsageException(
         message =
             lines(
                 "@$annotationSimpleName on $declarationFullName sets a fixed funName \"$funNameTemplate\",",
@@ -95,4 +92,30 @@ internal fun requireFunNameSupportsFanout(
                 "or split the declaration into separate annotations.",
             ),
     )
+
+/**
+ * Reject (with a clean positioned `COMPILATION_ERROR` via [KSPLogger.error] anchored at [ksNode])
+ * a [funNameTemplate] that is a plain literal (contains no naming token) yet generates more than
+ * one function: the functions would all share that one name and collide. A template containing any
+ * token is fine because each generated function then derives a distinct name from its own target.
+ *
+ * @return `true` when the funName is acceptable (caller proceeds); `false` when it was rejected and
+ * an error has already been reported (caller must skip the offending unit so no partial file is
+ * emitted).
+ */
+internal fun requireFunNameSupportsFanout(
+    funNameTemplate: String,
+    generatesMultipleFunctions: Boolean,
+    annotationSimpleName: String,
+    declarationFullName: String,
+    logger: KSPLogger,
+    ksNode: KSNode?,
+): Boolean {
+    if (!generatesMultipleFunctions) return true
+    if (containsAnyCopyFunNameToken(funNameTemplate)) return true
+    logger.error(
+        fixedFunNameFanoutException(funNameTemplate, annotationSimpleName, declarationFullName).message.orEmpty(),
+        ksNode,
+    )
+    return false
 }
