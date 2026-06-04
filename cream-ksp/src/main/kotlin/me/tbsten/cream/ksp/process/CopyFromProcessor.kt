@@ -28,8 +28,7 @@ import me.tbsten.cream.ksp.util.extractPropertyMappings
 import me.tbsten.cream.ksp.util.fullName
 import me.tbsten.cream.ksp.util.funNameTemplate
 import me.tbsten.cream.ksp.util.isSealed
-import me.tbsten.cream.ksp.util.requireClassDeclaration
-import me.tbsten.cream.ksp.util.resolveToClassDeclaration
+import me.tbsten.cream.ksp.util.resolveClassDeclarationOrReport
 import me.tbsten.cream.ksp.util.underPackageName
 
 internal fun CreamSymbolProcessor.processCopyFrom(resolver: Resolver): List<KSAnnotated> {
@@ -42,25 +41,40 @@ internal fun CreamSymbolProcessor.processCopyFrom(resolver: Resolver): List<KSAn
     copyFromTargets.forEach { target ->
         val targetDeclaration =
             target as? KSDeclaration
-                ?: throw InvalidCreamUsageException(
-                    message = "@${CopyFrom::class.simpleName} must be applied to a class, interface, or typealias.",
-                    solution = "Please apply @${CopyFrom::class.simpleName} to `class`, `interface`, or `typealias`",
-                )
-        val targetClass = targetDeclaration.requireClassDeclaration(annotationName = CopyFrom::class.simpleName!!)
+                ?: run {
+                    logger.reportCreamError(
+                        InvalidCreamUsageException(
+                            message = "@${CopyFrom::class.simpleName} must be applied to a class, interface, or typealias.",
+                            solution = "Please apply @${CopyFrom::class.simpleName} to `class`, `interface`, or `typealias`",
+                        ),
+                        target,
+                    )
+                    return@forEach
+                }
+        val targetClass =
+            targetDeclaration.resolveClassDeclarationOrReport(
+                annotationName = CopyFrom::class.simpleName!!,
+                logger = logger,
+            ) ?: return@forEach
 
         val copyFromAnnotations = target.annotationsOf(CopyFrom::class)
 
-        // CopyFrom.sources: List<KClass<*>>
-        val sourceClasses =
+        // CopyFrom.sources: List<KClass<*>>. If any source cannot be resolved to a class, an error
+        // has been reported and we skip this target so no partial file is emitted.
+        val resolvedSources =
             copyFromAnnotations
                 .classListArgument("sources")
                 .map { it.declaration }
                 .map { declaration ->
-                    declaration.requireClassDeclaration(
+                    declaration.resolveClassDeclarationOrReport(
                         annotationName = CopyFrom::class.simpleName!!,
+                        logger = logger,
                         context = "Specified in @${CopyFrom::class.simpleName}.sources of ${target.fullName}",
+                        ksNode = targetDeclaration,
                     )
                 }.toList()
+        if (resolvedSources.any { it == null }) return@forEach
+        val sourceClasses = resolvedSources.filterNotNull()
 
         val (kdocDescription, kdocExamples) =
             copyFromAnnotations.firstOrNull()?.extractKDoc() ?: ("" to emptyList())
@@ -71,12 +85,16 @@ internal fun CreamSymbolProcessor.processCopyFrom(resolver: Resolver): List<KSAn
         val funNameTemplate =
             copyFromAnnotations.firstOrNull()?.funNameTemplate() ?: DefaultCopyFunctionName
 
-        requireFunNameSupportsFanout(
-            funNameTemplate = funNameTemplate,
-            generatesMultipleFunctions = sourceClasses.size > 1 || targetClass.isSealed(),
-            annotationSimpleName = CopyFrom::class.simpleName!!,
-            declarationFullName = targetClass.fullName,
-        )
+        val funNameOk =
+            requireFunNameSupportsFanout(
+                funNameTemplate = funNameTemplate,
+                generatesMultipleFunctions = sourceClasses.size > 1 || targetClass.isSealed(),
+                annotationSimpleName = CopyFrom::class.simpleName!!,
+                declarationFullName = targetClass.fullName,
+                logger = logger,
+                ksNode = targetDeclaration,
+            )
+        if (!funNameOk) return@forEach
 
         codeGenerator
             .createNewKotlinFile(

@@ -29,8 +29,7 @@ import me.tbsten.cream.ksp.util.fullName
 import me.tbsten.cream.ksp.util.funNameTemplate
 import me.tbsten.cream.ksp.util.isSealed
 import me.tbsten.cream.ksp.util.lines
-import me.tbsten.cream.ksp.util.requireClassDeclaration
-import me.tbsten.cream.ksp.util.resolveToClassDeclaration
+import me.tbsten.cream.ksp.util.resolveClassDeclarationOrReport
 import me.tbsten.cream.ksp.util.underPackageName
 
 internal fun CreamSymbolProcessor.processCombineFrom(resolver: Resolver): List<KSAnnotated> {
@@ -43,11 +42,21 @@ internal fun CreamSymbolProcessor.processCombineFrom(resolver: Resolver): List<K
     combineFromTargets.forEach { target ->
         val targetDeclaration =
             target as? KSDeclaration
-                ?: throw InvalidCreamUsageException(
-                    message = "@${CombineFrom::class.simpleName} must be applied to a class, interface, or typealias.",
-                    solution = "Please apply @${CombineFrom::class.simpleName} to `class`, `interface`, or `typealias`",
-                )
-        val targetClass = targetDeclaration.requireClassDeclaration(annotationName = CombineFrom::class.simpleName!!)
+                ?: run {
+                    logger.reportCreamError(
+                        InvalidCreamUsageException(
+                            message = "@${CombineFrom::class.simpleName} must be applied to a class, interface, or typealias.",
+                            solution = "Please apply @${CombineFrom::class.simpleName} to `class`, `interface`, or `typealias`",
+                        ),
+                        target,
+                    )
+                    return@forEach
+                }
+        val targetClass =
+            targetDeclaration.resolveClassDeclarationOrReport(
+                annotationName = CombineFrom::class.simpleName!!,
+                logger = logger,
+            ) ?: return@forEach
 
         val combineFromAnnotations = target.annotationsOf(CombineFrom::class)
 
@@ -56,24 +65,31 @@ internal fun CreamSymbolProcessor.processCombineFrom(resolver: Resolver): List<K
         // class across occurrences) is an idempotent re-declaration, so dedupe the collected
         // sources: keeping a duplicate would emit a function with two identically named parameters
         // ("Conflicting declarations") and re-list the same source in KDoc (issue #101).
-        val sourceClasses =
+        val resolvedSources =
             combineFromAnnotations
                 .classListArgument("sources")
                 .map { it.declaration }
                 .map { declaration ->
-                    declaration.requireClassDeclaration(
+                    declaration.resolveClassDeclarationOrReport(
                         annotationName = CombineFrom::class.simpleName!!,
+                        logger = logger,
                         context = "Specified in @${CombineFrom::class.simpleName}.sources of ${target.fullName}",
+                        ksNode = targetDeclaration,
                     )
-                }.distinct()
-                .toList()
+                }.toList()
+        if (resolvedSources.any { it == null }) return@forEach
+        val sourceClasses = resolvedSources.filterNotNull().distinct()
 
         // Need at least one source class
         if (sourceClasses.isEmpty()) {
-            throw InvalidCreamUsageException(
-                message = "@${CombineFrom::class.simpleName} requires at least one source class.",
-                solution = "Specify at least one source class in @${CombineFrom::class.simpleName}.sources of ${target.fullName}.",
+            logger.reportCreamError(
+                InvalidCreamUsageException(
+                    message = "@${CombineFrom::class.simpleName} requires at least one source class.",
+                    solution = "Specify at least one source class in @${CombineFrom::class.simpleName}.sources of ${target.fullName}.",
+                ),
+                targetDeclaration,
             )
+            return@forEach
         }
 
         // First source class is the primary source (extension function receiver)
@@ -105,18 +121,22 @@ internal fun CreamSymbolProcessor.processCombineFrom(resolver: Resolver): List<K
                 .map { resolveFunName(it, primarySource, targetClass, options) }
                 .distinct()
         if (explicitFunNames.size > 1) {
-            throw InvalidCreamUsageException(
-                message =
-                    lines(
-                        "@${CombineFrom::class.simpleName} on ${targetClass.fullName} is repeated with conflicting funName values:",
-                        explicitFunNames.joinToString(", ") { "\"$it\"" },
-                        "Stacked @${CombineFrom::class.simpleName} annotations are merged into a single generated function, so funName must be unambiguous.",
-                    ),
-                solution =
-                    lines(
-                        "Set the same funName on every @${CombineFrom::class.simpleName} of ${targetClass.fullName}, or set it on only one.",
-                    ),
+            logger.reportCreamError(
+                InvalidCreamUsageException(
+                    message =
+                        lines(
+                            "@${CombineFrom::class.simpleName} on ${targetClass.fullName} is repeated with conflicting funName values:",
+                            explicitFunNames.joinToString(", ") { "\"$it\"" },
+                            "Stacked @${CombineFrom::class.simpleName} annotations are merged into a single generated function, so funName must be unambiguous.",
+                        ),
+                    solution =
+                        lines(
+                            "Set the same funName on every @${CombineFrom::class.simpleName} of ${targetClass.fullName}, or set it on only one.",
+                        ),
+                ),
+                targetDeclaration,
             )
+            return@forEach
         }
         val funNameTemplate = explicitFunNameTemplates.firstOrNull() ?: DefaultCopyFunctionName
 
