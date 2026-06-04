@@ -394,7 +394,9 @@ val successState: SuccessState = loadingState.copyToSuccessState(
 )
 ```
 
-複数のソースクラスに同じプロパティ名がある場合、**後に宣言されたソースクラス** の値が優先されます。
+複数のソースクラスに同じプロパティ名がある場合、**(receiver ではなく) 引数として渡したソースクラスの値が
+優先** されます。生成される関数は primary source を receiver とする拡張関数で、他のソースは引数として渡される
+ため、重複するプロパティでは receiver よりも後に並ぶ引数側のソースが優先されます。
 
 ### CombineFrom
 
