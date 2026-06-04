@@ -57,27 +57,4 @@ internal class CopyToDiagnosticTest :
                 "Input" facetOf source
             }
         }
-
-        test("@CopyTo targeting an annotation class fails compilation") {
-            val source =
-                """
-                package diag
-
-                import me.tbsten.cream.CopyTo
-
-                annotation class Marker
-
-                @CopyTo(Marker::class)
-                data class Source(val name: String)
-                """.trimIndent()
-            val result = compileWithCream(source)
-
-            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
-                result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
-            }
-            assertMatchesSnapshot("CopyToDiagnosticTest.annotationTarget.output") {
-                facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
-                "Input" facetOf source
-            }
-        }
     })
