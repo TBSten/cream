@@ -1,17 +1,11 @@
 ## Compiler output
 
 ```text
-Invalid cream usage: Unsupported copy to enum class (diag.Color).
+e: Error occurred in KSP, check log for detail
+e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/Test.kt:5: Invalid cream usage: Unsupported target enum class (diag.Color). An enum entry cannot be constructed as a target.
 
 Solution: 
-  Please make diag.Color a class or object or sealed interface.
-
-me.tbsten.cream.ksp.InvalidCreamUsageException: Invalid cream usage: Unsupported copy to enum class (diag.Color).
-
-Solution: 
-  Please make diag.Color a class or object or sealed interface.
-
-	<stack trace omitted>
+  Specify a class, object, annotation class, or sealed interface as the target.
 ```
 
 ## Input

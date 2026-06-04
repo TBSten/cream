@@ -3,7 +3,7 @@ package me.tbsten.cream.ksp.diagnostic
 import com.tschuchort.compiletesting.KotlinCompilation
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.shouldBe
 import me.tbsten.cream.ksp.testing.assertMatchesSnapshot
 import me.tbsten.cream.ksp.testing.compileWithCream
 import me.tbsten.cream.ksp.testing.normalizedCompilerOutput
@@ -25,7 +25,7 @@ internal class CopyToDiagnosticTest :
             val result = compileWithCream(source)
 
             withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
-                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+                result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
             }
             assertMatchesSnapshot("CopyToDiagnosticTest.enumTarget.output") {
                 facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
@@ -50,7 +50,7 @@ internal class CopyToDiagnosticTest :
             val result = compileWithCream(source)
 
             withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
-                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+                result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
             }
             assertMatchesSnapshot("CopyToDiagnosticTest.nonSealedInterface.output") {
                 facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
@@ -73,7 +73,7 @@ internal class CopyToDiagnosticTest :
             val result = compileWithCream(source)
 
             withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
-                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+                result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
             }
             assertMatchesSnapshot("CopyToDiagnosticTest.annotationTarget.output") {
                 facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
