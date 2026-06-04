@@ -27,7 +27,6 @@ import me.tbsten.cream.ksp.util.fullName
 import me.tbsten.cream.ksp.util.funNameTemplate
 import me.tbsten.cream.ksp.util.isSealed
 import me.tbsten.cream.ksp.util.requireClassDeclaration
-import me.tbsten.cream.ksp.util.resolveToClassDeclaration
 import me.tbsten.cream.ksp.util.underPackageName
 
 /**
@@ -97,18 +96,16 @@ internal fun CreamSymbolProcessor.processCopyMapping(resolver: Resolver): List<K
                     val propertyMaps = annotation.extractPropertyMappings()
 
                     val sourceClass =
-                        sourceType.declaration as? KSClassDeclaration
-                            ?: throw InvalidCreamUsageException(
-                                message = "${sourceType.declaration.fullName} (Specified in @${CopyMapping::class.simpleName}.source) must be a class.",
-                                solution = "Specify a class in @${CopyMapping::class.simpleName}.source",
-                            )
+                        sourceType.declaration.requireClassDeclaration(
+                            annotationName = CopyMapping::class.simpleName!!,
+                            context = "Specified in @${CopyMapping::class.simpleName}.source",
+                        )
 
                     val targetClass =
-                        targetType.declaration as? KSClassDeclaration
-                            ?: throw InvalidCreamUsageException(
-                                message = "${targetType.declaration.fullName} (Specified in @${CopyMapping::class.simpleName}.target) must be a class.",
-                                solution = "Specify a class in @${CopyMapping::class.simpleName}.target",
-                            )
+                        targetType.declaration.requireClassDeclaration(
+                            annotationName = CopyMapping::class.simpleName!!,
+                            context = "Specified in @${CopyMapping::class.simpleName}.target",
+                        )
 
                     val (kdocDescription, kdocExamples) = annotation.extractKDoc()
 
