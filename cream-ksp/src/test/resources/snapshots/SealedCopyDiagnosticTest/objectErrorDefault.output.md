@@ -1,7 +1,8 @@
 ## Compiler output
 
 ```text
-Invalid cream usage: Cannot generate copy() for sealed type 'MyState' because it contains object subtype(s): MyState.Empty. Objects are singletons and have no .copy() to delegate to.
+e: Error occurred in KSP, check log for detail
+e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/Test.kt:6: Invalid cream usage: Cannot generate copy() for sealed type 'MyState' because it contains object subtype(s): MyState.Empty. Objects are singletons and have no .copy() to delegate to.
 
 Solution: 
   Choose one of the following strategies on @SealedCopy:
@@ -9,19 +10,6 @@ Solution:
       → emits 'is X -> this' for non-copyable branches
     • @SealedCopy(nonCopyableStrategy = RETURN_NULL)
       → widens the return type to 'MyState?' and emits 'is X -> null'
-  
-
-me.tbsten.cream.ksp.InvalidCreamUsageException: Invalid cream usage: Cannot generate copy() for sealed type 'MyState' because it contains object subtype(s): MyState.Empty. Objects are singletons and have no .copy() to delegate to.
-
-Solution: 
-  Choose one of the following strategies on @SealedCopy:
-    • @SealedCopy(nonCopyableStrategy = RETURN_AS_IS)
-      → emits 'is X -> this' for non-copyable branches
-    • @SealedCopy(nonCopyableStrategy = RETURN_NULL)
-      → widens the return type to 'MyState?' and emits 'is X -> null'
-  
-
-	<stack trace omitted>
 ```
 
 ## Input

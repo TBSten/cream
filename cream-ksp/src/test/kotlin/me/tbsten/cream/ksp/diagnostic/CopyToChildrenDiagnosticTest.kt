@@ -1,14 +1,20 @@
 package me.tbsten.cream.ksp.diagnostic
 
 import com.tschuchort.compiletesting.KotlinCompilation
+import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import me.tbsten.cream.ksp.testing.assertMatchesSnapshot
 import me.tbsten.cream.ksp.testing.compileWithCream
 import me.tbsten.cream.ksp.testing.normalizedCompilerOutput
 
+/**
+ * `@CopyToChildren` must be applied to a sealed class/interface. Applying it to anything else is a
+ * clean, positioned `COMPILATION_ERROR` (via `logger.error`), never a KSP `INTERNAL_ERROR`, and no
+ * partial / empty generated file is left behind.
+ */
 internal class CopyToChildrenDiagnosticTest :
     FunSpec({
         test("non-sealed class with @CopyToChildren fails compilation") {
@@ -23,8 +29,11 @@ internal class CopyToChildrenDiagnosticTest :
                 """.trimIndent()
             val result = compileWithCream(source)
 
-            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
-                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+            assertSoftly {
+                withClue("Output:\n${result.normalizedCompilerOutput()}") {
+                    result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
+                }
+                result.generatedSources().shouldBeEmpty()
             }
             assertMatchesSnapshot("CopyToChildrenDiagnosticTest.nonSealedClass.output") {
                 facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
@@ -44,8 +53,11 @@ internal class CopyToChildrenDiagnosticTest :
                 """.trimIndent()
             val result = compileWithCream(source)
 
-            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
-                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+            assertSoftly {
+                withClue("Output:\n${result.normalizedCompilerOutput()}") {
+                    result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
+                }
+                result.generatedSources().shouldBeEmpty()
             }
             assertMatchesSnapshot("CopyToChildrenDiagnosticTest.dataClass.output") {
                 facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
