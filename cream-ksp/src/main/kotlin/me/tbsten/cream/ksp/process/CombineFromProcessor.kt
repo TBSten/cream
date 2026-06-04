@@ -51,6 +51,11 @@ internal fun CreamSymbolProcessor.processCombineFrom(resolver: Resolver): List<K
 
         val combineFromAnnotations = target.annotationsOf(CombineFrom::class)
 
+        // @CombineFrom is @Repeatable; the sources of every occurrence are flattened into one
+        // merged copy function. Stacking it twice with the same source set (or simply repeating a
+        // class across occurrences) is an idempotent re-declaration, so dedupe the collected
+        // sources: keeping a duplicate would emit a function with two identically named parameters
+        // ("Conflicting declarations") and re-list the same source in KDoc (issue #101).
         val sourceClasses =
             combineFromAnnotations
                 .classListArgument("sources")
@@ -60,7 +65,8 @@ internal fun CreamSymbolProcessor.processCombineFrom(resolver: Resolver): List<K
                         annotationName = CombineFrom::class.simpleName!!,
                         context = "Specified in @${CombineFrom::class.simpleName}.sources of ${target.fullName}",
                     )
-                }.toList()
+                }.distinct()
+                .toList()
 
         // Need at least one source class
         if (sourceClasses.isEmpty()) {
