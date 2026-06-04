@@ -1,14 +1,20 @@
 package me.tbsten.cream.ksp.diagnostic
 
 import com.tschuchort.compiletesting.KotlinCompilation
+import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.shouldNotBe
 import me.tbsten.cream.ksp.testing.assertMatchesSnapshot
 import me.tbsten.cream.ksp.testing.compileWithCream
 import me.tbsten.cream.ksp.testing.normalizedCompilerOutput
 
+/**
+ * An invalid KSP option value (a build-script mistake) must surface as a clean `COMPILATION_ERROR`
+ * (via `logger.error`), never as a KSP `INTERNAL_ERROR`. The option has no source location, so the
+ * diagnostic carries no `file:line`; processing is skipped entirely, so nothing is generated.
+ */
 internal class OptionsDiagnosticTest :
     FunSpec({
         val validSource: String =
@@ -30,8 +36,11 @@ internal class OptionsDiagnosticTest :
                     options = mapOf("cream.copyFunNamingStrategy" to "not-a-strategy"),
                 )
 
-            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
-                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+            assertSoftly {
+                withClue("Output:\n${result.normalizedCompilerOutput()}") {
+                    result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
+                }
+                result.generatedSources().shouldBeEmpty()
             }
             assertMatchesSnapshot("OptionsDiagnosticTest.invalidCopyFunNamingStrategy.output") {
                 facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
@@ -46,8 +55,11 @@ internal class OptionsDiagnosticTest :
                     options = mapOf("cream.escapeDot" to "not-an-escape"),
                 )
 
-            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
-                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+            assertSoftly {
+                withClue("Output:\n${result.normalizedCompilerOutput()}") {
+                    result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
+                }
+                result.generatedSources().shouldBeEmpty()
             }
             assertMatchesSnapshot("OptionsDiagnosticTest.invalidEscapeDot.output") {
                 facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")

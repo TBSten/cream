@@ -1,19 +1,12 @@
 ## Compiler output
 
 ```text
-Invalid cream usage: @SealedCopy on diag.State generates more than one function named "toState".
+e: Error occurred in KSP, check log for detail
+e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/Test.kt:8: Invalid cream usage: @SealedCopy on diag.State generates more than one function named "toState".
 Stacked @SealedCopy annotations are written to one file, so each must produce a distinct name.
 
 Solution: 
   Give each @SealedCopy a distinct funName, e.g. funName = "copyOrNull".
-
-me.tbsten.cream.ksp.InvalidCreamUsageException: Invalid cream usage: @SealedCopy on diag.State generates more than one function named "toState".
-Stacked @SealedCopy annotations are written to one file, so each must produce a distinct name.
-
-Solution: 
-  Give each @SealedCopy a distinct funName, e.g. funName = "copyOrNull".
-
-	<stack trace omitted>
 ```
 
 ## Input

@@ -1,13 +1,21 @@
 package me.tbsten.cream.ksp.diagnostic
 
 import com.tschuchort.compiletesting.KotlinCompilation
+import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.shouldBe
 import me.tbsten.cream.ksp.testing.assertMatchesSnapshot
 import me.tbsten.cream.ksp.testing.compileWithCream
 import me.tbsten.cream.ksp.testing.normalizedCompilerOutput
 
+/**
+ * `@SealedCopy` misuse must surface as a clean, positioned `COMPILATION_ERROR` (via
+ * `logger.error`), never as a KSP `INTERNAL_ERROR` (a processor-crash stack trace). Each rejection
+ * also fails closed: when no copy function can be generated, the transactional writer leaves no
+ * partial / empty generated file behind.
+ */
 internal class SealedCopyDiagnosticTest :
     FunSpec({
         test("object subtype under default ERROR strategy fails compilation") {
@@ -27,8 +35,11 @@ internal class SealedCopyDiagnosticTest :
                 """.trimIndent()
             val result = compileWithCream(source)
 
-            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
-                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+            assertSoftly {
+                withClue("Output:\n${result.normalizedCompilerOutput()}") {
+                    result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
+                }
+                result.generatedSources().shouldBeEmpty()
             }
             assertMatchesSnapshot("SealedCopyDiagnosticTest.objectErrorDefault.output") {
                 facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
@@ -53,8 +64,11 @@ internal class SealedCopyDiagnosticTest :
                 """.trimIndent()
             val result = compileWithCream(source)
 
-            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
-                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+            assertSoftly {
+                withClue("Output:\n${result.normalizedCompilerOutput()}") {
+                    result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
+                }
+                result.generatedSources().shouldBeEmpty()
             }
             assertMatchesSnapshot("SealedCopyDiagnosticTest.missingCopy.output") {
                 facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
@@ -79,8 +93,11 @@ internal class SealedCopyDiagnosticTest :
                 """.trimIndent()
             val result = compileWithCream(source)
 
-            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
-                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+            assertSoftly {
+                withClue("Output:\n${result.normalizedCompilerOutput()}") {
+                    result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
+                }
+                result.generatedSources().shouldBeEmpty()
             }
             assertMatchesSnapshot("SealedCopyDiagnosticTest.missingCopyCustomFunName.output") {
                 facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
@@ -100,8 +117,11 @@ internal class SealedCopyDiagnosticTest :
                 """.trimIndent()
             val result = compileWithCream(source)
 
-            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
-                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+            assertSoftly {
+                withClue("Output:\n${result.normalizedCompilerOutput()}") {
+                    result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
+                }
+                result.generatedSources().shouldBeEmpty()
             }
             assertMatchesSnapshot("SealedCopyDiagnosticTest.nonSealedClass.output") {
                 facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
