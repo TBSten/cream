@@ -149,9 +149,6 @@ internal fun CreamSymbolProcessor.processCopyMapping(resolver: Resolver): List<K
                     packageName = packageName,
                     fileName = "CopyMapping__${annotatedDeclaration.underPackageName}",
                 ) {
-                    it.appendLine("import me.tbsten.cream.*")
-                    it.appendLine()
-
                     mappings.forEach { mapping ->
                         it.appendCopyFunction(
                             source = mapping.sourceClass,

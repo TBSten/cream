@@ -124,9 +124,6 @@ internal fun CreamSymbolProcessor.processSealedCopy(resolver: Resolver): List<KS
                 packageName = annotated.packageName,
                 fileName = "SealedCopy__${annotated.underPackageName}",
             ) {
-                it.appendLine("import me.tbsten.cream.*")
-                it.appendLine()
-
                 annotationsWithFunName.forEach { (sealedAnnotation, funName) ->
                     val nonCopyableStrategy =
                         sealedAnnotation.arguments

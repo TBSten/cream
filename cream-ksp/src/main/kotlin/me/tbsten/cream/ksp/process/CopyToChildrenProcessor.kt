@@ -114,9 +114,6 @@ internal fun CreamSymbolProcessor.processCopyToChildren(resolver: Resolver): Lis
                 packageName = sourceSealedClass.packageName,
                 fileName = "CopyToChildren__${sourceSealedClass.underPackageName}",
             ) {
-                it.appendLine("import me.tbsten.cream.*")
-                it.appendLine()
-
                 targetClasses.forEach { targetClass ->
                     // generate sourceClass to sourceClass copy function
                     it.appendCopyFunction(
