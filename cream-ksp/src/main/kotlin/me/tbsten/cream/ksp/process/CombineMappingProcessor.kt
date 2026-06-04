@@ -171,6 +171,7 @@ internal fun CreamSymbolProcessor.processCombineMapping(resolver: Resolver): Lis
                                 ),
                             visibility = mapping.visibility,
                             funNameTemplate = mapping.funNameTemplate,
+                            logger = logger,
                         )
                     }
                 }

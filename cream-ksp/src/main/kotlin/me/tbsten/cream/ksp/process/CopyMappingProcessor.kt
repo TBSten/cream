@@ -161,6 +161,7 @@ internal fun CreamSymbolProcessor.processCopyMapping(resolver: Resolver): List<K
                                 ),
                             notCopyToObject = false,
                             funNameTemplate = mapping.funNameTemplate,
+                            logger = logger,
                         )
 
                         if (mapping.canReverse) {
@@ -182,6 +183,7 @@ internal fun CreamSymbolProcessor.processCopyMapping(resolver: Resolver): List<K
                                     ),
                                 notCopyToObject = false,
                                 funNameTemplate = mapping.funNameTemplate,
+                                logger = logger,
                             )
                         }
                     }
