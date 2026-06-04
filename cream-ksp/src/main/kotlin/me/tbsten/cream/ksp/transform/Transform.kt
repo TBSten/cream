@@ -15,7 +15,7 @@ import me.tbsten.cream.ksp.util.isSealed
 import java.io.BufferedWriter
 
 /**
- * Report a target that cannot be a copy target.
+ * Report a target that cannot be a copy / combine target.
  *
  * When a [KSPLogger] is available the rejection is emitted as a clean compilation error via
  * [KSPLogger.error] (a normal `COMPILATION_ERROR` that never leaves a half-written generated
@@ -122,9 +122,10 @@ internal fun BufferedWriter.appendCombineToFunction(
     logger: KSPLogger? = null,
 ) {
     when (target.classKind) {
-        ClassKind.CLASS,
-        ClassKind.ANNOTATION_CLASS,
-        ->
+        // Combine builds a single instance, so the target must be directly constructable: a
+        // concrete class (with a reachable constructor) or an annotation class. There is no
+        // single subclass to fan out to, so any interface is rejected.
+        ClassKind.ANNOTATION_CLASS ->
             appendCombineToClassFunction(
                 primarySource,
                 otherSources,
@@ -136,6 +137,24 @@ internal fun BufferedWriter.appendCombineToFunction(
                 funNameTemplate,
                 logger,
             )
+
+        ClassKind.CLASS ->
+            when (val rejection = target.concreteClassRejection()) {
+                null ->
+                    appendCombineToClassFunction(
+                        primarySource,
+                        otherSources,
+                        target,
+                        generateSourceAnnotation,
+                        omitPackages,
+                        options,
+                        visibility,
+                        funNameTemplate,
+                        logger,
+                    )
+
+                else -> logger.reportRejection(rejection, target)
+            }
 
         ClassKind.OBJECT ->
             if (!options.notCopyToObject) {
@@ -150,12 +169,10 @@ internal fun BufferedWriter.appendCombineToFunction(
                 )
             }
 
-        else -> throw InvalidCreamUsageException(
-            message =
-                "Unsupported combine to ${
-                    target.classKind.name.lowercase().replace("_", " ")
-                } (${target.fullName}).",
-            solution = "Please make ${target.fullName} a class or object.",
-        )
+        ClassKind.INTERFACE -> logger.reportRejection(CopyTargetRejection.INTERFACE_NOT_COMBINABLE, target)
+
+        ClassKind.ENUM_CLASS,
+        ClassKind.ENUM_ENTRY,
+        -> logger.reportRejection(CopyTargetRejection.ENUM_CLASS, target)
     }
 }
