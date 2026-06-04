@@ -83,6 +83,31 @@ internal fun CreamSymbolProcessor.processCombineTo(resolver: Resolver): List<KSA
                     )
                 }.toList()
 
+        // @CombineTo is NOT @Repeatable: it lists its targets in a single `vararg targets`. Listing
+        // the same target twice (`@CombineTo(Foo::class, Foo::class)`) is an unambiguous user
+        // mistake — cream would write the same generated file twice and crash with a
+        // FileAlreadyExistsException (a KSP INTERNAL_ERROR). Reject it up front with a clean
+        // positioned diagnostic and skip generating for this source so no partial file is left
+        // behind (issue #101). The source declaration carries the file/line for IDE navigation.
+        val duplicateTargets =
+            targetClasses
+                .groupingBy { it }
+                .eachCount()
+                .filterValues { it > 1 }
+                .keys
+        if (duplicateTargets.isNotEmpty()) {
+            val duplicateNames = duplicateTargets.joinToString(", ") { it.fullName }
+            logger.error(
+                InvalidCreamUsageException(
+                    message =
+                        "Duplicate target $duplicateNames in @${CombineTo::class.simpleName} of ${sourceClass.fullName}.",
+                    solution = "Remove the duplicate target from @${CombineTo::class.simpleName} (list each target at most once).",
+                ).message.orEmpty(),
+                sourceDeclaration,
+            )
+            return@forEach
+        }
+
         val (kdocDescription, kdocExamples) =
             combineToAnnotations.firstOrNull()?.extractKDoc() ?: ("" to emptyList())
 
