@@ -400,7 +400,10 @@ val successState: SuccessState = loadingState.copyToSuccessState(
 )
 ```
 
-When multiple source classes have the same property name, **the last declared source class** takes precedence.
+When multiple source classes have the same property name, **the argument (non-receiver) source wins** —
+that is, the value comes from a source passed as an argument rather than from the receiver. Because the
+generated function is an extension on the primary source (the receiver) with the other sources passed as
+arguments, the last-listed argument source takes precedence over the receiver for the overlapping property.
 
 ### CombineFrom
 
