@@ -92,7 +92,7 @@ internal fun CreamSymbolProcessor.processCombineMapping(resolver: Resolver): Lis
 
                     val sourceClasses =
                         sourcesTypes.mapNotNull { sourceType ->
-                            (sourceType as? KSType)?.declaration as? KSClassDeclaration
+                            (sourceType as? KSType)?.declaration?.resolveToClassDeclaration()
                         }
 
                     if (sourceClasses.size < 2) {
@@ -114,11 +114,10 @@ internal fun CreamSymbolProcessor.processCombineMapping(resolver: Resolver): Lis
                     }
 
                     val targetClass =
-                        targetType.declaration as? KSClassDeclaration
-                            ?: throw InvalidCreamUsageException(
-                                message = "${targetType.declaration.fullName} (Specified in @${CombineMapping::class.simpleName}.target) must be a class.",
-                                solution = "Specify a class in @${CombineMapping::class.simpleName}.target",
-                            )
+                        targetType.declaration.requireClassDeclaration(
+                            annotationName = CombineMapping::class.simpleName!!,
+                            context = "Specified in @${CombineMapping::class.simpleName}.target",
+                        )
 
                     val (kdocDescription, kdocExamples) = annotation.extractKDoc()
 
@@ -172,6 +171,7 @@ internal fun CreamSymbolProcessor.processCombineMapping(resolver: Resolver): Lis
                                 ),
                             visibility = mapping.visibility,
                             funNameTemplate = mapping.funNameTemplate,
+                            logger = logger,
                         )
                     }
                 }
