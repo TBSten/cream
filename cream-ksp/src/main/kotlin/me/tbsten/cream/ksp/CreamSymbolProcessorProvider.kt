@@ -7,7 +7,7 @@ import com.google.devtools.ksp.processing.SymbolProcessorProvider
 class CreamSymbolProcessorProvider : SymbolProcessorProvider {
     override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor =
         CreamSymbolProcessor(
-            options = environment.options,
+            rawOptions = environment.options,
             codeGenerator = environment.codeGenerator,
             logger = environment.logger,
         )

@@ -1,21 +1,13 @@
 ## Compiler output
 
 ```text
-Invalid cream usage: @CombineFrom on diag.Target is repeated with conflicting funName values:
+e: Error occurred in KSP, check log for detail
+e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/Test.kt:10: Invalid cream usage: @CombineFrom on diag.Target is repeated with conflicting funName values:
 "buildX", "buildY"
 Stacked @CombineFrom annotations are merged into a single generated function, so funName must be unambiguous.
 
 Solution: 
   Set the same funName on every @CombineFrom of diag.Target, or set it on only one.
-
-me.tbsten.cream.ksp.InvalidCreamUsageException: Invalid cream usage: @CombineFrom on diag.Target is repeated with conflicting funName values:
-"buildX", "buildY"
-Stacked @CombineFrom annotations are merged into a single generated function, so funName must be unambiguous.
-
-Solution: 
-  Set the same funName on every @CombineFrom of diag.Target, or set it on only one.
-
-	<stack trace omitted>
 ```
 
 ## Input

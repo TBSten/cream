@@ -26,8 +26,6 @@ import me.tbsten.cream.ksp.util.extractKDoc
 import me.tbsten.cream.ksp.util.extractPropertyMappings
 import me.tbsten.cream.ksp.util.fullName
 import me.tbsten.cream.ksp.util.isSealed
-import me.tbsten.cream.ksp.util.requireClassDeclaration
-import me.tbsten.cream.ksp.util.resolveToClassDeclaration
 import me.tbsten.cream.ksp.util.underPackageName
 
 internal fun CreamSymbolProcessor.processCopyToChildren(resolver: Resolver): List<KSAnnotated> {
@@ -38,38 +36,43 @@ internal fun CreamSymbolProcessor.processCopyToChildren(resolver: Resolver): Lis
             ).partition { it.validate() }
 
     copyToChildrenTargets.forEach { copyToChildren ->
-        val sourceSealedClass =
-            run {
-                if (copyToChildren !is KSClassDeclaration) {
-                    throw InvalidCreamUsageException(
-                        message =
-                            "@${CopyToChildren::class.simpleName} annotation must be applied to a sealed class/interface." +
-                                if (copyToChildren is KSDeclaration) {
-                                    copyToChildren.simpleName.asString() +
-                                        " is not sealed class/interface"
-                                } else {
-                                    ""
-                                },
-                        solution = (copyToChildren as? KSDeclaration)?.let { "Make ${it.fullName} a sealed class/interface." },
-                    )
-                }
+        if (copyToChildren !is KSClassDeclaration) {
+            logger.reportCreamError(
+                InvalidCreamUsageException(
+                    message =
+                        "@${CopyToChildren::class.simpleName} annotation must be applied to a sealed class/interface." +
+                            if (copyToChildren is KSDeclaration) {
+                                copyToChildren.simpleName.asString() +
+                                    " is not sealed class/interface"
+                            } else {
+                                ""
+                            },
+                    solution = (copyToChildren as? KSDeclaration)?.let { "Make ${it.fullName} a sealed class/interface." },
+                ),
+                copyToChildren,
+            )
+            return@forEach
+        }
 
-                if (!copyToChildren.isSealed()) {
-                    // Avoid `fullName`, which throws UnknownCreamException when qualifiedName is null
-                    // (e.g. local/anonymous declarations) and would mask this InvalidCreamUsageException.
-                    val displayName =
-                        copyToChildren.qualifiedName?.asString()
-                            ?: copyToChildren.simpleName.asString()
-                    throw InvalidCreamUsageException(
-                        message =
-                            "@${CopyToChildren::class.simpleName} annotation must be applied to a sealed class/interface, " +
-                                "but $displayName is not sealed (classKind: ${copyToChildren.classKind}).",
-                        solution = "Make $displayName a sealed class/interface.",
-                    )
-                }
+        if (!copyToChildren.isSealed()) {
+            // Avoid `fullName`, which throws UnknownCreamException when qualifiedName is null
+            // (e.g. local/anonymous declarations) and would mask this InvalidCreamUsageException.
+            val displayName =
+                copyToChildren.qualifiedName?.asString()
+                    ?: copyToChildren.simpleName.asString()
+            logger.reportCreamError(
+                InvalidCreamUsageException(
+                    message =
+                        "@${CopyToChildren::class.simpleName} annotation must be applied to a sealed class/interface, " +
+                            "but $displayName is not sealed (classKind: ${copyToChildren.classKind}).",
+                    solution = "Make $displayName a sealed class/interface.",
+                ),
+                copyToChildren,
+            )
+            return@forEach
+        }
 
-                copyToChildren
-            }
+        val sourceSealedClass = copyToChildren
         // Enclose notCopyToObject in runCatching because it may cause an error if notCopyToObject cannot be obtained.
         val notCopyToObject =
             runCatching {

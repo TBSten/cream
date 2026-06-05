@@ -2,6 +2,7 @@ package me.tbsten.cream.ksp.process
 
 import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.processing.Dependencies
+import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotated
@@ -26,7 +27,7 @@ import me.tbsten.cream.ksp.util.extractPropertyMappings
 import me.tbsten.cream.ksp.util.fullName
 import me.tbsten.cream.ksp.util.funNameTemplate
 import me.tbsten.cream.ksp.util.isSealed
-import me.tbsten.cream.ksp.util.requireClassDeclaration
+import me.tbsten.cream.ksp.util.resolveClassDeclarationOrReport
 import me.tbsten.cream.ksp.util.underPackageName
 
 /**
@@ -49,6 +50,84 @@ private data class CopyMappingInfo(
     val funNameTemplate: String,
 )
 
+/**
+ * Parse one `@CopyMapping` annotation into a [CopyMappingInfo]. On any user-misuse error (missing
+ * `source` / `target`, or a `source` / `target` that cannot be resolved to a class), reports a
+ * clean positioned `COMPILATION_ERROR` via [logger] (anchored at [annotatedDeclaration]) and
+ * returns `null` so the caller can skip the whole declaration without crashing KSP.
+ */
+private fun parseCopyMapping(
+    annotation: KSAnnotation,
+    annotatedDeclaration: KSClassDeclaration,
+    logger: KSPLogger,
+): CopyMappingInfo? {
+    val sourceType =
+        annotation.arguments
+            .firstOrNull { it.name?.asString() == "source" }
+            ?.value as? KSType
+            ?: run {
+                logger.reportCreamError(
+                    InvalidCreamUsageException(
+                        message = "source parameter is required in @${CopyMapping::class.simpleName}",
+                        solution = "Specify source class in @${CopyMapping::class.simpleName}",
+                    ),
+                    annotatedDeclaration,
+                )
+                return null
+            }
+
+    val targetType =
+        annotation.arguments
+            .firstOrNull { it.name?.asString() == "target" }
+            ?.value as? KSType
+            ?: run {
+                logger.reportCreamError(
+                    InvalidCreamUsageException(
+                        message = "target parameter is required in @${CopyMapping::class.simpleName}",
+                        solution = "Specify target class in @${CopyMapping::class.simpleName}",
+                    ),
+                    annotatedDeclaration,
+                )
+                return null
+            }
+
+    val canReverse =
+        annotation.arguments
+            .firstOrNull { it.name?.asString() == "canReverse" }
+            ?.value as? Boolean
+            ?: false
+
+    val propertyMaps = annotation.extractPropertyMappings()
+
+    val sourceClass =
+        sourceType.declaration.resolveClassDeclarationOrReport(
+            annotationName = CopyMapping::class.simpleName!!,
+            logger = logger,
+            context = "Specified in @${CopyMapping::class.simpleName}.source",
+            ksNode = annotatedDeclaration,
+        ) ?: return null
+
+    val targetClass =
+        targetType.declaration.resolveClassDeclarationOrReport(
+            annotationName = CopyMapping::class.simpleName!!,
+            logger = logger,
+            context = "Specified in @${CopyMapping::class.simpleName}.target",
+            ksNode = annotatedDeclaration,
+        ) ?: return null
+
+    val (kdocDescription, kdocExamples) = annotation.extractKDoc()
+
+    return CopyMappingInfo(
+        sourceClass = sourceClass,
+        targetClass = targetClass,
+        canReverse = canReverse,
+        propertyMappings = propertyMaps,
+        kdocDescription = kdocDescription,
+        kdocExamples = kdocExamples,
+        funNameTemplate = annotation.funNameTemplate(),
+    )
+}
+
 internal fun CreamSymbolProcessor.processCopyMapping(resolver: Resolver): List<KSAnnotated> {
     val (copyMappingTargets, invalidCopyMappingTargets) =
         resolver
@@ -59,78 +138,42 @@ internal fun CreamSymbolProcessor.processCopyMapping(resolver: Resolver): List<K
     copyMappingTargets.forEach { target ->
         val annotatedDeclaration =
             (target as? KSClassDeclaration)
-                ?: throw InvalidCreamUsageException(
-                    message = "@${CopyMapping::class.simpleName} must be applied to a class.",
-                    solution = "Please apply @${CopyMapping::class.simpleName} to a `class` or `object`",
-                )
+                ?: run {
+                    logger.reportCreamError(
+                        InvalidCreamUsageException(
+                            message = "@${CopyMapping::class.simpleName} must be applied to a class.",
+                            solution = "Please apply @${CopyMapping::class.simpleName} to a `class` or `object`",
+                        ),
+                        target,
+                    )
+                    return@forEach
+                }
 
-        // Extract all CopyMapping annotations from the target
-        val copyMappings =
+        // Extract all CopyMapping annotations from the target. A malformed annotation reports a
+        // clean diagnostic and yields null; skip the whole declaration so no partial file is emitted.
+        val parsedMappings =
             target
                 .annotationsOf(CopyMapping::class)
-                .map { annotation ->
-                    val sourceType =
-                        annotation.arguments
-                            .firstOrNull { it.name?.asString() == "source" }
-                            ?.value as? KSType
-                            ?: throw InvalidCreamUsageException(
-                                message = "source parameter is required in @${CopyMapping::class.simpleName}",
-                                solution = "Specify source class in @${CopyMapping::class.simpleName}",
-                            )
-
-                    val targetType =
-                        annotation.arguments
-                            .firstOrNull { it.name?.asString() == "target" }
-                            ?.value as? KSType
-                            ?: throw InvalidCreamUsageException(
-                                message = "target parameter is required in @${CopyMapping::class.simpleName}",
-                                solution = "Specify target class in @${CopyMapping::class.simpleName}",
-                            )
-
-                    val canReverse =
-                        annotation.arguments
-                            .firstOrNull { it.name?.asString() == "canReverse" }
-                            ?.value as? Boolean
-                            ?: false
-
-                    val propertyMaps = annotation.extractPropertyMappings()
-
-                    val sourceClass =
-                        sourceType.declaration.requireClassDeclaration(
-                            annotationName = CopyMapping::class.simpleName!!,
-                            context = "Specified in @${CopyMapping::class.simpleName}.source",
-                        )
-
-                    val targetClass =
-                        targetType.declaration.requireClassDeclaration(
-                            annotationName = CopyMapping::class.simpleName!!,
-                            context = "Specified in @${CopyMapping::class.simpleName}.target",
-                        )
-
-                    val (kdocDescription, kdocExamples) = annotation.extractKDoc()
-
-                    CopyMappingInfo(
-                        sourceClass = sourceClass,
-                        targetClass = targetClass,
-                        canReverse = canReverse,
-                        propertyMappings = propertyMaps,
-                        kdocDescription = kdocDescription,
-                        kdocExamples = kdocExamples,
-                        funNameTemplate = annotation.funNameTemplate(),
-                    )
-                }.toList()
+                .map { annotation -> parseCopyMapping(annotation, annotatedDeclaration, logger) }
+                .toList()
+        if (parsedMappings.any { it == null }) return@forEach
+        val copyMappings = parsedMappings.filterNotNull()
 
         // Fail fast (before opening any output file) when a plain-literal funName would
         // fan out to multiple colliding names. Mirrors CopyTo/CopyFrom, which guard before
         // createNewKotlinFile so a rejected funName never leaves a partial generated file.
-        copyMappings.forEach { mapping ->
-            requireFunNameSupportsFanout(
-                funNameTemplate = mapping.funNameTemplate,
-                generatesMultipleFunctions = mapping.canReverse || mapping.targetClass.isSealed(),
-                annotationSimpleName = CopyMapping::class.simpleName!!,
-                declarationFullName = annotatedDeclaration.fullName,
-            )
-        }
+        val allFunNamesOk =
+            copyMappings.all { mapping ->
+                requireFunNameSupportsFanout(
+                    funNameTemplate = mapping.funNameTemplate,
+                    generatesMultipleFunctions = mapping.canReverse || mapping.targetClass.isSealed(),
+                    annotationSimpleName = CopyMapping::class.simpleName!!,
+                    declarationFullName = annotatedDeclaration.fullName,
+                    logger = logger,
+                    ksNode = annotatedDeclaration,
+                )
+            }
+        if (!allFunNamesOk) return@forEach
 
         // Group by source class to create one file per source package
         copyMappings

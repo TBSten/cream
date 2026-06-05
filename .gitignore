@@ -1,5 +1,6 @@
 *.iml
 .gradle
+.gradle-agent-*/
 .idea
 .DS_Store
 build

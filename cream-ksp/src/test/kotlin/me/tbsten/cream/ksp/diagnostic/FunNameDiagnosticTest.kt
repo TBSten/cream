@@ -1,9 +1,11 @@
 package me.tbsten.cream.ksp.diagnostic
 
 import com.tschuchort.compiletesting.KotlinCompilation
+import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
-import io.kotest.matchers.shouldNotBe
+import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.shouldBe
 import me.tbsten.cream.ksp.testing.assertMatchesSnapshot
 import me.tbsten.cream.ksp.testing.compileWithCream
 import me.tbsten.cream.ksp.testing.normalizedCompilerOutput
@@ -11,7 +13,8 @@ import me.tbsten.cream.ksp.testing.normalizedCompilerOutput
 // cream does not validate the Kotlin-legality of a funName (keywords, illegal characters, …) —
 // such names simply fail to compile at the use site. These diagnostics cover the cases cream
 // *does* reject up front: fan-out / repeatable collisions, where a fixed name would produce more
-// than one function with the same signature.
+// than one function with the same signature. Every rejection is a clean, positioned
+// COMPILATION_ERROR (via logger.error) — never a KSP INTERNAL_ERROR — and leaves no partial file.
 internal class FunNameDiagnosticTest :
     FunSpec({
         test("a plain-literal funName with multiple targets fails compilation") {
@@ -29,8 +32,11 @@ internal class FunNameDiagnosticTest :
                 """.trimIndent()
             val result = compileWithCream(source)
 
-            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
-                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+            assertSoftly {
+                withClue("Output:\n${result.normalizedCompilerOutput()}") {
+                    result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
+                }
+                result.generatedSources().shouldBeEmpty()
             }
             assertMatchesSnapshot("FunNameDiagnosticTest.literalFanoutMultiTarget.output") {
                 facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
@@ -57,8 +63,11 @@ internal class FunNameDiagnosticTest :
                 """.trimIndent()
             val result = compileWithCream(source)
 
-            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
-                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+            assertSoftly {
+                withClue("Output:\n${result.normalizedCompilerOutput()}") {
+                    result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
+                }
+                result.generatedSources().shouldBeEmpty()
             }
             assertMatchesSnapshot("FunNameDiagnosticTest.literalFanoutSealed.output") {
                 facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
@@ -81,8 +90,11 @@ internal class FunNameDiagnosticTest :
                 """.trimIndent()
             val result = compileWithCream(source)
 
-            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
-                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+            assertSoftly {
+                withClue("Output:\n${result.normalizedCompilerOutput()}") {
+                    result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
+                }
+                result.generatedSources().shouldBeEmpty()
             }
             assertMatchesSnapshot("FunNameDiagnosticTest.copyFromLiteralFanout.output") {
                 facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
@@ -105,8 +117,11 @@ internal class FunNameDiagnosticTest :
                 """.trimIndent()
             val result = compileWithCream(source)
 
-            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
-                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+            assertSoftly {
+                withClue("Output:\n${result.normalizedCompilerOutput()}") {
+                    result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
+                }
+                result.generatedSources().shouldBeEmpty()
             }
             assertMatchesSnapshot("FunNameDiagnosticTest.combineToLiteralFanout.output") {
                 facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
@@ -129,8 +144,11 @@ internal class FunNameDiagnosticTest :
                 """.trimIndent()
             val result = compileWithCream(source)
 
-            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
-                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+            assertSoftly {
+                withClue("Output:\n${result.normalizedCompilerOutput()}") {
+                    result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
+                }
+                result.generatedSources().shouldBeEmpty()
             }
             assertMatchesSnapshot("FunNameDiagnosticTest.copyMappingCanReverseLiteral.output") {
                 facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
@@ -156,8 +174,11 @@ internal class FunNameDiagnosticTest :
                 """.trimIndent()
             val result = compileWithCream(source)
 
-            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
-                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+            assertSoftly {
+                withClue("Output:\n${result.normalizedCompilerOutput()}") {
+                    result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
+                }
+                result.generatedSources().shouldBeEmpty()
             }
             assertMatchesSnapshot("FunNameDiagnosticTest.combineFromConflictingFunName.output") {
                 facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
@@ -187,8 +208,11 @@ internal class FunNameDiagnosticTest :
                 """.trimIndent()
             val result = compileWithCream(source)
 
-            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
-                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+            assertSoftly {
+                withClue("Output:\n${result.normalizedCompilerOutput()}") {
+                    result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
+                }
+                result.generatedSources().shouldBeEmpty()
             }
             assertMatchesSnapshot("FunNameDiagnosticTest.sealedCopyDuplicateName.output") {
                 facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
