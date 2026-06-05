@@ -65,6 +65,32 @@ internal class KindMatrixSnapshotTest :
             }
         }
 
+        test("copyTo from data class to sealed class expands across subclasses") {
+            val source =
+                """
+                package snap.kind.classToSealedClass
+
+                import me.tbsten.cream.CopyTo
+
+                @CopyTo(State::class)
+                data class Source(val id: String)
+
+                sealed class State(val id: String) {
+                    data class Loading(val loadingId: String) : State(loadingId)
+                    data class Loaded(val loadedId: String, val payload: Int) : State(loadedId)
+                }
+                """.trimIndent()
+            val result = compileWithCream(source)
+
+            withClue(result.messages) {
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+            }
+            assertMatchesSnapshot("KindMatrixSnapshotTest.copyToSealedClass") {
+                "Generated" facetOf result.generatedSourceText()
+                "Input" facetOf source
+            }
+        }
+
         test("copyFrom basic data class to data class generates expected source") {
             val source =
                 """

@@ -19,7 +19,7 @@ import me.tbsten.cream.ksp.testing.normalizedCompilerOutput
  */
 internal class CopyMappingTargetKindDiagnosticTest :
     FunSpec({
-        test("fails compilation instead of silently skipping a sealed class target") {
+        test("fails compilation instead of silently skipping an abstract class target") {
             val source =
                 """
                 package diag
@@ -28,9 +28,9 @@ internal class CopyMappingTargetKindDiagnosticTest :
 
                 data class Source(val id: String)
 
-                sealed class State(val id: String)
+                abstract class Base(val id: String)
 
-                @CopyMapping(Source::class, State::class)
+                @CopyMapping(Source::class, Base::class)
                 object Mapping
                 """.trimIndent()
             val result = compileWithCream(source)
@@ -40,7 +40,7 @@ internal class CopyMappingTargetKindDiagnosticTest :
                     result.exitCode shouldBe KotlinCompilation.ExitCode.INTERNAL_ERROR
                 }
                 // The rejection reason still reaches the user instead of being swallowed.
-                result.messages shouldContain "Unsupported target sealed class"
+                result.messages shouldContain "Unsupported target abstract class"
             }
         }
     })

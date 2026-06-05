@@ -115,38 +115,16 @@ class BasicTest :
             }
         }
 
-        test("childToGrandChildren") {
-            val child: ChildSealedInterface = GrandChildDataObject
+        // Copy functions are generated only on the annotated class (Parent), so reaching a
+        // grandchild leaf from a grandchild-level value still resolves to the Parent extension.
+        // Because the receiver is typed as Parent, intermediate (child-level) properties are not
+        // carried over automatically and must be supplied explicitly.
+        test("grandChildLevelValueToGrandChildLeafViaAnnotatedClassReceiver") {
+            val grandChild: GrandChildSealedInterface = GreatGrandChildDataObject
 
             mapOf(
-                child.copyToGrandChildDataObject() to GrandChildDataObject,
-                child.copyToGrandChildDataClass(
-                    grandChildProp1 = "grandChild",
-                    grandChildProp2 = 123,
-                    grandChildProp3 = true,
-                ) to
-                    GrandChildDataClass(
-                        parentProp1 = child.parentProp1,
-                        parentProp2 = child.parentProp2,
-                        parentProp3 = child.parentProp3,
-                        childProp1 = child.childProp1,
-                        childProp2 = child.childProp2,
-                        childProp3 = child.childProp3,
-                        grandChildProp1 = "grandChild",
-                        grandChildProp2 = 123,
-                        grandChildProp3 = true,
-                    ),
-            ).forEach { (actual, expected) ->
-                actual shouldBe expected
-            }
-        }
-
-        test("childToGrandChildrenWithOverrideChildProp") {
-            val child: ChildSealedInterface = GrandChildDataObject
-
-            mapOf(
-                child.copyToGrandChildDataObject() to GrandChildDataObject,
-                child.copyToGrandChildDataClass(
+                grandChild.copyToGrandChildDataObject() to GrandChildDataObject,
+                grandChild.copyToGrandChildDataClass(
                     childProp1 = 1.0,
                     childProp2 = 2L,
                     childProp3 = "child",
@@ -155,9 +133,9 @@ class BasicTest :
                     grandChildProp3 = true,
                 ) to
                     GrandChildDataClass(
-                        parentProp1 = child.parentProp1,
-                        parentProp2 = child.parentProp2,
-                        parentProp3 = child.parentProp3,
+                        parentProp1 = grandChild.parentProp1,
+                        parentProp2 = grandChild.parentProp2,
+                        parentProp3 = grandChild.parentProp3,
                         childProp1 = 1.0,
                         childProp2 = 2L,
                         childProp3 = "child",

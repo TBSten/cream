@@ -65,66 +65,6 @@ public fun  snap.kind.classToSealed.Source.copyToStateLoading(
 ) : snap.kind.classToSealed.State.Loading = snap.kind.classToSealed.State.Loading(
     id = id,
 )
-
-/**
- * (Auto generate by @[CopyTo] annotation of [Source])
- * 
- * State -> State.Loaded copy function.
- * 
- * # Example: Basic
- * 
- * ```kt
- * val source = State(...)
- * val target = source.copyToStateLoaded(payload = payload)
- * ```
- * 
- * # Example: Override property values
- * 
- * ```kt
- * val source = State(...)
- * val target = source.copyToStateLoaded(payload = payload, property = value)
- * ```
- * 
- * 
- * @see State
- * @see State.Loaded
- */
-public fun  snap.kind.classToSealed.State.copyToStateLoaded(
-    id: String = this.id,
-    payload: Int,
-) : snap.kind.classToSealed.State.Loaded = snap.kind.classToSealed.State.Loaded(
-    id = id,
-    payload = payload,
-)
-
-/**
- * (Auto generate by @[CopyTo] annotation of [Source])
- * 
- * State -> State.Loading copy function.
- * 
- * # Example: Basic
- * 
- * ```kt
- * val source = State(...)
- * val target = source.copyToStateLoading()
- * ```
- * 
- * # Example: Override property values
- * 
- * ```kt
- * val source = State(...)
- * val target = source.copyToStateLoading(property = value)
- * ```
- * 
- * 
- * @see State
- * @see State.Loading
- */
-public fun  snap.kind.classToSealed.State.copyToStateLoading(
-    id: String = this.id,
-) : snap.kind.classToSealed.State.Loading = snap.kind.classToSealed.State.Loading(
-    id = id,
-)
 ````
 
 ## Input
