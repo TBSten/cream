@@ -19,6 +19,9 @@ internal fun BufferedWriter.appendCopyToSealedClassFunction(
     funNameTemplate: String = DefaultCopyFunctionName,
     logger: KSPLogger? = null,
 ) {
+    // A sealed target only ever produces copy functions whose receiver is the original [source]
+    // (the annotated/source class threaded through the recursion), reaching every transitive
+    // concrete leaf. Intermediate sealed nodes are never used as a receiver.
     targetClass.getSealedSubclasses().forEach { subclass ->
         appendCopyFunction(
             source,
@@ -30,20 +33,6 @@ internal fun BufferedWriter.appendCopyToSealedClassFunction(
             visibility,
             funNameTemplate = funNameTemplate,
             logger = logger,
-        )
-    }
-
-    targetClass.getSealedSubclasses().forEach { subclass ->
-        appendCopyFunction(
-            targetClass,
-            subclass,
-            omitPackages,
-            generateSourceAnnotation,
-            options,
-            notCopyToObject,
-            visibility,
-            funNameTemplate = funNameTemplate,
-            generateTargetToSealedSubclasses = false,
         )
     }
 }

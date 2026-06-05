@@ -12,10 +12,10 @@ import me.tbsten.cream.ksp.InvalidCreamUsageException
  *
  * cream generates `Target(prop = ...)` to build the target, so a valid target must be a concrete
  * class (or object) whose primary constructor the generated code can call. `@CopyTo` / `@CopyFrom`
- * additionally accept a sealed interface, which fans out to its concrete subclasses. The
- * dispatcher ([me.tbsten.cream.ksp.transform.appendCopyFunction]) decides which rejection applies
- * per [com.google.devtools.ksp.symbol.ClassKind]; this enum is the single source of truth for the
- * reason text so it can be snapshot-tested in isolation.
+ * additionally accept a sealed type (interface or class), which is not rejected but fans out to its
+ * concrete subclasses. The dispatcher ([me.tbsten.cream.ksp.transform.appendCopyFunction]) decides
+ * which rejection applies per [com.google.devtools.ksp.symbol.ClassKind]; this enum is the single
+ * source of truth for the reason text so it can be snapshot-tested in isolation.
  *
  * Each constant carries the human-facing [message] / [solution] (`%s` is replaced with the target
  * name); [asException] wraps them in the standard [InvalidCreamUsageException] envelope so the
@@ -25,10 +25,6 @@ internal enum class CopyTargetRejection(
     val message: String,
     val solution: String,
 ) {
-    SEALED_CLASS(
-        message = "Unsupported target sealed class (%s). A sealed class cannot be instantiated directly.",
-        solution = "Specify one of its concrete subclasses as the target.",
-    ),
     ABSTRACT_CLASS(
         message = "Unsupported target abstract class (%s). An abstract class cannot be instantiated.",
         solution = "Specify a concrete (non-abstract) class as the target.",
@@ -67,18 +63,20 @@ internal enum class CopyTargetRejection(
 }
 
 /**
- * Returns the [CopyTargetRejection] explaining why this `class` declaration cannot be a copy /
- * combine target, or `null` when it is usable (a concrete class whose primary constructor is
- * reachable from generated code).
+ * Returns the [CopyTargetRejection] explaining why this *non-sealed* `class` declaration cannot be
+ * a copy / combine target, or `null` when it is usable (a concrete class whose primary constructor
+ * is reachable from generated code).
  *
- * Checks the most specific reason first: `sealed` (cannot be instantiated) before the generic
- * `abstract` case, then `inner`, and finally the primary constructor visibility for an otherwise
- * concrete class. Only applies to `ClassKind.CLASS`; other kinds (interface / enum / object /
- * annotation class) are routed by the dispatcher.
+ * A *sealed* class is handled earlier by the dispatcher
+ * ([me.tbsten.cream.ksp.transform.appendCopyFunction]), which fans it out to its concrete
+ * subclasses instead of rejecting it, so this function is only reached for non-sealed classes.
+ * (A sealed class would otherwise be caught by the `abstract` case below, since `sealed` implies
+ * `abstract`.) Checks `abstract`, then `inner`, and finally the primary constructor visibility for
+ * an otherwise concrete class. Only applies to `ClassKind.CLASS`; other kinds (interface / enum /
+ * object / annotation class) are routed by the dispatcher.
  */
 internal fun KSClassDeclaration.concreteClassRejection(): CopyTargetRejection? =
     when {
-        isSealed() -> CopyTargetRejection.SEALED_CLASS
         isAbstract() -> CopyTargetRejection.ABSTRACT_CLASS
         modifiers.contains(Modifier.INNER) -> CopyTargetRejection.INNER_CLASS
         else -> constructorRejection()
