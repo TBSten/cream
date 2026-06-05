@@ -1,8 +1,10 @@
 package me.tbsten.cream
 
 /**
- * Generate one copy function per direct child of a sealed type, each one returning
- * the **specific child** (i.e. a type-narrowing transition).
+ * Generate copy functions from a sealed type down to its concrete leaves, each one
+ * returning the **specific leaf** (i.e. a type-narrowing transition). For a flat sealed
+ * type these are its direct children; for nested hierarchies the generation recurses
+ * through any intermediate sealed *types* (not just the direct children).
  *
  * # Example
  *

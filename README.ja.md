@@ -219,8 +219,9 @@ fun DataLayerModel.toDomainLayerModel(
 
 ### CopyToChildren
 
-sealed class/interface に付与することで、その sealed class/interface -> 継承するすべてのクラス
-へコピーするコピー関数を自動生成します。
+sealed class/interface に付与することで、その sealed class/interface -> 継承する
+**すべての推移的な具象 leaf クラス** へコピーするコピー関数を自動生成します。直接の子だけでなく、途中のネストした
+sealed 型を再帰的に辿って末端の具象クラスまで生成されます。
 
 ```kt
 @CopyToChildren
@@ -249,6 +250,10 @@ fun UiState.copyToUiStateSuccessRefreshing(
     data: Data,
 ): UiState.Success.Refreshing = /* ... */
 ```
+
+上記の例では `Done` と `Refreshing` は中間の `sealed interface Success` の配下にネストしていますが、
+それでもコピー関数が生成されます。途中のすべての中間 sealed 型を再帰的に辿り、末端の具象 leaf まで
+生成されるためです。
 
 これは各 sealed class/interface に @CopyTo を都度指定するよりも圧倒的に楽です。
 

@@ -13,40 +13,18 @@ import me.tbsten.cream.ksp.testing.normalizedCompilerOutput
 /**
  * `@CopyTo` / `@CopyFrom` targets must be *constructable*: a concrete class (or annotation
  * class / object) whose primary constructor the generated code can actually call. Kinds that
- * cannot be instantiated (sealed/abstract/inner classes, plain or fun interfaces) or whose
+ * cannot be instantiated (a non-sealed abstract / inner class, a plain or fun interface) or whose
  * constructor is not reachable (private / protected primary constructor) must be rejected with
  * a clean cream diagnostic instead of emitting broken `Target(...)` code that fails later with a
  * confusing compiler error.
+ *
+ * A *sealed* class is the exception: like a sealed interface it cannot be instantiated directly,
+ * but instead of being rejected it fans out to its concrete subclasses (see
+ * [me.tbsten.cream.ksp.snapshot.KindMatrixSnapshotTest] /
+ * [me.tbsten.cream.ksp.snapshot.SealedSnapshotTest]).
  */
 internal class CopyTargetKindDiagnosticTest :
     FunSpec({
-        test("rejects a sealed class target and points to concrete subclasses") {
-            val source =
-                """
-                package diag
-
-                import me.tbsten.cream.CopyTo
-
-                sealed class State(val id: String)
-
-                @CopyTo(State::class)
-                data class Source(val id: String)
-                """.trimIndent()
-            val result = compileWithCream(source)
-
-            assertSoftly {
-                withClue("Output:\n${result.normalizedCompilerOutput()}") {
-                    result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
-                }
-                result.messages shouldContain "sealed class"
-                result.messages shouldContain "concrete subclasses"
-            }
-            assertMatchesSnapshot("CopyTargetKindDiagnosticTest.sealedClass.output") {
-                facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
-                "Input" facetOf source
-            }
-        }
-
         test("rejects an abstract class target and points to a concrete class") {
             val source =
                 """

@@ -51,7 +51,6 @@ internal fun BufferedWriter.appendCopyFunction(
     notCopyToObject: Boolean,
     visibility: CopyVisibility = CopyVisibility.INHERIT,
     funNameTemplate: String = DefaultCopyFunctionName,
-    generateTargetToSealedSubclasses: Boolean = true,
     logger: KSPLogger? = null,
 ) {
     when (target.classKind) {
@@ -60,20 +59,37 @@ internal fun BufferedWriter.appendCopyFunction(
         ClassKind.ANNOTATION_CLASS -> logger.reportRejection(CopyTargetRejection.ANNOTATION_CLASS, target)
 
         ClassKind.CLASS ->
-            when (val rejection = target.concreteClassRejection()) {
-                null ->
-                    appendCopyToClassFunction(
-                        source,
-                        target,
-                        generateSourceAnnotation,
-                        omitPackages,
-                        options,
-                        visibility,
-                        funNameTemplate,
-                        logger,
-                    )
+            if (target.isSealed()) {
+                // A sealed class, like a sealed interface, cannot be instantiated directly; fan out
+                // to its concrete subclasses. The sealed check must come BEFORE concreteClassRejection()
+                // because a sealed class is also abstract and the abstract check would pre-empt it.
+                appendCopyToSealedClassFunction(
+                    source,
+                    target,
+                    omitPackages,
+                    options,
+                    generateSourceAnnotation,
+                    notCopyToObject,
+                    visibility,
+                    funNameTemplate,
+                    logger,
+                )
+            } else {
+                when (val rejection = target.concreteClassRejection()) {
+                    null ->
+                        appendCopyToClassFunction(
+                            source,
+                            target,
+                            generateSourceAnnotation,
+                            omitPackages,
+                            options,
+                            visibility,
+                            funNameTemplate,
+                            logger,
+                        )
 
-                else -> logger.reportRejection(rejection, target)
+                    else -> logger.reportRejection(rejection, target)
+                }
             }
 
         ClassKind.OBJECT ->
@@ -85,21 +101,17 @@ internal fun BufferedWriter.appendCopyFunction(
         // be a copy target.
         ClassKind.INTERFACE ->
             if (target.isSealed()) {
-                if (generateTargetToSealedSubclasses) {
-                    appendCopyToSealedClassFunction(
-                        source,
-                        target,
-                        omitPackages,
-                        options,
-                        generateSourceAnnotation,
-                        notCopyToObject,
-                        visibility,
-                        funNameTemplate,
-                        logger,
-                    )
-                } else {
-                    // no op
-                }
+                appendCopyToSealedClassFunction(
+                    source,
+                    target,
+                    omitPackages,
+                    options,
+                    generateSourceAnnotation,
+                    notCopyToObject,
+                    visibility,
+                    funNameTemplate,
+                    logger,
+                )
             } else {
                 logger.reportRejection(CopyTargetRejection.NON_SEALED_INTERFACE, target)
             }
