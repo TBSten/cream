@@ -226,7 +226,8 @@ fun DataLayerModel.toDomainLayerModel(
 ### CopyToChildren
 
 When applied to a sealed class/interface, automatically generates copy functions from that sealed
-class/interface to all classes that inherit from it.
+class/interface to **all transitive concrete leaves** that inherit from it — recursing through any
+intermediate sealed types, not just the direct children.
 
 ```kt
 @CopyToChildren
@@ -255,6 +256,10 @@ fun UiState.copyToUiStateSuccessRefreshing(
     data: Data,
 ): UiState.Success.Refreshing = /* ... */
 ```
+
+In the example above, `Done` and `Refreshing` are nested under the intermediate `sealed interface
+Success`, yet copy functions are still generated for them — the generation recurses through every
+intermediate sealed type down to the concrete leaves.
 
 This is much easier than specifying @CopyTo for each sealed class/interface.
 

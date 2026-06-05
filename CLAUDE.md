@@ -276,7 +276,7 @@ fun Project.setupKspForMultiplatformWorkaround() {
 
 2. **Property Matching**: The processor matches properties by name (or via `@Map` annotation). Ensure constructor parameter names align with source property names for automatic copying.
 
-3. **Sealed Class Hierarchy**: `@CopyToChildren` only generates functions to direct children. For deeply nested sealed hierarchies, consider multiple annotations or using `@CopyTo` explicitly.
+3. **Sealed Class Hierarchy**: `@CopyToChildren` is transitive — it generates copy functions to **all transitive concrete leaves** of the sealed hierarchy, recursing through any intermediate sealed types (not just direct children). You do not need multiple annotations or explicit `@CopyTo` for deeply nested sealed hierarchies.
 
 4. **Generic Type Parameters**: When working with generics, ensure type parameters are properly preserved in generated functions. Check `CopyFunctionTypeParameters.kt` if issues arise.
 
