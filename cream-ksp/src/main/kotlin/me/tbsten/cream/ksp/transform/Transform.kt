@@ -22,11 +22,12 @@ import java.io.BufferedWriter
  * file), with the offending [target] attached as the [com.google.devtools.ksp.symbol.KSNode]
  * so the diagnostic carries the file/line location and IDE navigation works.
  *
- * When no logger is provided (the `@CopyMapping` / `@CombineMapping` paths do not yet thread one
- * through) the rejection is *fail-closed* by throwing [InvalidCreamUsageException]: it surfaces
- * as an `INTERNAL_ERROR` rather than the cleaner `COMPILATION_ERROR`, but an invalid target is
- * never silently dropped. Threading a logger into the mapping processors so they too get a clean
- * diagnostic is a follow-up.
+ * Every caller of [appendCopyFunction] now threads the processor's logger through — including the
+ * `@CopyMapping` path, which previously omitted it — so a rejected target reliably yields the clean
+ * `COMPILATION_ERROR`. The `null` branch remains as a *fail-closed* fallback: if a future caller
+ * forgets the logger, the rejection still throws [InvalidCreamUsageException] (surfacing as an
+ * `INTERNAL_ERROR`) instead of being silently dropped, which would generate nothing and leave the
+ * user wondering why.
  */
 private fun KSPLogger?.reportRejection(
     rejection: CopyTargetRejection,
@@ -162,12 +163,34 @@ internal fun BufferedWriter.appendCombineToFunction(
                 )
             }
 
-        else -> throw InvalidCreamUsageException(
+        // A combine target must be constructable (class / annotation class / object). Interfaces and
+        // enums cannot be built, so reject them — branches are listed explicitly (no `else`) so a new
+        // ClassKind forces a compile-time decision here.
+        ClassKind.INTERFACE,
+        ClassKind.ENUM_CLASS,
+        ClassKind.ENUM_ENTRY,
+        -> logger.reportUnsupportedCombineTarget(target)
+    }
+}
+
+/**
+ * Report a [target] whose [ClassKind] cannot be a `@CombineTo` / `@CombineFrom` / `@CombineMapping`
+ * target. Mirrors [reportRejection]: a clean positioned `COMPILATION_ERROR` via [KSPLogger.error]
+ * when a logger is available (leaving no partial generated file), falling back to a `throw` (an
+ * `INTERNAL_ERROR`) only when no logger was threaded, so the misuse is never silently dropped.
+ */
+private fun KSPLogger?.reportUnsupportedCombineTarget(target: KSClassDeclaration) {
+    val exception =
+        InvalidCreamUsageException(
             message =
                 "Unsupported combine to ${
                     target.classKind.name.lowercase().replace("_", " ")
                 } (${target.fullName}).",
             solution = "Please make ${target.fullName} a class or object.",
         )
+    if (this != null) {
+        error(exception.message.orEmpty(), target)
+    } else {
+        throw exception
     }
 }

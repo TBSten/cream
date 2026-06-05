@@ -1,7 +1,8 @@
 ## Compiler output
 
 ```text
-Invalid cream usage: @CopyTo on diag.Source sets a fixed funName "toState",
+e: Error occurred in KSP, check log for detail
+e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/Test.kt:6: Invalid cream usage: @CopyTo on diag.Source sets a fixed funName "toState",
 but it generates more than one function (multiple targets or sources, a sealed
 target, or a reversible mapping). Those functions would all share that name and collide.
 
@@ -9,17 +10,6 @@ Solution:
   Include a naming token so each generated function gets a distinct name, e.g.
     funName = "to" + CopyTargetSimpleName
   or split the declaration into separate annotations.
-
-me.tbsten.cream.ksp.InvalidCreamUsageException: Invalid cream usage: @CopyTo on diag.Source sets a fixed funName "toState",
-but it generates more than one function (multiple targets or sources, a sealed
-target, or a reversible mapping). Those functions would all share that name and collide.
-
-Solution: 
-  Include a naming token so each generated function gets a distinct name, e.g.
-    funName = "to" + CopyTargetSimpleName
-  or split the declaration into separate annotations.
-
-	<stack trace omitted>
 ```
 
 ## Input

@@ -1,27 +1,14 @@
 ## Compiler output
 
 ```text
-Invalid cream usage: Invalid option: Invalid ksp.arg["cream.escapeDot"] = not-an-escape
+e: Error occurred in KSP, check log for detail
+e: [ksp] Invalid cream usage: Invalid option: Invalid ksp.arg["cream.escapeDot"] = not-an-escape
 
 Solution: 
   Set one of the following for ksp.arg:
   
     - lower-camel-case
     - replace-to-underscore
-  
-
-me.tbsten.cream.ksp.InvalidCreamOptionException: Invalid cream usage: Invalid option: Invalid ksp.arg["cream.escapeDot"] = not-an-escape
-
-Solution: 
-  Set one of the following for ksp.arg:
-  
-    - lower-camel-case
-    - replace-to-underscore
-  
-
-	<stack trace omitted>
-Caused by: java.lang.IllegalArgumentException: No enum constant me.tbsten.cream.ksp.options.EscapeDot.not-an-escape
-	<stack trace omitted>
 ```
 
 ## Input

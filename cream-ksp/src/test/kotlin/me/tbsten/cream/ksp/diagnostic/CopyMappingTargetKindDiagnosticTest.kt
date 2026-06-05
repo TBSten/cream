@@ -4,22 +4,28 @@ import com.tschuchort.compiletesting.KotlinCompilation
 import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import me.tbsten.cream.ksp.testing.assertMatchesSnapshot
 import me.tbsten.cream.ksp.testing.compileWithCream
 import me.tbsten.cream.ksp.testing.normalizedCompilerOutput
 
 /**
- * `@CopyMapping` / `@CombineMapping` do not thread a [com.google.devtools.ksp.processing.KSPLogger]
- * into the target dispatcher yet, so a non-constructable target cannot be reported as the clean
- * `COMPILATION_ERROR` that the `@CopyTo` path produces. It must still *fail closed*: the rejection
- * throws so the invalid target reliably aborts compilation instead of being silently dropped
- * (which would generate nothing and leave the user wondering why). Threading a logger through the
- * mapping processors for a clean diagnostic is a follow-up.
+ * `@CopyMapping` reuses the same target dispatcher ([me.tbsten.cream.ksp.transform.appendCopyFunction])
+ * as `@CopyTo` / `@CopyFrom`, so a non-constructable target (abstract / enum class, plain interface, …)
+ * must be rejected with the same clean, positioned `COMPILATION_ERROR` rather than an `INTERNAL_ERROR`
+ * crash. The processor threads its [com.google.devtools.ksp.processing.KSPLogger] into the dispatcher,
+ * so the target-kind rejection (`reportRejection` → `logger.error`) fires for the mapping path too.
+ * The rejection also fails closed: nothing is generated for the invalid mapping.
+ *
+ * Note: a *sealed* class is no longer an invalid target — it fans out to its concrete subclasses
+ * (see [me.tbsten.cream.ksp.snapshot.SealedSnapshotTest] / [me.tbsten.cream.ksp.snapshot.KindMatrixSnapshotTest]),
+ * so this test uses a plain `abstract class` to exercise the non-constructable rejection path.
  */
 internal class CopyMappingTargetKindDiagnosticTest :
     FunSpec({
-        test("fails compilation instead of silently skipping an abstract class target") {
+        test("rejects an abstract class target with a clean diagnostic and generates nothing") {
             val source =
                 """
                 package diag
@@ -37,10 +43,16 @@ internal class CopyMappingTargetKindDiagnosticTest :
 
             assertSoftly {
                 withClue("Output:\n${result.normalizedCompilerOutput()}") {
-                    result.exitCode shouldBe KotlinCompilation.ExitCode.INTERNAL_ERROR
+                    result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
                 }
                 // The rejection reason still reaches the user instead of being swallowed.
                 result.messages shouldContain "Unsupported target abstract class"
+                // A rejected target must not leave a half-written generated file behind.
+                result.generatedSources().shouldBeEmpty()
+            }
+            assertMatchesSnapshot("CopyMappingTargetKindDiagnosticTest.abstractClass.output") {
+                facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
+                "Input" facetOf source
             }
         }
     })

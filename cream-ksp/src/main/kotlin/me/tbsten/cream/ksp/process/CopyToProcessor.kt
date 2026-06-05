@@ -30,8 +30,7 @@ import me.tbsten.cream.ksp.util.extractPropertyMappings
 import me.tbsten.cream.ksp.util.fullName
 import me.tbsten.cream.ksp.util.funNameTemplate
 import me.tbsten.cream.ksp.util.isSealed
-import me.tbsten.cream.ksp.util.requireClassDeclaration
-import me.tbsten.cream.ksp.util.resolveToClassDeclaration
+import me.tbsten.cream.ksp.util.resolveClassDeclarationOrReport
 import me.tbsten.cream.ksp.util.underPackageName
 
 internal fun CreamSymbolProcessor.processCopyTo(resolver: Resolver): List<KSAnnotated> {
@@ -44,25 +43,40 @@ internal fun CreamSymbolProcessor.processCopyTo(resolver: Resolver): List<KSAnno
     copyToTargets.forEach { target ->
         val sourceDeclaration =
             target as? KSDeclaration
-                ?: throw InvalidCreamUsageException(
-                    message = "@${CopyTo::class.simpleName} must be applied to a class, interface, or typealias.",
-                    solution = "Please apply @${CopyTo::class.simpleName} to `class`, `interface`, or `typealias`",
-                )
-        val sourceClass = sourceDeclaration.requireClassDeclaration(annotationName = CopyTo::class.simpleName!!)
+                ?: run {
+                    logger.reportCreamError(
+                        InvalidCreamUsageException(
+                            message = "@${CopyTo::class.simpleName} must be applied to a class, interface, or typealias.",
+                            solution = "Please apply @${CopyTo::class.simpleName} to `class`, `interface`, or `typealias`",
+                        ),
+                        target,
+                    )
+                    return@forEach
+                }
+        val sourceClass =
+            sourceDeclaration.resolveClassDeclarationOrReport(
+                annotationName = CopyTo::class.simpleName!!,
+                logger = logger,
+            ) ?: return@forEach
 
         val copyToAnnotations = target.annotationsOf(CopyTo::class)
 
-        // CopyTo.targets: List<KClass<*>>
-        val targetClasses =
+        // CopyTo.targets: List<KClass<*>>. If any target cannot be resolved to a class, an error has
+        // been reported and we skip this source so no partial file is emitted.
+        val resolvedTargets =
             copyToAnnotations
                 .classListArgument("targets")
                 .map { it.declaration }
                 .map { declaration ->
-                    declaration.requireClassDeclaration(
+                    declaration.resolveClassDeclarationOrReport(
                         annotationName = CopyTo::class.simpleName!!,
+                        logger = logger,
                         context = "Specified in @${CopyTo::class.simpleName}.targets of ${target.fullName}",
+                        ksNode = sourceDeclaration,
                     )
                 }.toList()
+        if (resolvedTargets.any { it == null }) return@forEach
+        val targetClasses = resolvedTargets.filterNotNull()
 
         val (kdocDescription, kdocExamples) =
             copyToAnnotations.firstOrNull()?.extractKDoc() ?: ("" to emptyList())
@@ -73,12 +87,16 @@ internal fun CreamSymbolProcessor.processCopyTo(resolver: Resolver): List<KSAnno
         val funNameTemplate =
             copyToAnnotations.firstOrNull()?.funNameTemplate() ?: DefaultCopyFunctionName
 
-        requireFunNameSupportsFanout(
-            funNameTemplate = funNameTemplate,
-            generatesMultipleFunctions = targetClasses.size > 1 || targetClasses.any { it.isSealed() },
-            annotationSimpleName = CopyTo::class.simpleName!!,
-            declarationFullName = sourceClass.fullName,
-        )
+        val funNameOk =
+            requireFunNameSupportsFanout(
+                funNameTemplate = funNameTemplate,
+                generatesMultipleFunctions = targetClasses.size > 1 || targetClasses.any { it.isSealed() },
+                annotationSimpleName = CopyTo::class.simpleName!!,
+                declarationFullName = sourceClass.fullName,
+                logger = logger,
+                ksNode = sourceDeclaration,
+            )
+        if (!funNameOk) return@forEach
 
         val gsa =
             GenerateSourceAnnotation.CopyTo(

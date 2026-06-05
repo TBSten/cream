@@ -1,8 +1,10 @@
 package me.tbsten.cream.ksp.diagnostic
 
 import com.tschuchort.compiletesting.KotlinCompilation
+import io.kotest.assertions.assertSoftly
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.shouldBe
 import me.tbsten.cream.ksp.testing.assertMatchesSnapshot
 import me.tbsten.cream.ksp.testing.compileWithCream
@@ -24,8 +26,11 @@ internal class CopyToDiagnosticTest :
                 """.trimIndent()
             val result = compileWithCream(source)
 
-            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
-                result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
+            assertSoftly {
+                withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
+                    result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
+                }
+                result.generatedSources().shouldBeEmpty()
             }
             assertMatchesSnapshot("CopyToDiagnosticTest.enumTarget.output") {
                 facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
@@ -49,8 +54,11 @@ internal class CopyToDiagnosticTest :
                 """.trimIndent()
             val result = compileWithCream(source)
 
-            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
-                result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
+            assertSoftly {
+                withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
+                    result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
+                }
+                result.generatedSources().shouldBeEmpty()
             }
             assertMatchesSnapshot("CopyToDiagnosticTest.nonSealedInterface.output") {
                 facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
@@ -72,8 +80,11 @@ internal class CopyToDiagnosticTest :
                 """.trimIndent()
             val result = compileWithCream(source)
 
-            withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
-                result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
+            assertSoftly {
+                withClue("Compilation should fail. Output:\n${result.normalizedCompilerOutput()}") {
+                    result.exitCode shouldBe KotlinCompilation.ExitCode.COMPILATION_ERROR
+                }
+                result.generatedSources().shouldBeEmpty()
             }
             assertMatchesSnapshot("CopyToDiagnosticTest.annotationTarget.output") {
                 facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
