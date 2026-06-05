@@ -153,9 +153,6 @@ internal fun CreamSymbolProcessor.processCombineMapping(resolver: Resolver): Lis
                     packageName = packageName,
                     fileName = "CombineMapping__${annotatedDeclaration.underPackageName}",
                 ) {
-                    it.appendLine("import me.tbsten.cream.*")
-                    it.appendLine()
-
                     mappings.forEach { mapping ->
                         val primarySource = mapping.sourceClasses.first()
                         val otherSources = mapping.sourceClasses.drop(1)

@@ -120,9 +120,6 @@ internal fun CreamSymbolProcessor.processCombineFrom(resolver: Resolver): List<K
                 packageName = targetClass.packageName,
                 fileName = "CombineFrom__${primarySource.underPackageName}__${targetClass.underPackageName}",
             ) {
-                it.appendLine("import me.tbsten.cream.*")
-                it.appendLine()
-
                 // Generate combine function with multiple sources
                 it.appendCombineToFunction(
                     primarySource = primarySource,

@@ -111,9 +111,6 @@ internal fun CreamSymbolProcessor.processCopyTo(resolver: Resolver): List<KSAnno
                 packageName = sourceClass.packageName,
                 fileName = "CopyTo__${sourceClass.underPackageName}",
             ) {
-                it.appendLine("import me.tbsten.cream.*")
-                it.appendLine()
-
                 targetClasses.forEach { targetClass ->
                     // generate sourceClass to sourceClass copy function
                     it.appendCopyFunction(
