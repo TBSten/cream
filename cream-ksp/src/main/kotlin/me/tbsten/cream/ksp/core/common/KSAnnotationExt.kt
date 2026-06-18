@@ -1,7 +1,10 @@
 package me.tbsten.cream.ksp.core.common
 
+import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSAnnotation
+import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import kotlin.reflect.KClass
 
@@ -28,6 +31,36 @@ internal fun Sequence<KSAnnotation>.classListArgument(name: String): Sequence<KS
             .filterIsInstance<List<KSType>>()
             .flatten()
     }
+
+/**
+ * Resolve a `List<KClass<*>>` annotation argument (e.g. `targets` / `sources`) to a list of
+ * [KSClassDeclaration]s, reporting a clean positioned `COMPILATION_ERROR` and returning `null` when
+ * any entry cannot be resolved to a class. On `null` the caller MUST skip the whole declaration
+ * (e.g. `?: return@forEach`) so no partial file is emitted.
+ *
+ * Each diagnostic is anchored at [anchorDeclaration] (the annotated source/target) and its context
+ * reads "Specified in @<annotation>.<argument> of <declaration>", matching the per-entry message
+ * used by [resolveClassDeclarationOrReport].
+ */
+context(logger: KSPLogger)
+internal fun Sequence<KSAnnotation>.resolveClassListOrReport(
+    argumentName: String,
+    annotationSimpleName: String,
+    anchorDeclaration: KSDeclaration,
+): List<KSClassDeclaration>? {
+    val resolved =
+        classListArgument(argumentName)
+            .map { it.declaration }
+            .map { declaration ->
+                declaration.resolveClassDeclarationOrReport(
+                    annotationName = annotationSimpleName,
+                    logger = logger,
+                    context = "Specified in @$annotationSimpleName.$argumentName of ${anchorDeclaration.fullName}",
+                    ksNode = anchorDeclaration,
+                )
+            }.toList()
+    return if (resolved.any { it == null }) null else resolved.filterNotNull()
+}
 
 /**
  * Extract the `properties` argument (a list of `@...Map(source =, target =)` instances)

@@ -1,5 +1,6 @@
 package me.tbsten.cream.ksp.feature.combineMapping
 
+import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.ClassKind
@@ -16,6 +17,7 @@ import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.ProcessContext
 import me.tbsten.cream.ksp.core.combineFun.appendCombineToFunction
 import me.tbsten.cream.ksp.core.common.annotationsOf
+import me.tbsten.cream.ksp.core.common.asClassDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.copyVisibilityArgument
 import me.tbsten.cream.ksp.core.common.createNewKotlinFile
 import me.tbsten.cream.ksp.core.common.extractKDoc
@@ -26,6 +28,7 @@ import me.tbsten.cream.ksp.core.common.reportCreamError
 import me.tbsten.cream.ksp.core.common.resolveClassDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.resolveToClassDeclaration
 import me.tbsten.cream.ksp.core.common.underPackageName
+import me.tbsten.cream.ksp.util.with
 
 /**
  * Data class to hold CombineMapping annotation information
@@ -44,6 +47,8 @@ private data class CombineMappingInfo(
     val kdocExamples: List<String>,
     val visibility: CopyVisibility,
     val funNameTemplate: String,
+    /** Typed proxy for [GenerateSourceAnnotation.CombineMapping.annotation]. */
+    val typedAnnotation: me.tbsten.cream.CombineMapping,
 )
 
 /**
@@ -55,6 +60,7 @@ private data class CombineMappingInfo(
  */
 private fun parseCombineMapping(
     annotation: KSAnnotation,
+    typedAnnotation: me.tbsten.cream.CombineMapping,
     annotatedDeclaration: KSClassDeclaration,
     logger: KSPLogger,
 ): CombineMappingInfo? {
@@ -63,13 +69,7 @@ private fun parseCombineMapping(
             .firstOrNull { it.name?.asString() == "sources" }
             ?.value as? List<*>
             ?: run {
-                logger.reportCreamError(
-                    InvalidCreamUsageException(
-                        message = "sources parameter is required in @${CombineMapping::class.simpleName}",
-                        solution = "Specify at least 2 source classes in @${CombineMapping::class.simpleName}",
-                    ),
-                    annotatedDeclaration,
-                )
+                logger.reportCombineMappingMissingSources(annotatedDeclaration)
                 return null
             }
 
@@ -78,13 +78,7 @@ private fun parseCombineMapping(
             .firstOrNull { it.name?.asString() == "target" }
             ?.value as? KSType
             ?: run {
-                logger.reportCreamError(
-                    InvalidCreamUsageException(
-                        message = "target parameter is required in @${CombineMapping::class.simpleName}",
-                        solution = "Specify target class in @${CombineMapping::class.simpleName}",
-                    ),
-                    annotatedDeclaration,
-                )
+                logger.reportCombineMappingMissingTarget(annotatedDeclaration)
                 return null
             }
 
@@ -96,13 +90,7 @@ private fun parseCombineMapping(
         }
 
     if (sourceClasses.size < 2) {
-        logger.reportCreamError(
-            InvalidCreamUsageException(
-                message = "@${CombineMapping::class.simpleName} requires at least 2 source classes, but got ${sourceClasses.size}.",
-                solution = "Specify at least 2 source classes in @${CombineMapping::class.simpleName}.sources",
-            ),
-            annotatedDeclaration,
-        )
+        logger.reportCombineMappingInsufficientSources(annotatedDeclaration, sourceClasses.size)
         return null
     }
 
@@ -110,13 +98,7 @@ private fun parseCombineMapping(
         if (sourceClass.classKind != ClassKind.CLASS &&
             sourceClass.classKind != ClassKind.ANNOTATION_CLASS
         ) {
-            logger.reportCreamError(
-                InvalidCreamUsageException(
-                    message = "${sourceClass.fullName} (Specified in @${CombineMapping::class.simpleName}.sources) must be a class.",
-                    solution = "Specify a class in @${CombineMapping::class.simpleName}.sources",
-                ),
-                annotatedDeclaration,
-            )
+            logger.reportCombineMappingInvalidSourceKind(annotatedDeclaration, sourceClass)
             return null
         }
     }
@@ -141,6 +123,7 @@ private fun parseCombineMapping(
         kdocExamples = kdocExamples,
         visibility = visibility,
         funNameTemplate = annotation.funNameTemplate(),
+        typedAnnotation = typedAnnotation,
     )
 }
 
@@ -154,25 +137,18 @@ internal fun processCombineMapping(): List<KSAnnotated> {
 
     combineMappingTargets.forEach { target ->
         val annotatedDeclaration =
-            (target as? KSClassDeclaration)
-                ?: run {
-                    processContext.logger.reportCreamError(
-                        InvalidCreamUsageException(
-                            message = "@${CombineMapping::class.simpleName} must be applied to a class.",
-                            solution = "Please apply @${CombineMapping::class.simpleName} to a `class` or `object`",
-                        ),
-                        target,
-                    )
-                    return@forEach
-                }
+            with(processContext.logger) { target.asClassDeclarationOrReport(CombineMapping::class.simpleName!!) } ?: return@forEach
 
         // Extract all CombineMapping annotations from the target. A malformed annotation reports a
         // clean diagnostic and yields null; skip the whole declaration so no partial file is emitted.
+        val rawAnnotations = target.annotationsOf(CombineMapping::class).toList()
+        val typedAnnotations = annotatedDeclaration.getAnnotationsByType(CombineMapping::class).toList()
         val parsedMappings =
-            target
-                .annotationsOf(CombineMapping::class)
-                .map { annotation -> parseCombineMapping(annotation, annotatedDeclaration, processContext.logger) }
-                .toList()
+            rawAnnotations
+                .zip(typedAnnotations)
+                .map { (rawAnnotation, typedAnnotation) ->
+                    parseCombineMapping(rawAnnotation, typedAnnotation, annotatedDeclaration, processContext.logger)
+                }.toList()
         if (parsedMappings.any { it == null }) return@forEach
         val combineMappings = parsedMappings.filterNotNull()
 
@@ -199,24 +175,19 @@ internal fun processCombineMapping(): List<KSAnnotated> {
                         val primarySource = mapping.sourceClasses.firstOrNull() ?: return@forEach
                         val otherSources = mapping.sourceClasses.drop(1)
 
-                        with(processContext.options) {
-                            with(processContext.logger) {
-                                it.appendCombineToFunction(
-                                    primarySource = primarySource,
-                                    otherSources = otherSources,
-                                    target = mapping.targetClass,
-                                    omitPackages = listOf("kotlin", packageName.asString()),
-                                    generateSourceAnnotation =
-                                        GenerateSourceAnnotation.CombineMapping(
-                                            annotationTarget = annotatedDeclaration,
-                                            propertyMappings = mapping.propertyMappings,
-                                            kdocDescription = mapping.kdocDescription,
-                                            kdocExamples = mapping.kdocExamples,
-                                        ),
-                                    visibility = mapping.visibility,
-                                    funNameTemplate = mapping.funNameTemplate,
-                                )
-                            }
+                        with(processContext.options, processContext.logger) {
+                            it.appendCombineToFunction(
+                                primarySource = primarySource,
+                                otherSources = otherSources,
+                                target = mapping.targetClass,
+                                omitPackages = listOf("kotlin", packageName.asString()),
+                                generateSourceAnnotation =
+                                    GenerateSourceAnnotation.CombineMapping(
+                                        annotation = mapping.typedAnnotation,
+                                        propertyMappings = mapping.propertyMappings,
+                                    ),
+                                annotated = annotatedDeclaration,
+                            )
                         }
                     }
                 }
@@ -224,4 +195,54 @@ internal fun processCombineMapping(): List<KSAnnotated> {
     }
 
     return invalidCombineMappingTargets
+}
+
+// ---------------------------------------------------------------------------
+// Diagnostic helpers
+// ---------------------------------------------------------------------------
+
+private fun KSPLogger.reportCombineMappingMissingSources(annotatedDeclaration: KSClassDeclaration) {
+    reportCreamError(
+        InvalidCreamUsageException(
+            message = "sources parameter is required in @${CombineMapping::class.simpleName}",
+            solution = "Specify at least 2 source classes in @${CombineMapping::class.simpleName}",
+        ),
+        annotatedDeclaration,
+    )
+}
+
+private fun KSPLogger.reportCombineMappingMissingTarget(annotatedDeclaration: KSClassDeclaration) {
+    reportCreamError(
+        InvalidCreamUsageException(
+            message = "target parameter is required in @${CombineMapping::class.simpleName}",
+            solution = "Specify target class in @${CombineMapping::class.simpleName}",
+        ),
+        annotatedDeclaration,
+    )
+}
+
+private fun KSPLogger.reportCombineMappingInsufficientSources(
+    annotatedDeclaration: KSClassDeclaration,
+    actualCount: Int,
+) {
+    reportCreamError(
+        InvalidCreamUsageException(
+            message = "@${CombineMapping::class.simpleName} requires at least 2 source classes, but got $actualCount.",
+            solution = "Specify at least 2 source classes in @${CombineMapping::class.simpleName}.sources",
+        ),
+        annotatedDeclaration,
+    )
+}
+
+private fun KSPLogger.reportCombineMappingInvalidSourceKind(
+    annotatedDeclaration: KSClassDeclaration,
+    sourceClass: KSClassDeclaration,
+) {
+    reportCreamError(
+        InvalidCreamUsageException(
+            message = "${sourceClass.fullName} (Specified in @${CombineMapping::class.simpleName}.sources) must be a class.",
+            solution = "Specify a class in @${CombineMapping::class.simpleName}.sources",
+        ),
+        annotatedDeclaration,
+    )
 }

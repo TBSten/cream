@@ -3,8 +3,7 @@ package me.tbsten.cream.ksp.core.combineFun
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import me.tbsten.cream.CopyVisibility
-import me.tbsten.cream.DefaultCopyFunctionName
+import com.google.devtools.ksp.symbol.KSDeclaration
 import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.core.common.fullName
@@ -18,8 +17,7 @@ internal fun BufferedWriter.appendCombineToFunction(
     target: KSClassDeclaration,
     omitPackages: List<String>,
     generateSourceAnnotation: GenerateSourceAnnotation<*>,
-    visibility: CopyVisibility = CopyVisibility.INHERIT,
-    funNameTemplate: String = DefaultCopyFunctionName,
+    annotated: KSDeclaration = primarySource,
 ) {
     when (target.classKind) {
         ClassKind.CLASS,
@@ -31,8 +29,7 @@ internal fun BufferedWriter.appendCombineToFunction(
                 target,
                 generateSourceAnnotation,
                 omitPackages,
-                visibility,
-                funNameTemplate,
+                annotated = annotated,
             )
 
         ClassKind.OBJECT ->
@@ -42,8 +39,7 @@ internal fun BufferedWriter.appendCombineToFunction(
                     otherSources,
                     target,
                     generateSourceAnnotation,
-                    visibility,
-                    funNameTemplate,
+                    annotated = annotated,
                 )
             }
 

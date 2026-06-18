@@ -1,38 +1,33 @@
 package me.tbsten.cream.ksp.feature.combineTo
 
+import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CombineTo
-import me.tbsten.cream.CopyVisibility
 import me.tbsten.cream.DefaultCopyFunctionName
 import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.ProcessContext
 import me.tbsten.cream.ksp.core.combineFun.appendCombineToFunction
 import me.tbsten.cream.ksp.core.common.annotationsOf
-import me.tbsten.cream.ksp.core.common.classListArgument
-import me.tbsten.cream.ksp.core.common.copyVisibilityArgument
+import me.tbsten.cream.ksp.core.common.asDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.createNewKotlinFile
-import me.tbsten.cream.ksp.core.common.extractKDoc
 import me.tbsten.cream.ksp.core.common.fullName
-import me.tbsten.cream.ksp.core.common.funNameTemplate
 import me.tbsten.cream.ksp.core.common.reportCreamError
 import me.tbsten.cream.ksp.core.common.requireFunNameSupportsFanout
 import me.tbsten.cream.ksp.core.common.resolveClassDeclarationOrReport
+import me.tbsten.cream.ksp.core.common.resolveClassListOrReport
 import me.tbsten.cream.ksp.core.common.resolveToClassDeclaration
 import me.tbsten.cream.ksp.core.common.underPackageName
 import me.tbsten.cream.ksp.core.common.warnIfSourceExcludeHasNoEffect
-import me.tbsten.cream.ksp.util.ksp.isSealed
+import me.tbsten.cream.ksp.util.with
 
 private data class CombineToSourceEntry(
     val sourceDeclaration: KSDeclaration,
-    val kdocDescription: String,
-    val kdocExamples: List<String>,
-    val visibility: CopyVisibility,
-    val funNameTemplate: String,
+    val annotation: me.tbsten.cream.CombineTo,
 )
 
 private class TargetSourcesMapForCombineTo : MutableMap<KSClassDeclaration, MutableList<CombineToSourceEntry>> by mutableMapOf() {
@@ -57,17 +52,7 @@ internal fun processCombineTo(): List<KSAnnotated> {
 
     combineToTargets.forEach { target ->
         val sourceDeclaration =
-            target as? KSDeclaration
-                ?: run {
-                    processContext.logger.reportCreamError(
-                        InvalidCreamUsageException(
-                            message = "@${CombineTo::class.simpleName} must be applied to a class, interface, or typealias.",
-                            solution = "Please apply @${CombineTo::class.simpleName} to `class`, `interface`, or `typealias`",
-                        ),
-                        target,
-                    )
-                    return@forEach
-                }
+            with(processContext.logger) { target.asDeclarationOrReport(CombineTo::class.simpleName!!) } ?: return@forEach
         val sourceClass =
             sourceDeclaration.resolveClassDeclarationOrReport(
                 annotationName = CombineTo::class.simpleName!!,
@@ -78,20 +63,10 @@ internal fun processCombineTo(): List<KSAnnotated> {
 
         // CombineTo.targets: List<KClass<*>>. If any target cannot be resolved to a class, an error
         // has been reported and we skip this source so no partial file is emitted.
-        val resolvedTargets =
-            combineToAnnotations
-                .classListArgument("targets")
-                .map { it.declaration }
-                .map { declaration ->
-                    declaration.resolveClassDeclarationOrReport(
-                        annotationName = CombineTo::class.simpleName!!,
-                        logger = processContext.logger,
-                        context = "Specified in @${CombineTo::class.simpleName}.targets of ${target.fullName}",
-                        ksNode = sourceDeclaration,
-                    )
-                }.toList()
-        if (resolvedTargets.any { it == null }) return@forEach
-        val targetClasses = resolvedTargets.filterNotNull()
+        val targetClasses =
+            with(processContext.logger) {
+                combineToAnnotations.resolveClassListOrReport("targets", CombineTo::class.simpleName!!, sourceDeclaration)
+            } ?: return@forEach
 
         // @CombineTo is NOT @Repeatable: it lists its targets in a single `vararg targets`. Listing
         // the same target twice (`@CombineTo(Foo::class, Foo::class)`) is an unambiguous user
@@ -118,18 +93,12 @@ internal fun processCombineTo(): List<KSAnnotated> {
             return@forEach
         }
 
-        val (kdocDescription, kdocExamples) =
-            combineToAnnotations.firstOrNull()?.extractKDoc() ?: ("" to emptyList())
-
-        val visibility =
-            combineToAnnotations.firstOrNull()?.copyVisibilityArgument() ?: CopyVisibility.INHERIT
-
-        val funNameTemplate =
-            combineToAnnotations.firstOrNull()?.funNameTemplate() ?: DefaultCopyFunctionName
+        val combineToAnnotation =
+            target.getAnnotationsByType(CombineTo::class).firstOrNull() ?: return@forEach
 
         val funNameOk =
             requireFunNameSupportsFanout(
-                funNameTemplate = funNameTemplate,
+                funNameTemplate = runCatching { combineToAnnotation.funName }.getOrDefault(DefaultCopyFunctionName),
                 generatesMultipleFunctions = targetClasses.size > 1,
                 annotationSimpleName = CombineTo::class.simpleName!!,
                 declarationFullName = sourceClass.fullName,
@@ -142,15 +111,10 @@ internal fun processCombineTo(): List<KSAnnotated> {
         // this source's target classes. Computed here (per source, union of all targets) rather than
         // inside the per-(target, source) generation loop below — doing it there duplicated the
         // warning once per target and falsely warned for a property matched in a sibling target.
-        val gsaForWarning =
-            GenerateSourceAnnotation.CombineTo(
-                annotationTarget = sourceDeclaration,
-                kdocDescription = kdocDescription,
-                kdocExamples = kdocExamples,
-            )
+        val generateSourceAnnotationForWarning = GenerateSourceAnnotation.CombineTo(annotation = combineToAnnotation)
         val allTargetParams = targetClasses.flatMap { it.primaryConstructor?.parameters.orEmpty() }
         sourceClass.getAllProperties().forEach { prop ->
-            prop.warnIfSourceExcludeHasNoEffect(allTargetParams, sourceClass, gsaForWarning, processContext.logger)
+            prop.warnIfSourceExcludeHasNoEffect(allTargetParams, sourceClass, generateSourceAnnotationForWarning, processContext.logger)
         }
 
         // Group source classes by target class
@@ -159,10 +123,7 @@ internal fun processCombineTo(): List<KSAnnotated> {
                 targetClass,
                 CombineToSourceEntry(
                     sourceDeclaration = sourceDeclaration,
-                    kdocDescription = kdocDescription,
-                    kdocExamples = kdocExamples,
-                    visibility = visibility,
-                    funNameTemplate = funNameTemplate,
+                    annotation = combineToAnnotation,
                 ),
             )
         }
@@ -178,12 +139,7 @@ internal fun processCombineTo(): List<KSAnnotated> {
                     .filter { it.sourceDeclaration != sourceDeclaration }
                     .map { it.sourceDeclaration.resolveToClassDeclaration()!! }
 
-            val gsa =
-                GenerateSourceAnnotation.CombineTo(
-                    annotationTarget = sourceDeclaration,
-                    kdocDescription = sourceEntry.kdocDescription,
-                    kdocExamples = sourceEntry.kdocExamples,
-                )
+            val generateSourceAnnotation = GenerateSourceAnnotation.CombineTo(annotation = sourceEntry.annotation)
 
             processContext.codeGenerator
                 .createNewKotlinFile(
@@ -192,18 +148,14 @@ internal fun processCombineTo(): List<KSAnnotated> {
                     fileName = "CombineTo__${sourceClass.underPackageName}__${targetClass.underPackageName}",
                 ) {
                     // Generate combine function with multiple sources
-                    with(processContext.options) {
-                        with(processContext.logger) {
-                            it.appendCombineToFunction(
-                                primarySource = sourceClass,
-                                otherSources = otherSourceClasses,
-                                target = targetClass,
-                                omitPackages = listOf("kotlin", sourceClass.packageName.asString()),
-                                generateSourceAnnotation = gsa,
-                                visibility = sourceEntry.visibility,
-                                funNameTemplate = sourceEntry.funNameTemplate,
-                            )
-                        }
+                    with(processContext.options, processContext.logger) {
+                        it.appendCombineToFunction(
+                            primarySource = sourceClass,
+                            otherSources = otherSourceClasses,
+                            target = targetClass,
+                            omitPackages = listOf("kotlin", sourceClass.packageName.asString()),
+                            generateSourceAnnotation = generateSourceAnnotation,
+                        )
                     }
                 }
         }

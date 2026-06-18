@@ -1,5 +1,6 @@
 package me.tbsten.cream.ksp.feature.copyMapping
 
+import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSAnnotated
@@ -13,6 +14,7 @@ import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.ProcessContext
 import me.tbsten.cream.ksp.core.common.annotationsOf
+import me.tbsten.cream.ksp.core.common.asClassDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.createNewKotlinFile
 import me.tbsten.cream.ksp.core.common.extractKDoc
 import me.tbsten.cream.ksp.core.common.extractPropertyMappings
@@ -24,6 +26,7 @@ import me.tbsten.cream.ksp.core.common.resolveClassDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.underPackageName
 import me.tbsten.cream.ksp.core.copyFun.appendCopyFunction
 import me.tbsten.cream.ksp.util.ksp.isSealed
+import me.tbsten.cream.ksp.util.with
 
 /**
  * Data class to hold CopyMapping annotation information
@@ -43,6 +46,8 @@ private data class CopyMappingInfo(
     val kdocDescription: String,
     val kdocExamples: List<String>,
     val funNameTemplate: String,
+    /** Typed proxy for [GenerateSourceAnnotation.CopyMapping.annotation]. */
+    val typedAnnotation: me.tbsten.cream.CopyMapping,
 )
 
 /**
@@ -53,6 +58,7 @@ private data class CopyMappingInfo(
  */
 private fun parseCopyMapping(
     annotation: KSAnnotation,
+    typedAnnotation: me.tbsten.cream.CopyMapping,
     annotatedDeclaration: KSClassDeclaration,
     logger: KSPLogger,
 ): CopyMappingInfo? {
@@ -61,13 +67,7 @@ private fun parseCopyMapping(
             .firstOrNull { it.name?.asString() == "source" }
             ?.value as? KSType
             ?: run {
-                logger.reportCreamError(
-                    InvalidCreamUsageException(
-                        message = "source parameter is required in @${CopyMapping::class.simpleName}",
-                        solution = "Specify source class in @${CopyMapping::class.simpleName}",
-                    ),
-                    annotatedDeclaration,
-                )
+                logger.reportCopyMappingMissingSource(annotatedDeclaration)
                 return null
             }
 
@@ -76,13 +76,7 @@ private fun parseCopyMapping(
             .firstOrNull { it.name?.asString() == "target" }
             ?.value as? KSType
             ?: run {
-                logger.reportCreamError(
-                    InvalidCreamUsageException(
-                        message = "target parameter is required in @${CopyMapping::class.simpleName}",
-                        solution = "Specify target class in @${CopyMapping::class.simpleName}",
-                    ),
-                    annotatedDeclaration,
-                )
+                logger.reportCopyMappingMissingTarget(annotatedDeclaration)
                 return null
             }
 
@@ -120,6 +114,7 @@ private fun parseCopyMapping(
         kdocDescription = kdocDescription,
         kdocExamples = kdocExamples,
         funNameTemplate = annotation.funNameTemplate(),
+        typedAnnotation = typedAnnotation,
     )
 }
 
@@ -133,25 +128,18 @@ internal fun processCopyMapping(): List<KSAnnotated> {
 
     copyMappingTargets.forEach { target ->
         val annotatedDeclaration =
-            (target as? KSClassDeclaration)
-                ?: run {
-                    processContext.logger.reportCreamError(
-                        InvalidCreamUsageException(
-                            message = "@${CopyMapping::class.simpleName} must be applied to a class.",
-                            solution = "Please apply @${CopyMapping::class.simpleName} to a `class` or `object`",
-                        ),
-                        target,
-                    )
-                    return@forEach
-                }
+            with(processContext.logger) { target.asClassDeclarationOrReport(CopyMapping::class.simpleName!!) } ?: return@forEach
 
         // Extract all CopyMapping annotations from the target. A malformed annotation reports a
         // clean diagnostic and yields null; skip the whole declaration so no partial file is emitted.
+        val rawAnnotations = target.annotationsOf(CopyMapping::class).toList()
+        val typedAnnotations = annotatedDeclaration.getAnnotationsByType(CopyMapping::class).toList()
         val parsedMappings =
-            target
-                .annotationsOf(CopyMapping::class)
-                .map { annotation -> parseCopyMapping(annotation, annotatedDeclaration, processContext.logger) }
-                .toList()
+            rawAnnotations
+                .zip(typedAnnotations)
+                .map { (rawAnnotation, typedAnnotation) ->
+                    parseCopyMapping(rawAnnotation, typedAnnotation, annotatedDeclaration, processContext.logger)
+                }.toList()
         if (parsedMappings.any { it == null }) return@forEach
         val copyMappings = parsedMappings.filterNotNull()
 
@@ -186,43 +174,37 @@ internal fun processCopyMapping(): List<KSAnnotated> {
                     fileName = "CopyMapping__${annotatedDeclaration.underPackageName}",
                 ) {
                     mappings.forEach { mapping ->
-                        with(processContext.options) {
-                            with(processContext.logger) {
+                        with(processContext.options, processContext.logger) {
+                            it.appendCopyFunction(
+                                source = mapping.sourceClass,
+                                target = mapping.targetClass,
+                                omitPackages = listOf("kotlin", packageName.asString()),
+                                generateSourceAnnotation =
+                                    GenerateSourceAnnotation.CopyMapping(
+                                        annotation = mapping.typedAnnotation,
+                                        propertyMappings = mapping.propertyMappings,
+                                    ),
+                                notCopyToObject = false,
+                                annotated = annotatedDeclaration,
+                            )
+
+                            if (mapping.canReverse) {
+                                val reversePropertyMappings =
+                                    mapping.propertyMappings.map { (source, target) ->
+                                        target to source
+                                    }
                                 it.appendCopyFunction(
-                                    source = mapping.sourceClass,
-                                    target = mapping.targetClass,
+                                    source = mapping.targetClass,
+                                    target = mapping.sourceClass,
                                     omitPackages = listOf("kotlin", packageName.asString()),
                                     generateSourceAnnotation =
                                         GenerateSourceAnnotation.CopyMapping(
-                                            annotationTarget = annotatedDeclaration,
-                                            propertyMappings = mapping.propertyMappings,
-                                            kdocDescription = mapping.kdocDescription,
-                                            kdocExamples = mapping.kdocExamples,
+                                            annotation = mapping.typedAnnotation,
+                                            propertyMappings = reversePropertyMappings,
                                         ),
                                     notCopyToObject = false,
-                                    funNameTemplate = mapping.funNameTemplate,
+                                    annotated = annotatedDeclaration,
                                 )
-
-                                if (mapping.canReverse) {
-                                    val reversePropertyMappings =
-                                        mapping.propertyMappings.map { (source, target) ->
-                                            target to source
-                                        }
-                                    it.appendCopyFunction(
-                                        source = mapping.targetClass,
-                                        target = mapping.sourceClass,
-                                        omitPackages = listOf("kotlin", packageName.asString()),
-                                        generateSourceAnnotation =
-                                            GenerateSourceAnnotation.CopyMapping(
-                                                annotationTarget = annotatedDeclaration,
-                                                propertyMappings = reversePropertyMappings,
-                                                kdocDescription = mapping.kdocDescription,
-                                                kdocExamples = mapping.kdocExamples,
-                                            ),
-                                        notCopyToObject = false,
-                                        funNameTemplate = mapping.funNameTemplate,
-                                    )
-                                }
                             }
                         }
                     }
@@ -231,4 +213,28 @@ internal fun processCopyMapping(): List<KSAnnotated> {
     }
 
     return invalidCopyMappingTargets
+}
+
+// ---------------------------------------------------------------------------
+// Diagnostic helpers
+// ---------------------------------------------------------------------------
+
+private fun KSPLogger.reportCopyMappingMissingSource(annotatedDeclaration: KSClassDeclaration) {
+    reportCreamError(
+        InvalidCreamUsageException(
+            message = "source parameter is required in @${CopyMapping::class.simpleName}",
+            solution = "Specify source class in @${CopyMapping::class.simpleName}",
+        ),
+        annotatedDeclaration,
+    )
+}
+
+private fun KSPLogger.reportCopyMappingMissingTarget(annotatedDeclaration: KSClassDeclaration) {
+    reportCreamError(
+        InvalidCreamUsageException(
+            message = "target parameter is required in @${CopyMapping::class.simpleName}",
+            solution = "Specify target class in @${CopyMapping::class.simpleName}",
+        ),
+        annotatedDeclaration,
+    )
 }

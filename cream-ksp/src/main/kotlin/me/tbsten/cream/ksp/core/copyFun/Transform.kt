@@ -3,8 +3,7 @@ package me.tbsten.cream.ksp.core.copyFun
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import me.tbsten.cream.CopyVisibility
-import me.tbsten.cream.DefaultCopyFunctionName
+import com.google.devtools.ksp.symbol.KSDeclaration
 import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.core.common.CopyTargetRejection
 import me.tbsten.cream.ksp.core.common.concreteClassRejection
@@ -39,8 +38,7 @@ internal fun BufferedWriter.appendCopyFunction(
     omitPackages: List<String>,
     generateSourceAnnotation: GenerateSourceAnnotation<*>,
     notCopyToObject: Boolean,
-    visibility: CopyVisibility = CopyVisibility.INHERIT,
-    funNameTemplate: String = DefaultCopyFunctionName,
+    annotated: KSDeclaration = source,
 ) {
     when (target.classKind) {
         // An annotation class cannot currently be used as a copy target; it is rejected with a
@@ -58,8 +56,6 @@ internal fun BufferedWriter.appendCopyFunction(
                     omitPackages,
                     generateSourceAnnotation,
                     notCopyToObject,
-                    visibility,
-                    funNameTemplate,
                 )
             } else {
                 when (val rejection = target.concreteClassRejection()) {
@@ -69,8 +65,7 @@ internal fun BufferedWriter.appendCopyFunction(
                             target,
                             generateSourceAnnotation,
                             omitPackages,
-                            visibility,
-                            funNameTemplate,
+                            annotated = annotated,
                         )
 
                     else -> reportRejection(rejection, target)
@@ -79,7 +74,7 @@ internal fun BufferedWriter.appendCopyFunction(
 
         ClassKind.OBJECT ->
             if (!notCopyToObject) {
-                appendCopyToObjectFunction(source, target, generateSourceAnnotation, visibility, funNameTemplate)
+                appendCopyToObjectFunction(source, target, generateSourceAnnotation, annotated = annotated)
             }
 
         // A sealed interface fans out to its concrete subclasses; a non-sealed interface cannot
@@ -92,8 +87,6 @@ internal fun BufferedWriter.appendCopyFunction(
                     omitPackages,
                     generateSourceAnnotation,
                     notCopyToObject,
-                    visibility,
-                    funNameTemplate,
                 )
             } else {
                 reportRejection(CopyTargetRejection.NON_SEALED_INTERFACE, target)
