@@ -30,9 +30,10 @@ import io.kotest.matchers.shouldBe
  * `feature` files only in a `feature.<name>` sub-package; every file stays within its line budget
  * (default 300, with a few justified [FILE_LINE_LIMIT_OVERRIDES]).
  *
- * The checks are import-based, matching the project convention of always importing referenced symbols (no wildcard
- * imports, no fully-qualified inline references; enforced by ktlint). The entry-point signature check reads
- * `KoFunctionDeclaration.text` for the `context(...)` clause, since Konsist does not model context parameters.
+ * The checks are import-based, matching the project convention of always importing referenced symbols rather than
+ * using wildcard imports (forbidden by ktlint) or fully-qualified inline references (a convention only — not
+ * lint-enforced). The entry-point signature check reads `KoFunctionDeclaration.text` for the `context(...)` clause,
+ * since Konsist does not model context parameters.
  */
 internal class LayeringArchitectureTest :
     FunSpec(
