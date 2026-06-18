@@ -163,12 +163,16 @@ internal class LayeringArchitectureTest :
                                 ) {
                                     entryPoint.returnType?.sourceType shouldBe "List<KSAnnotated>"
                                 }
+                                // Inspect only the signature (everything before the body's `{`) so that a
+                                // `context(` / `ProcessContext` occurrence inside the function body — a string
+                                // literal or comment — cannot make the check pass spuriously.
+                                val signature = entryPoint.text.substringBefore('{').trim()
                                 withClue(
                                     "entry point '${entryPoint.name}' は context(ProcessContext) を宣言すべき " +
-                                        "(declaration: ${entryPoint.text.substringBefore('{').trim()})",
+                                        "(declaration: $signature)",
                                 ) {
-                                    entryPoint.text.contains("context(") shouldBe true
-                                    entryPoint.text.contains("ProcessContext") shouldBe true
+                                    signature.contains("context(") shouldBe true
+                                    signature.contains("ProcessContext") shouldBe true
                                 }
                             }
                         }
