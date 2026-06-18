@@ -9,6 +9,10 @@ plugins {
     id("buildLogic.lint")
 }
 
+kotlin {
+    jvmToolchain(17)
+}
+
 dependencies {
     implementation(project(":optionBuilder:sharedUI"))
     implementation(compose.ui)

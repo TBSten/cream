@@ -6,6 +6,7 @@ plugins {
 
 kotlin {
     explicitApi()
+    jvmToolchain(17)
 
     compilerOptions.optIn.addAll(
         "com.google.devtools.ksp.KspExperimental",

@@ -1,20 +1,14 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
     `kotlin-dsl`
 }
 
 group = "me.tbsten.cream.buildLogic"
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
-}
-
 kotlin {
-    compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_11)
-    }
+    // Compile against a provisioned JDK 17 (configures both the Java and Kotlin toolchains) so the
+    // included build does not depend on the JDK that happens to launch Gradle. Provisioning is
+    // enabled by the foojay resolver in buildLogic/settings.gradle.kts.
+    jvmToolchain(17)
 }
 
 dependencies {
