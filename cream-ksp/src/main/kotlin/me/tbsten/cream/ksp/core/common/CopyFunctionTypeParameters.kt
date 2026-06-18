@@ -1,0 +1,121 @@
+package me.tbsten.cream.ksp.core.common
+
+import com.google.devtools.ksp.getAnnotationsByType
+import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSTypeParameter
+import com.google.devtools.ksp.symbol.KSTypeReference
+import me.tbsten.cream.CopyFrom
+import me.tbsten.cream.CopyTo
+import me.tbsten.cream.ksp.UnknownCreamException
+import me.tbsten.cream.ksp.util.ksp.asString
+
+internal fun getCopyFunctionTypeParameters(
+    sourceClass: KSClassDeclaration,
+    targetConstructor: KSFunctionDeclaration,
+) = CopyFunctionTypeParameters(
+    sourceClass = sourceClass,
+    targetConstructor = targetConstructor,
+)
+
+internal class CopyFunctionTypeParameters(
+    private val sourceClass: KSClassDeclaration,
+    private val targetConstructor: KSFunctionDeclaration,
+) : Map<String, CopyFunctionTypeParameter> by copyFunctionTypeParametersMap(
+        sourceClass,
+        targetConstructor,
+    ) {
+    fun getNameFromSourceClassTypeParameters(typeParameter: KSTypeParameter): String? =
+        this.entries
+            .find {
+                it.value.source
+                    ?.name
+                    ?.asString() == typeParameter.name.asString()
+            }?.key
+
+    fun getNameFromTargetConstructorTypeParameters(typeParameter: KSTypeParameter): String? =
+        this.entries
+            .find {
+                it.value.target
+                    ?.name
+                    ?.asString() == typeParameter.name.asString()
+            }?.key
+}
+
+private fun copyFunctionTypeParametersMap(
+    sourceClass: KSClassDeclaration,
+    targetConstructor: KSFunctionDeclaration,
+) = buildMap<String, CopyFunctionTypeParameter> {
+    targetConstructor.typeParameters.forEach { typeParameter ->
+        val name =
+            typeParameter
+                .getAnnotationsByType(CopyTo.Map::class)
+                .firstOrNull()
+                ?.propertyNames
+                ?: typeParameter.name.asString()
+        val prevTypeParameter = get(name)
+        val newTypeParameter =
+            prevTypeParameter?.copy(
+                target = typeParameter,
+            ) ?: CopyFunctionTypeParameter(
+                source = null,
+                target = typeParameter,
+            )
+
+        put(
+            key = newTypeParameter.name,
+            value = newTypeParameter,
+        )
+    }
+
+    sourceClass.typeParameters.forEach { typeParameter ->
+        val names =
+            typeParameter
+                .getAnnotationsByType(CopyFrom.Map::class)
+                .firstOrNull()
+                ?.propertyNames
+                ?: arrayOf(typeParameter.name.asString())
+        val prevTypeParameters = this.filter { (key, _) -> key in names }
+
+        if (prevTypeParameters.isEmpty()) {
+            put(
+                key = typeParameter.name.asString(),
+                value =
+                    CopyFunctionTypeParameter(
+                        source = typeParameter,
+                        target = null,
+                    ),
+            )
+        }
+        prevTypeParameters.forEach { (name, prevTypeParameter) ->
+            put(
+                key = name,
+                value =
+                    prevTypeParameter.copy(
+                        source = typeParameter,
+                    ),
+            )
+        }
+    }
+}
+
+internal data class CopyFunctionTypeParameter(
+    val source: KSTypeParameter?,
+    val target: KSTypeParameter?,
+) {
+    val bounds: Sequence<KSTypeReference>
+        get() {
+            val sourceBounds = source?.bounds ?: emptySequence()
+            val targetBounds = target?.bounds ?: emptySequence()
+            return (sourceBounds + targetBounds)
+                .distinctBy { it.resolve().asString(omitPackages = emptyList()) }
+        }
+
+    val name: String
+        get() =
+            target?.name?.asString()
+                ?: source?.name?.asString()
+                ?: throw UnknownCreamException(
+                    message = "Invalid copy function type parameter: both source and target are null.",
+                )
+}

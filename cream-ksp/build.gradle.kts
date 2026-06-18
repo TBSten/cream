@@ -9,6 +9,7 @@ kotlin {
         "com.google.devtools.ksp.KspExperimental",
         "me.tbsten.cream.InternalCreamApi",
     )
+    compilerOptions.freeCompilerArgs.add("-Xcontext-parameters")
     sourceSets.named("test") {
         languageSettings.optIn("org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi")
     }

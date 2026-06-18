@@ -6,6 +6,7 @@ import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
+import me.tbsten.cream.ksp.core.common.copyFunctionName
 import me.tbsten.cream.ksp.options.CopyFunNamingStrategy
 import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.options.EscapeDot

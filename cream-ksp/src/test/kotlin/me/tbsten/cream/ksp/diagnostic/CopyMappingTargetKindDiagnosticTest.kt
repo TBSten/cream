@@ -12,7 +12,7 @@ import me.tbsten.cream.ksp.testing.compileWithCream
 import me.tbsten.cream.ksp.testing.normalizedCompilerOutput
 
 /**
- * `@CopyMapping` reuses the same target dispatcher ([me.tbsten.cream.ksp.transform.appendCopyFunction])
+ * `@CopyMapping` reuses the same target dispatcher ([me.tbsten.cream.ksp.core.copyFun.appendCopyFunction])
  * as `@CopyTo` / `@CopyFrom`, so a non-constructable target (abstract / enum class, plain interface, …)
  * must be rejected with the same clean, positioned `COMPILATION_ERROR` rather than an `INTERNAL_ERROR`
  * crash. The processor threads its [com.google.devtools.ksp.processing.KSPLogger] into the dispatcher,

@@ -34,9 +34,9 @@ import dev.snipme.highlights.model.SyntaxLanguage
 import generateAnnotatedString
 import kotlinx.serialization.builtins.serializer
 import me.tbsten.cream.components.HeadingText
+import me.tbsten.cream.ksp.core.common.copyFunctionName
 import me.tbsten.cream.ksp.options.ClassDeclarationInfo
 import me.tbsten.cream.ksp.options.CreamOptions
-import me.tbsten.cream.ksp.transform.copyFunctionName
 import me.tbsten.cream.sharedui.generated.resources.Res
 import me.tbsten.cream.sharedui.generated.resources.gradle_comment_select_ksp_version
 import me.tbsten.cream.sharedui.generated.resources.gradle_setting_heading
