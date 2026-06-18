@@ -26,6 +26,10 @@ import io.kotest.matchers.shouldBe
  *                      and must NOT depend on the KSP API; KSP-flavoured helpers live in `util.ksp`. Neither may
  *                      depend on `core` / `feature` nor reference cream-specific types.
  *
+ * Structural / module rules also enforced: `core` files live only in `common`/`copyFun`/`combineFun`/`sealedCopy`,
+ * `feature` files only in a `feature.<name>` sub-package; every file ≤ 500 lines; no KotlinPoet (generation is
+ * string-append based).
+ *
  * The checks are import-based, matching the project convention of always importing referenced symbols (no wildcard
  * imports, no fully-qualified inline references; enforced by ktlint). The entry-point signature check reads
  * `KoFunctionDeclaration.text` for the `context(...)` clause, since Konsist does not model context parameters.
@@ -88,6 +92,12 @@ internal class LayeringArchitectureTest :
                             file.importsFrom("$KSP_ROOT.ProcessContext", "$KSP_ROOT.CreamSymbolProcessor")
                         }
                 }
+
+                test("common / copyFun / combineFun / sealedCopy サブパッケージにのみ置く（core/ 直下に .kt を置かない）") {
+                    creamKspMain
+                        .filter { it.inLayer(CORE_PACKAGE) }
+                        .assertTrue { file -> file.packagee?.name in CORE_SUBPACKAGES }
+                }
             }
 
             context("feature レイヤ") {
@@ -103,6 +113,17 @@ internal class LayeringArchitectureTest :
                     withClue("feature パッケージが 1 つも検出されていない（scope 設定の誤り）") {
                         featurePackages.isNotEmpty() shouldBe true
                     }
+                }
+
+                test("各ファイルは feature.<name> サブパッケージに置く（feature/ 直下・深いネストを禁止）") {
+                    creamKspMain
+                        .filter { it.inLayer(FEATURE_PACKAGE) }
+                        .assertTrue { file ->
+                            val packageName = file.packagee?.name.orEmpty()
+                            // exactly one segment below `feature`: me.tbsten.cream.ksp.feature.<name>
+                            packageName.startsWith("$FEATURE_PACKAGE.") &&
+                                !packageName.removePrefix("$FEATURE_PACKAGE.").contains('.')
+                        }
                 }
 
                 featurePackages.forEach { (packageName, files) ->
@@ -148,6 +169,16 @@ internal class LayeringArchitectureTest :
                     }
                 }
             }
+
+            context("ファイル全般（モジュール共通）") {
+                test("1 ファイル $MAX_FILE_LINES 行以内") {
+                    creamKspMain.assertFalse { file -> file.text.lines().size > MAX_FILE_LINES }
+                }
+
+                test("KotlinPoet を使わない（文字列 append ベースで生成する）") {
+                    creamKspMain.assertFalse { file -> file.importsFrom("$KOTLINPOET_PACKAGE.") }
+                }
+            }
         },
     )
 
@@ -157,6 +188,17 @@ private const val UTIL_PACKAGE = "$KSP_ROOT.util"
 private const val CORE_PACKAGE = "$KSP_ROOT.core"
 private const val FEATURE_PACKAGE = "$KSP_ROOT.feature"
 private const val KSP_API_PACKAGE = "com.google.devtools.ksp"
+private const val KOTLINPOET_PACKAGE = "com.squareup.kotlinpoet"
+private const val MAX_FILE_LINES = 500
+
+/** The sub-packages `core` is allowed to contain (`core/` must not hold files directly). */
+private val CORE_SUBPACKAGES =
+    setOf(
+        "$CORE_PACKAGE.common",
+        "$CORE_PACKAGE.copyFun",
+        "$CORE_PACKAGE.combineFun",
+        "$CORE_PACKAGE.sealedCopy",
+    )
 
 /** The only files allowed directly in the root `me.tbsten.cream.ksp` package (the composition root). */
 private val ROOT_ALLOWED_FILES =

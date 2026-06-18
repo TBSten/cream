@@ -39,7 +39,9 @@ feature ─▶ ProcessContext   （唯一の上向き依存。ProcessContext は
 - **root パッケージ (`me.tbsten.cream.ksp` 直下) には `CreamSymbolProcessor` / `CreamSymbolProcessorProvider` / `ProcessContext` の 3 ファイルのみ**。生成ロジック・ヘルパ・例外等を直下に置かない（`CreamException` 階層は `:cream-ksp:shared` 側）。
 - 境界は [Konsist](https://github.com/LemonAppDev/konsist) の architecture test
   (`cream-ksp/src/test/.../architecture/LayeringArchitectureTest.kt`, issue #130) で自動強制している。
-  この表の依存方向を変えたら同テストを更新すること。
+  強制内容: 上記の依存方向テーブル / 各層の構造（root=3 ファイル, `core`=`common`/`copyFun`/`combineFun`/`sealedCopy` のみ,
+  `feature`=`feature.<name>` のみ, `util` 直下は KSP 非依存）/ feature entry-point 署名 / 1 ファイル ≤ 500 行 / KotlinPoet 不使用。
+  この表や上記ルールを変えたら同テストを更新すること。
 
 ## ProcessContext & context parameters
 
