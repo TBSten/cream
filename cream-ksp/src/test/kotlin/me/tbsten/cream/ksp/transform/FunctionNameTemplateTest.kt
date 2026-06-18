@@ -11,6 +11,8 @@ import me.tbsten.cream.copy_target_full_name
 import me.tbsten.cream.copy_target_inner_name
 import me.tbsten.cream.copy_target_simple_name
 import me.tbsten.cream.copy_target_under_package
+import me.tbsten.cream.ksp.core.common.containsAnyCopyFunNameToken
+import me.tbsten.cream.ksp.core.common.resolveFunNameTemplate
 import me.tbsten.cream.ksp.options.ClassDeclarationInfo
 import me.tbsten.cream.ksp.options.CopyFunNamingStrategy
 import me.tbsten.cream.ksp.options.CreamOptions
