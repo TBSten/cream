@@ -1,7 +1,9 @@
 package me.tbsten.cream.ksp.feature.copyTo
 
 import com.google.devtools.ksp.processing.Dependencies
+import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSAnnotated
+import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CopyTo
@@ -61,23 +63,7 @@ internal fun processCopyTo(): List<KSAnnotated> =
                         ).onInvalid { return@forEach }
                 }
 
-            // Warn for @CopyTo.Exclude on source properties that match no target parameter (no-op).
-            // Sealed interface targets have no primary constructor; expand them to their concrete
-            // subclasses to mirror the fan-out done by appendCopyToSealedClassFunction.
-            val allTargetParams: List<KSValueParameter> =
-                targetClasses.flatMap { target ->
-                    if (target.isSealed()) {
-                        target
-                            .getSealedSubclasses()
-                            .flatMap { it.primaryConstructor?.parameters.orEmpty() }
-                            .toList()
-                    } else {
-                        target.primaryConstructor?.parameters.orEmpty()
-                    }
-                }
-            sourceClass.getAllProperties().forEach { prop ->
-                prop.warnIfSourceExcludeHasNoEffect(allTargetParams, sourceClass, generateSourceAnnotation, processContext.logger)
-            }
+            warnIneffectiveCopyToExcludes(sourceClass, targetClasses, generateSourceAnnotation)
 
             processContext.codeGenerator
                 .createNewKotlinFile(
@@ -98,3 +84,31 @@ internal fun processCopyTo(): List<KSAnnotated> =
         }
         return invalidCopyToTargets
     }
+
+/**
+ * Warn for each `@CopyTo.Exclude` placed on a source property that matches no target constructor
+ * parameter — there the exclude has no effect. Sealed interface targets have no primary constructor,
+ * so they are expanded to their concrete subclasses' parameters (mirroring the fan-out done by
+ * appendCopyToSealedClassFunction).
+ */
+context(logger: KSPLogger)
+private fun warnIneffectiveCopyToExcludes(
+    sourceClass: KSClassDeclaration,
+    targetClasses: List<KSClassDeclaration>,
+    generateSourceAnnotation: GenerateSourceAnnotation,
+) {
+    val allTargetParams: List<KSValueParameter> =
+        targetClasses.flatMap { target ->
+            if (target.isSealed()) {
+                target
+                    .getSealedSubclasses()
+                    .flatMap { it.primaryConstructor?.parameters.orEmpty() }
+                    .toList()
+            } else {
+                target.primaryConstructor?.parameters.orEmpty()
+            }
+        }
+    sourceClass.getAllProperties().forEach { prop ->
+        prop.warnIfSourceExcludeHasNoEffect(allTargetParams, sourceClass, generateSourceAnnotation, logger)
+    }
+}
