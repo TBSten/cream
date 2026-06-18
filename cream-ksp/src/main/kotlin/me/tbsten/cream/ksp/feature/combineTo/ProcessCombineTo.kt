@@ -16,12 +16,13 @@ import me.tbsten.cream.ksp.core.common.asDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.createNewKotlinFile
 import me.tbsten.cream.ksp.core.common.fullName
 import me.tbsten.cream.ksp.core.common.funNameTemplate
+import me.tbsten.cream.ksp.core.common.onInvalid
 import me.tbsten.cream.ksp.core.common.reportCreamError
-import me.tbsten.cream.ksp.core.common.requireFunNameSupportsFanout
 import me.tbsten.cream.ksp.core.common.resolveClassDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.resolveClassListOrReport
 import me.tbsten.cream.ksp.core.common.resolveToClassDeclaration
 import me.tbsten.cream.ksp.core.common.underPackageName
+import me.tbsten.cream.ksp.core.common.validateFunName
 import me.tbsten.cream.ksp.core.common.warnIfSourceExcludeHasNoEffect
 import me.tbsten.cream.ksp.util.with
 
@@ -96,26 +97,23 @@ internal fun processCombineTo(): List<KSAnnotated> =
 
             val combineToAnnotation =
                 combineToAnnotations.firstOrNull() ?: return@forEach
-
-            val funNameOk =
-                requireFunNameSupportsFanout(
-                    funNameTemplate = combineToAnnotation.funNameTemplate(),
-                    generatesMultipleFunctions = targetClasses.size > 1,
-                    annotationSimpleName = annotationName,
-                    declarationFullName = sourceClass.fullName,
-                    logger = processContext.logger,
-                    ksNode = sourceDeclaration,
-                )
-            if (!funNameOk) return@forEach
+            val generateSourceAnnotation =
+                GenerateSourceAnnotation.CombineTo(annotation = combineToAnnotation).also { gsa ->
+                    gsa
+                        .validateFunName(
+                            generatesMultipleFunctions = targetClasses.size > 1,
+                            declarationFullName = sourceClass.fullName,
+                            ksNode = sourceDeclaration,
+                        ).onInvalid { return@forEach }
+                }
 
             // Warn ONCE per source for @CombineTo.Exclude properties that match no parameter in ANY of
             // this source's target classes. Computed here (per source, union of all targets) rather than
             // inside the per-(target, source) generation loop below — doing it there duplicated the
             // warning once per target and falsely warned for a property matched in a sibling target.
-            val generateSourceAnnotationForWarning = GenerateSourceAnnotation.CombineTo(annotation = combineToAnnotation)
             val allTargetParams = targetClasses.flatMap { it.primaryConstructor?.parameters.orEmpty() }
             sourceClass.getAllProperties().forEach { prop ->
-                prop.warnIfSourceExcludeHasNoEffect(allTargetParams, sourceClass, generateSourceAnnotationForWarning, processContext.logger)
+                prop.warnIfSourceExcludeHasNoEffect(allTargetParams, sourceClass, generateSourceAnnotation, processContext.logger)
             }
 
             // Group source classes by target class

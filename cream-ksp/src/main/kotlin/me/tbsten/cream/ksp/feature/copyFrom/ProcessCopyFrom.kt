@@ -11,10 +11,11 @@ import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.asDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.createNewKotlinFile
 import me.tbsten.cream.ksp.core.common.fullName
-import me.tbsten.cream.ksp.core.common.requireFunNameSupportsFanout
+import me.tbsten.cream.ksp.core.common.onInvalid
 import me.tbsten.cream.ksp.core.common.resolveClassDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.resolveClassListOrReport
 import me.tbsten.cream.ksp.core.common.underPackageName
+import me.tbsten.cream.ksp.core.common.validateFunName
 import me.tbsten.cream.ksp.core.copyFun.appendCopyFunction
 import me.tbsten.cream.ksp.util.ksp.isSealed
 import me.tbsten.cream.ksp.util.with
@@ -49,18 +50,15 @@ internal fun processCopyFrom(): List<KSAnnotated> =
             val copyFromAnnotation =
                 copyFromAnnotations.firstOrNull() ?: return@forEach
 
-            val generateSourceAnnotation = GenerateSourceAnnotation.CopyFrom(annotation = copyFromAnnotation)
-
-            val funNameOk =
-                requireFunNameSupportsFanout(
-                    funNameTemplate = generateSourceAnnotation.funNameTemplate,
-                    generatesMultipleFunctions = sourceClasses.size > 1 || targetClass.isSealed(),
-                    annotationSimpleName = annotationName,
-                    declarationFullName = targetClass.fullName,
-                    logger = processContext.logger,
-                    ksNode = targetDeclaration,
-                )
-            if (!funNameOk) return@forEach
+            val generateSourceAnnotation =
+                GenerateSourceAnnotation.CopyFrom(annotation = copyFromAnnotation).also { gsa ->
+                    gsa
+                        .validateFunName(
+                            generatesMultipleFunctions = sourceClasses.size > 1 || targetClass.isSealed(),
+                            declarationFullName = targetClass.fullName,
+                            ksNode = targetDeclaration,
+                        ).onInvalid { return@forEach }
+                }
 
             processContext.codeGenerator
                 .createNewKotlinFile(

@@ -11,10 +11,11 @@ import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.asDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.createNewKotlinFile
 import me.tbsten.cream.ksp.core.common.fullName
-import me.tbsten.cream.ksp.core.common.requireFunNameSupportsFanout
+import me.tbsten.cream.ksp.core.common.onInvalid
 import me.tbsten.cream.ksp.core.common.resolveClassDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.resolveClassListOrReport
 import me.tbsten.cream.ksp.core.common.underPackageName
+import me.tbsten.cream.ksp.core.common.validateFunName
 import me.tbsten.cream.ksp.core.common.warnIfSourceExcludeHasNoEffect
 import me.tbsten.cream.ksp.core.copyFun.appendCopyFunction
 import me.tbsten.cream.ksp.util.ksp.isSealed
@@ -50,18 +51,15 @@ internal fun processCopyTo(): List<KSAnnotated> =
             val copyToAnnotation =
                 copyToAnnotations.firstOrNull() ?: return@forEach
 
-            val generateSourceAnnotation = GenerateSourceAnnotation.CopyTo(annotation = copyToAnnotation)
-
-            val funNameOk =
-                requireFunNameSupportsFanout(
-                    funNameTemplate = generateSourceAnnotation.funNameTemplate,
-                    generatesMultipleFunctions = targetClasses.size > 1 || targetClasses.any { it.isSealed() },
-                    annotationSimpleName = annotationName,
-                    declarationFullName = sourceClass.fullName,
-                    logger = processContext.logger,
-                    ksNode = sourceDeclaration,
-                )
-            if (!funNameOk) return@forEach
+            val generateSourceAnnotation =
+                GenerateSourceAnnotation.CopyTo(annotation = copyToAnnotation).also { gsa ->
+                    gsa
+                        .validateFunName(
+                            generatesMultipleFunctions = targetClasses.size > 1 || targetClasses.any { it.isSealed() },
+                            declarationFullName = sourceClass.fullName,
+                            ksNode = sourceDeclaration,
+                        ).onInvalid { return@forEach }
+                }
 
             // Warn for @CopyTo.Exclude on source properties that match no target parameter (no-op).
             // Sealed interface targets have no primary constructor; expand them to their concrete

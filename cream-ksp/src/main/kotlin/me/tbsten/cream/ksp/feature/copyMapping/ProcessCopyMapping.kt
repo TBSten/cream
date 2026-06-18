@@ -16,11 +16,11 @@ import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.asClassDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.createNewKotlinFile
 import me.tbsten.cream.ksp.core.common.fullName
-import me.tbsten.cream.ksp.core.common.funNameTemplate
+import me.tbsten.cream.ksp.core.common.isValid
 import me.tbsten.cream.ksp.core.common.reportCreamError
-import me.tbsten.cream.ksp.core.common.requireFunNameSupportsFanout
 import me.tbsten.cream.ksp.core.common.resolveClassDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.underPackageName
+import me.tbsten.cream.ksp.core.common.validateFunName
 import me.tbsten.cream.ksp.core.copyFun.appendCopyFunction
 import me.tbsten.cream.ksp.util.ksp.getArgument
 import me.tbsten.cream.ksp.util.ksp.isSealed
@@ -34,7 +34,6 @@ private val annotationName = CopyMapping::class.simpleName!!
  * @property sourceClass The source class for the mapping
  * @property targetClass The target class for the mapping
  * @property canReverse Whether bidirectional mapping is enabled
- * @property funNameTemplate Function-name template (used for the fan-out guard)
  * @property rawAnnotation Raw annotation this mapping was parsed from; GSA derives KDoc / funName /
  *   property mappings from it.
  */
@@ -42,7 +41,6 @@ private data class CopyMappingInfo(
     val sourceClass: KSClassDeclaration,
     val targetClass: KSClassDeclaration,
     val canReverse: Boolean,
-    val funNameTemplate: String,
     val rawAnnotation: KSAnnotation,
 )
 
@@ -95,7 +93,6 @@ private fun parseCopyMapping(
         sourceClass = sourceClass,
         targetClass = targetClass,
         canReverse = canReverse,
-        funNameTemplate = annotation.funNameTemplate(),
         rawAnnotation = annotation,
     )
 }
@@ -124,18 +121,17 @@ internal fun processCopyMapping(): List<KSAnnotated> =
             val copyMappings = parsedMappings.filterNotNull()
 
             // Fail fast (before opening any output file) when a plain-literal funName would
-            // fan out to multiple colliding names. Mirrors CopyTo/CopyFrom, which guard before
+            // produce more than one colliding function. Mirrors CopyTo/CopyFrom, which guard before
             // createNewKotlinFile so a rejected funName never leaves a partial generated file.
             val allFunNamesOk =
                 copyMappings.all { mapping ->
-                    requireFunNameSupportsFanout(
-                        funNameTemplate = mapping.funNameTemplate,
-                        generatesMultipleFunctions = mapping.canReverse || mapping.targetClass.isSealed(),
-                        annotationSimpleName = annotationName,
-                        declarationFullName = annotatedDeclaration.fullName,
-                        logger = processContext.logger,
-                        ksNode = annotatedDeclaration,
-                    )
+                    GenerateSourceAnnotation
+                        .CopyMapping(annotation = mapping.rawAnnotation)
+                        .validateFunName(
+                            generatesMultipleFunctions = mapping.canReverse || mapping.targetClass.isSealed(),
+                            declarationFullName = annotatedDeclaration.fullName,
+                            ksNode = annotatedDeclaration,
+                        ).isValid
                 }
             if (!allFunNamesOk) return@forEach
 
