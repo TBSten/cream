@@ -84,13 +84,13 @@ internal class LayeringArchitectureTest :
                         .assertFalse { file -> file.importsFrom("$FEATURE_PACKAGE.") }
                 }
 
-                test("root infra（ProcessContext / CreamSymbolProcessor）に依存しない") {
+                test("root infra（ProcessContext / CreamSymbolProcessor / Provider）に依存しない") {
                     // core receives a narrowed `context(options, logger)` instead of the whole ProcessContext,
                     // and never reaches back into the composition root.
                     creamKspMain
                         .filter { it.inLayer(CORE_PACKAGE) }
                         .assertFalse { file ->
-                            file.importsFrom("$KSP_ROOT.ProcessContext", "$KSP_ROOT.CreamSymbolProcessor")
+                            file.importsFrom(PROCESS_CONTEXT_TYPE, *COMPOSITION_ROOT_TYPES)
                         }
                 }
 
@@ -188,7 +188,20 @@ private const val UTIL_PACKAGE = "$KSP_ROOT.util"
 private const val CORE_PACKAGE = "$KSP_ROOT.core"
 private const val FEATURE_PACKAGE = "$KSP_ROOT.feature"
 private const val KSP_API_PACKAGE = "com.google.devtools.ksp"
+private const val PROCESS_CONTEXT_TYPE = "$KSP_ROOT.ProcessContext"
 private const val MAX_FILE_LINES = 300
+
+/**
+ * Composition-root infra types defined directly in the root `me.tbsten.cream.ksp` package. Neither
+ * `core` nor `feature` may import these. (`feature` may still import [PROCESS_CONTEXT_TYPE].) Listed
+ * explicitly so the intent matches `ksp-architecture.md`, rather than relying on `CreamSymbolProcessor`
+ * being a prefix of `CreamSymbolProcessorProvider`.
+ */
+private val COMPOSITION_ROOT_TYPES =
+    arrayOf(
+        "$KSP_ROOT.CreamSymbolProcessor",
+        "$KSP_ROOT.CreamSymbolProcessorProvider",
+    )
 
 /**
  * Per-file overrides to [MAX_FILE_LINES] (keyed by file name). Files here may grow up to their
