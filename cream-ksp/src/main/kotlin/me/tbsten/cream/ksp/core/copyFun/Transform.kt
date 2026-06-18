@@ -4,12 +4,13 @@ import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
-import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.core.common.CopyTargetRejection
+import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.core.common.concreteClassRejection
 import me.tbsten.cream.ksp.core.common.fullName
 import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.util.ksp.isSealed
+import me.tbsten.cream.ksp.util.safeCast
 import java.io.BufferedWriter
 
 /**
@@ -36,10 +37,18 @@ internal fun BufferedWriter.appendCopyFunction(
     source: KSClassDeclaration,
     target: KSClassDeclaration,
     omitPackages: List<String>,
-    generateSourceAnnotation: GenerateSourceAnnotation<*>,
-    notCopyToObject: Boolean,
+    generateSourceAnnotation: GenerateSourceAnnotation,
     annotated: KSDeclaration = source,
 ) {
+    // Only @CopyToChildren carries a notCopyToObject control; for it, fall back to the
+    // cream.notCopyToObject option when the annotation leaves it unset. Every other source
+    // annotation names its (possibly object) target explicitly, so it always generates.
+    val notCopyToObject =
+        generateSourceAnnotation
+            .safeCast<GenerateSourceAnnotation.CopyToChildren>()
+            ?.let { it.notCopyToObject ?: options.notCopyToObject }
+            ?: false
+
     when (target.classKind) {
         // An annotation class cannot currently be used as a copy target; it is rejected with a
         // clean diagnostic.
@@ -55,7 +64,6 @@ internal fun BufferedWriter.appendCopyFunction(
                     target,
                     omitPackages,
                     generateSourceAnnotation,
-                    notCopyToObject,
                 )
             } else {
                 when (val rejection = target.concreteClassRejection()) {
@@ -86,7 +94,6 @@ internal fun BufferedWriter.appendCopyFunction(
                     target,
                     omitPackages,
                     generateSourceAnnotation,
-                    notCopyToObject,
                 )
             } else {
                 reportRejection(CopyTargetRejection.NON_SEALED_INTERFACE, target)

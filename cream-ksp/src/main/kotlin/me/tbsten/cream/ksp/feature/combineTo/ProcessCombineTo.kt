@@ -1,21 +1,21 @@
 package me.tbsten.cream.ksp.feature.combineTo
 
-import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.KSAnnotated
+import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CombineTo
-import me.tbsten.cream.DefaultCopyFunctionName
-import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.ProcessContext
 import me.tbsten.cream.ksp.core.combineFun.appendCombineToFunction
+import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.asDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.createNewKotlinFile
 import me.tbsten.cream.ksp.core.common.fullName
+import me.tbsten.cream.ksp.core.common.funNameTemplate
 import me.tbsten.cream.ksp.core.common.reportCreamError
 import me.tbsten.cream.ksp.core.common.requireFunNameSupportsFanout
 import me.tbsten.cream.ksp.core.common.resolveClassDeclarationOrReport
@@ -27,7 +27,7 @@ import me.tbsten.cream.ksp.util.with
 
 private data class CombineToSourceEntry(
     val sourceDeclaration: KSDeclaration,
-    val annotation: me.tbsten.cream.CombineTo,
+    val annotation: KSAnnotation,
 )
 
 private class TargetSourcesMapForCombineTo : MutableMap<KSClassDeclaration, MutableList<CombineToSourceEntry>> by mutableMapOf() {
@@ -94,11 +94,11 @@ internal fun processCombineTo(): List<KSAnnotated> {
         }
 
         val combineToAnnotation =
-            target.getAnnotationsByType(CombineTo::class).firstOrNull() ?: return@forEach
+            combineToAnnotations.firstOrNull() ?: return@forEach
 
         val funNameOk =
             requireFunNameSupportsFanout(
-                funNameTemplate = runCatching { combineToAnnotation.funName }.getOrDefault(DefaultCopyFunctionName),
+                funNameTemplate = combineToAnnotation.funNameTemplate(),
                 generatesMultipleFunctions = targetClasses.size > 1,
                 annotationSimpleName = CombineTo::class.simpleName!!,
                 declarationFullName = sourceClass.fullName,

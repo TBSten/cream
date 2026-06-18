@@ -4,8 +4,8 @@ import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
-import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
+import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.core.common.fullName
 import me.tbsten.cream.ksp.options.CreamOptions
 import java.io.BufferedWriter
@@ -16,7 +16,7 @@ internal fun BufferedWriter.appendCombineToFunction(
     otherSources: List<KSClassDeclaration>,
     target: KSClassDeclaration,
     omitPackages: List<String>,
-    generateSourceAnnotation: GenerateSourceAnnotation<*>,
+    generateSourceAnnotation: GenerateSourceAnnotation,
     annotated: KSDeclaration = primarySource,
 ) {
     when (target.classKind) {

@@ -1,6 +1,5 @@
 package me.tbsten.cream.ksp.feature.copyMapping
 
-import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSAnnotated
@@ -10,14 +9,12 @@ import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CopyMapping
-import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.ProcessContext
+import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.asClassDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.createNewKotlinFile
-import me.tbsten.cream.ksp.core.common.extractKDoc
-import me.tbsten.cream.ksp.core.common.extractPropertyMappings
 import me.tbsten.cream.ksp.core.common.fullName
 import me.tbsten.cream.ksp.core.common.funNameTemplate
 import me.tbsten.cream.ksp.core.common.reportCreamError
@@ -34,20 +31,16 @@ import me.tbsten.cream.ksp.util.with
  * @property sourceClass The source class for the mapping
  * @property targetClass The target class for the mapping
  * @property canReverse Whether bidirectional mapping is enabled
- * @property propertyMappings List of property name mappings (source property name -> target property name)
- * @property kdocDescription User-provided KDoc description (from `kdoc.description`)
- * @property kdocExamples User-provided KDoc examples (from `kdoc.examples`)
+ * @property funNameTemplate Function-name template (used for the fan-out guard)
+ * @property rawAnnotation Raw annotation this mapping was parsed from; GSA derives KDoc / funName /
+ *   property mappings from it.
  */
 private data class CopyMappingInfo(
     val sourceClass: KSClassDeclaration,
     val targetClass: KSClassDeclaration,
     val canReverse: Boolean,
-    val propertyMappings: List<Pair<String, String>>,
-    val kdocDescription: String,
-    val kdocExamples: List<String>,
     val funNameTemplate: String,
-    /** Typed proxy for [GenerateSourceAnnotation.CopyMapping.annotation]. */
-    val typedAnnotation: me.tbsten.cream.CopyMapping,
+    val rawAnnotation: KSAnnotation,
 )
 
 /**
@@ -58,7 +51,6 @@ private data class CopyMappingInfo(
  */
 private fun parseCopyMapping(
     annotation: KSAnnotation,
-    typedAnnotation: me.tbsten.cream.CopyMapping,
     annotatedDeclaration: KSClassDeclaration,
     logger: KSPLogger,
 ): CopyMappingInfo? {
@@ -86,8 +78,6 @@ private fun parseCopyMapping(
             ?.value as? Boolean
             ?: false
 
-    val propertyMaps = annotation.extractPropertyMappings()
-
     val sourceClass =
         sourceType.declaration.resolveClassDeclarationOrReport(
             annotationName = CopyMapping::class.simpleName!!,
@@ -104,17 +94,12 @@ private fun parseCopyMapping(
             ksNode = annotatedDeclaration,
         ) ?: return null
 
-    val (kdocDescription, kdocExamples) = annotation.extractKDoc()
-
     return CopyMappingInfo(
         sourceClass = sourceClass,
         targetClass = targetClass,
         canReverse = canReverse,
-        propertyMappings = propertyMaps,
-        kdocDescription = kdocDescription,
-        kdocExamples = kdocExamples,
         funNameTemplate = annotation.funNameTemplate(),
-        typedAnnotation = typedAnnotation,
+        rawAnnotation = annotation,
     )
 }
 
@@ -133,13 +118,10 @@ internal fun processCopyMapping(): List<KSAnnotated> {
         // Extract all CopyMapping annotations from the target. A malformed annotation reports a
         // clean diagnostic and yields null; skip the whole declaration so no partial file is emitted.
         val rawAnnotations = target.annotationsOf(CopyMapping::class).toList()
-        val typedAnnotations = annotatedDeclaration.getAnnotationsByType(CopyMapping::class).toList()
         val parsedMappings =
-            rawAnnotations
-                .zip(typedAnnotations)
-                .map { (rawAnnotation, typedAnnotation) ->
-                    parseCopyMapping(rawAnnotation, typedAnnotation, annotatedDeclaration, processContext.logger)
-                }.toList()
+            rawAnnotations.map { rawAnnotation ->
+                parseCopyMapping(rawAnnotation, annotatedDeclaration, processContext.logger)
+            }
         if (parsedMappings.any { it == null }) return@forEach
         val copyMappings = parsedMappings.filterNotNull()
 
@@ -180,29 +162,22 @@ internal fun processCopyMapping(): List<KSAnnotated> {
                                 target = mapping.targetClass,
                                 omitPackages = listOf("kotlin", packageName.asString()),
                                 generateSourceAnnotation =
-                                    GenerateSourceAnnotation.CopyMapping(
-                                        annotation = mapping.typedAnnotation,
-                                        propertyMappings = mapping.propertyMappings,
-                                    ),
-                                notCopyToObject = false,
+                                    GenerateSourceAnnotation.CopyMapping(annotation = mapping.rawAnnotation),
                                 annotated = annotatedDeclaration,
                             )
 
                             if (mapping.canReverse) {
-                                val reversePropertyMappings =
-                                    mapping.propertyMappings.map { (source, target) ->
-                                        target to source
-                                    }
+                                // The reverse function shares the same annotation; `reversed` swaps
+                                // each (source -> target) property mapping for this direction.
                                 it.appendCopyFunction(
                                     source = mapping.targetClass,
                                     target = mapping.sourceClass,
                                     omitPackages = listOf("kotlin", packageName.asString()),
                                     generateSourceAnnotation =
                                         GenerateSourceAnnotation.CopyMapping(
-                                            annotation = mapping.typedAnnotation,
-                                            propertyMappings = reversePropertyMappings,
+                                            annotation = mapping.rawAnnotation,
+                                            reversed = true,
                                         ),
-                                    notCopyToObject = false,
                                     annotated = annotatedDeclaration,
                                 )
                             }

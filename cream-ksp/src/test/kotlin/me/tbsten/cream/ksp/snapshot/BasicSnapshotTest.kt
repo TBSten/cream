@@ -59,6 +59,25 @@ internal class BasicSnapshotTest :
             }
         }
 
+        test("copyTo from a data class to an object returns the singleton") {
+            runSnapshot(
+                "BasicSnapshotTest.copyToObject",
+                """
+                package snap.basic.objecttarget
+
+                import me.tbsten.cream.CopyTo
+
+                @CopyTo(Target::class)
+                data class Source(
+                    val shared: String,
+                    val onlyOnSource: Int,
+                )
+
+                object Target
+                """.trimIndent(),
+            )
+        }
+
         test("copyTo keeps a vararg ctor param and gives it a default") {
             val generated =
                 runSnapshot(

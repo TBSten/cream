@@ -10,11 +10,10 @@ import me.tbsten.cream.CombineFrom
 import me.tbsten.cream.CombineTo
 import me.tbsten.cream.CopyFrom
 import me.tbsten.cream.CopyTo
-import me.tbsten.cream.ksp.GenerateSourceAnnotation
 
 internal fun KSValueParameter.findMatchedProperty(
     source: KSClassDeclaration,
-    generateSourceAnnotation: GenerateSourceAnnotation<*>,
+    generateSourceAnnotation: GenerateSourceAnnotation,
 ): KSPropertyDeclaration? {
     val parameterName =
         this.name?.asString()

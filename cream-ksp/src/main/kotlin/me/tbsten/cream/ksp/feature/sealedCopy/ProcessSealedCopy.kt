@@ -1,6 +1,5 @@
 package me.tbsten.cream.ksp.feature.sealedCopy
 
-import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.isAbstract
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
@@ -10,13 +9,11 @@ import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.NonCopyableStrategy
 import me.tbsten.cream.SealedCopy
-import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.ProcessContext
+import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.core.common.annotationsOf
-import me.tbsten.cream.ksp.core.common.copyVisibilityArgument
 import me.tbsten.cream.ksp.core.common.createNewKotlinFile
-import me.tbsten.cream.ksp.core.common.extractKDoc
 import me.tbsten.cream.ksp.core.common.fullName
 import me.tbsten.cream.ksp.core.common.funNameTemplate
 import me.tbsten.cream.ksp.core.common.reportCreamError
@@ -116,17 +113,9 @@ internal fun processSealedCopy(): List<KSAnnotated> {
                             ?.toNonCopyableStrategy()
                             ?: NonCopyableStrategy.ERROR
 
-                    val (kdocDescription, kdocExamples) = sealedAnnotation.extractKDoc()
-
-                    val visibility = sealedAnnotation.copyVisibilityArgument()
-
-                    // Obtain the typed proxy for the annotation field in GSA while keeping the
-                    // actual property values from the raw read above (avoids NoSuchElementException
-                    // on AA-backed KSP2 when accessing fields that were not given explicitly).
-                    val typedAnnotation =
-                        runCatching { annotated.getAnnotationsByType(SealedCopy::class).firstOrNull() }
-                            .getOrNull()
-                    if (typedAnnotation == null) return@forEach
+                    // Pass the raw per-occurrence annotation: @SealedCopy is @Repeatable and each
+                    // occurrence is its own variant, so GSA must read kdoc/visibility/funName from
+                    // *this* occurrence rather than a `getAnnotationsByType().first()` proxy.
                     with(processContext.logger) {
                         it.appendSealedCopyFunction(
                             sealedClass = annotated,
@@ -137,13 +126,7 @@ internal fun processSealedCopy(): List<KSAnnotated> {
                                     "kotlin",
                                     annotated.packageName.asString(),
                                 ),
-                            generateSourceAnnotation =
-                                GenerateSourceAnnotation.SealedCopy(
-                                    annotation = typedAnnotation,
-                                    kdocDescription = kdocDescription,
-                                    kdocExamples = kdocExamples,
-                                    visibility = visibility,
-                                ),
+                            generateSourceAnnotation = GenerateSourceAnnotation.SealedCopy(annotation = sealedAnnotation),
                         )
                     }
                 }

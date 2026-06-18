@@ -1,6 +1,5 @@
 package me.tbsten.cream.ksp.feature.combineFrom
 
-import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSAnnotated
@@ -8,17 +7,14 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CombineFrom
-import me.tbsten.cream.CopyVisibility
 import me.tbsten.cream.DefaultCopyFunctionName
-import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.ProcessContext
 import me.tbsten.cream.ksp.core.combineFun.appendCombineToFunction
+import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.asDeclarationOrReport
-import me.tbsten.cream.ksp.core.common.copyVisibilityArgument
 import me.tbsten.cream.ksp.core.common.createNewKotlinFile
-import me.tbsten.cream.ksp.core.common.extractKDoc
 import me.tbsten.cream.ksp.core.common.fullName
 import me.tbsten.cream.ksp.core.common.funNameTemplate
 import me.tbsten.cream.ksp.core.common.reportCreamError
@@ -96,25 +92,15 @@ internal fun processCombineFrom(): List<KSAnnotated> {
         }
         val funNameTemplate = explicitFunNameTemplates.firstOrNull() ?: DefaultCopyFunctionName
 
-        val (kdocDescription, kdocExamples) =
-            combineFromAnnotations.firstOrNull()?.extractKDoc() ?: ("" to emptyList())
-
-        val visibility =
-            combineFromAnnotations.firstOrNull()?.copyVisibilityArgument() ?: CopyVisibility.INHERIT
-
-        // Use the first @CombineFrom annotation as the typed proxy for the GSA.
-        // All occurrences are already merged at this point; funName/kdoc/visibility were
-        // resolved from the raw annotations above and are passed explicitly to avoid the
-        // AA-backed KSP2 NoSuchElementException on absent fields.
+        // All occurrences are merged into one function. GSA derives kdoc/visibility from the first
+        // occurrence's raw annotation; funNameTemplate is the cross-occurrence merge result
+        // (resolved above with conflict detection) and so is passed explicitly. See #134.
         val combineFromAnnotation =
-            target.getAnnotationsByType(CombineFrom::class).firstOrNull() ?: return@forEach
+            combineFromAnnotations.firstOrNull() ?: return@forEach
 
         val generateSourceAnnotation =
             GenerateSourceAnnotation.CombineFrom(
                 annotation = combineFromAnnotation,
-                kdocDescription = kdocDescription,
-                kdocExamples = kdocExamples,
-                visibility = visibility,
                 funNameTemplate = funNameTemplate,
             )
 

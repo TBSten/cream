@@ -9,7 +9,6 @@ import me.tbsten.cream.CombineTo
 import me.tbsten.cream.CopyFrom
 import me.tbsten.cream.CopyTo
 import me.tbsten.cream.CopyToChildren
-import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.core.common.annotationsOf
 import kotlin.reflect.KClass
 
@@ -25,7 +24,7 @@ import kotlin.reflect.KClass
 internal fun KSValueParameter.isExcludedFromCopy(
     matchedProperty: KSPropertyDeclaration?,
     matchedSource: KSClassDeclaration,
-    generateSourceAnnotation: GenerateSourceAnnotation<*>,
+    generateSourceAnnotation: GenerateSourceAnnotation,
 ): Boolean =
     when (generateSourceAnnotation) {
         is GenerateSourceAnnotation.CopyTo ->
@@ -69,7 +68,7 @@ internal fun KSPropertyDeclaration.isSourcePropertyExcluded(
  */
 internal fun KSValueParameter.warnIfTargetExcludeHasNoEffect(
     matchedProperty: KSPropertyDeclaration?,
-    generateSourceAnnotation: GenerateSourceAnnotation<*>,
+    generateSourceAnnotation: GenerateSourceAnnotation,
     logger: KSPLogger,
 ) {
     if (matchedProperty != null) return
@@ -99,7 +98,7 @@ internal fun KSValueParameter.warnIfTargetExcludeHasNoEffect(
 internal fun KSPropertyDeclaration.warnIfSourceExcludeHasNoEffect(
     targetParameters: List<KSValueParameter>,
     source: KSClassDeclaration,
-    generateSourceAnnotation: GenerateSourceAnnotation<*>,
+    generateSourceAnnotation: GenerateSourceAnnotation,
     logger: KSPLogger,
 ) {
     val excludeClass =

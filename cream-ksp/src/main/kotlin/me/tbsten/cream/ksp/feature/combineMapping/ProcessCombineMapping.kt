@@ -1,29 +1,22 @@
 package me.tbsten.cream.ksp.feature.combineMapping
 
-import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CombineMapping
-import me.tbsten.cream.CopyVisibility
-import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.ProcessContext
 import me.tbsten.cream.ksp.core.combineFun.appendCombineToFunction
+import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.asClassDeclarationOrReport
-import me.tbsten.cream.ksp.core.common.copyVisibilityArgument
 import me.tbsten.cream.ksp.core.common.createNewKotlinFile
-import me.tbsten.cream.ksp.core.common.extractKDoc
-import me.tbsten.cream.ksp.core.common.extractPropertyMappings
 import me.tbsten.cream.ksp.core.common.fullName
-import me.tbsten.cream.ksp.core.common.funNameTemplate
 import me.tbsten.cream.ksp.core.common.reportCreamError
 import me.tbsten.cream.ksp.core.common.resolveClassDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.resolveToClassDeclaration
@@ -35,20 +28,13 @@ import me.tbsten.cream.ksp.util.with
  *
  * @property sourceClasses The source classes to combine from (at least 2 sources)
  * @property targetClass The target class for the mapping
- * @property propertyMappings List of property name mappings (source property name -> target property name)
- * @property kdocDescription User-provided KDoc description (from `kdoc.description`)
- * @property kdocExamples User-provided KDoc examples (from `kdoc.examples`)
+ * @property rawAnnotation Raw annotation this mapping was parsed from; GSA derives KDoc / funName /
+ *   property mappings from it.
  */
 private data class CombineMappingInfo(
     val sourceClasses: List<KSClassDeclaration>,
     val targetClass: KSClassDeclaration,
-    val propertyMappings: List<Pair<String, String>>,
-    val kdocDescription: String,
-    val kdocExamples: List<String>,
-    val visibility: CopyVisibility,
-    val funNameTemplate: String,
-    /** Typed proxy for [GenerateSourceAnnotation.CombineMapping.annotation]. */
-    val typedAnnotation: me.tbsten.cream.CombineMapping,
+    val rawAnnotation: KSAnnotation,
 )
 
 /**
@@ -60,7 +46,6 @@ private data class CombineMappingInfo(
  */
 private fun parseCombineMapping(
     annotation: KSAnnotation,
-    typedAnnotation: me.tbsten.cream.CombineMapping,
     annotatedDeclaration: KSClassDeclaration,
     logger: KSPLogger,
 ): CombineMappingInfo? {
@@ -81,8 +66,6 @@ private fun parseCombineMapping(
                 logger.reportCombineMappingMissingTarget(annotatedDeclaration)
                 return null
             }
-
-    val propertyMaps = annotation.extractPropertyMappings()
 
     val sourceClasses =
         sourcesTypes.mapNotNull { sourceType ->
@@ -111,19 +94,10 @@ private fun parseCombineMapping(
             ksNode = annotatedDeclaration,
         ) ?: return null
 
-    val (kdocDescription, kdocExamples) = annotation.extractKDoc()
-
-    val visibility = annotation.copyVisibilityArgument()
-
     return CombineMappingInfo(
         sourceClasses = sourceClasses,
         targetClass = targetClass,
-        propertyMappings = propertyMaps,
-        kdocDescription = kdocDescription,
-        kdocExamples = kdocExamples,
-        visibility = visibility,
-        funNameTemplate = annotation.funNameTemplate(),
-        typedAnnotation = typedAnnotation,
+        rawAnnotation = annotation,
     )
 }
 
@@ -142,13 +116,10 @@ internal fun processCombineMapping(): List<KSAnnotated> {
         // Extract all CombineMapping annotations from the target. A malformed annotation reports a
         // clean diagnostic and yields null; skip the whole declaration so no partial file is emitted.
         val rawAnnotations = target.annotationsOf(CombineMapping::class).toList()
-        val typedAnnotations = annotatedDeclaration.getAnnotationsByType(CombineMapping::class).toList()
         val parsedMappings =
-            rawAnnotations
-                .zip(typedAnnotations)
-                .map { (rawAnnotation, typedAnnotation) ->
-                    parseCombineMapping(rawAnnotation, typedAnnotation, annotatedDeclaration, processContext.logger)
-                }.toList()
+            rawAnnotations.map { rawAnnotation ->
+                parseCombineMapping(rawAnnotation, annotatedDeclaration, processContext.logger)
+            }
         if (parsedMappings.any { it == null }) return@forEach
         val combineMappings = parsedMappings.filterNotNull()
 
@@ -182,10 +153,7 @@ internal fun processCombineMapping(): List<KSAnnotated> {
                                 target = mapping.targetClass,
                                 omitPackages = listOf("kotlin", packageName.asString()),
                                 generateSourceAnnotation =
-                                    GenerateSourceAnnotation.CombineMapping(
-                                        annotation = mapping.typedAnnotation,
-                                        propertyMappings = mapping.propertyMappings,
-                                    ),
+                                    GenerateSourceAnnotation.CombineMapping(annotation = mapping.rawAnnotation),
                                 annotated = annotatedDeclaration,
                             )
                         }

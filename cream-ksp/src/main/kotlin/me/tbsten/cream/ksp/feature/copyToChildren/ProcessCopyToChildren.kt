@@ -1,6 +1,5 @@
 package me.tbsten.cream.ksp.feature.copyToChildren
 
-import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.isAbstract
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
@@ -9,9 +8,9 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CopyToChildren
-import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.ProcessContext
+import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.createNewKotlinFile
 import me.tbsten.cream.ksp.core.common.fullName
@@ -41,16 +40,12 @@ internal fun processCopyToChildren(): List<KSAnnotated> {
         }
 
         val sourceSealedClass = copyToChildren
-        val copyToChildrenAnnotation =
-            sourceSealedClass.getAnnotationsByType(CopyToChildren::class).firstOrNull() ?: return@forEach
-
-        val generateSourceAnnotation = GenerateSourceAnnotation.CopyToChildren(annotation = copyToChildrenAnnotation)
-
-        // Enclose notCopyToObject in runCatching because it may cause an error if notCopyToObject cannot be obtained.
-        val notCopyToObject =
-            runCatching {
-                copyToChildrenAnnotation.notCopyToObject
-            }.getOrDefault(processContext.options.notCopyToObject)
+        // GSA holds the raw annotation; its notCopyToObject getter reads the @CopyToChildren
+        // argument (and appendCopyFunction falls back to the cream.notCopyToObject option when unset).
+        val generateSourceAnnotation =
+            GenerateSourceAnnotation.CopyToChildren(
+                annotation = sourceSealedClass.annotationsOf(CopyToChildren::class).firstOrNull() ?: return@forEach,
+            )
 
         val targetClasses = sourceSealedClass.getSealedSubclasses()
 
@@ -87,7 +82,6 @@ internal fun processCopyToChildren(): List<KSAnnotated> {
                                     sourceSealedClass.packageName.asString(),
                                 ),
                             generateSourceAnnotation = generateSourceAnnotation,
-                            notCopyToObject = notCopyToObject,
                         )
                     }
                 }

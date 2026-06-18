@@ -1,14 +1,12 @@
 package me.tbsten.cream.ksp.feature.copyTo
 
-import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.KSAnnotated
-import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CopyTo
-import me.tbsten.cream.ksp.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.ProcessContext
+import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.asDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.createNewKotlinFile
@@ -49,7 +47,7 @@ internal fun processCopyTo(): List<KSAnnotated> {
             } ?: return@forEach
 
         val copyToAnnotation =
-            target.getAnnotationsByType(CopyTo::class).firstOrNull() ?: return@forEach
+            copyToAnnotations.firstOrNull() ?: return@forEach
 
         val generateSourceAnnotation = GenerateSourceAnnotation.CopyTo(annotation = copyToAnnotation)
 
@@ -96,7 +94,6 @@ internal fun processCopyTo(): List<KSAnnotated> {
                             target = targetClass,
                             omitPackages = listOf("kotlin", sourceClass.packageName.asString()),
                             generateSourceAnnotation = generateSourceAnnotation,
-                            notCopyToObject = false,
                         )
                     }
                 }
