@@ -124,11 +124,7 @@ internal fun processSealedCopy(): List<KSAnnotated> =
                             sealedClass = annotated,
                             funName = funName,
                             nonCopyableStrategy = nonCopyableStrategy,
-                            omitPackages =
-                                listOf(
-                                    "kotlin",
-                                    annotated.packageName.asString(),
-                                ),
+                            omitPackages = listOf("kotlin", annotated.packageName.asString()),
                             generateSourceAnnotation = GenerateSourceAnnotation.SealedCopy(annotation = sealedAnnotation),
                         )
                     }

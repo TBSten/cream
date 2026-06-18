@@ -30,9 +30,8 @@ internal fun processCopyTo(): List<KSAnnotated> =
     with(processContext.logger, processContext.options) {
         val (copyToTargets, invalidCopyToTargets) =
             processContext.resolver
-                .getSymbolsWithAnnotation(
-                    annotationName = CopyTo::class.fullName,
-                ).partition { it.validate() }
+                .getSymbolsWithAnnotation(annotationName = CopyTo::class.fullName)
+                .partition { it.validate() }
 
         copyToTargets.forEach { target ->
             val sourceDeclaration = target.asDeclarationOrReport(annotationName) ?: return@forEach

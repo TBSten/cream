@@ -2,7 +2,6 @@ package me.tbsten.cream.ksp.feature.copyFrom
 
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.KSAnnotated
-import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CopyFrom
 import me.tbsten.cream.ksp.ProcessContext
@@ -47,17 +46,19 @@ internal fun processCopyFrom(): List<KSAnnotated> =
             val sourceClasses =
                 copyFromAnnotations.resolveClassListOrReport("sources", annotationName, targetDeclaration) ?: return@forEach
 
-            val copyFromAnnotation =
-                copyFromAnnotations.firstOrNull() ?: return@forEach
-
             val generateSourceAnnotation =
-                GenerateSourceAnnotation.CopyFrom(annotation = copyFromAnnotation).also { gsa ->
-                    gsa
-                        .validateFunName(
-                            generatesMultipleFunctions = sourceClasses.size > 1 || targetClass.isSealed(),
-                            declarationFullName = targetClass.fullName,
-                            ksNode = targetDeclaration,
-                        ).onInvalid { return@forEach }
+                run {
+                    val copyFromAnnotation =
+                        copyFromAnnotations.firstOrNull() ?: return@forEach
+
+                    GenerateSourceAnnotation.CopyFrom(annotation = copyFromAnnotation).also {
+                        it
+                            .validateFunName(
+                                generatesMultipleFunctions = sourceClasses.size > 1 || targetClass.isSealed(),
+                                declarationFullName = targetClass.fullName,
+                                ksNode = targetDeclaration,
+                            ).onInvalid { return@forEach }
+                    }
                 }
 
             processContext.codeGenerator
