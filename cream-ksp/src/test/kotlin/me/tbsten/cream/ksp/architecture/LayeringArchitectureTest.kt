@@ -13,7 +13,7 @@ import io.kotest.matchers.shouldBe
  * `.claude/rules/ksp-architecture.md`; this test turns them into a guardrail so an accidental
  * back-edge fails CI instead of silently eroding the structure.
  *
- * Layers (by package), with their allowed dependency direction:
+ * Tests are grouped per layer (`context("... レイヤ")`):
  * - root (`me.tbsten.cream.ksp.*`) — `CreamSymbolProcessor` / `Provider` / `ProcessContext`. May depend on everything.
  * - `feature.<name>` — per-annotation entry points (discover → validate → call core). May depend on `core`, `util`,
  *                      and `ProcessContext`; must NOT depend on another `feature.<name>`. Each exposes a single
@@ -31,96 +31,107 @@ import io.kotest.matchers.shouldBe
 internal class LayeringArchitectureTest :
     FunSpec(
         {
-            test("util レイヤは core / feature レイヤに依存しない") {
-                creamKspMain
-                    .filter { it.inLayer(UTIL_PACKAGE) }
-                    .assertFalse { file -> file.importsFrom("$CORE_PACKAGE.", "$FEATURE_PACKAGE.") }
-            }
-
-            test("util レイヤは cream 固有の型を参照しない（自分自身の util パッケージのみ許可）") {
-                // A util file may only reference cream packages that live under `util` itself. Any other
-                // `me.tbsten.cream.*` import (core / feature / ProcessContext / options / runtime annotations, …)
-                // would make it cream-specific and therefore not a generic, reusable helper.
-                creamKspMain
-                    .filter { it.inLayer(UTIL_PACKAGE) }
-                    .assertFalse { file ->
-                        file.imports.any { import ->
-                            import.name.startsWith("$CREAM_ROOT.") && !import.name.startsWith("$UTIL_PACKAGE.")
-                        }
-                    }
-            }
-
-            test("util 直下（util.ksp を除く）は KSP 型に依存しない（KSP util は util/ksp に置く）") {
-                // Helpers that touch the KSP API belong in `util.ksp`. The top-level `util` package stays
-                // Kotlin-only so it can be reused in non-KSP contexts.
-                creamKspMain
-                    .filter { it.packagee?.name == UTIL_PACKAGE }
-                    .assertFalse { file -> file.importsFrom("$KSP_API_PACKAGE.") }
-            }
-
-            test("core レイヤは feature レイヤに依存しない") {
-                creamKspMain
-                    .filter { it.inLayer(CORE_PACKAGE) }
-                    .assertFalse { file -> file.importsFrom("$FEATURE_PACKAGE.") }
-            }
-
-            test("core レイヤは root infra（ProcessContext / CreamSymbolProcessor）に依存しない") {
-                // core receives a narrowed `context(options, logger)` instead of the whole ProcessContext,
-                // and never reaches back into the composition root.
-                creamKspMain
-                    .filter { it.inLayer(CORE_PACKAGE) }
-                    .assertFalse { file ->
-                        file.importsFrom("$KSP_ROOT.ProcessContext", "$KSP_ROOT.CreamSymbolProcessor")
-                    }
-            }
-
-            test("feature レイヤは他の feature を参照しない（feature 間で関数などを使い合わない）") {
-                creamKspMain
-                    .filter { it.inLayer(FEATURE_PACKAGE) }
-                    .assertFalse { file ->
-                        val ownPackage = file.packagee?.name ?: return@assertFalse false
-                        file.imports.any { import ->
-                            import.name.startsWith("$FEATURE_PACKAGE.") && !import.name.startsWith("$ownPackage.")
-                        }
-                    }
-            }
-
-            test("各 feature.<name> は context(ProcessContext) な internal fun processXxx(): List<KSAnnotated> を公開する") {
-                val byPackage =
+            context("util レイヤ") {
+                test("core / feature レイヤに依存しない") {
                     creamKspMain
-                        .filter { it.inLayer(FEATURE_PACKAGE) }
-                        .groupBy { it.packagee?.name }
-
-                withClue("feature パッケージが 1 つも検出されていない（scope 設定の誤り）") {
-                    byPackage.isNotEmpty() shouldBe true
+                        .filter { it.inLayer(UTIL_PACKAGE) }
+                        .assertFalse { file -> file.importsFrom("$CORE_PACKAGE.", "$FEATURE_PACKAGE.") }
                 }
 
-                byPackage.forEach { (packageName, files) ->
-                    val entryPoints =
-                        files
-                            .flatMap { it.functions(includeNested = false, includeLocal = false) }
-                            .filter { it.name.startsWith("process") }
+                test("cream 固有の型を参照しない（自分自身の util パッケージのみ許可）") {
+                    // A util file may only reference cream packages that live under `util` itself. Any other
+                    // `me.tbsten.cream.*` import (core / feature / ProcessContext / options / runtime annotations, …)
+                    // would make it cream-specific and therefore not a generic, reusable helper.
+                    creamKspMain
+                        .filter { it.inLayer(UTIL_PACKAGE) }
+                        .assertFalse { file ->
+                            file.imports.any { import ->
+                                import.name.startsWith("$CREAM_ROOT.") && !import.name.startsWith("$UTIL_PACKAGE.")
+                            }
+                        }
+                }
 
-                    withClue("feature '$packageName' は process* なトップレベル関数を公開していない") {
-                        entryPoints.isNotEmpty() shouldBe true
+                test("直下（util.ksp を除く）は KSP 型に依存しない（KSP util は util/ksp に置く）") {
+                    // Helpers that touch the KSP API belong in `util.ksp`. The top-level `util` package stays
+                    // Kotlin-only so it can be reused in non-KSP contexts.
+                    creamKspMain
+                        .filter { it.packagee?.name == UTIL_PACKAGE }
+                        .assertFalse { file -> file.importsFrom("$KSP_API_PACKAGE.") }
+                }
+            }
+
+            context("core レイヤ") {
+                test("feature レイヤに依存しない") {
+                    creamKspMain
+                        .filter { it.inLayer(CORE_PACKAGE) }
+                        .assertFalse { file -> file.importsFrom("$FEATURE_PACKAGE.") }
+                }
+
+                test("root infra（ProcessContext / CreamSymbolProcessor）に依存しない") {
+                    // core receives a narrowed `context(options, logger)` instead of the whole ProcessContext,
+                    // and never reaches back into the composition root.
+                    creamKspMain
+                        .filter { it.inLayer(CORE_PACKAGE) }
+                        .assertFalse { file ->
+                            file.importsFrom("$KSP_ROOT.ProcessContext", "$KSP_ROOT.CreamSymbolProcessor")
+                        }
+                }
+            }
+
+            context("feature レイヤ") {
+                // Each `feature.<name>` package gets its own sub-context so a violation points straight at the
+                // offending feature. The package list is discovered from the scope at registration time.
+                val featurePackages =
+                    creamKspMain
+                        .filter { it.inLayer(FEATURE_PACKAGE) }
+                        .groupBy { it.packagee?.name.orEmpty() }
+                        .toSortedMap()
+
+                test("scope に feature パッケージが存在する") {
+                    withClue("feature パッケージが 1 つも検出されていない（scope 設定の誤り）") {
+                        featurePackages.isNotEmpty() shouldBe true
                     }
+                }
 
-                    entryPoints.forEach { entryPoint ->
-                        withClue("feature entry point '${entryPoint.name}' は internal であるべき") {
-                            entryPoint.hasInternalModifier shouldBe true
+                featurePackages.forEach { (packageName, files) ->
+                    context(packageName.substringAfterLast('.')) {
+                        test("他の feature を参照しない（feature 間で関数などを使い合わない）") {
+                            files.assertFalse { file ->
+                                file.imports.any { import ->
+                                    import.name.startsWith("$FEATURE_PACKAGE.") &&
+                                        !import.name.startsWith("$packageName.")
+                                }
+                            }
                         }
-                        withClue(
-                            "feature entry point '${entryPoint.name}' は List<KSAnnotated> を返すべき " +
-                                "(actual: ${entryPoint.returnType?.sourceType})",
-                        ) {
-                            entryPoint.returnType?.sourceType shouldBe "List<KSAnnotated>"
-                        }
-                        withClue(
-                            "feature entry point '${entryPoint.name}' は context(ProcessContext) を宣言すべき " +
-                                "(declaration: ${entryPoint.text.substringBefore('{').trim()})",
-                        ) {
-                            entryPoint.text.contains("context(") shouldBe true
-                            entryPoint.text.contains("ProcessContext") shouldBe true
+
+                        test("context(ProcessContext) な internal fun processXxx(): List<KSAnnotated> を公開する") {
+                            val entryPoints =
+                                files
+                                    .flatMap { it.functions(includeNested = false, includeLocal = false) }
+                                    .filter { it.name.startsWith("process") }
+
+                            withClue("process* なトップレベル関数を公開していない") {
+                                entryPoints.isNotEmpty() shouldBe true
+                            }
+
+                            entryPoints.forEach { entryPoint ->
+                                withClue("entry point '${entryPoint.name}' は internal であるべき") {
+                                    entryPoint.hasInternalModifier shouldBe true
+                                }
+                                withClue(
+                                    "entry point '${entryPoint.name}' は List<KSAnnotated> を返すべき " +
+                                        "(actual: ${entryPoint.returnType?.sourceType})",
+                                ) {
+                                    entryPoint.returnType?.sourceType shouldBe "List<KSAnnotated>"
+                                }
+                                withClue(
+                                    "entry point '${entryPoint.name}' は context(ProcessContext) を宣言すべき " +
+                                        "(declaration: ${entryPoint.text.substringBefore('{').trim()})",
+                                ) {
+                                    entryPoint.text.contains("context(") shouldBe true
+                                    entryPoint.text.contains("ProcessContext") shouldBe true
+                                }
+                            }
                         }
                     }
                 }
