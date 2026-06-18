@@ -3,6 +3,7 @@ package me.tbsten.cream.ksp.architecture
 import com.lemonappdev.konsist.api.Konsist
 import com.lemonappdev.konsist.api.declaration.KoFileDeclaration
 import com.lemonappdev.konsist.api.verify.assertFalse
+import com.lemonappdev.konsist.api.verify.assertTrue
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
@@ -14,7 +15,8 @@ import io.kotest.matchers.shouldBe
  * back-edge fails CI instead of silently eroding the structure.
  *
  * Tests are grouped per layer (`context("... レイヤ")`):
- * - root (`me.tbsten.cream.ksp.*`) — `CreamSymbolProcessor` / `Provider` / `ProcessContext`. May depend on everything.
+ * - root (`me.tbsten.cream.ksp`) — composition root. The package holds ONLY `CreamSymbolProcessor`,
+ *                      `CreamSymbolProcessorProvider`, and `ProcessContext`; may depend on everything.
  * - `feature.<name>` — per-annotation entry points (discover → validate → call core). May depend on `core`, `util`,
  *                      and `ProcessContext`; must NOT depend on another `feature.<name>`. Each exposes a single
  *                      top-level entry point: `context(ProcessContext) internal fun processXxx(): List<KSAnnotated>`.
@@ -31,6 +33,16 @@ import io.kotest.matchers.shouldBe
 internal class LayeringArchitectureTest :
     FunSpec(
         {
+            context("root レイヤ（composition root）") {
+                test("直下には承認済みファイル（CreamSymbolProcessor / Provider / ProcessContext）以外を置かない") {
+                    // The root package is the composition root only. Generation logic, helpers, exceptions
+                    // (which live in :cream-ksp:shared), etc. must NOT be added here.
+                    creamKspMain
+                        .filter { it.packagee?.name == KSP_ROOT }
+                        .assertTrue { file -> file.projectPath.substringAfterLast('/') in ROOT_ALLOWED_FILES }
+                }
+            }
+
             context("util レイヤ") {
                 test("core / feature レイヤに依存しない") {
                     creamKspMain
@@ -145,6 +157,14 @@ private const val UTIL_PACKAGE = "$KSP_ROOT.util"
 private const val CORE_PACKAGE = "$KSP_ROOT.core"
 private const val FEATURE_PACKAGE = "$KSP_ROOT.feature"
 private const val KSP_API_PACKAGE = "com.google.devtools.ksp"
+
+/** The only files allowed directly in the root `me.tbsten.cream.ksp` package (the composition root). */
+private val ROOT_ALLOWED_FILES =
+    setOf(
+        "CreamSymbolProcessor.kt",
+        "CreamSymbolProcessorProvider.kt",
+        "ProcessContext.kt",
+    )
 
 /**
  * cream-ksp's production (`main`) source set only — excludes the test source set and the nested
