@@ -34,6 +34,13 @@ paths:
 - `snapshot/` — 代表的な成功シナリオ (basic `@CopyTo`, sealed `@CopyToChildren`, generic `@CopyFrom`,
   object-target `@CombineTo`) について、生成 Kotlin ソース全文を golden ファイルと比較。
   Golden は `cream-ksp/src/test/resources/snapshots/` に格納
+- `architecture/` — kctfork ではなく [Konsist](https://github.com/LemonAppDev/konsist)
+  (`testImplementation(libs.konsist)`) を使い、`cream-ksp/src/main` の feature / core / util
+  レイヤリングを import ベースで強制する (`LayeringArchitectureTest`, issue #130)。
+  scope は `Konsist.scopeFromProduction(moduleName = "cream-ksp", sourceSetName = "main")`
+  で main のみ (test source set と nested `:cream-ksp:shared` を除外)。ルールの正本は
+  `.claude/rules/ksp-architecture.md` の依存方向テーブル。Konsist 0.17.x は Kotlin 2.2 の
+  `context(...)` パラメータ付き宣言も問題なくパースできることを確認済み。
 
 ### Snapshot file format
 
