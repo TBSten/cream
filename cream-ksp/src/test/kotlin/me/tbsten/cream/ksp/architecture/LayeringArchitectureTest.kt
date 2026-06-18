@@ -253,4 +253,7 @@ private fun KoFileDeclaration.inLayer(layerPackage: String): Boolean {
 }
 
 /** True when this file imports any symbol whose fully-qualified name starts with one of [importPrefixes]. */
-private fun KoFileDeclaration.importsFrom(vararg importPrefixes: String): Boolean = imports.any { import -> importPrefixes.any { prefix -> import.name.startsWith(prefix) } }
+private fun KoFileDeclaration.importsFrom(vararg importPrefixes: String): Boolean =
+    imports.any { import ->
+        importPrefixes.any { prefix -> import.name.startsWith(prefix) }
+    }
