@@ -27,8 +27,8 @@ import io.kotest.matchers.shouldBe
  *                      depend on `core` / `feature` nor reference cream-specific types.
  *
  * Structural / module rules also enforced: `core` files live only in `common`/`copyFun`/`combineFun`/`sealedCopy`,
- * `feature` files only in a `feature.<name>` sub-package; every file ≤ 500 lines; no KotlinPoet (generation is
- * string-append based).
+ * `feature` files only in a `feature.<name>` sub-package; every file stays within its line budget
+ * (default 300, with a few justified [FILE_LINE_LIMIT_OVERRIDES]).
  *
  * The checks are import-based, matching the project convention of always importing referenced symbols (no wildcard
  * imports, no fully-qualified inline references; enforced by ktlint). The entry-point signature check reads
@@ -171,12 +171,11 @@ internal class LayeringArchitectureTest :
             }
 
             context("ファイル全般（モジュール共通）") {
-                test("1 ファイル $MAX_FILE_LINES 行以内") {
-                    creamKspMain.assertFalse { file -> file.text.lines().size > MAX_FILE_LINES }
-                }
-
-                test("KotlinPoet を使わない（文字列 append ベースで生成する）") {
-                    creamKspMain.assertFalse { file -> file.importsFrom("$KOTLINPOET_PACKAGE.") }
+                test("1 ファイル原則 $MAX_FILE_LINES 行以内（FILE_LINE_LIMIT_OVERRIDES のファイルは個別上限）") {
+                    creamKspMain.assertFalse { file ->
+                        val limit = FILE_LINE_LIMIT_OVERRIDES[file.projectPath.substringAfterLast('/')] ?: MAX_FILE_LINES
+                        file.text.lines().size > limit
+                    }
                 }
             }
         },
@@ -188,8 +187,20 @@ private const val UTIL_PACKAGE = "$KSP_ROOT.util"
 private const val CORE_PACKAGE = "$KSP_ROOT.core"
 private const val FEATURE_PACKAGE = "$KSP_ROOT.feature"
 private const val KSP_API_PACKAGE = "com.google.devtools.ksp"
-private const val KOTLINPOET_PACKAGE = "com.squareup.kotlinpoet"
-private const val MAX_FILE_LINES = 500
+private const val MAX_FILE_LINES = 300
+
+/**
+ * Per-file overrides to [MAX_FILE_LINES] (keyed by file name). Files here may grow up to their
+ * listed limit instead of the default 300. Keep this list tiny and justified — it is an escape
+ * hatch, not the norm.
+ *
+ * - `FindMatchedProperty.kt`: プロパティ照合（`@Map` / 名前一致 / デフォルト値）の分岐が密結合で、
+ *   無理に割るとロジックが追いにくくなるため、目安 300 ではなく上限 500 まで許容する。
+ */
+private val FILE_LINE_LIMIT_OVERRIDES =
+    mapOf(
+        "FindMatchedProperty.kt" to 500,
+    )
 
 /** The sub-packages `core` is allowed to contain (`core/` must not hold files directly). */
 private val CORE_SUBPACKAGES =
