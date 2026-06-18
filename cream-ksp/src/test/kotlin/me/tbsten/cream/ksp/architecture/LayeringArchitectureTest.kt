@@ -16,14 +16,17 @@ import io.kotest.matchers.shouldBe
  * Layers (by package), with their allowed dependency direction:
  * - root (`me.tbsten.cream.ksp.*`) — `CreamSymbolProcessor` / `Provider` / `ProcessContext`. May depend on everything.
  * - `feature.<name>` — per-annotation entry points (discover → validate → call core). May depend on `core`, `util`,
- *                      and `ProcessContext`; must NOT depend on another `feature.<name>`.
+ *                      and `ProcessContext`; must NOT depend on another `feature.<name>`. Each exposes a single
+ *                      top-level entry point: `context(ProcessContext) internal fun processXxx(): List<KSAnnotated>`.
  * - `core`           — cream-specific generation logic. May depend on `util`; must NOT depend on `feature` nor on the
  *                      root infra (`ProcessContext` / `CreamSymbolProcessor`) — it receives a per-layer context instead.
- * - `util`           — generic KSP/Kotlin helpers reusable elsewhere. Must NOT depend on `core` / `feature`, and must
- *                      NOT reference any cream-specific type (only generic helpers).
+ * - `util`           — generic helpers reusable elsewhere, split in two: `util` (top-level) holds Kotlin-only helpers
+ *                      and must NOT depend on the KSP API; KSP-flavoured helpers live in `util.ksp`. Neither may
+ *                      depend on `core` / `feature` nor reference cream-specific types.
  *
- * The checks are import-based, which matches the project convention of always importing referenced
- * symbols (no wildcard imports, no fully-qualified inline references; enforced by ktlint).
+ * The checks are import-based, matching the project convention of always importing referenced symbols (no wildcard
+ * imports, no fully-qualified inline references; enforced by ktlint). The entry-point signature check reads
+ * `KoFunctionDeclaration.text` for the `context(...)` clause, since Konsist does not model context parameters.
  */
 internal class LayeringArchitectureTest :
     FunSpec(
@@ -47,6 +50,14 @@ internal class LayeringArchitectureTest :
                     }
             }
 
+            test("util 直下（util.ksp を除く）は KSP 型に依存しない（KSP util は util/ksp に置く）") {
+                // Helpers that touch the KSP API belong in `util.ksp`. The top-level `util` package stays
+                // Kotlin-only so it can be reused in non-KSP contexts.
+                creamKspMain
+                    .filter { it.packagee?.name == UTIL_PACKAGE }
+                    .assertFalse { file -> file.importsFrom("$KSP_API_PACKAGE.") }
+            }
+
             test("core レイヤは feature レイヤに依存しない") {
                 creamKspMain
                     .filter { it.inLayer(CORE_PACKAGE) }
@@ -63,7 +74,7 @@ internal class LayeringArchitectureTest :
                     }
             }
 
-            test("feature レイヤは他の feature に依存しない") {
+            test("feature レイヤは他の feature を参照しない（feature 間で関数などを使い合わない）") {
                 creamKspMain
                     .filter { it.inLayer(FEATURE_PACKAGE) }
                     .assertFalse { file ->
@@ -74,25 +85,43 @@ internal class LayeringArchitectureTest :
                     }
             }
 
-            test("各 feature.<name> パッケージは process で始まるトップレベルのエントリポイントを公開する") {
-                val featurePackages =
+            test("各 feature.<name> は context(ProcessContext) な internal fun processXxx(): List<KSAnnotated> を公開する") {
+                val byPackage =
                     creamKspMain
                         .filter { it.inLayer(FEATURE_PACKAGE) }
                         .groupBy { it.packagee?.name }
 
                 withClue("feature パッケージが 1 つも検出されていない（scope 設定の誤り）") {
-                    featurePackages.isNotEmpty() shouldBe true
+                    byPackage.isNotEmpty() shouldBe true
                 }
 
-                featurePackages.forEach { (packageName, files) ->
-                    val exposesProcessEntry =
-                        files.any { file ->
-                            file
-                                .functions(includeNested = false, includeLocal = false)
-                                .any { it.name.startsWith("process") }
+                byPackage.forEach { (packageName, files) ->
+                    val entryPoints =
+                        files
+                            .flatMap { it.functions(includeNested = false, includeLocal = false) }
+                            .filter { it.name.startsWith("process") }
+
+                    withClue("feature '$packageName' は process* なトップレベル関数を公開していない") {
+                        entryPoints.isNotEmpty() shouldBe true
+                    }
+
+                    entryPoints.forEach { entryPoint ->
+                        withClue("feature entry point '${entryPoint.name}' は internal であるべき") {
+                            entryPoint.hasInternalModifier shouldBe true
                         }
-                    withClue("feature パッケージ '$packageName' は process* なトップレベル関数を公開していない") {
-                        exposesProcessEntry shouldBe true
+                        withClue(
+                            "feature entry point '${entryPoint.name}' は List<KSAnnotated> を返すべき " +
+                                "(actual: ${entryPoint.returnType?.sourceType})",
+                        ) {
+                            entryPoint.returnType?.sourceType shouldBe "List<KSAnnotated>"
+                        }
+                        withClue(
+                            "feature entry point '${entryPoint.name}' は context(ProcessContext) を宣言すべき " +
+                                "(declaration: ${entryPoint.text.substringBefore('{').trim()})",
+                        ) {
+                            entryPoint.text.contains("context(") shouldBe true
+                            entryPoint.text.contains("ProcessContext") shouldBe true
+                        }
                     }
                 }
             }
@@ -104,6 +133,7 @@ private const val KSP_ROOT = "$CREAM_ROOT.ksp"
 private const val UTIL_PACKAGE = "$KSP_ROOT.util"
 private const val CORE_PACKAGE = "$KSP_ROOT.core"
 private const val FEATURE_PACKAGE = "$KSP_ROOT.feature"
+private const val KSP_API_PACKAGE = "com.google.devtools.ksp"
 
 /**
  * cream-ksp's production (`main`) source set only — excludes the test source set and the nested

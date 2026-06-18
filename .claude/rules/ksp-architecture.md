@@ -28,7 +28,8 @@ feature ─▶ ProcessContext   （唯一の上向き依存。ProcessContext は
 
 | Layer | import してよい | import 禁止 |
 |---|---|---|
-| `util/` | Kotlin stdlib / KSP API（汎用範囲） | core, feature, top-level, **cream-runtime**, cream 固有型（`CreamOptions` / `CreamException` / `CopyVisibility` / `GenerateSourceAnnotation` / `TargetValidation` 等） |
+| `util/`（直下） | Kotlin stdlib のみ | core, feature, top-level, **cream-runtime**, **KSP API**（KSP 依存ヘルパは `util/ksp/` へ）, cream 固有型（`CreamOptions` / `CreamException` / `CopyVisibility` / `GenerateSourceAnnotation` / `TargetValidation` 等） |
+| `util/ksp/` | Kotlin stdlib / KSP API（汎用範囲） | core, feature, top-level, **cream-runtime**, cream 固有型（同上） |
 | `core/` | util, `cream-ksp:shared`, `cream-runtime`, KSP API | **feature**, `CreamSymbolProcessor` / `Provider`, **`ProcessContext`** |
 | `feature/<name>/` | core, util, shared, runtime, KSP API, **`ProcessContext`** | **他の `feature/<name>`（feature 間依存禁止）**, `CreamSymbolProcessor` / `Provider` |
 | root (`CreamSymbolProcessor` / `Provider`) | feature, core, util, shared, runtime, KSP API, ProcessContext | 生成ロジック・注釈個別処理 |
