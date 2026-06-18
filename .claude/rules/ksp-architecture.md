@@ -28,14 +28,20 @@ feature ─▶ ProcessContext   （唯一の上向き依存。ProcessContext は
 
 | Layer | import してよい | import 禁止 |
 |---|---|---|
-| `util/` | Kotlin stdlib / KSP API（汎用範囲） | core, feature, top-level, **cream-runtime**, cream 固有型（`CreamOptions` / `CreamException` / `CopyVisibility` / `GenerateSourceAnnotation` / `TargetValidation` 等） |
+| `util/`（直下） | Kotlin stdlib のみ | core, feature, top-level, **cream-runtime**, **KSP API**（KSP 依存ヘルパは `util/ksp/` へ）, cream 固有型（`CreamOptions` / `CreamException` / `CopyVisibility` / `GenerateSourceAnnotation` / `TargetValidation` 等） |
+| `util/ksp/` | Kotlin stdlib / KSP API（汎用範囲） | core, feature, top-level, **cream-runtime**, cream 固有型（同上） |
 | `core/` | util, `cream-ksp:shared`, `cream-runtime`, KSP API | **feature**, `CreamSymbolProcessor` / `Provider`, **`ProcessContext`** |
 | `feature/<name>/` | core, util, shared, runtime, KSP API, **`ProcessContext`** | **他の `feature/<name>`（feature 間依存禁止）**, `CreamSymbolProcessor` / `Provider` |
 | root (`CreamSymbolProcessor` / `Provider`) | feature, core, util, shared, runtime, KSP API, ProcessContext | 生成ロジック・注釈個別処理 |
 | `ProcessContext`（leaf） | KSP API, shared（`CreamOptions`） | feature, core, util, `CreamSymbolProcessor` |
 
 - **唯一の上向き依存は `feature → ProcessContext` のみ**。`core` は `ProcessContext` に依存しない（層別 context を使う）。
-- 境界の自動強制（Konsist 等の architecture test）は別タスク（issue #130）。
+- **root パッケージ (`me.tbsten.cream.ksp` 直下) には `CreamSymbolProcessor` / `CreamSymbolProcessorProvider` / `ProcessContext` の 3 ファイルのみ**。生成ロジック・ヘルパ・例外等を直下に置かない（`CreamException` 階層は `:cream-ksp:shared` 側）。
+- 境界は [Konsist](https://github.com/LemonAppDev/konsist) の architecture test
+  (`cream-ksp/src/test/.../architecture/LayeringArchitectureTest.kt`, issue #130) で自動強制している。
+  強制内容: 上記の依存方向テーブル / 各層の構造（root=3 ファイル, `core`=`common`/`copyFun`/`combineFun`/`sealedCopy` のみ,
+  `feature`=`feature.<name>` のみ, `util` 直下は KSP 非依存）/ feature entry-point 署名 / 1 ファイル原則 ≤ 300 行（`FILE_LINE_LIMIT_OVERRIDES` の例外のみ上限 500）。
+  この表や上記ルールを変えたら同テストを更新すること。
 
 ## ProcessContext & context parameters
 

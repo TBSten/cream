@@ -208,8 +208,10 @@ Unit tests for processor logic (naming strategies, property matching, etc.):
 JVM-only end-to-end tests built on kctfork live under
 `cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/`. See
 [.claude/rules/ksp-test.md](.claude/rules/ksp-test.md) for the layout
-(`testing/` / `diagnostic/` / `options/` / `snapshot/`), the snapshot
-regeneration command, and how to add new tests.
+(`testing/` / `diagnostic/` / `options/` / `snapshot/` / `architecture/`), the snapshot
+regeneration command, and how to add new tests. The `architecture/` tests use
+[Konsist](https://github.com/LemonAppDev/konsist) (not kctfork) to enforce the
+feature/core/util layering documented in `.claude/rules/ksp-architecture.md`.
 
 ## Multiplatform Considerations
 

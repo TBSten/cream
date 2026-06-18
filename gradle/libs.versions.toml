@@ -8,6 +8,7 @@ ksp = "2.2.20-2.0.4"
 kotest = "6.1.11"
 mockk = "1.14.6"
 kctfork = "0.12.1"
+konsist = "0.17.3"
 ktlint = "1.7.1"
 ktlintGradlePlugin = "13.1.0"
 
@@ -28,6 +29,7 @@ kspApi = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 kctforkCore = { module = "dev.zacsweers.kctfork:core", version.ref = "kctfork" }
 kctforkKsp = { module = "dev.zacsweers.kctfork:ksp", version.ref = "kctfork" }
+konsist = { module = "com.lemonappdev:konsist", version.ref = "konsist" }
 kotlinxCoroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 kotlinxSerializationCore = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerializationJson" }
 kotlinxSerializationJson = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
