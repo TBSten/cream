@@ -6,6 +6,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.Visibility
 import me.tbsten.cream.CopyVisibility
+import me.tbsten.cream.ksp.util.ksp.getArgument
 
 internal val KSClassDeclaration.visibilityStr: String
     get() =
@@ -40,11 +41,7 @@ internal fun CopyVisibility.toModifierString(inheritFrom: KSClassDeclaration): S
  * omitting `visibility` keeps the prior behaviour.
  */
 internal fun KSAnnotation.copyVisibilityArgument(name: String = "visibility"): CopyVisibility {
-    val value =
-        arguments
-            .firstOrNull { it.name?.asString() == name }
-            ?.value
-            ?: return CopyVisibility.INHERIT
+    val value = getArgument<Any>(name) ?: return CopyVisibility.INHERIT
     val entryName =
         when (value) {
             is KSClassDeclaration -> value.simpleName.asString()

@@ -6,6 +6,7 @@ import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSType
+import me.tbsten.cream.ksp.util.ksp.getArgument
 import kotlin.reflect.KClass
 
 /**
@@ -69,20 +70,12 @@ internal fun Sequence<KSAnnotation>.resolveClassListOrReport(
  */
 internal fun KSAnnotation.extractPropertyMappings(): List<Pair<String, String>> {
     val properties =
-        arguments
-            .firstOrNull { it.name?.asString() == "properties" }
-            ?.value as? List<*>
+        getArgument<List<*>>("properties")
             ?: return emptyList()
     return properties.mapNotNull { mapping ->
         val mapAnnotation = mapping as? KSAnnotation ?: return@mapNotNull null
-        val sourceProperty =
-            mapAnnotation.arguments
-                .firstOrNull { it.name?.asString() == "source" }
-                ?.value as? String
-        val targetProperty =
-            mapAnnotation.arguments
-                .firstOrNull { it.name?.asString() == "target" }
-                ?.value as? String
+        val sourceProperty = mapAnnotation.getArgument<String>("source")
+        val targetProperty = mapAnnotation.getArgument<String>("target")
         if (sourceProperty != null && targetProperty != null) {
             sourceProperty to targetProperty
         } else {
@@ -97,21 +90,13 @@ internal fun KSAnnotation.extractPropertyMappings(): List<Pair<String, String>> 
  */
 internal fun KSAnnotation.extractKDoc(): Pair<String, List<String>> {
     val kdocAnnotation =
-        arguments
-            .firstOrNull { it.name?.asString() == "kdoc" }
-            ?.value as? KSAnnotation
+        getArgument<KSAnnotation>("kdoc")
             ?: return "" to emptyList()
-    val description =
-        kdocAnnotation.arguments
-            .firstOrNull { it.name?.asString() == "description" }
-            ?.value as? String
-            ?: ""
+    val description = kdocAnnotation.getArgument<String>("description") ?: ""
     val examples =
-        (
-            kdocAnnotation.arguments
-                .firstOrNull { it.name?.asString() == "examples" }
-                ?.value as? List<*>
-        )?.filterIsInstance<String>()
+        kdocAnnotation
+            .getArgument<List<*>>("examples")
+            ?.filterIsInstance<String>()
             ?: emptyList()
     return description to examples
 }

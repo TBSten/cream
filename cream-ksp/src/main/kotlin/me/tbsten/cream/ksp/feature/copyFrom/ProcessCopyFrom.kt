@@ -19,56 +19,56 @@ import me.tbsten.cream.ksp.core.copyFun.appendCopyFunction
 import me.tbsten.cream.ksp.util.ksp.isSealed
 import me.tbsten.cream.ksp.util.with
 
+private val annotationName = CopyFrom::class.simpleName!!
+
 context(processContext: ProcessContext)
-internal fun processCopyFrom(): List<KSAnnotated> {
-    val (copyFromTargets, invalidCopyFromTargets) =
-        processContext.resolver
-            .getSymbolsWithAnnotation(
-                annotationName = CopyFrom::class.fullName,
-            ).partition { it.validate() }
+internal fun processCopyFrom(): List<KSAnnotated> =
+    with(processContext.logger, processContext.options) {
+        val (copyFromTargets, invalidCopyFromTargets) =
+            processContext.resolver
+                .getSymbolsWithAnnotation(
+                    annotationName = CopyFrom::class.fullName,
+                ).partition { it.validate() }
 
-    copyFromTargets.forEach { target ->
-        val targetDeclaration =
-            with(processContext.logger) { target.asDeclarationOrReport(CopyFrom::class.simpleName!!) } ?: return@forEach
-        val targetClass =
-            targetDeclaration.resolveClassDeclarationOrReport(
-                annotationName = CopyFrom::class.simpleName!!,
-                logger = processContext.logger,
-            ) ?: return@forEach
+        copyFromTargets.forEach { target ->
+            val targetDeclaration =
+                target.asDeclarationOrReport(annotationName) ?: return@forEach
+            val targetClass =
+                targetDeclaration.resolveClassDeclarationOrReport(
+                    annotationName = annotationName,
+                    logger = processContext.logger,
+                ) ?: return@forEach
 
-        val copyFromAnnotations = target.annotationsOf(CopyFrom::class)
+            val copyFromAnnotations = target.annotationsOf(CopyFrom::class)
 
-        // CopyFrom.sources: List<KClass<*>>. If any source cannot be resolved to a class, an error
-        // has been reported and we skip this target so no partial file is emitted.
-        val sourceClasses =
-            with(processContext.logger) {
-                copyFromAnnotations.resolveClassListOrReport("sources", CopyFrom::class.simpleName!!, targetDeclaration)
-            } ?: return@forEach
+            // CopyFrom.sources: List<KClass<*>>. If any source cannot be resolved to a class, an error
+            // has been reported and we skip this target so no partial file is emitted.
+            val sourceClasses =
+                copyFromAnnotations.resolveClassListOrReport("sources", annotationName, targetDeclaration) ?: return@forEach
 
-        val copyFromAnnotation =
-            copyFromAnnotations.firstOrNull() ?: return@forEach
+            val copyFromAnnotation =
+                copyFromAnnotations.firstOrNull() ?: return@forEach
 
-        val generateSourceAnnotation = GenerateSourceAnnotation.CopyFrom(annotation = copyFromAnnotation)
+            val generateSourceAnnotation = GenerateSourceAnnotation.CopyFrom(annotation = copyFromAnnotation)
 
-        val funNameOk =
-            requireFunNameSupportsFanout(
-                funNameTemplate = generateSourceAnnotation.funNameTemplate,
-                generatesMultipleFunctions = sourceClasses.size > 1 || targetClass.isSealed(),
-                annotationSimpleName = CopyFrom::class.simpleName!!,
-                declarationFullName = targetClass.fullName,
-                logger = processContext.logger,
-                ksNode = targetDeclaration,
-            )
-        if (!funNameOk) return@forEach
+            val funNameOk =
+                requireFunNameSupportsFanout(
+                    funNameTemplate = generateSourceAnnotation.funNameTemplate,
+                    generatesMultipleFunctions = sourceClasses.size > 1 || targetClass.isSealed(),
+                    annotationSimpleName = annotationName,
+                    declarationFullName = targetClass.fullName,
+                    logger = processContext.logger,
+                    ksNode = targetDeclaration,
+                )
+            if (!funNameOk) return@forEach
 
-        processContext.codeGenerator
-            .createNewKotlinFile(
-                dependencies = Dependencies(aggregating = true, targetDeclaration.containingFile!!),
-                packageName = targetClass.packageName,
-                fileName = "CopyFrom__${targetClass.underPackageName}",
-            ) {
-                sourceClasses.forEach { sourceClass ->
-                    with(processContext.options, processContext.logger) {
+            processContext.codeGenerator
+                .createNewKotlinFile(
+                    dependencies = Dependencies(aggregating = true, targetDeclaration.containingFile!!),
+                    packageName = targetClass.packageName,
+                    fileName = "CopyFrom__${targetClass.underPackageName}",
+                ) {
+                    sourceClasses.forEach { sourceClass ->
                         it.appendCopyFunction(
                             source = sourceClass,
                             target = targetClass,
@@ -78,8 +78,7 @@ internal fun processCopyFrom(): List<KSAnnotated> {
                         )
                     }
                 }
-            }
-    }
+        }
 
-    return invalidCopyFromTargets
-}
+        return invalidCopyFromTargets
+    }

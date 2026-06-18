@@ -22,8 +22,11 @@ import me.tbsten.cream.ksp.core.common.requireFunNameSupportsFanout
 import me.tbsten.cream.ksp.core.common.resolveClassDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.underPackageName
 import me.tbsten.cream.ksp.core.copyFun.appendCopyFunction
+import me.tbsten.cream.ksp.util.ksp.getArgument
 import me.tbsten.cream.ksp.util.ksp.isSealed
 import me.tbsten.cream.ksp.util.with
+
+private val annotationName = CopyMapping::class.simpleName!!
 
 /**
  * Data class to hold CopyMapping annotation information
@@ -55,42 +58,36 @@ private fun parseCopyMapping(
     logger: KSPLogger,
 ): CopyMappingInfo? {
     val sourceType =
-        annotation.arguments
-            .firstOrNull { it.name?.asString() == "source" }
-            ?.value as? KSType
+        annotation.getArgument<KSType>("source")
             ?: run {
                 logger.reportCopyMappingMissingSource(annotatedDeclaration)
                 return null
             }
 
     val targetType =
-        annotation.arguments
-            .firstOrNull { it.name?.asString() == "target" }
-            ?.value as? KSType
+        annotation.getArgument<KSType>("target")
             ?: run {
                 logger.reportCopyMappingMissingTarget(annotatedDeclaration)
                 return null
             }
 
     val canReverse =
-        annotation.arguments
-            .firstOrNull { it.name?.asString() == "canReverse" }
-            ?.value as? Boolean
+        annotation.getArgument<Boolean>("canReverse")
             ?: false
 
     val sourceClass =
         sourceType.declaration.resolveClassDeclarationOrReport(
-            annotationName = CopyMapping::class.simpleName!!,
+            annotationName = annotationName,
             logger = logger,
-            context = "Specified in @${CopyMapping::class.simpleName}.source",
+            context = "Specified in @$annotationName.source",
             ksNode = annotatedDeclaration,
         ) ?: return null
 
     val targetClass =
         targetType.declaration.resolveClassDeclarationOrReport(
-            annotationName = CopyMapping::class.simpleName!!,
+            annotationName = annotationName,
             logger = logger,
-            context = "Specified in @${CopyMapping::class.simpleName}.target",
+            context = "Specified in @$annotationName.target",
             ksNode = annotatedDeclaration,
         ) ?: return null
 
@@ -104,59 +101,59 @@ private fun parseCopyMapping(
 }
 
 context(processContext: ProcessContext)
-internal fun processCopyMapping(): List<KSAnnotated> {
-    val (copyMappingTargets, invalidCopyMappingTargets) =
-        processContext.resolver
-            .getSymbolsWithAnnotation(
-                annotationName = CopyMapping::class.fullName,
-            ).partition { it.validate() }
+internal fun processCopyMapping(): List<KSAnnotated> =
+    with(processContext.logger, processContext.options) {
+        val (copyMappingTargets, invalidCopyMappingTargets) =
+            processContext.resolver
+                .getSymbolsWithAnnotation(
+                    annotationName = CopyMapping::class.fullName,
+                ).partition { it.validate() }
 
-    copyMappingTargets.forEach { target ->
-        val annotatedDeclaration =
-            with(processContext.logger) { target.asClassDeclarationOrReport(CopyMapping::class.simpleName!!) } ?: return@forEach
+        copyMappingTargets.forEach { target ->
+            val annotatedDeclaration =
+                target.asClassDeclarationOrReport(annotationName) ?: return@forEach
 
-        // Extract all CopyMapping annotations from the target. A malformed annotation reports a
-        // clean diagnostic and yields null; skip the whole declaration so no partial file is emitted.
-        val rawAnnotations = target.annotationsOf(CopyMapping::class).toList()
-        val parsedMappings =
-            rawAnnotations.map { rawAnnotation ->
-                parseCopyMapping(rawAnnotation, annotatedDeclaration, processContext.logger)
-            }
-        if (parsedMappings.any { it == null }) return@forEach
-        val copyMappings = parsedMappings.filterNotNull()
+            // Extract all CopyMapping annotations from the target. A malformed annotation reports a
+            // clean diagnostic and yields null; skip the whole declaration so no partial file is emitted.
+            val rawAnnotations = target.annotationsOf(CopyMapping::class).toList()
+            val parsedMappings =
+                rawAnnotations.map { rawAnnotation ->
+                    parseCopyMapping(rawAnnotation, annotatedDeclaration, processContext.logger)
+                }
+            if (parsedMappings.any { it == null }) return@forEach
+            val copyMappings = parsedMappings.filterNotNull()
 
-        // Fail fast (before opening any output file) when a plain-literal funName would
-        // fan out to multiple colliding names. Mirrors CopyTo/CopyFrom, which guard before
-        // createNewKotlinFile so a rejected funName never leaves a partial generated file.
-        val allFunNamesOk =
-            copyMappings.all { mapping ->
-                requireFunNameSupportsFanout(
-                    funNameTemplate = mapping.funNameTemplate,
-                    generatesMultipleFunctions = mapping.canReverse || mapping.targetClass.isSealed(),
-                    annotationSimpleName = CopyMapping::class.simpleName!!,
-                    declarationFullName = annotatedDeclaration.fullName,
-                    logger = processContext.logger,
-                    ksNode = annotatedDeclaration,
-                )
-            }
-        if (!allFunNamesOk) return@forEach
+            // Fail fast (before opening any output file) when a plain-literal funName would
+            // fan out to multiple colliding names. Mirrors CopyTo/CopyFrom, which guard before
+            // createNewKotlinFile so a rejected funName never leaves a partial generated file.
+            val allFunNamesOk =
+                copyMappings.all { mapping ->
+                    requireFunNameSupportsFanout(
+                        funNameTemplate = mapping.funNameTemplate,
+                        generatesMultipleFunctions = mapping.canReverse || mapping.targetClass.isSealed(),
+                        annotationSimpleName = annotationName,
+                        declarationFullName = annotatedDeclaration.fullName,
+                        logger = processContext.logger,
+                        ksNode = annotatedDeclaration,
+                    )
+                }
+            if (!allFunNamesOk) return@forEach
 
-        // Group by source class to create one file per source package
-        copyMappings
-            .groupBy { it.sourceClass.packageName }
-            .forEach { (packageName, mappings) ->
-                // Use the first source class's file for dependencies
-                val sourceFile =
-                    mappings.firstOrNull()?.sourceClass?.containingFile
-                        ?: annotatedDeclaration.containingFile!!
+            // Group by source class to create one file per source package
+            copyMappings
+                .groupBy { it.sourceClass.packageName }
+                .forEach { (packageName, mappings) ->
+                    // Use the first source class's file for dependencies
+                    val sourceFile =
+                        mappings.firstOrNull()?.sourceClass?.containingFile
+                            ?: annotatedDeclaration.containingFile!!
 
-                processContext.codeGenerator.createNewKotlinFile(
-                    dependencies = Dependencies(aggregating = true, sourceFile),
-                    packageName = packageName,
-                    fileName = "CopyMapping__${annotatedDeclaration.underPackageName}",
-                ) {
-                    mappings.forEach { mapping ->
-                        with(processContext.options, processContext.logger) {
+                    processContext.codeGenerator.createNewKotlinFile(
+                        dependencies = Dependencies(aggregating = true, sourceFile),
+                        packageName = packageName,
+                        fileName = "CopyMapping__${annotatedDeclaration.underPackageName}",
+                    ) {
+                        mappings.forEach { mapping ->
                             it.appendCopyFunction(
                                 source = mapping.sourceClass,
                                 target = mapping.targetClass,
@@ -184,11 +181,10 @@ internal fun processCopyMapping(): List<KSAnnotated> {
                         }
                     }
                 }
-            }
-    }
+        }
 
-    return invalidCopyMappingTargets
-}
+        return invalidCopyMappingTargets
+    }
 
 // ---------------------------------------------------------------------------
 // Diagnostic helpers
@@ -197,8 +193,8 @@ internal fun processCopyMapping(): List<KSAnnotated> {
 private fun KSPLogger.reportCopyMappingMissingSource(annotatedDeclaration: KSClassDeclaration) {
     reportCreamError(
         InvalidCreamUsageException(
-            message = "source parameter is required in @${CopyMapping::class.simpleName}",
-            solution = "Specify source class in @${CopyMapping::class.simpleName}",
+            message = "source parameter is required in @$annotationName",
+            solution = "Specify source class in @$annotationName",
         ),
         annotatedDeclaration,
     )
@@ -207,8 +203,8 @@ private fun KSPLogger.reportCopyMappingMissingSource(annotatedDeclaration: KSCla
 private fun KSPLogger.reportCopyMappingMissingTarget(annotatedDeclaration: KSClassDeclaration) {
     reportCreamError(
         InvalidCreamUsageException(
-            message = "target parameter is required in @${CopyMapping::class.simpleName}",
-            solution = "Specify target class in @${CopyMapping::class.simpleName}",
+            message = "target parameter is required in @$annotationName",
+            solution = "Specify target class in @$annotationName",
         ),
         annotatedDeclaration,
     )
