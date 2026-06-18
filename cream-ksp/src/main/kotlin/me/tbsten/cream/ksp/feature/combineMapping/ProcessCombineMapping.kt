@@ -53,14 +53,14 @@ private fun parseCombineMapping(
     logger: KSPLogger,
 ): CombineMappingInfo? {
     val sourcesTypes =
-        annotation.getArgument<List<*>>("sources")
+        annotation.getArgument(CombineMapping::sources)
             ?: run {
                 logger.reportCombineMappingMissingSources(annotatedDeclaration)
                 return null
             }
 
     val targetType =
-        annotation.getArgument<KSType>("target")
+        annotation.getArgument(CombineMapping::target)
             ?: run {
                 logger.reportCombineMappingMissingTarget(annotatedDeclaration)
                 return null

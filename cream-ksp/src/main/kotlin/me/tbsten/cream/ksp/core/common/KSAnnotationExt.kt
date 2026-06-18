@@ -6,6 +6,7 @@ import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSType
+import me.tbsten.cream.KDoc
 import me.tbsten.cream.ksp.util.ksp.getArgument
 import kotlin.reflect.KClass
 
@@ -92,10 +93,10 @@ internal fun KSAnnotation.extractKDoc(): Pair<String, List<String>> {
     val kdocAnnotation =
         getArgument<KSAnnotation>("kdoc")
             ?: return "" to emptyList()
-    val description = kdocAnnotation.getArgument<String>("description") ?: ""
+    val description = kdocAnnotation.getArgument(KDoc::description) ?: ""
     val examples =
         kdocAnnotation
-            .getArgument<List<*>>("examples")
+            .getArgument(KDoc::examples)
             ?.filterIsInstance<String>()
             ?: emptyList()
     return description to examples

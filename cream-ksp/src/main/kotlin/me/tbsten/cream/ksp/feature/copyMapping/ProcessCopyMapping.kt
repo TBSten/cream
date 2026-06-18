@@ -56,21 +56,21 @@ private fun parseCopyMapping(
     logger: KSPLogger,
 ): CopyMappingInfo? {
     val sourceType =
-        annotation.getArgument<KSType>("source")
+        annotation.getArgument(CopyMapping::source)
             ?: run {
                 logger.reportCopyMappingMissingSource(annotatedDeclaration)
                 return null
             }
 
     val targetType =
-        annotation.getArgument<KSType>("target")
+        annotation.getArgument(CopyMapping::target)
             ?: run {
                 logger.reportCopyMappingMissingTarget(annotatedDeclaration)
                 return null
             }
 
     val canReverse =
-        annotation.getArgument<Boolean>("canReverse")
+        annotation.getArgument(CopyMapping::canReverse)
             ?: false
 
     val sourceClass =
