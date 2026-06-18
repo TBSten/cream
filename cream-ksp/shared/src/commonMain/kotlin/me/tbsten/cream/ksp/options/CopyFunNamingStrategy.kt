@@ -4,7 +4,7 @@ import me.tbsten.cream.InternalCreamApi
 
 @Suppress("EnumEntryName", "RemoveRedundantBackticks")
 @InternalCreamApi
-enum class CopyFunNamingStrategy(val funName: (source: ClassDeclarationInfo, target: ClassDeclarationInfo) -> String) {
+public enum class CopyFunNamingStrategy(public val funName: (source: ClassDeclarationInfo, target: ClassDeclarationInfo) -> String) {
     `under-package`({ _, target ->
         target.fullName.replace(target.packageName + ".", "")
     }),
@@ -46,16 +46,16 @@ enum class CopyFunNamingStrategy(val funName: (source: ClassDeclarationInfo, tar
     )
     ;
 
-    companion object {
-        val default = `under-package`
+    public companion object {
+        public val default: CopyFunNamingStrategy = `under-package`
     }
 }
 
 @InternalCreamApi
-interface ClassDeclarationInfo {
-    val packageName: String
-    val underPackageName: String
-    val simpleName: String
+public interface ClassDeclarationInfo {
+    public val packageName: String
+    public val underPackageName: String
+    public val simpleName: String
 
-    val fullName: String
+    public val fullName: String
 }

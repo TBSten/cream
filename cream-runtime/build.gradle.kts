@@ -10,6 +10,8 @@ plugins {
 }
 
 kotlin {
+    explicitApi()
+
     // tested on CI
     iosSimulatorArm64()
     jvm()

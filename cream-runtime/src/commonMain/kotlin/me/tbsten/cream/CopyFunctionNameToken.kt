@@ -45,28 +45,28 @@ package me.tbsten.cream
  * `funName` keeps cream's existing behaviour. Embed it to keep the derived name and only
  * add a prefix/suffix, e.g. `funName = DefaultCopyFunctionName + "OrNull"`.
  */
-const val DefaultCopyFunctionName: String = "{{cream:DefaultCopyFunctionName}}"
+public const val DefaultCopyFunctionName: String = "{{cream:DefaultCopyFunctionName}}"
 
 /** Target simple name in Pascal case, e.g. `UiState.Success` -> `Success`. */
-const val CopyTargetSimpleName: String = "{{cream:CopyTargetSimpleName}}"
+public const val CopyTargetSimpleName: String = "{{cream:CopyTargetSimpleName}}"
 
 /** Target simple name in snake case, e.g. `UiState.Success` -> `success`. */
-const val copy_target_simple_name: String = "{{cream:copy_target_simple_name}}"
+public const val copy_target_simple_name: String = "{{cream:copy_target_simple_name}}"
 
 /** Target name below its package, Pascal case, e.g. `com.example.UiState.Success` -> `UiStateSuccess`. */
-const val CopyTargetUnderPackage: String = "{{cream:CopyTargetUnderPackage}}"
+public const val CopyTargetUnderPackage: String = "{{cream:CopyTargetUnderPackage}}"
 
 /** Target name below its package, snake case, e.g. `com.example.UiState.Success` -> `uistate_success`. */
-const val copy_target_under_package: String = "{{cream:copy_target_under_package}}"
+public const val copy_target_under_package: String = "{{cream:copy_target_under_package}}"
 
 /** Target name below its outermost declaration, Pascal case, e.g. `UiState.Success` -> `Success`. */
-const val CopyTargetInnerName: String = "{{cream:CopyTargetInnerName}}"
+public const val CopyTargetInnerName: String = "{{cream:CopyTargetInnerName}}"
 
 /** Target name below its outermost declaration, snake case, e.g. `UiState.Success` -> `success`. */
-const val copy_target_inner_name: String = "{{cream:copy_target_inner_name}}"
+public const val copy_target_inner_name: String = "{{cream:copy_target_inner_name}}"
 
 /** Fully-qualified target name, Pascal case, e.g. `com.example.UiState.Success` -> `ComExampleUiStateSuccess`. */
-const val CopyTargetFullName: String = "{{cream:CopyTargetFullName}}"
+public const val CopyTargetFullName: String = "{{cream:CopyTargetFullName}}"
 
 /** Fully-qualified target name, snake case, e.g. `com.example.UiState.Success` -> `com_example_uistate_success`. */
-const val copy_target_full_name: String = "{{cream:copy_target_full_name}}"
+public const val copy_target_full_name: String = "{{cream:copy_target_full_name}}"

@@ -97,7 +97,7 @@ import kotlin.reflect.KClass
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS)
 @Retention(AnnotationRetention.SOURCE)
 @Repeatable
-annotation class CopyMapping(
+public annotation class CopyMapping(
     val source: KClass<*>,
     val target: KClass<*>,
     val canReverse: Boolean = false,
@@ -127,7 +127,7 @@ annotation class CopyMapping(
      * ```
      */
     @Target()
-    annotation class Map(
+    public annotation class Map(
         val source: String,
         val target: String,
     )

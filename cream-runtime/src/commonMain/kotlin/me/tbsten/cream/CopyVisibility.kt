@@ -29,7 +29,7 @@ package me.tbsten.cream
  * @see CombineTo
  * @see CombineFrom
  */
-enum class CopyVisibility {
+public enum class CopyVisibility {
     /**
      * Keep cream's current behaviour: the generated function inherits the visibility of
      * the target/sealed declaration it is derived from. This is the default so that

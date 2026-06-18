@@ -5,7 +5,7 @@ import me.tbsten.cream.ksp.options.ClassDeclarationInfo
 import me.tbsten.cream.ksp.options.CreamOptions
 
 @InternalCreamApi
-fun copyFunctionName(
+public fun copyFunctionName(
     source: ClassDeclarationInfo,
     target: ClassDeclarationInfo,
     options: CreamOptions,
@@ -23,9 +23,9 @@ fun copyFunctionName(
     )
 }
 
-data class CopyFunctionName(
+public data class CopyFunctionName(
     val prefix: String,
     val targetName: String,
 ) {
-    override fun toString() = "$prefix$targetName"
+    override fun toString(): String = "$prefix$targetName"
 }

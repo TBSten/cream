@@ -7,14 +7,14 @@ import me.tbsten.cream.ksp.util.lines
 
 @InternalCreamApi
 @Serializable
-data class CreamOptions(
+public data class CreamOptions(
     val copyFunNamePrefix: String,
     val copyFunNamingStrategy: CopyFunNamingStrategy,
     val escapeDot: EscapeDot,
     val notCopyToObject: Boolean,
 ) {
-    companion object {
-        val default = CreamOptions(
+    public companion object {
+        public val default: CreamOptions = CreamOptions(
             copyFunNamePrefix = "copyTo",
             copyFunNamingStrategy = CopyFunNamingStrategy.default,
             escapeDot = EscapeDot.default,
@@ -24,7 +24,7 @@ data class CreamOptions(
 }
 
 @InternalCreamApi
-fun Map<String, String>.toCreamOptions(): CreamOptions {
+public fun Map<String, String>.toCreamOptions(): CreamOptions {
     return CreamOptions(
         copyFunNamePrefix =
             this["cream.copyFunNamePrefix"] ?: CreamOptions.default.copyFunNamePrefix,

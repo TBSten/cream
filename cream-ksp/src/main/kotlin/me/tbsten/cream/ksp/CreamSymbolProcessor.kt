@@ -16,7 +16,7 @@ import me.tbsten.cream.ksp.feature.sealedCopy.processSealedCopy
 import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.options.toCreamOptions
 
-class CreamSymbolProcessor(
+internal class CreamSymbolProcessor(
     private val rawOptions: Map<String, String>,
     internal val codeGenerator: CodeGenerator,
     internal val logger: KSPLogger,

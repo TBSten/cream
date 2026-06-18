@@ -97,7 +97,7 @@ import kotlin.reflect.KClass
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS)
 @Retention(AnnotationRetention.SOURCE)
 @Repeatable
-annotation class CombineMapping(
+public annotation class CombineMapping(
     val sources: Array<KClass<*>>,
     val target: KClass<*>,
     val properties: Array<Map> = [],
@@ -127,7 +127,7 @@ annotation class CombineMapping(
      * ```
      */
     @Target()
-    annotation class Map(
+    public annotation class Map(
         val source: String,
         val target: String,
     )
