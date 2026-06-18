@@ -29,7 +29,7 @@ import me.tbsten.cream.ksp.options.CreamOptions
  * Kotlin's identifier rules here would only become a maintenance burden as they change.
  */
 @InternalCreamApi
-fun resolveFunNameTemplate(
+public fun resolveFunNameTemplate(
     template: String,
     source: ClassDeclarationInfo,
     target: ClassDeclarationInfo,
@@ -54,7 +54,7 @@ fun resolveFunNameTemplate(
  * would emit duplicate names).
  */
 @InternalCreamApi
-fun containsAnyCopyFunNameToken(template: String): Boolean =
+public fun containsAnyCopyFunNameToken(template: String): Boolean =
     template.contains(DefaultCopyFunctionName) ||
         copyTargetTokenExpanders.any { (placeholder, _) -> template.contains(placeholder) }
 

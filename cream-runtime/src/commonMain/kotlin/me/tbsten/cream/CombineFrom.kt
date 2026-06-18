@@ -58,14 +58,14 @@ import kotlin.reflect.KClass
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS)
 @Repeatable
-annotation class CombineFrom(
+public annotation class CombineFrom(
     vararg val sources: KClass<*>,
     val kdoc: KDoc = KDoc(),
     val visibility: CopyVisibility = CopyVisibility.INHERIT,
     val funName: String = DefaultCopyFunctionName,
 ) {
     @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE_PARAMETER)
-    annotation class Map(
+    public annotation class Map(
         vararg val propertyNames: String,
     )
 
@@ -106,5 +106,5 @@ annotation class CombineFrom(
      * @see CombineFrom
      */
     @Target(AnnotationTarget.VALUE_PARAMETER)
-    annotation class Exclude
+    public annotation class Exclude
 }

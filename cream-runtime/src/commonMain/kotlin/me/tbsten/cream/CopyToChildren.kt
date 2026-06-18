@@ -61,7 +61,7 @@ package me.tbsten.cream
  * @see CopyVisibility
  */
 @Target(AnnotationTarget.CLASS)
-annotation class CopyToChildren(
+public annotation class CopyToChildren(
     val notCopyToObject: Boolean = false,
     val kdoc: KDoc = KDoc(),
     val visibility: CopyVisibility = CopyVisibility.INHERIT,
@@ -110,5 +110,5 @@ annotation class CopyToChildren(
      * @see SealedCopy.Exclude
      */
     @Target(AnnotationTarget.PROPERTY)
-    annotation class Exclude
+    public annotation class Exclude
 }

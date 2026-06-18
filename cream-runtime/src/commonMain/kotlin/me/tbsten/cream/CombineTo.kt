@@ -56,14 +56,14 @@ import kotlin.reflect.KClass
  * @see DefaultCopyFunctionName
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS)
-annotation class CombineTo(
+public annotation class CombineTo(
     vararg val targets: KClass<*>,
     val kdoc: KDoc = KDoc(),
     val visibility: CopyVisibility = CopyVisibility.INHERIT,
     val funName: String = DefaultCopyFunctionName,
 ) {
     @Target(AnnotationTarget.PROPERTY, AnnotationTarget.TYPE_PARAMETER)
-    annotation class Map(
+    public annotation class Map(
         vararg val propertyNames: String,
     )
 
@@ -99,5 +99,5 @@ annotation class CombineTo(
      * @see CombineTo
      */
     @Target(AnnotationTarget.PROPERTY)
-    annotation class Exclude
+    public annotation class Exclude
 }

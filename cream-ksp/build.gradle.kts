@@ -5,6 +5,8 @@ plugins {
 }
 
 kotlin {
+    explicitApi()
+
     compilerOptions.optIn.addAll(
         "com.google.devtools.ksp.KspExperimental",
         "me.tbsten.cream.InternalCreamApi",

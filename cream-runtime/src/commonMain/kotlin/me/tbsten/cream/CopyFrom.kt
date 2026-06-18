@@ -47,14 +47,14 @@ import kotlin.reflect.KClass
  * @see DefaultCopyFunctionName
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS)
-annotation class CopyFrom(
+public annotation class CopyFrom(
     vararg val sources: KClass<*>,
     val kdoc: KDoc = KDoc(),
     val visibility: CopyVisibility = CopyVisibility.INHERIT,
     val funName: String = DefaultCopyFunctionName,
 ) {
     @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE_PARAMETER)
-    annotation class Map(
+    public annotation class Map(
         vararg val propertyNames: String,
     )
 
@@ -89,5 +89,5 @@ annotation class CopyFrom(
      * @see CopyFrom
      */
     @Target(AnnotationTarget.VALUE_PARAMETER)
-    annotation class Exclude
+    public annotation class Exclude
 }

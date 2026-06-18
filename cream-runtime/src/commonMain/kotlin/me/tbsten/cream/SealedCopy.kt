@@ -103,7 +103,7 @@ package me.tbsten.cream
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.SOURCE)
 @Repeatable
-annotation class SealedCopy(
+public annotation class SealedCopy(
     val funName: String = DefaultCopyFunctionName,
     val nonCopyableStrategy: NonCopyableStrategy = NonCopyableStrategy.ERROR,
     val kdoc: KDoc = KDoc(),
@@ -136,7 +136,7 @@ annotation class SealedCopy(
      * `Custom` branch instead of `this.copy(...)`.
      */
     @Target(AnnotationTarget.FUNCTION)
-    annotation class Map
+    public annotation class Map
 
     /**
      * Remove the auto-copy default from a sealed parent's abstract property, making the
@@ -174,7 +174,7 @@ annotation class SealedCopy(
      * @see CopyToChildren.Exclude
      */
     @Target(AnnotationTarget.PROPERTY)
-    annotation class Exclude
+    public annotation class Exclude
 }
 
 /**
@@ -203,7 +203,7 @@ annotation class SealedCopy(
  *
  * @see SealedCopy.nonCopyableStrategy
  */
-enum class NonCopyableStrategy {
+public enum class NonCopyableStrategy {
     /**
      * Refuse to generate the function. The KSP processor raises an
      * `InvalidCreamUsageException` whose message names the offending subtype(s) and

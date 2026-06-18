@@ -4,7 +4,7 @@ import me.tbsten.cream.InternalCreamApi
 import me.tbsten.cream.ksp.util.appendLines
 
 @InternalCreamApi
-abstract class CreamException(
+public abstract class CreamException(
     message: String,
     solution: String? = null,
     cause: Throwable? = null,
@@ -24,7 +24,7 @@ abstract class CreamException(
 )
 
 @InternalCreamApi
-open class InvalidCreamUsageException(
+public open class InvalidCreamUsageException(
     message: String,
     solution: String?,
     cause: Throwable? = null,
@@ -35,7 +35,7 @@ open class InvalidCreamUsageException(
 )
 
 @InternalCreamApi
-class InvalidCreamOptionException(
+public class InvalidCreamOptionException(
     message: String,
     solution: String?,
     cause: Throwable? = null,
@@ -46,7 +46,7 @@ class InvalidCreamOptionException(
 )
 
 @InternalCreamApi
-class UnknownCreamException(
+public class UnknownCreamException(
     message: String? = null,
     solution: String? = null,
     cause: Throwable? = null,
@@ -57,7 +57,7 @@ class UnknownCreamException(
 )
 
 @InternalCreamApi
-fun reportToGithub(vararg with: String) =
+public fun reportToGithub(vararg with: String): String =
     buildString {
         appendLines(
             "Please report this issue at:",

@@ -48,7 +48,7 @@ package me.tbsten.cream
  */
 @Target()
 @Retention(AnnotationRetention.SOURCE)
-annotation class KDoc(
+public annotation class KDoc(
     val description: String = "",
     val examples: Array<String> = [],
 )
