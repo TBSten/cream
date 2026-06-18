@@ -43,7 +43,7 @@ internal class LayeringArchitectureTest :
                     // (which live in :cream-ksp:shared), etc. must NOT be added here.
                     creamKspMain
                         .filter { it.packagee?.name == KSP_ROOT }
-                        .assertTrue { file -> file.projectPath.substringAfterLast('/') in ROOT_ALLOWED_FILES }
+                        .assertTrue { file -> file.nameWithExtension in ROOT_ALLOWED_FILES }
                 }
             }
 
@@ -173,7 +173,7 @@ internal class LayeringArchitectureTest :
             context("ファイル全般（モジュール共通）") {
                 test("1 ファイル原則 $MAX_FILE_LINES 行以内（FILE_LINE_LIMIT_OVERRIDES のファイルは個別上限）") {
                     creamKspMain.assertFalse { file ->
-                        val limit = FILE_LINE_LIMIT_OVERRIDES[file.projectPath.substringAfterLast('/')] ?: MAX_FILE_LINES
+                        val limit = FILE_LINE_LIMIT_OVERRIDES[file.nameWithExtension] ?: MAX_FILE_LINES
                         file.text.lines().size > limit
                     }
                 }
