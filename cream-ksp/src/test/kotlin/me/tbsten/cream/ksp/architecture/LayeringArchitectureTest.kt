@@ -138,6 +138,11 @@ internal class LayeringArchitectureTest :
                             }
                         }
 
+                        test("composition root（CreamSymbolProcessor / Provider）に依存しない（ProcessContext のみ可）") {
+                            // feature は ProcessContext だけを上向きに依存してよく、合成ルート本体には触れない。
+                            files.assertFalse { file -> file.importsFrom(*COMPOSITION_ROOT_TYPES) }
+                        }
+
                         test("context(ProcessContext) な internal fun processXxx(): List<KSAnnotated> を公開する") {
                             val entryPoints =
                                 files
