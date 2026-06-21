@@ -8,6 +8,7 @@ ksp = "2.2.20-2.0.4"
 kotest = "6.1.11"
 mockk = "1.14.6"
 kctfork = "0.12.1"
+kotlinPoet = "2.3.0"
 konsist = "0.17.3"
 ktlint = "1.7.1"
 ktlintGradlePlugin = "13.1.0"
@@ -25,6 +26,8 @@ buildkonfig = "0.17.1"
 kotest = { module = "io.kotest:kotest-assertions-core", version.ref = "kotest" }
 kotestFrameworkEngine = { module = "io.kotest:kotest-framework-engine", version.ref = "kotest" }
 kotestRunnerJunit5 = { module = "io.kotest:kotest-runner-junit5", version.ref = "kotest" }
+kotestProperty = { module = "io.kotest:kotest-property", version.ref = "kotest" }
+kotlinPoet = { module="com.squareup:kotlinpoet",version.ref = "kotlinPoet" }
 kspApi = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 kctforkCore = { module = "dev.zacsweers.kctfork:core", version.ref = "kctfork" }
