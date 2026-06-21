@@ -6,7 +6,7 @@ paths:
 # cream-ksp feature 直下 (`ksp/feature/*.kt`)
 
 ❌ **`feature/` 直下に `.kt` を置かない**。必ず `feature/<name>/` サブディレクトリに置く
-（`LayeringArchitectureTest` で強制: feature ファイルは `feature.<name>` のみ・深いネスト不可）。
+（`feature/ArchTest`（Konsist）で強制: feature ファイルは `feature.<name>` のみ・深いネスト不可）。
 全体アーキテクチャは `ksp-architecture.md` を参照。
 
 `<name>` は 8 注釈: `copyTo` `copyFrom` `copyToChildren` `sealedCopy` `combineTo` `combineFrom` `copyMapping` `combineMapping`（1 注釈 = 1 ディレクトリ）。
