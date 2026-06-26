@@ -1,0 +1,65 @@
+## Input:Input
+
+```kt
+package me.tbsten.cream.generated
+
+import kotlin.String
+import me.tbsten.cream.CombineFrom
+
+@CombineFrom(Source::class)
+public object Target
+
+public data class Source(
+  public val name: String,
+)
+```
+
+## KSP options
+
+```kt
+ksp {
+    arg("copyFunNamePrefix", "to")
+    arg("copyFunNamingStrategy", "inner-name")
+    arg("escapeDot", "replace-to-underscore")
+    arg("notCopyToObject", "false" /* default */)
+}
+```
+
+## Output:ExitCode
+
+```kt
+OK
+```
+
+## Output:Console
+
+```kt
+
+```
+
+## Output:Generated sources
+
+````kt
+// file: CombineFrom__Source__Target.kt
+package me.tbsten.cream.generated
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CombineFrom] annotation of [Target])
+ * 
+ * [Source] -> [Target] copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = Source(...)
+ * val target = source.to_Target()
+ * ```
+ * 
+ * 
+ * @see Source
+ * @see Target
+ */
+public fun me.tbsten.cream.generated.Source.to_Target() = me.tbsten.cream.generated.Target
+````

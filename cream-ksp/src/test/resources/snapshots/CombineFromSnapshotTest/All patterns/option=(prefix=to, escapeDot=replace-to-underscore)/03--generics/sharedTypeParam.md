@@ -1,0 +1,77 @@
+## Input:Input
+
+```kt
+package me.tbsten.cream.generated
+
+import me.tbsten.cream.CombineFrom
+
+@CombineFrom(Source::class)
+public data class Target<T>(
+  public val item: T,
+)
+
+public data class Source<T>(
+  public val item: T,
+)
+```
+
+## KSP options
+
+```kt
+ksp {
+    arg("copyFunNamePrefix", "to")
+    arg("copyFunNamingStrategy", "under-package" /* default */)
+    arg("escapeDot", "replace-to-underscore")
+    arg("notCopyToObject", "false" /* default */)
+}
+```
+
+## Output:ExitCode
+
+```kt
+OK
+```
+
+## Output:Console
+
+```kt
+
+```
+
+## Output:Generated sources
+
+````kt
+// file: CombineFrom__Source__Target.kt
+package me.tbsten.cream.generated
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CombineFrom] annotation of [Target])
+ * 
+ * [Source] -> [Target] copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = Source(...)
+ * val target = source.to_Target()
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val source = Source(...)
+ * val target = source.to_Target(property = value)
+ * ```
+ * 
+ * 
+ * @see Source
+ * @see Target
+ */
+public fun <T : Any?> me.tbsten.cream.generated.Source<T>.to_Target(
+    item: T = this.item,
+) : me.tbsten.cream.generated.Target<T> = me.tbsten.cream.generated.Target(
+    item = item,
+)
+````
