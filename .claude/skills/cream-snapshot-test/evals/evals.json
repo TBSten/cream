@@ -1,0 +1,23 @@
+{
+  "skill_name": "cream-snapshot-test",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "cream-ksp の copyToChildren の SnapshotTest を追加して。今は xtest スタブのままになってる。",
+      "expected_output": "scenario/ パッケージ（family ごと 1 ファイル・コメント無し）+ inline な CopyToChildrenSnapshotTest を作り、goldens を生成。targetKind を sealed 階層の leaf 種別に読み替える等、fan-out アーキタイプに合わせて family を適応している。output-preserving 検証・ktlint・Konsist が green。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "combineTo の snapshot test を横展開してほしい。",
+      "expected_output": "N→1 combine アーキタイプに合わせ、multiSource family を追加し core/combineFun の生成形を踏まえた scenario を構築。inline test + goldens 生成、output-preserving / ktlint / Konsist green。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "copyMapping にも snapshot test 足して。mapping holder に @CopyMapping を付ける形式のやつ。",
+      "expected_output": "library-to-library mapping アーキタイプ（holder + 参照2クラス、@Map は annotation 引数配列、canReverse / sealed target）に合わせた scenario。class-member の @Map/@Exclude や sourceKind-as-annotation-site を持ち込んでいない。goldens 生成 + 検証 green。",
+      "files": []
+    }
+  ]
+}
