@@ -1,0 +1,90 @@
+## Input:Input
+
+```kt
+package me.tbsten.cream.generated
+
+import kotlin.Boolean
+import kotlin.Int
+import kotlin.String
+import me.tbsten.cream.CopyMapping
+
+@CopyMapping(
+  Source::class,
+  Target::class,
+)
+public object Mapping
+
+public data class Source(
+  public val publicProp: String,
+  internal val internalProp: Int,
+  private val privateProp: Boolean,
+)
+
+public data class Target(
+  public val publicProp: String,
+  public val extra: String,
+)
+```
+
+## KSP options
+
+```kt
+ksp {
+    arg("copyFunNamePrefix", "to")
+    arg("copyFunNamingStrategy", "under-package" /* default */)
+    arg("escapeDot", "replace-to-underscore")
+    arg("notCopyToObject", "false" /* default */)
+}
+```
+
+## Output:ExitCode
+
+```kt
+OK
+```
+
+## Output:Console
+
+```kt
+
+```
+
+## Output:Generated sources
+
+````kt
+// file: CopyMapping__Mapping.kt
+package me.tbsten.cream.generated
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CopyMapping] annotation of [Mapping])
+ * 
+ * Source -> Target copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = Source(...)
+ * val target = source.to_Target(extra = extra)
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val source = Source(...)
+ * val target = source.to_Target(extra = extra, property = value)
+ * ```
+ * 
+ * 
+ * @see Source
+ * @see Target
+ */
+public fun  me.tbsten.cream.generated.Source.to_Target(
+    publicProp: String = this.publicProp,
+    extra: String,
+) : me.tbsten.cream.generated.Target = me.tbsten.cream.generated.Target(
+    publicProp = publicProp,
+    extra = extra,
+)
+````
