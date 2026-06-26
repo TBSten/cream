@@ -1,11 +1,11 @@
 package me.tbsten.cream.test.copyTo
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 
 class BasicTest :
-    FunSpec({
-        test("parentToChildren") {
+    FreeSpec({
+        "parentToChildren" {
             val parent: Parent =
                 ChildDataObject
 
@@ -30,7 +30,7 @@ class BasicTest :
             }
         }
 
-        test("parentToChildrenWithOverrideParentProp") {
+        "parentToChildrenWithOverrideParentProp" {
             val parent: Parent =
                 ChildDataObject
 
@@ -58,7 +58,7 @@ class BasicTest :
             }
         }
 
-        test("parentToGrandChildren") {
+        "parentToGrandChildren" {
             val parent: Parent =
                 ChildDataObject
 
@@ -89,7 +89,7 @@ class BasicTest :
             }
         }
 
-        test("parentToGrandChildrenWithOverrideParentProp") {
+        "parentToGrandChildrenWithOverrideParentProp" {
             val parent: Parent = ChildDataObject
 
             mapOf(
@@ -122,7 +122,7 @@ class BasicTest :
             }
         }
 
-        test("childToGrandChildren") {
+        "childToGrandChildren" {
             val child: ChildSealedInterface =
                 GrandChildDataObject
 
@@ -150,7 +150,7 @@ class BasicTest :
             }
         }
 
-        test("childToGrandChildrenWithOverrideChildProp") {
+        "childToGrandChildrenWithOverrideChildProp" {
             val child: ChildSealedInterface = GrandChildDataObject
 
             mapOf(

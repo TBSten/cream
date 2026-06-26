@@ -1,11 +1,11 @@
 package me.tbsten.cream.test.generic
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 
 class GenericClassTest :
-    FunSpec({
-        test("twoArgToThreeArg") {
+    FreeSpec({
+        "twoArgToThreeArg" {
             val source =
                 GenericSourceWithTwoTypeArg(
                     a = "test",
@@ -42,7 +42,7 @@ class GenericClassTest :
             }
         }
 
-        test("threeArgToTwoArg") {
+        "threeArgToTwoArg" {
             val source =
                 GenericSourceWithThreeTypeArg(
                     a = "test",
@@ -75,7 +75,7 @@ class GenericClassTest :
             }
         }
 
-        test("threeArgToObject") {
+        "threeArgToObject" {
             val source =
                 GenericSourceWithThreeTypeArg(
                     a = "test",

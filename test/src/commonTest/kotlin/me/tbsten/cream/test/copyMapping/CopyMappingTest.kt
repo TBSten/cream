@@ -1,11 +1,11 @@
 package me.tbsten.cream.test.copyMapping
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 
 class CopyMappingTest :
-    FunSpec({
-        test("libXModelToLibYModel") {
+    FreeSpec({
+        "libXModelToLibYModel" {
             val libXModel =
                 LibXModel(
                     shareProp = "shared",
@@ -26,7 +26,7 @@ class CopyMappingTest :
             result shouldBe expected
         }
 
-        test("libXModelToLibYModelWithOverride") {
+        "libXModelToLibYModelWithOverride" {
             val libXModel =
                 LibXModel(
                     shareProp = "shared",
@@ -48,7 +48,7 @@ class CopyMappingTest :
             result shouldBe expected
         }
 
-        test("libYModelToLibZModel") {
+        "libYModelToLibZModel" {
             val libYModel =
                 LibYModel(
                     shareProp = "shared",
@@ -69,7 +69,7 @@ class CopyMappingTest :
             result shouldBe expected
         }
 
-        test("libYModelToLibZModelWithOverride") {
+        "libYModelToLibZModelWithOverride" {
             val libYModel =
                 LibYModel(
                     shareProp = "shared",
@@ -91,7 +91,7 @@ class CopyMappingTest :
             result shouldBe expected
         }
 
-        test("libXModelToLibYModelWithPropertyMapping") {
+        "libXModelToLibYModelWithPropertyMapping" {
             // Test that xProp from LibXModel maps to yProp in LibYModel
             // via the CopyMapping.Map property mapping
             val libXModel =
@@ -111,7 +111,7 @@ class CopyMappingTest :
             result shouldBe expected
         }
 
-        test("libXModelToLibYModelWithPropertyMappingAndOverride") {
+        "libXModelToLibYModelWithPropertyMappingAndOverride" {
             // Test that property mapping can be overridden
             val libXModel =
                 LibXModel(
@@ -133,7 +133,7 @@ class CopyMappingTest :
             result shouldBe expected
         }
 
-        test("libWModelToLibVModelWithCanReverse") {
+        "libWModelToLibVModelWithCanReverse" {
             val libWModel =
                 LibWModel(
                     shareProp = "shared",
@@ -154,7 +154,7 @@ class CopyMappingTest :
             result shouldBe expected
         }
 
-        test("libVModelToLibWModelWithCanReverse") {
+        "libVModelToLibWModelWithCanReverse" {
             val libVModel =
                 LibVModel(
                     shareProp = "shared",
@@ -175,7 +175,7 @@ class CopyMappingTest :
             result shouldBe expected
         }
 
-        test("libWModelToLibVModelWithCanReverseAndOverride") {
+        "libWModelToLibVModelWithCanReverseAndOverride" {
             val libWModel =
                 LibWModel(
                     shareProp = "shared",

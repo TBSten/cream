@@ -1,13 +1,13 @@
 package me.tbsten.cream.test.copyMapping
 
 import io.kotest.assertions.assertSoftly
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 
 class TypeAliasTest :
-    FunSpec({
-        test("copyMappingResolvesTypeAliasSourceAndTarget") {
+    FreeSpec({
+        "copyMappingResolvesTypeAliasSourceAndTarget" {
             // Source/target are declared via type aliases (LibAliasASource / LibAliasBTarget),
             // but the generated function is named after the resolved class (LibAliasBModel).
             val source: LibAliasASource = LibAliasAModel(shareProp = "shared", aProp = 7)
@@ -21,7 +21,7 @@ class TypeAliasTest :
             }
         }
 
-        test("copyMappingTypeAliasAllowsOverride") {
+        "copyMappingTypeAliasAllowsOverride" {
             val source: LibAliasASource = LibAliasAModel(shareProp = "shared", aProp = 7)
 
             val result = source.copyToLibAliasBModel(shareProp = "overridden", bProp = 100)

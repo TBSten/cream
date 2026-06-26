@@ -2,7 +2,7 @@ package me.tbsten.cream.ksp.core
 
 import com.lemonappdev.konsist.api.verify.assertFalse
 import com.lemonappdev.konsist.api.verify.assertTrue
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import me.tbsten.cream.ksp.testing.konsist.COMPOSITION_ROOT_TYPES
 import me.tbsten.cream.ksp.testing.konsist.CORE_PACKAGE
 import me.tbsten.cream.ksp.testing.konsist.CORE_SUBPACKAGES
@@ -31,15 +31,15 @@ import me.tbsten.cream.ksp.testing.konsist.inLayer
  * `.claude/rules/ksp-architecture.md`.
  */
 internal class ArchTest :
-    FunSpec({
-        context("core レイヤ") {
-            test("feature レイヤに依存しない") {
+    FreeSpec({
+        "core レイヤ" - {
+            "feature レイヤに依存しない" {
                 creamKspMain
                     .filter { it.inLayer(CORE_PACKAGE) }
                     .assertFalse { file -> file.importsFrom("$FEATURE_PACKAGE.") }
             }
 
-            test("root infra（ProcessContext / CreamSymbolProcessor / Provider）に依存しない") {
+            "root infra（ProcessContext / CreamSymbolProcessor / Provider）に依存しない" {
                 // core receives a narrowed `context(options, logger)` instead of the whole ProcessContext,
                 // and never reaches back into the composition root.
                 creamKspMain
@@ -49,21 +49,21 @@ internal class ArchTest :
                     }
             }
 
-            test("common / copyFun / combineFun / sealedCopy サブパッケージにのみ置く（core/ 直下に .kt を置かない）") {
+            "common / copyFun / combineFun / sealedCopy サブパッケージにのみ置く（core/ 直下に .kt を置かない）" {
                 creamKspMain
                     .filter { it.inLayer(CORE_PACKAGE) }
                     .assertTrue { file -> file.packagee?.name in CORE_SUBPACKAGES }
             }
         }
 
-        context("util レイヤ") {
-            test("core / feature レイヤに依存しない") {
+        "util レイヤ" - {
+            "core / feature レイヤに依存しない" {
                 creamKspMain
                     .filter { it.inLayer(UTIL_PACKAGE) }
                     .assertFalse { file -> file.importsFrom("$CORE_PACKAGE.", "$FEATURE_PACKAGE.") }
             }
 
-            test("cream 固有の型を参照しない（自分自身の util パッケージのみ許可）") {
+            "cream 固有の型を参照しない（自分自身の util パッケージのみ許可）" {
                 // A util file may only reference cream packages that live under `util` itself. Any other
                 // `me.tbsten.cream.*` import (core / feature / ProcessContext / options / runtime annotations, …)
                 // would make it cream-specific and therefore not a generic, reusable helper.
@@ -76,7 +76,7 @@ internal class ArchTest :
                     }
             }
 
-            test("直下（util.ksp を除く）は KSP 型に依存しない（KSP util は util/ksp に置く）") {
+            "直下（util.ksp を除く）は KSP 型に依存しない（KSP util は util/ksp に置く）" {
                 // Helpers that touch the KSP API belong in `util.ksp`. The top-level `util` package stays
                 // Kotlin-only so it can be reused in non-KSP contexts.
                 creamKspMain

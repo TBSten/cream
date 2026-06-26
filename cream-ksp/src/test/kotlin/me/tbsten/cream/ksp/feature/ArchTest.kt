@@ -3,7 +3,7 @@ package me.tbsten.cream.ksp.feature
 import com.lemonappdev.konsist.api.verify.assertFalse
 import com.lemonappdev.konsist.api.verify.assertTrue
 import io.kotest.assertions.withClue
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import me.tbsten.cream.ksp.testing.konsist.COMPOSITION_ROOT_TYPES
 import me.tbsten.cream.ksp.testing.konsist.FEATURE_PACKAGE
@@ -25,7 +25,7 @@ import me.tbsten.cream.ksp.testing.konsist.inLayer
  * parameters.
  */
 internal class ArchTest :
-    FunSpec({
+    FreeSpec({
         // Each `feature.<name>` package gets its own sub-context so a violation points straight at the
         // offending feature. The package list is discovered from the scope at registration time.
         val featurePackages =
@@ -34,13 +34,13 @@ internal class ArchTest :
                 .groupBy { it.packagee?.name.orEmpty() }
                 .toSortedMap()
 
-        test("scope に feature パッケージが存在する") {
+        "scope に feature パッケージが存在する" {
             withClue("feature パッケージが 1 つも検出されていない（scope 設定の誤り）") {
                 featurePackages.isNotEmpty() shouldBe true
             }
         }
 
-        test("各ファイルは feature.<name> サブパッケージに置く（feature/ 直下・深いネストを禁止）") {
+        "各ファイルは feature.<name> サブパッケージに置く（feature/ 直下・深いネストを禁止）" {
             creamKspMain
                 .filter { it.inLayer(FEATURE_PACKAGE) }
                 .assertTrue { file ->
@@ -52,8 +52,8 @@ internal class ArchTest :
         }
 
         featurePackages.forEach { (packageName, files) ->
-            context(packageName.substringAfterLast('.')) {
-                test("他の feature を参照しない（feature 間で関数などを使い合わない）") {
+            packageName.substringAfterLast('.') - {
+                "他の feature を参照しない（feature 間で関数などを使い合わない）" {
                     files.assertFalse { file ->
                         file.imports.any { import ->
                             import.name.startsWith("$FEATURE_PACKAGE.") &&
@@ -62,12 +62,12 @@ internal class ArchTest :
                     }
                 }
 
-                test("composition root（CreamSymbolProcessor / Provider）に依存しない（ProcessContext のみ可）") {
+                "composition root（CreamSymbolProcessor / Provider）に依存しない（ProcessContext のみ可）" {
                     // feature は ProcessContext だけを上向きに依存してよく、合成ルート本体には触れない。
                     files.assertFalse { file -> file.importsFrom(*COMPOSITION_ROOT_TYPES) }
                 }
 
-                test("context(ProcessContext) な internal fun processXxx(): List<KSAnnotated> を公開する") {
+                "context(ProcessContext) な internal fun processXxx(): List<KSAnnotated> を公開する" {
                     val entryPoints =
                         files
                             .flatMap { it.functions(includeNested = false, includeLocal = false) }

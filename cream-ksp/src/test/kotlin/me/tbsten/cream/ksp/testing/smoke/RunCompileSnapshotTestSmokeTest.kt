@@ -10,7 +10,7 @@ import com.squareup.kotlinpoet.STRING
 import com.squareup.kotlinpoet.TypeSpec
 import com.tschuchort.compiletesting.KotlinCompilation
 import io.kotest.assertions.withClue
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import me.tbsten.cream.CopyTo
@@ -28,8 +28,8 @@ import com.squareup.kotlinpoet.FunSpec as PoetFunSpec
  * with `-Dcream.snapshot.update=true` like every other snapshot.
  */
 internal class RunCompileSnapshotTestSmokeTest :
-    FunSpec({
-        test("compiles a @CopyTo FileSpec, exposes the result to assertions, and returns it") {
+    FreeSpec({
+        "compiles a @CopyTo FileSpec, exposes the result to assertions, and returns it" {
             var observed: CreamCompilationResult? = null
 
             val result =

@@ -1,6 +1,6 @@
 package me.tbsten.cream.ksp.core.common
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import me.tbsten.cream.CopyTargetFullName
 import me.tbsten.cream.CopyTargetInnerName
@@ -37,43 +37,43 @@ private fun resolve(
 ) = resolveFunNameTemplate(template, source, target, options)
 
 internal class FunctionNameTemplateTest :
-    FunSpec({
-        test("DefaultCopyFunctionName expands to cream's derived name") {
+    FreeSpec({
+        "DefaultCopyFunctionName expands to cream's derived name" {
             resolve(DefaultCopyFunctionName) shouldBe "copyToUiStateSuccess"
         }
 
-        test("Pascal tokens upper-case each dotted segment") {
+        "Pascal tokens upper-case each dotted segment" {
             resolve(CopyTargetSimpleName) shouldBe "Success"
             resolve(CopyTargetUnderPackage) shouldBe "UiStateSuccess"
             resolve(CopyTargetInnerName) shouldBe "Success"
             resolve(CopyTargetFullName) shouldBe "ComExampleUiStateSuccess"
         }
 
-        test("snake tokens lower-case each whole dotted segment") {
+        "snake tokens lower-case each whole dotted segment" {
             resolve(copy_target_simple_name) shouldBe "success"
             resolve(copy_target_under_package) shouldBe "uistate_success"
             resolve(copy_target_inner_name) shouldBe "success"
             resolve(copy_target_full_name) shouldBe "com_example_uistate_success"
         }
 
-        test("tokens can be composed with literal prefixes and suffixes") {
+        "tokens can be composed with literal prefixes and suffixes" {
             resolve("to" + CopyTargetSimpleName) shouldBe "toSuccess"
             resolve("to_" + copy_target_under_package) shouldBe "to_uistate_success"
             resolve(DefaultCopyFunctionName + "OrNull") shouldBe "copyToUiStateSuccessOrNull"
         }
 
-        test("multiple, mid-template, and repeated tokens all expand") {
+        "multiple, mid-template, and repeated tokens all expand" {
             resolve(CopyTargetUnderPackage + "From" + CopyTargetSimpleName) shouldBe "UiStateSuccessFromSuccess"
             resolve("x" + CopyTargetSimpleName + "y") shouldBe "xSuccessy"
             resolve(CopyTargetSimpleName + "_" + copy_target_simple_name) shouldBe "Success_success"
             resolve(CopyTargetSimpleName + CopyTargetSimpleName) shouldBe "SuccessSuccess"
         }
 
-        test("a template with no token is returned verbatim") {
+        "a template with no token is returned verbatim" {
             resolve("toState") shouldBe "toState"
         }
 
-        test("CopyTarget tokens ignore the project naming/escape options but Default follows them") {
+        "CopyTarget tokens ignore the project naming/escape options but Default follows them" {
             val nonDefault =
                 CreamOptions(
                     copyFunNamePrefix = "copyTo",
@@ -88,7 +88,7 @@ internal class FunctionNameTemplateTest :
             resolve(DefaultCopyFunctionName, nonDefault) shouldBe "copyTo_Success"
         }
 
-        test("containsAnyCopyFunNameToken detects tokens") {
+        "containsAnyCopyFunNameToken detects tokens" {
             containsAnyCopyFunNameToken("to" + CopyTargetSimpleName) shouldBe true
             containsAnyCopyFunNameToken(DefaultCopyFunctionName) shouldBe true
             containsAnyCopyFunNameToken("toState") shouldBe false

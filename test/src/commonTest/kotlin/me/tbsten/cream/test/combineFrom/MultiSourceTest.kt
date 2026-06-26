@@ -1,11 +1,11 @@
 package me.tbsten.cream.test.combineFrom
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 
 class MultiSourceTest :
-    FunSpec({
-        test("combineFromFourSources") {
+    FreeSpec({
+        "combineFromFourSources" {
             val sourceA = MultiSourceA(propertyA = "A")
             val sourceB = MultiSourceB(propertyB = 42)
             val sourceC = MultiSourceC(propertyC = true)
@@ -26,7 +26,7 @@ class MultiSourceTest :
             result.extraProperty shouldBe "extra"
         }
 
-        test("combineFromFourSourcesWithOverride") {
+        "combineFromFourSourcesWithOverride" {
             val sourceA = MultiSourceA(propertyA = "A")
             val sourceB = MultiSourceB(propertyB = 42)
             val sourceC = MultiSourceC(propertyC = true)

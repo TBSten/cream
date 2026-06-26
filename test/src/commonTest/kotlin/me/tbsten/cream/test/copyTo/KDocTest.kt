@@ -1,6 +1,6 @@
 package me.tbsten.cream.test.copyTo
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 
 /**
@@ -11,8 +11,8 @@ import io.kotest.matchers.shouldBe
  * break code generation or the runtime behavior of the generated copy function.
  */
 class KDocTest :
-    FunSpec({
-        test("copyToKDocTarget_behavesNormally_evenWhenKDocIsProvided") {
+    FreeSpec({
+        "copyToKDocTarget_behavesNormally_evenWhenKDocIsProvided" {
             val source = KDocSource(shared = "value", onlyOnSource = 1)
 
             val target = source.copyToKDocTarget(extra = 42)

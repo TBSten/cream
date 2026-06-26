@@ -1,11 +1,11 @@
 package me.tbsten.cream.test.combineTo
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 
 class PropertyMappingTest :
-    FunSpec({
-        test("simplePropertyNameMapping") {
+    FreeSpec({
+        "simplePropertyNameMapping" {
             val sourceA = MappingSourceA(sourcePropertyA = "Hello")
             val sourceB = MappingSourceB(sourcePropertyB = 42)
 
@@ -20,7 +20,7 @@ class PropertyMappingTest :
             result.normalProperty shouldBe "World"
         }
 
-        test("multiplePropertyNamesMapping") {
+        "multiplePropertyNamesMapping" {
             val source = MultiMappingSource(sourceName = "SharedValue")
             val sourceB = MultiMappingSourceB(otherProp = 100)
 
@@ -34,7 +34,7 @@ class PropertyMappingTest :
             result.otherProp shouldBe 100
         }
 
-        test("mixedMappingWithDirectMatch") {
+        "mixedMappingWithDirectMatch" {
             val sourceA = MixedMappingSourceA(directMatch = "Direct")
             val sourceB = MixedMappingSourceB(originalProperty = 999)
 
@@ -49,7 +49,7 @@ class PropertyMappingTest :
             result.extraProperty shouldBe true
         }
 
-        test("mergeMappingWithDirectMatch") {
+        "mergeMappingWithDirectMatch" {
             val sourceA = MergeMappingSourceA(sourcePropertyA = "SourceA")
             val sourceB = MergeMappingSourceB(sourcePropertyB = "SourceB")
 

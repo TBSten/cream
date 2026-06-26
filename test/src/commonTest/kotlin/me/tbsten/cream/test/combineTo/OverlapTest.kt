@@ -1,11 +1,11 @@
 package me.tbsten.cream.test.combineTo
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 
 class OverlapTest :
-    FunSpec({
-        test("combineWithOverlappingProperties") {
+    FreeSpec({
+        "combineWithOverlappingProperties" {
             val sourceA = OverlapSourceA(sharedProperty = "from A", uniqueA = 42)
             val sourceB = OverlapSourceB(sharedProperty = "from B", uniqueB = true)
 
@@ -25,7 +25,7 @@ class OverlapTest :
             result shouldBe expected
         }
 
-        test("combineWithOverlappingPropertiesWithOverrides") {
+        "combineWithOverlappingPropertiesWithOverrides" {
             val sourceA = OverlapSourceA(sharedProperty = "from A", uniqueA = 42)
             val sourceB = OverlapSourceB(sharedProperty = "from B", uniqueB = true)
 

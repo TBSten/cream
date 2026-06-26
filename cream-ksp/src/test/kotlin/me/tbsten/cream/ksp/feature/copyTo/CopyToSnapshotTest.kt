@@ -1,6 +1,6 @@
 package me.tbsten.cream.ksp.feature.copyTo
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import me.tbsten.cream.ksp.feature.copyTo.scenario.constructorScenarios
 import me.tbsten.cream.ksp.feature.copyTo.scenario.deprecatedScenarios
 import me.tbsten.cream.ksp.feature.copyTo.scenario.escapingScenarios
@@ -36,8 +36,8 @@ import me.tbsten.cream.ksp.testing.poet.toFileSpec
  * - A standalone data-class `sourceKind` case — data classes are exercised throughout `propertyShape`.
  */
 internal class CopyToSnapshotTest :
-    FunSpec({
-        context("All patterns") {
+    FreeSpec({
+        "All patterns" - {
             cartesian(
                 union {
                     withNumberPrefix(length = 2) {
@@ -63,7 +63,7 @@ internal class CopyToSnapshotTest :
                 .forEach { (testCaseName, value) ->
                     val (scenario, creamOptions) = value
 
-                    test(testCaseName!!) {
+                    testCaseName!! {
                         runCompileSnapshotTest(input = scenario.toFileSpec(), options = creamOptions)
                     }
                 }

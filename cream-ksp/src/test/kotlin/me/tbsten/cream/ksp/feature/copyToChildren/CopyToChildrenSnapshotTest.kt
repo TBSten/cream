@@ -1,6 +1,6 @@
 package me.tbsten.cream.ksp.feature.copyToChildren
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import me.tbsten.cream.ksp.feature.copyToChildren.scenario.excludeScenarios
 import me.tbsten.cream.ksp.feature.copyToChildren.scenario.genericsScenarios
 import me.tbsten.cream.ksp.feature.copyToChildren.scenario.hierarchyShapeScenarios
@@ -33,8 +33,8 @@ import me.tbsten.cream.ksp.testing.poet.toFileSpec
  * - `@CopyToChildren` + `@SealedCopy` on one type — cross-feature, belongs in `MultipleDiagnosticsTest`.
  */
 internal class CopyToChildrenSnapshotTest :
-    FunSpec({
-        context("All patterns") {
+    FreeSpec({
+        "All patterns" - {
             cartesian(
                 union {
                     withNumberPrefix(length = 2) {
@@ -54,7 +54,7 @@ internal class CopyToChildrenSnapshotTest :
                 .forEach { (testCaseName, value) ->
                     val (scenario, creamOptions) = value
 
-                    test(testCaseName!!) {
+                    testCaseName!! {
                         runCompileSnapshotTest(input = scenario.toFileSpec(), options = creamOptions)
                     }
                 }

@@ -1,11 +1,11 @@
 package me.tbsten.cream.test.copyFrom
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 
 class NullableTest :
-    FunSpec({
-        test("nonNullableToNullable") {
+    FreeSpec({
+        "nonNullableToNullable" {
             val source =
                 NonNullableSource(
                     str = "test string",
@@ -26,7 +26,7 @@ class NullableTest :
                 )
         }
 
-        test("nonNullableToNullableWithEmptyValues") {
+        "nonNullableToNullableWithEmptyValues" {
             val source =
                 NonNullableSource(
                     str = "",

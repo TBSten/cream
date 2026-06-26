@@ -49,7 +49,7 @@ kotlin {
             implementation(libs.kotestRunnerJunit5)
         }
         // Android unit tests run on the JVM via the JUnit Platform too, but androidUnitTest does not
-        // inherit jvmTest, so it needs the kotest JUnit5 runner independently to discover FunSpec.
+        // inherit jvmTest, so it needs the kotest JUnit5 runner independently to discover FreeSpec.
         androidUnitTest.dependencies {
             implementation(libs.kotestRunnerJunit5)
         }
@@ -88,7 +88,7 @@ fun Project.setupKspForMultiplatformWorkaround() {
             dependsOn(tasks.named("kspCommonMainKotlinMetadata"))
             // Disable only cream's redundant per-platform *main* generation; keep the *Test KSP tasks
             // alive so the kotest framework can generate its per-target spec launchers (required for
-            // FunSpec to start on native/Android, and harmless on JVM).
+            // FreeSpec to start on native/Android, and harmless on JVM).
             if (!name.contains("Test")) {
                 enabled = false
             }

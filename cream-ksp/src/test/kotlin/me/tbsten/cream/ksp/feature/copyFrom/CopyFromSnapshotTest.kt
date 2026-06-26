@@ -1,6 +1,6 @@
 package me.tbsten.cream.ksp.feature.copyFrom
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import me.tbsten.cream.ksp.feature.copyFrom.scenario.constructorScenarios
 import me.tbsten.cream.ksp.feature.copyFrom.scenario.excludeScenarios
 import me.tbsten.cream.ksp.feature.copyFrom.scenario.funNameScenarios
@@ -32,8 +32,8 @@ import me.tbsten.cream.ksp.testing.poet.toFileSpec
  *   FROZEN as an OK golden in `targetKind/sealedInterfaceTarget`, not "fixed" — a known shared-core quirk.
  */
 internal class CopyFromSnapshotTest :
-    FunSpec({
-        context("All patterns") {
+    FreeSpec({
+        "All patterns" - {
             cartesian(
                 union {
                     withNumberPrefix(length = 2) {
@@ -57,7 +57,7 @@ internal class CopyFromSnapshotTest :
                 .forEach { (testCaseName, value) ->
                     val (scenario, creamOptions) = value
 
-                    test(testCaseName!!) {
+                    testCaseName!! {
                         runCompileSnapshotTest(input = scenario.toFileSpec(), options = creamOptions)
                     }
                 }

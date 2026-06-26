@@ -2,7 +2,7 @@ package me.tbsten.cream.ksp
 
 import com.lemonappdev.konsist.api.verify.assertFalse
 import com.lemonappdev.konsist.api.verify.assertTrue
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import me.tbsten.cream.ksp.testing.konsist.FILE_LINE_LIMIT_OVERRIDES
 import me.tbsten.cream.ksp.testing.konsist.KSP_ROOT
 import me.tbsten.cream.ksp.testing.konsist.MAX_FILE_LINES
@@ -23,10 +23,10 @@ import me.tbsten.cream.ksp.testing.konsist.creamKspMain
  * symbols rather than using wildcard or fully-qualified inline references.
  */
 internal class AllKotlinFilesTest :
-    FunSpec(
+    FreeSpec(
         {
-            context("root レイヤ（composition root）") {
-                test("直下には承認済みファイル（CreamSymbolProcessor / Provider / ProcessContext）以外を置かない") {
+            "root レイヤ（composition root）" - {
+                "直下には承認済みファイル（CreamSymbolProcessor / Provider / ProcessContext）以外を置かない" {
                     // The root package is the composition root only. Generation logic, helpers, exceptions
                     // (which live in :cream-ksp:shared), etc. must NOT be added here.
                     creamKspMain
@@ -35,8 +35,8 @@ internal class AllKotlinFilesTest :
                 }
             }
 
-            context("ファイル全般（モジュール共通）") {
-                test("1 ファイル原則 $MAX_FILE_LINES 行以内（FILE_LINE_LIMIT_OVERRIDES のファイルは個別上限）") {
+            "ファイル全般（モジュール共通）" - {
+                "1 ファイル原則 $MAX_FILE_LINES 行以内（FILE_LINE_LIMIT_OVERRIDES のファイルは個別上限）" {
                     creamKspMain.assertFalse { file ->
                         val limit = FILE_LINE_LIMIT_OVERRIDES[file.nameWithExtension] ?: MAX_FILE_LINES
                         file.text.lines().size > limit

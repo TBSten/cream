@@ -1,11 +1,11 @@
 package me.tbsten.cream.test.copyTo
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 
 class PropertyMappingTest :
-    FunSpec({
-        test("propertyMapping") {
+    FreeSpec({
+        "propertyMapping" {
             val domainSource =
                 DomainSourceModel(
                     domainId = "test-id",

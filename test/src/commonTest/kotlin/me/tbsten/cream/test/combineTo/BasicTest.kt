@@ -1,11 +1,11 @@
 package me.tbsten.cream.test.combineTo
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 
 class BasicTest :
-    FunSpec({
-        test("combineToTarget") {
+    FreeSpec({
+        "combineToTarget" {
             val sourceA = SourceStateA(propertyA = "sourceA")
             val sourceB = SourceStateB(propertyB = 42)
 
@@ -26,7 +26,7 @@ class BasicTest :
             result shouldBe expected
         }
 
-        test("combineToTargetWithOverride") {
+        "combineToTargetWithOverride" {
             val sourceA = SourceStateA(propertyA = "sourceA")
             val sourceB = SourceStateB(propertyB = 42)
 

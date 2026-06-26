@@ -181,8 +181,8 @@ family imports. The exact skeleton:
 
 ```kotlin
 internal class <Feat>SnapshotTest :
-    FunSpec({
-        context("All patterns") {
+    FreeSpec({
+        "All patterns" - {
             cartesian(
                 union {
                     withNumberPrefix(length = 2) {
@@ -195,7 +195,7 @@ internal class <Feat>SnapshotTest :
             ).representativeValues()
                 .forEach { (testCaseName, value) ->
                     val (scenario, creamOptions) = value
-                    test(testCaseName!!) {
+                    testCaseName!! {
                         runCompileSnapshotTest(input = scenario.toFileSpec(), options = creamOptions)
                     }
                 }
@@ -278,7 +278,7 @@ report done with an unresolved FAIL. Run the listed command where one is given.
 - [ ] **Structure matches a reference**: `scenario/` package, one file per family, each
   `internal fun <family>Scenarios(): Generator<SnapshotScenario>`; `Utils.kt` has the
   `with<Anno>`/`<anno>` helper with the **annotated/primary declaration as the first arg**; the test
-  is the inline `FunSpec({ context("All patterns") { … } })` skeleton with family order = `NN--` order.
+  is the inline `FreeSpec({ "All patterns" - { … } })` skeleton with family order = `NN--` order.
 - [ ] **Families fit the archetype**: if this is not a 1→1 copy, the report names which of the 11
   families were dropped / recast / added and why (multiSource for combine, hierarchy-shape for
   sealed, annotation-arg `@Map` for mapping), cross-checked against `references/feature-profiles.md`.

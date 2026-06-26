@@ -1,11 +1,11 @@
 package me.tbsten.cream.test.copyFrom
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 
 class ComplexTypesTest :
-    FunSpec({
-        test("complexTypes") {
+    FreeSpec({
+        "complexTypes" {
             val source =
                 ComplexTypeSource(
                     stringList = listOf("a", "b", "c"),
@@ -24,7 +24,7 @@ class ComplexTypesTest :
                 )
         }
 
-        test("complexTypesWithNull") {
+        "complexTypesWithNull" {
             val source =
                 ComplexTypeSource(
                     stringList = listOf("a", "b", "c"),

@@ -1,14 +1,14 @@
 package me.tbsten.cream.test.sealedCopy
 
 import io.kotest.assertions.withClue
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 
 class MultipleTest :
-    FunSpec({
-        test("withUpdated_andWithUpdatedOrNull_areBothGenerated") {
+    FreeSpec({
+        "withUpdated_andWithUpdatedOrNull_areBothGenerated" {
             val loading: MultiSealedCopyState =
                 MultiSealedCopyState.Loading(sessionId = "abc")
 
@@ -21,7 +21,7 @@ class MultipleTest :
             viaNullable shouldBe MultiSealedCopyState.Loading(sessionId = "y")
         }
 
-        test("withUpdated_returnsEmptyAsIs_forObjectBranch") {
+        "withUpdated_returnsEmptyAsIs_forObjectBranch" {
             val empty: MultiSealedCopyState = MultiSealedCopyState.Empty
 
             val result = empty.withUpdated(sessionId = "ignored")
@@ -34,7 +34,7 @@ class MultipleTest :
             }
         }
 
-        test("withUpdatedOrNull_returnsNull_forObjectBranch") {
+        "withUpdatedOrNull_returnsNull_forObjectBranch" {
             val empty: MultiSealedCopyState = MultiSealedCopyState.Empty
 
             val result: MultiSealedCopyState? = empty.withUpdatedOrNull(sessionId = "ignored")
@@ -43,7 +43,7 @@ class MultipleTest :
             result shouldBe null
         }
 
-        test("bothStrategies_delegateToCopy_forDataClassBranch") {
+        "bothStrategies_delegateToCopy_forDataClassBranch" {
             val loading: MultiSealedCopyState = MultiSealedCopyState.Loading(sessionId = "abc")
 
             val viaAsIs = loading.withUpdated(sessionId = "x")

@@ -1,11 +1,11 @@
 package me.tbsten.cream.test.combineMapping
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 
 class MultiSourceTest :
-    FunSpec({
-        test("tripleSourceCombineMapping") {
+    FreeSpec({
+        "tripleSourceCombineMapping" {
             val libA =
                 LibAModel(
                     nameA = "A",
@@ -41,7 +41,7 @@ class MultiSourceTest :
             result shouldBe expected
         }
 
-        test("tripleSourceCombineMappingWithOverride") {
+        "tripleSourceCombineMappingWithOverride" {
             val libA =
                 LibAModel(
                     nameA = "A",

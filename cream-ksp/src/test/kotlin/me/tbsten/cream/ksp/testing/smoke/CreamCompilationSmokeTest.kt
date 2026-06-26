@@ -2,7 +2,7 @@ package me.tbsten.cream.ksp.testing.smoke
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import io.kotest.assertions.withClue
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import me.tbsten.cream.ksp.testing.compile.compileWithCream
@@ -16,8 +16,8 @@ import me.tbsten.cream.ksp.testing.compile.generatedSourceText
  * and dependency-free so it fails first and points straight at the harness.
  */
 internal class CreamCompilationSmokeTest :
-    FunSpec({
-        test("compiles a minimal @CopyTo source and generates a copy function") {
+    FreeSpec({
+        "compiles a minimal @CopyTo source and generates a copy function" {
             val result =
                 compileWithCream(
                     """
@@ -42,7 +42,7 @@ internal class CreamCompilationSmokeTest :
             }
         }
 
-        test("multi-source DSL compiles when source and target live in separate files") {
+        "multi-source DSL compiles when source and target live in separate files" {
             val result =
                 compileWithCream {
                     "Source.kt" source

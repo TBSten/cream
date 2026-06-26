@@ -1,6 +1,6 @@
 package me.tbsten.cream.ksp.feature.copyMapping
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import me.tbsten.cream.ksp.feature.copyMapping.scenario.canReverseScenarios
 import me.tbsten.cream.ksp.feature.copyMapping.scenario.constructorScenarios
 import me.tbsten.cream.ksp.feature.copyMapping.scenario.funNameScenarios
@@ -39,8 +39,8 @@ import me.tbsten.cream.ksp.testing.poet.toFileSpec
  *   FROZEN as a known-quirk golden, not patched.
  */
 internal class CopyMappingSnapshotTest :
-    FunSpec({
-        context("All patterns") {
+    FreeSpec({
+        "All patterns" - {
             cartesian(
                 union {
                     withNumberPrefix(length = 2) {
@@ -65,7 +65,7 @@ internal class CopyMappingSnapshotTest :
                 .forEach { (testCaseName, value) ->
                     val (scenario, creamOptions) = value
 
-                    test(testCaseName!!) {
+                    testCaseName!! {
                         runCompileSnapshotTest(input = scenario.toFileSpec(), options = creamOptions)
                     }
                 }
