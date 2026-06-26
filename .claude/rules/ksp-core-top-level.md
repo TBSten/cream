@@ -6,7 +6,7 @@ paths:
 # cream-ksp core 直下 (`ksp/core/*.kt`)
 
 ❌ **`core/` 直下に `.kt` を置かない**。必ず次のサブディレクトリへ
-（`LayeringArchitectureTest` で強制: core ファイルは下表 4 サブパッケージのみ）。
+（`core/ArchTest`（Konsist）で強制: core ファイルは下表 4 サブパッケージのみ）。
 全体アーキテクチャは `ksp-architecture.md` を参照。
 
 | サブ | 置くもの |

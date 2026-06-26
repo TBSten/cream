@@ -16,29 +16,55 @@ paths:
 失敗時メッセージは `withClue(message) { ... }` で保持する。cream-ksp は JVM のみなので
 `kotest-runner-junit5` + `tasks.test { useJUnitPlatform() }` で動く (KSP も io.kotest プラグインも不要)。
 
-## レイアウト
+## レイアウト（issue #127: feature 単位に分割）
 
-- `testing/` — テスト基盤
-  - `CreamCompilation.kt` — `compileWithCream(...)` ヘルパー。`KotlinCompilation` + `useKsp2()` を組み合わせ
-    cream のプロセッサを inline ソース文字列に対して走らせる
-  - `CreamCompilationResult.kt` — 結果ラッパー (`exitCode`, `messages`, `compilerOutput`, ジェネレートされた
-    ソースへのアクセサ)
-  - `CreamCompilationResultUtils.kt` — `generatedSourceText()` などのユーティリティ
-  - `SnapshotAssertion.kt` — golden 比較ヘルパー
-- `diagnostic/` — 不正な annotation 使用や不正な KSP option 値に対して、`InvalidCreamUsageException` /
-  `InvalidCreamOptionException` がコンパイル失敗としてメッセージに乗ることを assert する。
-  exit code を `result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK` で確認したうえで、
-  `normalizedCompilerOutput()` を `*.output.md` の golden と突き合わせて error message 全文を固定化する
-- `options/` — `cream.copyFunNamePrefix` / `cream.copyFunNamingStrategy` / `cream.escapeDot`
-  / `cream.notCopyToObject` のあらゆる値を end-to-end で走らせ、生成された関数名を検証
-- `snapshot/` — 代表的な成功シナリオ (basic `@CopyTo`, sealed `@CopyToChildren`, generic `@CopyFrom`,
-  object-target `@CombineTo`) について、生成 Kotlin ソース全文を golden ファイルと比較。
-  Golden は `cream-ksp/src/test/resources/snapshots/` に格納
-- `architecture/` — kctfork ではなく [Konsist](https://github.com/LemonAppDev/konsist)
-  (`testImplementation(libs.konsist)`) を使い、`cream-ksp/src/main` の feature / core / util
-  レイヤリングを import ベースで強制する (`LayeringArchitectureTest`, issue #130)。
-  scope は `Konsist.scopeFromProduction(moduleName = "cream-ksp", sourceSetName = "main")`
-  で main のみ (test source set と nested `:cream-ksp:shared` を除外)。ルールの正本は
+機能 (feature) ごとにディレクトリを分け、各 feature は同じ **5 種類** のテストを持つ。
+**現状 (#127 第 1 段階)** はテスト基盤 (`testing/`) / smoke / Konsist のみ実装済みで、
+各 feature の個別テストと `core/common` / `MultipleDiagnosticsTest` は `xtest` の空スタブ
+（`// TODO(#127): reimplement ...`）。これらは順次実装し直す。
+generated case × snapshot（`testing/generator/` と `<Feat>SnapshotTest`）は **書き方を再検討中のため
+コード未配置**。下記の generator 関連はあくまで予定の設計で、再設計後に実装する。
+
+```
+cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/
+├── AllKotlinFilesTest.kt       # 全ファイル横断 Konsist（root 直下許可ファイル / 1 ファイル行数上限）
+├── MultipleDiagnosticsTest.kt  # フィーチャー横断（複数アノテ併用 / 複数エラー同時） ※stub
+├── feature/
+│   ├── ArchTest.kt             # feature 層レイヤリング Konsist
+│   └── <copyTo|copyFrom|copyToChildren|sealedCopy|combineTo|combineFrom|copyMapping|combineMapping>/
+│       ├── <Feat>BasicUsageTest.kt    # 正常系 (example-based)
+│       ├── <Feat>InvalidUsageTest.kt  # 不正利用 → エラー (diagnostic)
+│       ├── <Feat>EdgeUsageTest.kt     # レアケース ＋ @Map/@Exclude 等の意味的ケース
+│       ├── <Feat>PropertyTest.kt      # PBT（可視性/エスケープ/オプションは generator 次元で網羅）
+│       └── <Feat>SnapshotTest.kt      # generator 駆動スナップショット
+├── core/
+│   ├── ArchTest.kt             # core / util 層レイヤリング Konsist
+│   └── common/CommonLogicTest.kt      # KSP 型に依存しない純ロジック ※stub
+└── testing/                    # テスト基盤
+    ├── CreamCompilation.kt            # compileWithCream(...)（KotlinCompilation + useKsp2）
+    ├── CreamCompilationResult.kt      # 結果ラッパー (exitCode / messages / compilerOutput / 生成ソース)
+    ├── CreamCompilationResultUtils.kt # generatedSourceText() / normalizedCompilerOutput() など
+    ├── SnapshotAssertion.kt           # golden 比較 (assertMatchesSnapshot / facet)
+    ├── generator/                     # ※予定（書き方再検討中・未配置）: generated case × snapshot 基盤
+    ├── smoke/                         # 基盤が動くことの最小確認
+    │   └── CreamCompilationSmokeTest.kt
+    └── konsist/KonsistSupport.kt      # Konsist scope / レイヤ判定ヘルパ（3 つの ArchTest が共有）
+```
+
+- **feature 5 種**: 各 feature は上記 5 ファイルを持つ（正常系 / 不正系 / エッジ / PBT / snapshot）。
+- **generator × snapshot（予定 / 未実装）**: `<Feat>SnapshotTest` は generated case を
+  `compileWithCream` → `assertMatchesSnapshot` で golden 比較する想定。case 生成の仕組み
+  (`testing/generator/`) は書き方を再検討中のため一旦コードを置いていない。再設計してから
+  `<Feat>SnapshotTest` を実装する（それまでは `xtest` スタブ）。snapshot は決定的に保つこと。
+- **diagnostic 系**: 不正 annotation / 不正 option は exit code を
+  `result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK` で確認し、`normalizedCompilerOutput()`
+  を `*.output.md` golden と突き合わせる（`<Feat>InvalidUsageTest` / `MultipleDiagnosticsTest`）。
+- **Konsist (architecture, issue #130)**: kctfork ではなく [Konsist](https://github.com/LemonAppDev/konsist)
+  (`testImplementation(libs.konsist)`) で `cream-ksp/src/main` の feature / core / util レイヤリングを
+  import ベースで強制。3 ファイルに分割: `AllKotlinFilesTest`（モジュール横断）/ `feature/ArchTest` /
+  `core/ArchTest`。共有 scope・ヘルパは `testing/konsist/KonsistSupport.kt`。scope は
+  `Konsist.scopeFromProduction(moduleName = "cream-ksp", sourceSetName = "main")` で main のみ
+  (test source set と nested `:cream-ksp:shared` を除外)。正本は
   `.claude/rules/ksp-architecture.md` の依存方向テーブル。Konsist 0.17.x は Kotlin 2.2 の
   `context(...)` パラメータ付き宣言も問題なくパースできることを確認済み。
 
@@ -135,6 +161,13 @@ stack frame は Gradle / JUnit / KSP / cream 自身の line 変更や `... NN mo
 
 ### 新しいテストを足すとき
 
-- 既存パターンに合うなら該当ディレクトリ (`diagnostic/` / `options/` / `snapshot/`) に追加
-- 新しいカテゴリが必要なら同じレベルにディレクトリを切る
-- 共有ヘルパーが必要になったら `testing/` に追加し、本ドキュメントの「レイアウト」 を更新
+- 対象の feature が決まっているなら `feature/<name>/` の該当 5 種ファイル
+  (`BasicUsage` / `InvalidUsage` / `EdgeUsage` / `Property` / `Snapshot`) に追加する。
+  まだ `xtest` スタブのファイルは中身を実装し直す形で置き換える。
+- feature 横断のシナリオ（複数アノテ併用 / 複数エラー）は `MultipleDiagnosticsTest.kt` に置く。
+- KSP 型に依存しない core の純ロジックは `core/<sub>/` 配下のテストに置く（コンパイル不要）。
+- 共有ヘルパーが必要になったら `testing/`（基盤）/ `testing/generator/`（case 生成）/
+  `testing/konsist/`（Konsist 共有）に追加し、本ドキュメントの「レイアウト」を更新する。
+
+> #127 第 1 段階で再構成済み: 基盤 (`testing/`)・generator・smoke・Konsist (3 つの ArchTest) は実装済みで
+> green。各 feature の 5 種テストと `core/common` は `xtest` スタブなので、ここから順次実装し直す。

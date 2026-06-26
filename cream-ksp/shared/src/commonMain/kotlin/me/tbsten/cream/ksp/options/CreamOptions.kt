@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 import me.tbsten.cream.InternalCreamApi
 import me.tbsten.cream.ksp.InvalidCreamOptionException
 import me.tbsten.cream.ksp.util.lines
+import kotlin.reflect.KProperty1
 
 @InternalCreamApi
 @Serializable
@@ -14,18 +15,27 @@ public data class CreamOptions(
     val notCopyToObject: Boolean,
 ) {
     public companion object {
-        public val default: CreamOptions = CreamOptions(
-            copyFunNamePrefix = "copyTo",
-            copyFunNamingStrategy = CopyFunNamingStrategy.default,
-            escapeDot = EscapeDot.default,
-            notCopyToObject = false,
-        )
+        public val default: CreamOptions =
+            CreamOptions(
+                copyFunNamePrefix = "copyTo",
+                copyFunNamingStrategy = CopyFunNamingStrategy.default,
+                escapeDot = EscapeDot.default,
+                notCopyToObject = false,
+            )
+
+        public val properties: List<KProperty1<CreamOptions, *>> =
+            listOf(
+                CreamOptions::copyFunNamePrefix,
+                CreamOptions::copyFunNamingStrategy,
+                CreamOptions::escapeDot,
+                CreamOptions::notCopyToObject,
+            )
     }
 }
 
 @InternalCreamApi
-public fun Map<String, String>.toCreamOptions(): CreamOptions {
-    return CreamOptions(
+public fun Map<String, String>.toCreamOptions(): CreamOptions =
+    CreamOptions(
         copyFunNamePrefix =
             this["cream.copyFunNamePrefix"] ?: CreamOptions.default.copyFunNamePrefix,
         copyFunNamingStrategy =
@@ -42,7 +52,7 @@ public fun Map<String, String>.toCreamOptions(): CreamOptions {
         escapeDot =
             try {
                 EscapeDot.valueOf(
-                    this["cream.escapeDot"] ?: CreamOptions.default.escapeDot.name
+                    this["cream.escapeDot"] ?: CreamOptions.default.escapeDot.name,
                 )
             } catch (e: IllegalArgumentException) {
                 invalidEscapeDotError(
@@ -51,9 +61,8 @@ public fun Map<String, String>.toCreamOptions(): CreamOptions {
                 )
             },
         notCopyToObject =
-            this["cream.notCopyToObject"]?.lowercase() == "true"
+            this["cream.notCopyToObject"]?.lowercase() == "true",
     )
-}
 
 @OptIn(InternalCreamApi::class)
 @Suppress("NOTHING_TO_INLINE")
@@ -62,18 +71,20 @@ private inline fun invalidCopyFunNamingStrategyError(
     cause: IllegalArgumentException,
 ): Nothing =
     throw InvalidCreamOptionException(
-        message = lines(
-            "Invalid ksp.arg[\"cream.copyFunNamingStrategy\"] = ${actualValue}.",
-            "It must be on of ${CopyFunNamingStrategy.entries.joinToString(", ")}",
-        ),
-        solution = lines(
-            "Set one of the following for ksp.arg: \n",
-            "",
-            *CopyFunNamingStrategy.entries
-                .map { "  - \"${it.name}\"" }
-                .toTypedArray(),
-            "",
-        ),
+        message =
+            lines(
+                "Invalid ksp.arg[\"cream.copyFunNamingStrategy\"] = $actualValue.",
+                "It must be on of ${CopyFunNamingStrategy.entries.joinToString(", ")}",
+            ),
+        solution =
+            lines(
+                "Set one of the following for ksp.arg: \n",
+                "",
+                *CopyFunNamingStrategy.entries
+                    .map { "  - \"${it.name}\"" }
+                    .toTypedArray(),
+                "",
+            ),
         cause = cause,
     )
 
@@ -85,13 +96,14 @@ private inline fun invalidEscapeDotError(
 ): Nothing =
     throw InvalidCreamOptionException(
         message = "Invalid ksp.arg[\"cream.escapeDot\"] = $actualValue",
-        solution = lines(
-            "Set one of the following for ksp.arg:",
-            "",
-            *EscapeDot.entries
-                .map { "  - $it" }
-                .toTypedArray(),
-            "",
-        ),
+        solution =
+            lines(
+                "Set one of the following for ksp.arg:",
+                "",
+                *EscapeDot.entries
+                    .map { "  - $it" }
+                    .toTypedArray(),
+                "",
+            ),
         cause = cause,
     )

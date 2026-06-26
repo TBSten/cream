@@ -25,10 +25,12 @@ dependencies {
     implementation(kotlin("reflect"))
     testImplementation(libs.kotest)
     testImplementation(libs.kotestRunnerJunit5)
+    testImplementation(libs.kotestProperty)
     testImplementation(libs.mockk)
     testImplementation(libs.kctforkCore)
     testImplementation(libs.kctforkKsp)
     testImplementation(libs.konsist)
+    testImplementation(libs.kotlinPoet)
 }
 
 tasks.named<Test>("test") {

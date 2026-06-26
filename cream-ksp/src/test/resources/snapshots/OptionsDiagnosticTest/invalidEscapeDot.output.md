@@ -14,12 +14,12 @@ Solution:
 ## Input
 
 ```kt
-package diag
+package options.diag
 
 import me.tbsten.cream.CopyTo
 
 @CopyTo(Target::class)
-data class Source(val prop: String)
+data class Source(val shared: String)
 
-data class Target(val prop: String)
+data class Target(val shared: String, val extra: Int)
 ```
