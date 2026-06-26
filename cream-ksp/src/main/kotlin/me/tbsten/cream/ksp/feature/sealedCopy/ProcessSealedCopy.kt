@@ -16,6 +16,7 @@ import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.createNewKotlinFile
 import me.tbsten.cream.ksp.core.common.fullName
 import me.tbsten.cream.ksp.core.common.funNameTemplate
+import me.tbsten.cream.ksp.core.common.omitPackagesFor
 import me.tbsten.cream.ksp.core.common.reportCreamError
 import me.tbsten.cream.ksp.core.common.resolveSealedCopyFunName
 import me.tbsten.cream.ksp.core.common.underPackageName
@@ -124,7 +125,7 @@ internal fun processSealedCopy(): List<KSAnnotated> =
                             sealedClass = annotated,
                             funName = funName,
                             nonCopyableStrategy = nonCopyableStrategy,
-                            omitPackages = listOf("kotlin", annotated.packageName.asString()),
+                            omitPackages = omitPackagesFor(annotated.packageName),
                             generateSourceAnnotation = GenerateSourceAnnotation.SealedCopy(annotation = sealedAnnotation),
                         )
                     }
