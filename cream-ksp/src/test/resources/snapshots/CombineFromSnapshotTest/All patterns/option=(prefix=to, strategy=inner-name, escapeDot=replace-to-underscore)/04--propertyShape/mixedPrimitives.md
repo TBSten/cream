@@ -39,6 +39,7 @@ ksp {
     arg("copyFunNamingStrategy", "inner-name")
     arg("escapeDot", "replace-to-underscore")
     arg("notCopyToObject", "false" /* default */)
+    arg("defaultVisibility", "INHERIT" /* default */)
 }
 ```
 

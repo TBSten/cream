@@ -22,6 +22,7 @@ ksp {
     arg("copyFunNamingStrategy", "under-package" /* default */)
     arg("escapeDot", "replace-to-underscore")
     arg("notCopyToObject", "false" /* default */)
+    arg("defaultVisibility", "INHERIT" /* default */)
 }
 ```
 
