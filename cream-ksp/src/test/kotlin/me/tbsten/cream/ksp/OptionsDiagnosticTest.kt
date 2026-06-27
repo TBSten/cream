@@ -2,7 +2,7 @@ package me.tbsten.cream.ksp
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import io.kotest.assertions.withClue
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import me.tbsten.cream.ksp.testing.compile.compileWithCream
@@ -18,7 +18,7 @@ import me.tbsten.cream.ksp.testing.snapshot.assertMatchesSnapshot
  * offending value.
  */
 internal class OptionsDiagnosticTest :
-    FunSpec({
+    FreeSpec({
         val source =
             """
             package options.diag
@@ -31,7 +31,7 @@ internal class OptionsDiagnosticTest :
             data class Target(val shared: String, val extra: Int)
             """.trimIndent()
 
-        test("invalidNamingStrategy") {
+        "invalidNamingStrategy" {
             val result = compileWithCream(source, options = mapOf("cream.copyFunNamingStrategy" to "not-a-strategy"))
 
             withClue(result.messages) {
@@ -44,7 +44,7 @@ internal class OptionsDiagnosticTest :
             }
         }
 
-        test("invalidEscapeDot") {
+        "invalidEscapeDot" {
             val result = compileWithCream(source, options = mapOf("cream.escapeDot" to "not-an-escape"))
 
             withClue(result.messages) {

@@ -1,11 +1,11 @@
 package me.tbsten.cream.test.combineTo
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.types.shouldBeSameInstanceAs
 
 class ObjectTargetTest :
-    FunSpec({
-        test("combineToObject") {
+    FreeSpec({
+        "combineToObject" {
             val sourceA = ObjectSourceA(propertyA = "test")
             val sourceB = ObjectSourceB(propertyB = 42)
 

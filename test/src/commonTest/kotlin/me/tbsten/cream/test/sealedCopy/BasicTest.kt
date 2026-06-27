@@ -1,20 +1,20 @@
 package me.tbsten.cream.test.sealedCopy
 
 import io.kotest.assertions.withClue
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldNotBeSameInstanceAs
 
 class BasicTest :
-    FunSpec({
-        test("copy_preservesSubtype_andUpdatesSharedProperty") {
+    FreeSpec({
+        "copy_preservesSubtype_andUpdatesSharedProperty" {
             val loading: BasicState = BasicState.Loading(sessionId = "abc", attempt = 1)
             val updated = loading.copy(attempt = 2)
 
             updated shouldBe BasicState.Loading(sessionId = "abc", attempt = 2)
         }
 
-        test("copy_withNoArguments_returnsEquivalentInstance") {
+        "copy_withNoArguments_returnsEquivalentInstance" {
             val success: BasicState =
                 BasicState.Success(sessionId = "abc", attempt = 1, payload = "hi")
 
@@ -23,7 +23,7 @@ class BasicTest :
             updated shouldBe success
         }
 
-        test("copy_dispatchesPerSubtype") {
+        "copy_dispatchesPerSubtype" {
             val states: List<BasicState> =
                 listOf(
                     BasicState.Loading(sessionId = "a", attempt = 1),
@@ -40,7 +40,7 @@ class BasicTest :
             (updated[1] as BasicState.Success).payload shouldBe "x"
         }
 
-        test("copy_doesNotShareIdentityWithReceiver") {
+        "copy_doesNotShareIdentityWithReceiver" {
             val loading = BasicState.Loading(sessionId = "abc", attempt = 1)
 
             val updated = loading.copy()

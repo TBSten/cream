@@ -1,6 +1,6 @@
 package me.tbsten.cream.ksp.feature.combineMapping
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import me.tbsten.cream.ksp.feature.combineMapping.scenario.funNameScenarios
 import me.tbsten.cream.ksp.feature.combineMapping.scenario.genericsScenarios
 import me.tbsten.cream.ksp.feature.combineMapping.scenario.kdocScenarios
@@ -39,8 +39,8 @@ import me.tbsten.cream.ksp.testing.poet.toFileSpec
  * - #132 (combine target validation) is FROZEN as `// TODO(#132)` goldens, not patched.
  */
 internal class CombineMappingSnapshotTest :
-    FunSpec({
-        context("All patterns") {
+    FreeSpec({
+        "All patterns" - {
             cartesian(
                 union {
                     withNumberPrefix(length = 2) {
@@ -64,7 +64,7 @@ internal class CombineMappingSnapshotTest :
                 .forEach { (testCaseName, value) ->
                     val (scenario, creamOptions) = value
 
-                    test(testCaseName!!) {
+                    testCaseName!! {
                         runCompileSnapshotTest(input = scenario.toFileSpec(), options = creamOptions)
                     }
                 }

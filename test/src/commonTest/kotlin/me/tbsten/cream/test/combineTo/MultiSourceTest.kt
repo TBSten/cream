@@ -1,11 +1,11 @@
 package me.tbsten.cream.test.combineTo
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 
 class MultiSourceTest :
-    FunSpec({
-        test("combineMultipleSources") {
+    FreeSpec({
+        "combineMultipleSources" {
             val sourceA = MultiSourceA(propertyA = "A")
             val sourceB = MultiSourceB(propertyB = 1)
             val sourceC = MultiSourceC(propertyC = true)

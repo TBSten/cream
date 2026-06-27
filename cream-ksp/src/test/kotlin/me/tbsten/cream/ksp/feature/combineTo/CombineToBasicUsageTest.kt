@@ -1,9 +1,9 @@
 package me.tbsten.cream.ksp.feature.combineTo
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 
 // TODO(#127): reimplement — 正常系 (example-based)。
 internal class CombineToBasicUsageTest :
-    FunSpec({
-        xtest("TODO(#127): not yet reimplemented") {}
+    FreeSpec({
+        "TODO(#127): not yet reimplemented".config(enabled = false) {}
     })

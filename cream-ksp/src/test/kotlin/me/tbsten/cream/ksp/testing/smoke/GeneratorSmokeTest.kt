@@ -1,6 +1,6 @@
 package me.tbsten.cream.ksp.testing.smoke
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.property.Arb
 import io.kotest.property.arbitrary.string
@@ -21,9 +21,9 @@ import me.tbsten.cream.ksp.testing.generator.util.union
  * actual snapshot wiring (`<Feat>SnapshotTest`) comes later.
  */
 internal class GeneratorSmokeTest :
-    FunSpec(
+    FreeSpec(
         {
-            test("generator DSL collects representative values (labelled + unlabelled) and exposes an Arb") {
+            "generator DSL collects representative values (labelled + unlabelled) and exposes an Arb" {
                 val names =
                     generator {
                         case("")
@@ -37,24 +37,24 @@ internal class GeneratorSmokeTest :
                 names.arb().take(5).count() shouldBe 5
             }
 
-            test("toGenerator wraps an existing Arb with explicit representative values") {
+            "toGenerator wraps an existing Arb with explicit representative values" {
                 val gen = Arb.string().toGenerator("x", "y")
                 gen.representativeValues().map { it.value }.toList() shouldBe listOf("x", "y")
             }
 
-            test("orNull prepends a null representative value") {
+            "orNull prepends a null representative value" {
                 val gen = Arb.string().toGenerator("x").orNull()
                 gen.representativeValues().map { it.value }.toList() shouldBe listOf(null, "x")
             }
 
-            test("Generator.list derives empty / single / all representatives") {
+            "Generator.list derives empty / single / all representatives" {
                 val element = Arb.string().toGenerator("a", "b")
                 val lists = Generator.list(element)
                 lists.representativeValues().map { it.value }.toList() shouldBe
                     listOf(emptyList(), listOf("a"), listOf("a", "b"))
             }
 
-            test("cartesian merges paired labels with a custom combiner instead of the default \", \" join") {
+            "cartesian merges paired labels with a custom combiner instead of the default \", \" join" {
                 val left =
                     generator {
                         "L1" case "l1"
@@ -75,7 +75,7 @@ internal class GeneratorSmokeTest :
                     .toList() shouldBe listOf("L1 * R1", "L1 * R2", "L2 * R1", "L2 * R2")
             }
 
-            test("combineToList merges per-element labels with a custom combiner") {
+            "combineToList merges per-element labels with a custom combiner" {
                 val a =
                     generator {
                         "A" case "a"
@@ -99,7 +99,7 @@ internal class GeneratorSmokeTest :
                     .label shouldBe "A + B"
             }
 
-            test("cartesian has a 3-arg Triple version and combine scales to 5 / 6 generators") {
+            "cartesian has a 3-arg Triple version and combine scales to 5 / 6 generators" {
                 val a = Arb.string().toGenerator("a1", "a2")
                 val b = Arb.string().toGenerator("b1")
                 val c = Arb.string().toGenerator("c1")
@@ -123,7 +123,7 @@ internal class GeneratorSmokeTest :
                     .toList() shouldBe listOf("a1-b1-c1-d1-e1-f1", "a2-b1-c1-d1-e1-f1")
             }
 
-            test("union builder (re)labels members: prefix keeps sub-labels distinct, index-fallback for unlabelled, full transform") {
+            "union builder (re)labels members: prefix keeps sub-labels distinct, index-fallback for unlabelled, full transform" {
                 val labelled =
                     generator {
                         "X" case "x"
@@ -147,7 +147,7 @@ internal class GeneratorSmokeTest :
                 u.arb().take(5).count() shouldBe 5
             }
 
-            test("union withNumberPrefix auto-numbers cases (0-based) with configurable length / padChar / separator") {
+            "union withNumberPrefix auto-numbers cases (0-based) with configurable length / padChar / separator" {
                 val labelled =
                     generator {
                         "X" case "x"

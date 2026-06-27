@@ -1,11 +1,11 @@
 package me.tbsten.cream.test.combineTo
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 
 class GenericsTest :
-    FunSpec({
-        test("combineWithGenerics") {
+    FreeSpec({
+        "combineWithGenerics" {
             val sourceA = GenericSourceA(genericProperty = 123)
             val sourceB = GenericSourceB(normalProperty = "normal")
 

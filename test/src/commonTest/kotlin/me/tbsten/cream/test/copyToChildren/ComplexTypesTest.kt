@@ -1,11 +1,11 @@
 package me.tbsten.cream.test.copyToChildren
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 
 class ComplexTypesTest :
-    FunSpec({
-        test("complexTypes") {
+    FreeSpec({
+        "complexTypes" {
             val source =
                 ComplexTypeChild1(
                     stringList = listOf("a", "b", "c"),
@@ -21,7 +21,7 @@ class ComplexTypesTest :
                 )
         }
 
-        test("complexTypesWithNull") {
+        "complexTypesWithNull" {
             val source =
                 ComplexTypeChild1(
                     stringList = emptyList(),
@@ -37,7 +37,7 @@ class ComplexTypesTest :
                 )
         }
 
-        test("multipleTransitions") {
+        "multipleTransitions" {
             val source =
                 ComplexTypeChild1(
                     stringList = listOf("a", "b"),

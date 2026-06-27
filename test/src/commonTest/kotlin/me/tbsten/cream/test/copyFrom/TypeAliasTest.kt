@@ -1,12 +1,12 @@
 package me.tbsten.cream.test.copyFrom
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 
 class TypeAliasTest :
-    FunSpec({
-        test("testCopyFromTypeAlias") {
+    FreeSpec({
+        "testCopyFromTypeAlias" {
             // Create a SourceModel instance and assign it to a variable typed as SourceModelAlias.
             // Note: SourceModelAlias is just a type alias for SourceModel.
             val sourceModel: SourceModelAlias = SourceModel(value = "test-value")
@@ -22,7 +22,7 @@ class TypeAliasTest :
             targetModel.shouldBeInstanceOf<TargetModel>()
         }
 
-        test("testTypeAliasPreservesValue") {
+        "testTypeAliasPreservesValue" {
             val original: SourceModelAlias = SourceModel(value = "original-value")
             val copied: TargetModelAlias = original.copyToTargetModel()
 

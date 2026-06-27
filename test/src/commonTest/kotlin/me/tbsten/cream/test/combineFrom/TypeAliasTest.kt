@@ -1,12 +1,12 @@
 package me.tbsten.cream.test.combineFrom
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 
 class TypeAliasTest :
-    FunSpec({
-        test("testCombineFromWithTypeAliasTarget") {
+    FreeSpec({
+        "testCombineFromWithTypeAliasTarget" {
             // Create instances using actual class constructors and assign them to variables with typealias types.
             // Note: Typealiases are just alternative names for the same types.
             val sourceX: SourceXAlias = SourceX(propX = "x-value")
@@ -29,7 +29,7 @@ class TypeAliasTest :
             result.shouldBeInstanceOf<CombinedResult>()
         }
 
-        test("testCombineFromPreservesAllSourceProperties") {
+        "testCombineFromPreservesAllSourceProperties" {
             val sourceX: SourceXAlias = SourceX(propX = "test-x")
             val sourceY: SourceYAlias = SourceY(propY = 200)
 

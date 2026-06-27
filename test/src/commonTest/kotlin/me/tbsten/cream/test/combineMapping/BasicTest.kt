@@ -1,11 +1,11 @@
 package me.tbsten.cream.test.combineMapping
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 
 class BasicTest :
-    FunSpec({
-        test("basicCombineMapping") {
+    FreeSpec({
+        "basicCombineMapping" {
             val libA =
                 LibAModel(
                     nameA = "NameA",
@@ -35,7 +35,7 @@ class BasicTest :
             result shouldBe expected
         }
 
-        test("basicCombineMappingWithOverride") {
+        "basicCombineMappingWithOverride" {
             val libA =
                 LibAModel(
                     nameA = "NameA",

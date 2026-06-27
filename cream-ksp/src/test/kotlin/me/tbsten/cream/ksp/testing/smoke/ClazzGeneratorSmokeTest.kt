@@ -27,7 +27,7 @@ import me.tbsten.cream.ksp.testing.generator.clazz.toSource
 import me.tbsten.cream.ksp.testing.generator.clazz.typeSpec
 import me.tbsten.cream.ksp.testing.generator.util.combineToList
 import me.tbsten.cream.ksp.testing.generator.util.constant
-import io.kotest.core.spec.style.FunSpec as KotestFunSpec
+import io.kotest.core.spec.style.FreeSpec as KotestFreeSpec
 
 /**
  * Smoke test for the KotlinPoet-backed code generators in `testing/generator/clazz/`. Verifies the
@@ -35,9 +35,9 @@ import io.kotest.core.spec.style.FunSpec as KotestFunSpec
  * [Generator.arb] side is usable.
  */
 internal class ClazzGeneratorSmokeTest :
-    KotestFunSpec(
+    KotestFreeSpec(
         {
-            test("basicType generator exposes resolvable representative type names") {
+            "basicType generator exposes resolvable representative type names" {
                 val labels =
                     Generator
                         .basicType()
@@ -47,7 +47,7 @@ internal class ClazzGeneratorSmokeTest :
                 labels shouldBe listOf("String", "Int", "Boolean", "String?", "List<String>")
             }
 
-            test("properties generator yields common property lists") {
+            "properties generator yields common property lists" {
                 val labels =
                     Generator
                         .properties()
@@ -71,7 +71,7 @@ internal class ClazzGeneratorSmokeTest :
                     .map { it.name } shouldBe listOf("int", "long", "float", "double", "boolean", "str", "byte", "short", "char")
             }
 
-            test("dataClassSpec renders a data class from the default property lists") {
+            "dataClassSpec renders a data class from the default property lists" {
                 val sources =
                     Generator
                         .dataClassSpec(name = Generator.constant("Sample"))
@@ -87,7 +87,7 @@ internal class ClazzGeneratorSmokeTest :
                 first shouldContain "str: String"
             }
 
-            test("classSpec emits primary and secondary constructors") {
+            "classSpec emits primary and secondary constructors" {
                 val source =
                     Generator
                         .classSpec(
@@ -112,7 +112,7 @@ internal class ClazzGeneratorSmokeTest :
                 source shouldContain ": this(TODO())"
             }
 
-            test("classSpec properties become body vals, distinct from constructor params") {
+            "classSpec properties become body vals, distinct from constructor params" {
                 val source =
                     Generator
                         .classSpec(
@@ -127,7 +127,7 @@ internal class ClazzGeneratorSmokeTest :
                 source shouldContain "val b: String = TODO()" // body property
             }
 
-            test("enumSpec shares the constructor / body-property model with classSpec") {
+            "enumSpec shares the constructor / body-property model with classSpec" {
                 val source =
                     Generator
                         .enumSpec(
@@ -144,7 +144,7 @@ internal class ClazzGeneratorSmokeTest :
                 source shouldContain "A(TODO())" // constant passes a ctor arg
             }
 
-            test("objectSpec renders an object with member functions") {
+            "objectSpec renders an object with member functions" {
                 val source =
                     Generator
                         .objectSpec(
@@ -159,7 +159,7 @@ internal class ClazzGeneratorSmokeTest :
                 source shouldContain "fun method"
             }
 
-            test("classSpec yields a built TypeSpec that can still be post-processed via toBuilder") {
+            "classSpec yields a built TypeSpec that can still be post-processed via toBuilder" {
                 val type =
                     Generator
                         .classSpec(name = Generator.constant("Foo"))
@@ -178,7 +178,7 @@ internal class ClazzGeneratorSmokeTest :
                 source shouldContain "fun extra"
             }
 
-            test("typeSpec yields a class per (kind x property variation)") {
+            "typeSpec yields a class per (kind x property variation)" {
                 val reps =
                     Generator
                         .typeSpec(name = Generator.constant("Sample"))
@@ -197,7 +197,7 @@ internal class ClazzGeneratorSmokeTest :
                 reps.count { it.label!!.startsWith("object, ") } shouldBe 6
             }
 
-            test("typeSpec renders generic class / interface declarations") {
+            "typeSpec renders generic class / interface declarations" {
                 val sources =
                     Generator
                         .typeSpec(name = Generator.constant("Sample"), kinds = listOf(TypeKind.Class))
@@ -209,7 +209,7 @@ internal class ClazzGeneratorSmokeTest :
                 sources.any { it.contains("public class Sample<K, V>") } shouldBe true
             }
 
-            test("classSpec derives multi-bound type parameters into a where clause") {
+            "classSpec derives multi-bound type parameters into a where clause" {
                 val t = TypeVariableName("T", COMPARABLE.parameterizedBy(TypeVariableName("T")), CHAR_SEQUENCE)
                 val source =
                     Generator
@@ -228,7 +228,7 @@ internal class ClazzGeneratorSmokeTest :
                 source shouldContain "where T : Comparable<T>, T : CharSequence"
             }
 
-            test("classSpec exposes an Arb usable for property tests") {
+            "classSpec exposes an Arb usable for property tests" {
                 val gen = Generator.classSpec(name = Generator.constant("Sample"))
                 gen.arb().take(5).count() shouldBe 5
             }

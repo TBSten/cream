@@ -1,13 +1,13 @@
 package me.tbsten.cream.test.combineMapping
 
 import io.kotest.assertions.assertSoftly
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 
 class TypeAliasTest :
-    FunSpec({
-        test("combineMappingResolvesTypeAliasSourcesAndTarget") {
+    FreeSpec({
+        "combineMappingResolvesTypeAliasSourcesAndTarget" {
             // sources and target are declared via type aliases, but the generated function
             // is named after / typed by the resolved classes.
             val first: LibAliasFirstSource = LibAliasFirstModel(firstName = "First", firstValue = 10)
@@ -29,7 +29,7 @@ class TypeAliasTest :
             }
         }
 
-        test("combineMappingTypeAliasAllowsOverride") {
+        "combineMappingTypeAliasAllowsOverride" {
             val first: LibAliasFirstSource = LibAliasFirstModel(firstName = "First", firstValue = 10)
             val second: LibAliasSecondSource = LibAliasSecondModel(secondName = "Second", secondValue = 2.5)
 

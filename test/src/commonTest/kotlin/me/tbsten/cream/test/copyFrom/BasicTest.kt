@@ -1,11 +1,11 @@
 package me.tbsten.cream.test.copyFrom
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 
 class BasicTest :
-    FunSpec({
-        test("dataLayerModelToDomainLayerModel") {
+    FreeSpec({
+        "dataLayerModelToDomainLayerModel" {
             val dataLayerModel: DataLayerModel =
                 DataLayerModel(
                     prop1 = "prop1",
@@ -23,7 +23,7 @@ class BasicTest :
             }
         }
 
-        test("domainLayerModelToDataLayerModel") {
+        "domainLayerModelToDataLayerModel" {
             val domainLayerModel: DomainLayerModel =
                 DomainLayerModel(
                     prop1 = "prop1",

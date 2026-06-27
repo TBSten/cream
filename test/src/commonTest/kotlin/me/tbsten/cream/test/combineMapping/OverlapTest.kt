@@ -1,11 +1,11 @@
 package me.tbsten.cream.test.combineMapping
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 
 class OverlapTest :
-    FunSpec({
-        test("combineMappingWithOverlap") {
+    FreeSpec({
+        "combineMappingWithOverlap" {
             val libD =
                 LibDModel(
                     sharedName = "FromD",
@@ -32,7 +32,7 @@ class OverlapTest :
             result shouldBe expected
         }
 
-        test("combineMappingWithOverlapAndOverride") {
+        "combineMappingWithOverlapAndOverride" {
             val libD =
                 LibDModel(
                     sharedName = "FromD",

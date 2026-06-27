@@ -2,7 +2,7 @@ package me.tbsten.cream.ksp
 
 import com.tschuchort.compiletesting.KotlinCompilation
 import io.kotest.assertions.withClue
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
 import me.tbsten.cream.ksp.testing.compile.compileWithCream
@@ -16,8 +16,8 @@ import me.tbsten.cream.ksp.testing.snapshot.assertMatchesSnapshot
  * surface from one compile, so a regression to fail-fast (only the first error shown) is caught.
  */
 internal class MultipleDiagnosticsTest :
-    FunSpec({
-        test("reportsEveryMisuseInOneRound") {
+    FreeSpec({
+        "reportsEveryMisuseInOneRound" {
             val source =
                 """
                 package multi.diag

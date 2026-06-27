@@ -1,11 +1,11 @@
 package me.tbsten.cream.test.combineTo
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 
 class NullableTest :
-    FunSpec({
-        test("combineWithNullableProperties") {
+    FreeSpec({
+        "combineWithNullableProperties" {
             val sourceA = NullableSourceA(nullableProperty = "nullable value")
             val sourceB = NullableSourceB(requiredProperty = "required")
 
@@ -23,7 +23,7 @@ class NullableTest :
             result shouldBe expected
         }
 
-        test("combineWithNullableNull") {
+        "combineWithNullableNull" {
             val sourceA = NullableSourceA(nullableProperty = null)
             val sourceB = NullableSourceB(requiredProperty = "required")
 

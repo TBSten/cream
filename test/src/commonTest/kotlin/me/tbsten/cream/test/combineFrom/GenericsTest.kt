@@ -1,11 +1,11 @@
 package me.tbsten.cream.test.combineFrom
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 
 class GenericsTest :
-    FunSpec({
-        test("combineFromWithGenerics") {
+    FreeSpec({
+        "combineFromWithGenerics" {
             val sourceA =
                 GenericSourceA(
                     genericProperty = "generic string",
@@ -28,7 +28,7 @@ class GenericsTest :
             result.extraProperty shouldBe 100
         }
 
-        test("combineFromWithComplexGenerics") {
+        "combineFromWithComplexGenerics" {
             val sourceA =
                 GenericSourceA(
                     genericProperty = listOf("a", "b", "c"),

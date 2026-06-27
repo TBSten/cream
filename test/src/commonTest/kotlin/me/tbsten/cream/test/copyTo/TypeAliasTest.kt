@@ -1,12 +1,12 @@
 package me.tbsten.cream.test.copyTo
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 
 class TypeAliasTest :
-    FunSpec({
-        test("testCopyToTypeAlias") {
+    FreeSpec({
+        "testCopyToTypeAlias" {
             // Create a DomainModel instance and assign it to a variable typed as DomainModelAlias.
             // Note: DomainModelAlias is just a type alias for DomainModel.
             val domainModel: DomainModelAlias = DomainModel(id = "test-id-123")
@@ -22,7 +22,7 @@ class TypeAliasTest :
             dataModel.shouldBeInstanceOf<DataModel>()
         }
 
-        test("testTypeAliasPreservesIdentity") {
+        "testTypeAliasPreservesIdentity" {
             val original: DomainModelAlias = DomainModel(id = "original-id")
             val copied: DataModelAlias = original.copyToDataModel()
 

@@ -10,8 +10,9 @@ paths:
 (`dev.zacsweers.kctfork:core` / `:ksp`) を使った JVM 専用の end-to-end テストを置いている。
 マルチプラットフォームの `test/` モジュールでは表現しにくいシナリオを補完する。
 
-テストは [kotest](https://kotest.io) の `FunSpec` スタイルで書く
-(`internal class XxxTest : FunSpec({ test("...") { ... } })`)。assert は kotest matcher を使い、
+テストは [kotest](https://kotest.io) の `FreeSpec` スタイルで書く
+(`internal class XxxTest : FreeSpec({ "..." { ... } })`、ネストは `"group" - { "..." { ... } }`)。
+無効化テストは `"...".config(enabled = false) { }`。assert は kotest matcher を使い、
 **語順は `actual shouldBe expected`** (kotlin.test の `assertEquals(expected, actual)` とは逆)。
 失敗時メッセージは `withClue(message) { ... }` で保持する。cream-ksp は JVM のみなので
 `kotest-runner-junit5` + `tasks.test { useJUnitPlatform() }` で動く (KSP も io.kotest プラグインも不要)。
@@ -75,8 +76,8 @@ golden ファイルは `*.md` (Markdown)。すべての captured 値は **facet*
 として書き出される:
 
 ```kt
-internal class MyTest : FunSpec({
-    test("scenario") {
+internal class MyTest : FreeSpec({
+    "scenario" {
         val source = """
             @CopyTo(Target::class)
             data class Source(...)

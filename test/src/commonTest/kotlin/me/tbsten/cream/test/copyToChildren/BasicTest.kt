@@ -1,11 +1,11 @@
 package me.tbsten.cream.test.copyToChildren
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 
 class BasicTest :
-    FunSpec({
-        test("parentToChildren") {
+    FreeSpec({
+        "parentToChildren" {
             val parent: Parent = ChildDataObject
 
             mapOf(
@@ -28,7 +28,7 @@ class BasicTest :
             }
         }
 
-        test("parentToChildrenWithOverrideParentProp") {
+        "parentToChildrenWithOverrideParentProp" {
             val parent: Parent = ChildDataObject
 
             mapOf(
@@ -54,7 +54,7 @@ class BasicTest :
             }
         }
 
-        test("parentToGrandChildren") {
+        "parentToGrandChildren" {
             val parent: Parent = ChildDataObject
 
             mapOf(
@@ -83,7 +83,7 @@ class BasicTest :
             }
         }
 
-        test("parentToGrandChildrenWithOverrideParentProp") {
+        "parentToGrandChildrenWithOverrideParentProp" {
             val parent: Parent = ChildDataObject
 
             mapOf(
@@ -119,7 +119,7 @@ class BasicTest :
         // grandchild leaf from a grandchild-level value still resolves to the Parent extension.
         // Because the receiver is typed as Parent, intermediate (child-level) properties are not
         // carried over automatically and must be supplied explicitly.
-        test("grandChildLevelValueToGrandChildLeafViaAnnotatedClassReceiver") {
+        "grandChildLevelValueToGrandChildLeafViaAnnotatedClassReceiver" {
             val grandChild: GrandChildSealedInterface = GreatGrandChildDataObject
 
             mapOf(
