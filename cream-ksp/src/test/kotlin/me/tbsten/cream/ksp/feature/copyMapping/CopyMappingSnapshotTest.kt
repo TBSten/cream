@@ -1,6 +1,6 @@
 package me.tbsten.cream.ksp.feature.copyMapping
 
-import io.kotest.core.spec.style.FunSpec
+import io.kotest.core.spec.style.FreeSpec
 import me.tbsten.cream.ksp.feature.copyMapping.scenario.canReverseScenarios
 import me.tbsten.cream.ksp.feature.copyMapping.scenario.constructorScenarios
 import me.tbsten.cream.ksp.feature.copyMapping.scenario.funNameScenarios
@@ -26,8 +26,6 @@ import me.tbsten.cream.ksp.testing.poet.toFileSpec
  *
  * Intentionally NOT covered as snapshot cases (and why):
  * - `@Exclude` — `@CopyMapping` has none (source/target are external classes you cannot annotate).
- * - visibility-override cases — `@CopyMapping` has NO `visibility` arg, so the generated fn inherits the TARGET
- *   class visibility; the `visibility` family is reduced to `internalTargetClass` + `propertyVisibilities`.
  * - `typealias` source/target — `SnapshotScenario` can't carry a `TypeAliasSpec`; covered by integration `TypeAliasTest`.
  * - cross-package `@Repeatable` multi-file fan-out (`groupBy { sourceClass.packageName }` → N files) — needs the
  *   multi-`FileSpec` overload (single `GENERATED_PACKAGE` here); `repeatable/multipleAnnotations` covers same-package.
@@ -39,8 +37,8 @@ import me.tbsten.cream.ksp.testing.poet.toFileSpec
  *   FROZEN as a known-quirk golden, not patched.
  */
 internal class CopyMappingSnapshotTest :
-    FunSpec({
-        context("All patterns") {
+    FreeSpec({
+        "All patterns" - {
             cartesian(
                 union {
                     withNumberPrefix(length = 2) {
@@ -65,7 +63,7 @@ internal class CopyMappingSnapshotTest :
                 .forEach { (testCaseName, value) ->
                     val (scenario, creamOptions) = value
 
-                    test(testCaseName!!) {
+                    testCaseName!! {
                         runCompileSnapshotTest(input = scenario.toFileSpec(), options = creamOptions)
                     }
                 }

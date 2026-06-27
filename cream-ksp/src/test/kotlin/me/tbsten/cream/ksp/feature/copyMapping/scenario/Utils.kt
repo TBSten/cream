@@ -5,10 +5,11 @@ import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.CodeBlock
 import com.squareup.kotlinpoet.TypeSpec
 import me.tbsten.cream.CopyMapping
+import me.tbsten.cream.CopyVisibility
 import me.tbsten.cream.ksp.testing.poet.SnapshotScenario
 import me.tbsten.cream.ksp.testing.poet.classNameOf
 
-/** `@CopyMapping` を載せる holder。生成関数の可視性は holder ではなく target に従う。 */
+/** `@CopyMapping` を載せる holder。生成関数の可視性は visibility 引数（無ければ target）に従う。 */
 internal fun mappingHolder(): TypeSpec = TypeSpec.objectBuilder("Mapping").build()
 
 /** [this] を holder として `@CopyMapping([source], [target], …)` を付与する。 */
@@ -17,6 +18,7 @@ internal fun TypeSpec.withCopyMapping(
     target: ClassName,
     canReverse: Boolean = false,
     properties: List<Pair<String, String>> = emptyList(),
+    visibility: CopyVisibility? = null,
     kdoc: CodeBlock? = null,
     funName: CodeBlock? = null,
 ): TypeSpec =
@@ -29,6 +31,7 @@ internal fun TypeSpec.withCopyMapping(
                 .apply {
                     if (canReverse) addMember("%L = %L", CopyMapping::canReverse.name, true)
                     if (properties.isNotEmpty()) addMember("%L = %L", CopyMapping::properties.name, propertiesBlock(properties))
+                    if (visibility != null) addMember("${CopyMapping::visibility.name} = %T.%L", CopyVisibility::class, visibility.name)
                     if (kdoc != null) addMember("%L = %L", CopyMapping::kdoc.name, kdoc)
                     if (funName != null) addMember("%L = %L", CopyMapping::funName.name, funName)
                 }.build(),
@@ -44,11 +47,12 @@ internal fun copyMapping(
     target: TypeSpec,
     canReverse: Boolean = false,
     properties: List<Pair<String, String>> = emptyList(),
+    visibility: CopyVisibility? = null,
     kdoc: CodeBlock? = null,
     funName: CodeBlock? = null,
 ): SnapshotScenario =
     SnapshotScenario(
-        holder.withCopyMapping(classNameOf(source.name!!), classNameOf(target.name!!), canReverse, properties, kdoc, funName),
+        holder.withCopyMapping(classNameOf(source.name!!), classNameOf(target.name!!), canReverse, properties, visibility, kdoc, funName),
         source,
         target,
     )
