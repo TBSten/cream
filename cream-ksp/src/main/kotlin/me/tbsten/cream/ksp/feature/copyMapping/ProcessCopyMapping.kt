@@ -5,7 +5,6 @@ import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CopyMapping
@@ -157,7 +156,6 @@ internal fun processCopyMapping(): List<KSAnnotated> =
                                 omitPackages = omitPackagesFor(packageName),
                                 generateSourceAnnotation =
                                     GenerateSourceAnnotation.CopyMapping(annotation = mapping.rawAnnotation),
-                                annotated = annotatedDeclaration,
                             )
 
                             if (mapping.canReverse) {
@@ -172,7 +170,6 @@ internal fun processCopyMapping(): List<KSAnnotated> =
                                             annotation = mapping.rawAnnotation,
                                             reversed = true,
                                         ),
-                                    annotated = annotatedDeclaration,
                                 )
                             }
                         }

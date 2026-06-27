@@ -154,7 +154,6 @@ internal fun processCombineMapping(): List<KSAnnotated> =
                                 omitPackages = omitPackagesFor(packageName),
                                 generateSourceAnnotation =
                                     GenerateSourceAnnotation.CombineMapping(annotation = mapping.rawAnnotation),
-                                annotated = annotatedDeclaration,
                             )
                         }
                     }

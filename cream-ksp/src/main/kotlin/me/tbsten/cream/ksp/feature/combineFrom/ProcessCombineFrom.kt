@@ -121,7 +121,6 @@ internal fun processCombineFrom(): List<KSAnnotated> =
                         target = targetClass,
                         omitPackages = omitPackagesFor(primarySource.packageName),
                         generateSourceAnnotation = generateSourceAnnotation,
-                        annotated = targetDeclaration,
                     )
                 }
         }

@@ -19,18 +19,16 @@ internal fun BufferedWriter.appendCopyToSealedClassFunction(
     // appendCopyFunction, which derives notCopyToObject from [generateSourceAnnotation] itself, so
     // object leaves are skipped/kept correctly without threading a flag through.
     //
-    // The leaf KDoc must be attributed to the declaration carrying the triggering annotation — the
+    // The leaf KDoc is attributed to the declaration carrying the triggering annotation — the
     // source for @CopyTo / @CopyToChildren but the target/holder for @CopyFrom / @CopyMapping
-    // (issue #144). That declaration is read from [generateSourceAnnotation] itself
-    // ([GenerateSourceAnnotation.annotatedDeclaration]) rather than threaded in as a separate
-    // parameter.
+    // (issue #144) — which the KDoc generator reads from [generateSourceAnnotation] itself
+    // ([GenerateSourceAnnotation.annotatedDeclaration]).
     targetClass.getSealedSubclasses().forEach { subclass ->
         appendCopyFunction(
             source,
             subclass,
             omitPackages,
             generateSourceAnnotation,
-            annotated = generateSourceAnnotation.annotatedDeclaration,
         )
     }
 }

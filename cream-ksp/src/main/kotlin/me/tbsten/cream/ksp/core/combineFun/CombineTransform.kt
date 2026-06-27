@@ -3,7 +3,6 @@ package me.tbsten.cream.ksp.core.combineFun
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSDeclaration
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.core.common.fullName
@@ -17,7 +16,6 @@ internal fun BufferedWriter.appendCombineToFunction(
     target: KSClassDeclaration,
     omitPackages: List<String>,
     generateSourceAnnotation: GenerateSourceAnnotation,
-    annotated: KSDeclaration = primarySource,
 ) {
     when (target.classKind) {
         ClassKind.CLASS,
@@ -29,7 +27,6 @@ internal fun BufferedWriter.appendCombineToFunction(
                 target,
                 generateSourceAnnotation,
                 omitPackages,
-                annotated = annotated,
             )
 
         ClassKind.OBJECT ->
@@ -39,7 +36,6 @@ internal fun BufferedWriter.appendCombineToFunction(
                     otherSources,
                     target,
                     generateSourceAnnotation,
-                    annotated = annotated,
                 )
             }
 
