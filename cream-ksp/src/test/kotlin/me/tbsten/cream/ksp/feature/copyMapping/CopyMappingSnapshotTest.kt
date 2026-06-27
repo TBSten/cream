@@ -26,8 +26,6 @@ import me.tbsten.cream.ksp.testing.poet.toFileSpec
  *
  * Intentionally NOT covered as snapshot cases (and why):
  * - `@Exclude` — `@CopyMapping` has none (source/target are external classes you cannot annotate).
- * - visibility-override cases — `@CopyMapping` has NO `visibility` arg, so the generated fn inherits the TARGET
- *   class visibility; the `visibility` family is reduced to `internalTargetClass` + `propertyVisibilities`.
  * - `typealias` source/target — `SnapshotScenario` can't carry a `TypeAliasSpec`; covered by integration `TypeAliasTest`.
  * - cross-package `@Repeatable` multi-file fan-out (`groupBy { sourceClass.packageName }` → N files) — needs the
  *   multi-`FileSpec` overload (single `GENERATED_PACKAGE` here); `repeatable/multipleAnnotations` covers same-package.

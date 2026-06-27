@@ -89,9 +89,14 @@ import kotlin.reflect.KClass
  *   (cream's derived name). Embed naming tokens such as [CopyTargetSimpleName] to compose a name.
  *   When `canReverse` is true (or the target is sealed) use a token so the forward and reverse
  *   functions get distinct names. See `CopyFunctionNameToken.kt`.
+ * @param visibility Visibility modifier of the generated copy function. Defaults to
+ *   [CopyVisibility.INHERIT], which keeps cream's existing behaviour (the function inherits
+ *   the target class's visibility). When `canReverse` is true, the same visibility is applied
+ *   to both the forward and reverse functions.
  *
  * @see CopyTo
  * @see CopyFrom
+ * @see CopyVisibility
  * @see DefaultCopyFunctionName
  */
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPEALIAS)
@@ -104,6 +109,7 @@ public annotation class CopyMapping(
     val properties: Array<Map> = [],
     val kdoc: KDoc = KDoc(),
     val funName: String = DefaultCopyFunctionName,
+    val visibility: CopyVisibility = CopyVisibility.INHERIT,
 ) {
     /**
      * Defines a property name mapping between source and target classes.
