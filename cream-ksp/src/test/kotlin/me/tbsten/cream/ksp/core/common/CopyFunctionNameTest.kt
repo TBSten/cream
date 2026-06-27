@@ -27,6 +27,7 @@ private fun options(
         copyFunNamingStrategy = strategy,
         escapeDot = escapeDot,
         notCopyToObject = false,
+        defaultVisibility = CreamOptions.default.defaultVisibility,
     )
 
 private fun name(

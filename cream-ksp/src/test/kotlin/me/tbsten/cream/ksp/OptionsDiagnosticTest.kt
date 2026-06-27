@@ -14,8 +14,8 @@ import me.tbsten.cream.ksp.testing.snapshot.assertMatchesSnapshot
  * `<Feat>SnapshotTest`s only ever feed VALID option combinations (`validCreamOptions()`), so the
  * "bad option value → fail the build with a positioned message, not an opaque crash" contract has no
  * other home. `CreamOptions` parsing throws `InvalidCreamOptionException` for an unknown
- * `copyFunNamingStrategy` / `escapeDot`; these pin that it surfaces as a build failure carrying the
- * offending value.
+ * `copyFunNamingStrategy` / `escapeDot` / `defaultVisibility`; these pin that it surfaces as a build
+ * failure carrying the offending value.
  */
 internal class OptionsDiagnosticTest :
     FreeSpec({
@@ -52,6 +52,19 @@ internal class OptionsDiagnosticTest :
                 result.normalizedCompilerOutput() shouldContain "cream.escapeDot"
             }
             assertMatchesSnapshot(name = "OptionsDiagnosticTest.invalidEscapeDot.output") {
+                facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
+                "Input" facetOf source
+            }
+        }
+
+        "invalidDefaultVisibility" {
+            val result = compileWithCream(source, options = mapOf("cream.defaultVisibility" to "not-a-visibility"))
+
+            withClue(result.messages) {
+                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+                result.normalizedCompilerOutput() shouldContain "cream.defaultVisibility"
+            }
+            assertMatchesSnapshot(name = "OptionsDiagnosticTest.invalidDefaultVisibility.output") {
                 facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
                 "Input" facetOf source
             }

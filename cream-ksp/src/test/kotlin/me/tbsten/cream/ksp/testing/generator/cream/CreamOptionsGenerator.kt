@@ -5,6 +5,7 @@ import io.kotest.property.arbitrary.bind
 import io.kotest.property.arbitrary.boolean
 import io.kotest.property.arbitrary.list
 import io.kotest.property.arbitrary.of
+import me.tbsten.cream.CopyVisibility
 import me.tbsten.cream.ksp.options.CopyFunNamingStrategy
 import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.options.EscapeDot
@@ -39,6 +40,10 @@ internal fun Generator.Companion.validCreamOptions(
             copyFunNamingStrategy = strategy,
             escapeDot = escape,
             notCopyToObject = notCopyObject,
+            // The arb side pins `defaultVisibility` to its default; the representative set below adds a
+            // single INTERNAL case so snapshots golden-pin the non-INHERIT modifier without multiplying
+            // every axis. Full precedence behavior is also covered by DefaultVisibilityOptionTest.
+            defaultVisibility = CreamOptions.default.defaultVisibility,
         )
     }.withRepresentativeValues {
         listOf(
@@ -53,6 +58,7 @@ internal fun Generator.Companion.validCreamOptions(
                 copyFunNamingStrategy = CopyFunNamingStrategy.`inner-name`,
                 escapeDot = EscapeDot.`replace-to-underscore`,
             ),
+            CreamOptions.default.copy(defaultVisibility = CopyVisibility.INTERNAL),
         ).forEach { options -> creamOptionsLabel(options) case options }
     }
 
@@ -121,6 +127,7 @@ private fun creamOptionsLabel(options: CreamOptions): String {
             if (options.copyFunNamingStrategy != default.copyFunNamingStrategy) add("strategy=${options.copyFunNamingStrategy.name}")
             if (options.escapeDot != default.escapeDot) add("escapeDot=${options.escapeDot.name}")
             if (options.notCopyToObject != default.notCopyToObject) add("notCopyToObject=${options.notCopyToObject}")
+            if (options.defaultVisibility != default.defaultVisibility) add("defaultVisibility=${options.defaultVisibility.name}")
         }
     return if (parts.isEmpty()) "Default" else parts.joinToString(separator = ", ", prefix = "(", postfix = ")")
 }
