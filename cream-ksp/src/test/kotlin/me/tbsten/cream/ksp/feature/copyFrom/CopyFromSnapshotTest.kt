@@ -28,8 +28,9 @@ import me.tbsten.cream.ksp.testing.poet.toFileSpec
  *   integration `test/.../copyFrom/TypeAliasTest.kt`.
  * - `@CopyFrom.Map` on a `TYPE_PARAMETER` — KotlinPoet can't render it; the VALUE_PARAMETER `map` family covers it.
  * - No `repeatable` / `multiSource` families — `@CopyFrom` is not `@Repeatable` and is 1→1.
- * - #144 (sealed-target KDoc misattributes generation to the source class instead of the target) is intentionally
- *   FROZEN as an OK golden in `targetKind/sealedInterfaceTarget`, not "fixed" — a known shared-core quirk.
+ *
+ * `targetKind/sealedInterfaceTarget` pins the sealed-target fan-out: each generated leaf copy function attributes
+ * generation to the `@CopyFrom`-annotated target (`[Target]`), per issue #144.
  */
 internal class CopyFromSnapshotTest :
     FreeSpec({
