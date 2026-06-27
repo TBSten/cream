@@ -3,11 +3,11 @@ package me.tbsten.cream.ksp.feature.combineFrom
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSAnnotated
+import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CombineFrom
-import me.tbsten.cream.DefaultCopyFunctionName
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.ProcessContext
 import me.tbsten.cream.ksp.core.combineFun.appendCombineToFunction
@@ -28,6 +28,27 @@ import me.tbsten.cream.ksp.util.with
 
 private val annotationName = CombineFrom::class.simpleName!!
 
+/**
+ * One resolved `@CombineFrom` occurrence: its raw [annotation], the (deduped) [sources] it combines
+ * ([primarySource] = the extension-function receiver), and the [funName] those resolve to.
+ * `@CombineFrom` is `@Repeatable` and every occurrence becomes its own combine function, so each is
+ * processed independently.
+ */
+private data class CombineFromOccurrence(
+    val annotation: KSAnnotation,
+    val sources: List<KSClassDeclaration>,
+    val primarySource: KSClassDeclaration,
+    val funName: String,
+) {
+    // Two occurrences collide as a redeclaration only when they emit the SAME overload: identical
+    // resolved funName AND identical ordered source list (the receiver = sources[0] and the leading
+    // parameter types = sources[1..] fix the signature; the target constructor params are constant).
+    // Different source sets coexist as overloads even under one name. Keyed on the source
+    // declarations themselves (not their full names) — the same equality the source dedupe relies on.
+    val overloadKey: Any
+        get() = funName to sources
+}
+
 context(processContext: ProcessContext)
 internal fun processCombineFrom(): List<KSAnnotated> =
     with(processContext.logger, processContext.options) {
@@ -46,82 +67,90 @@ internal fun processCombineFrom(): List<KSAnnotated> =
                     logger = processContext.logger,
                 ) ?: return@forEach
 
-            val combineFromAnnotations = target.annotationsOf(CombineFrom::class)
-
-            // @CombineFrom is @Repeatable; the sources of every occurrence are flattened into one
-            // merged copy function. Stacking it twice with the same source set (or simply repeating a
-            // class across occurrences) is an idempotent re-declaration, so dedupe the collected
-            // sources: keeping a duplicate would emit a function with two identically named parameters
-            // ("Conflicting declarations") and re-list the same source in KDoc (issue #101).
-            val sourceClasses =
-                combineFromAnnotations
-                    .resolveClassListOrReport("sources", annotationName, targetDeclaration)
-                    ?.distinct() ?: return@forEach
-
-            // Need at least one source class
-            if (sourceClasses.isEmpty()) {
-                processContext.logger.reportCombineFromNoSources(targetDeclaration)
+            val combineFromAnnotations = target.annotationsOf(CombineFrom::class).toList()
+            if (combineFromAnnotations.isEmpty()) {
+                // Defensive: getSymbolsWithAnnotation matched but no @CombineFrom occurrence could be
+                // resolved (e.g. a broken classpath entry).
                 return@forEach
             }
 
-            // First source class is the primary source (extension function receiver)
-            val primarySource = sourceClasses.firstOrNull() ?: return@forEach
-            val otherSources = sourceClasses.drop(1)
+            // Resolve every occurrence independently — sources are NOT flattened across occurrences.
+            // @CombineFrom is @Repeatable and each occurrence is its own combine function (a different
+            // source set yields different parameter types, so same-named functions coexist as
+            // overloads). Mirrors the per-occurrence @SealedCopy model.
+            val resolvedOccurrences =
+                combineFromAnnotations.map { annotation ->
+                    // Dedupe sources WITHIN one occurrence: @CombineFrom(A::class, A::class) would emit
+                    // two identically named parameters ("Conflicting declarations") and re-list the same
+                    // source in KDoc.
+                    val sources =
+                        sequenceOf(annotation)
+                            .resolveClassListOrReport("sources", annotationName, targetDeclaration)
+                            ?.distinct()
+                            ?: return@map null
+                    val primarySource = sources.firstOrNull()
+                    if (primarySource == null) {
+                        processContext.logger.reportCombineFromNoSources(targetDeclaration)
+                        return@map null
+                    }
+                    CombineFromOccurrence(
+                        annotation = annotation,
+                        sources = sources,
+                        primarySource = primarySource,
+                        funName =
+                            resolveFunName(
+                                funNameTemplate = annotation.funNameTemplate(),
+                                source = primarySource,
+                                target = targetClass,
+                                options = processContext.options,
+                            ),
+                    )
+                }
+            // Any occurrence that failed to resolve already reported a clean error; skip the whole
+            // target so no partial file is emitted.
+            if (resolvedOccurrences.any { it == null }) return@forEach
+            val occurrences = resolvedOccurrences.filterNotNull()
 
-            // @CombineFrom is @Repeatable and all occurrences are merged into ONE generated function,
-            // so the funName must be unambiguous. Reading it from only the first occurrence would
-            // silently drop a different funName set on a later one — instead, require the explicit
-            // funName values to agree.
-            val explicitFunNameTemplates =
-                combineFromAnnotations
-                    .map { it.funNameTemplate() }
-                    .filter { it != DefaultCopyFunctionName }
-                    .distinct()
-                    .toList()
-            // Compare the *resolved* names, not the raw (KSP-folded) templates: the occurrences are
-            // merged into one function that takes a single name, so they are only ambiguous when they
-            // resolve to different names. Resolving also keeps the diagnostic readable — it shows
-            // "toFoo" rather than the internal "to{{cream:CopyTargetSimpleName}}" placeholder form.
-            val explicitFunNames =
-                explicitFunNameTemplates
-                    .map { resolveFunName(it, primarySource, targetClass, processContext.options) }
-                    .distinct()
-            if (explicitFunNames.size > 1) {
-                processContext.logger.reportCombineFromConflictingFunNames(
+            // All occurrences are written to one file, so two that would emit the same overload
+            // (same resolved funName + same sources) are a redeclaration — reject with a clean cream
+            // error rather than letting it fail at the user's compiler. Mirrors @SealedCopy's
+            // duplicate-funName guard.
+            val duplicateOverload =
+                occurrences
+                    .groupBy { it.overloadKey }
+                    .values
+                    .firstOrNull { it.size > 1 }
+                    ?.first()
+            if (duplicateOverload != null) {
+                processContext.logger.reportCombineFromDuplicateOverload(
                     targetDeclaration,
                     targetClass,
-                    explicitFunNames,
+                    duplicateOverload,
                 )
                 return@forEach
             }
-            val funNameTemplate = explicitFunNameTemplates.firstOrNull() ?: DefaultCopyFunctionName
-
-            // All occurrences are merged into one function. GSA derives kdoc/visibility from the first
-            // occurrence's raw annotation; funNameTemplate is the cross-occurrence merge result
-            // (resolved above with conflict detection) and so is passed explicitly. See #134.
-            val combineFromAnnotation =
-                combineFromAnnotations.firstOrNull() ?: return@forEach
-
-            val generateSourceAnnotation =
-                GenerateSourceAnnotation.CombineFrom(
-                    annotation = combineFromAnnotation,
-                    funNameTemplate = funNameTemplate,
-                )
 
             processContext.codeGenerator
                 .createNewKotlinFile(
                     dependencies = Dependencies(aggregating = true, targetDeclaration.containingFile!!),
                     packageName = targetClass.packageName,
-                    fileName = "CombineFrom__${primarySource.underPackageName}__${targetClass.underPackageName}",
+                    fileName = "CombineFrom__${targetClass.underPackageName}",
                 ) {
-                    // Generate combine function with multiple sources
-                    it.appendCombineToFunction(
-                        primarySource = primarySource,
-                        otherSources = otherSources,
-                        target = targetClass,
-                        omitPackages = omitPackagesFor(primarySource.packageName),
-                        generateSourceAnnotation = generateSourceAnnotation,
-                    )
+                    occurrences.forEach { occurrence ->
+                        val primarySource = occurrence.primarySource
+                        val otherSources = occurrence.sources.drop(1)
+
+                        // Pass the raw per-occurrence annotation: @CombineFrom is @Repeatable and each
+                        // occurrence is its own combine function, so GSA must read kdoc / visibility /
+                        // funName from *this* occurrence rather than a cross-occurrence merge.
+                        it.appendCombineToFunction(
+                            primarySource = primarySource,
+                            otherSources = otherSources,
+                            target = targetClass,
+                            omitPackages = omitPackagesFor(primarySource.packageName),
+                            generateSourceAnnotation = GenerateSourceAnnotation.CombineFrom(annotation = occurrence.annotation),
+                        )
+                    }
                 }
         }
 
@@ -142,22 +171,30 @@ private fun KSPLogger.reportCombineFromNoSources(targetDeclaration: KSDeclaratio
     )
 }
 
-private fun KSPLogger.reportCombineFromConflictingFunNames(
+private fun KSPLogger.reportCombineFromDuplicateOverload(
     targetDeclaration: KSDeclaration,
     targetClass: KSClassDeclaration,
-    conflictingNames: List<String>,
+    duplicate: CombineFromOccurrence,
 ) {
+    // Spell out the colliding overload so the user can see WHICH function is duplicated: the
+    // extension receiver (sources[0]) and the leading parameter types (sources[1..]).
+    val receiver =
+        duplicate.sources
+            .first()
+            .simpleName
+            .asString()
+    val parameterTypes = duplicate.sources.drop(1).joinToString { it.simpleName.asString() }
+    val overload = "$receiver.${duplicate.funName}($parameterTypes)"
     reportCreamError(
         InvalidCreamUsageException(
             message =
                 lines(
-                    "@$annotationName on ${targetClass.fullName} is repeated with conflicting funName values:",
-                    conflictingNames.joinToString(", ") { "\"$it\"" },
-                    "Stacked @$annotationName annotations are merged into a single generated function, so funName must be unambiguous.",
+                    "@$annotationName on ${targetClass.fullName} generates the same overload more than once: $overload.",
+                    "Stacked @$annotationName annotations are written to one file, so each must produce a distinct overload.",
                 ),
             solution =
                 lines(
-                    "Set the same funName on every @$annotationName of ${targetClass.fullName}, or set it on only one.",
+                    "Give one of the duplicate @$annotationName a distinct funName, or change its sources.",
                 ),
         ),
         targetDeclaration,
