@@ -38,13 +38,13 @@ COMPILATION_ERROR
 ## Output:Console
 
 ```kt
-e: file://<TMPDIR>/Kotlin-Compilation<N>/ksp/sources/kotlin/me/tbsten/cream/generated/CombineFrom__Source__Target.kt:31:66 Cannot access 'constructor(name: String, extra: Int): Target': it is private in 'me.tbsten.cream.generated.Target'.
+e: file://<TMPDIR>/Kotlin-Compilation<N>/ksp/sources/kotlin/me/tbsten/cream/generated/CombineFrom__Target.kt:31:66 Cannot access 'constructor(name: String, extra: Int): Target': it is private in 'me.tbsten.cream.generated.Target'.
 ```
 
 ## Output:Generated sources
 
 ````kt
-// file: CombineFrom__Source__Target.kt
+// file: CombineFrom__Target.kt
 package me.tbsten.cream.generated
 
 import me.tbsten.cream.*
