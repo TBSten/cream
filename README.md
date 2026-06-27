@@ -705,7 +705,9 @@ Each `examples` entry is rendered verbatim — provide your own `# heading` and
 By default the generated copy function inherits the visibility of the target (or sealed)
 declaration it is derived from. Pass `visibility = CopyVisibility.<...>` to the copy-generating
 annotations (`@CopyTo`, `@CopyFrom`, `@CopyToChildren`, `@SealedCopy`, `@CombineTo`,
-`@CombineFrom`) to force a specific visibility instead.
+`@CombineFrom`, `@CopyMapping`, `@CombineMapping`) to force a specific visibility instead. For a
+reversible (`canReverse`) `@CopyMapping`, the same visibility is applied to both the forward and
+reverse functions.
 
 ```kt
 @CopyTo(MergedState::class, visibility = CopyVisibility.INTERNAL)
