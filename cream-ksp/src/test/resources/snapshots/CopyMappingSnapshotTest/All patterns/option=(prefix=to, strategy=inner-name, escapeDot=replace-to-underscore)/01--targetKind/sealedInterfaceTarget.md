@@ -67,7 +67,7 @@ package me.tbsten.cream.generated
 import me.tbsten.cream.*
 
 /**
- * (Auto generate by @[CopyMapping] annotation of [Source])
+ * (Auto generate by @[CopyMapping] annotation of [Mapping])
  * 
  * Source -> Target.First.Second.Done copy function.
  * 
@@ -96,7 +96,7 @@ public fun  me.tbsten.cream.generated.Source.to_First_Second_Done(
 )
 
 /**
- * (Auto generate by @[CopyMapping] annotation of [Source])
+ * (Auto generate by @[CopyMapping] annotation of [Mapping])
  * 
  * Source -> Target.First.Second.Refreshing copy function.
  * 

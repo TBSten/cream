@@ -1,6 +1,7 @@
 package me.tbsten.cream.ksp.core.common
 
 import com.google.devtools.ksp.symbol.KSAnnotation
+import com.google.devtools.ksp.symbol.KSDeclaration
 import me.tbsten.cream.CopyVisibility
 
 /**
@@ -25,6 +26,18 @@ internal sealed interface GenerateSourceAnnotation {
 
     /** Simple name of the annotation, e.g. `"CopyTo"`; used in the generated KDoc. */
     val annotationSimpleName: String get() = annotation.shortName.asString()
+
+    /**
+     * The declaration the triggering [annotation] is attached to: the source for source-side
+     * annotations (`@CopyTo` / `@CopyToChildren`) and the target/holder for target-side ones
+     * (`@CopyFrom` / `@CopyMapping`). Generated KDoc attributes the function to this declaration
+     * (issue #144), so it is read straight from the annotation's enclosing node instead of being
+     * threaded through every generator as a separate parameter.
+     */
+    val annotatedDeclaration: KSDeclaration
+        get() =
+            annotation.parent as? KSDeclaration
+                ?: error("@$annotationSimpleName is not attached to a declaration")
 
     /** User-provided KDoc description (`kdoc.description`); empty when absent. */
     val kdocDescription: String get() = annotation.extractKDoc().first
