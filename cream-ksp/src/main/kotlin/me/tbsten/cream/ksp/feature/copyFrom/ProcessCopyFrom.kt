@@ -10,6 +10,7 @@ import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.asDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.createNewKotlinFile
 import me.tbsten.cream.ksp.core.common.fullName
+import me.tbsten.cream.ksp.core.common.omitPackagesFor
 import me.tbsten.cream.ksp.core.common.onInvalid
 import me.tbsten.cream.ksp.core.common.resolveClassDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.resolveClassListOrReport
@@ -71,7 +72,7 @@ internal fun processCopyFrom(): List<KSAnnotated> =
                         it.appendCopyFunction(
                             source = sourceClass,
                             target = targetClass,
-                            omitPackages = listOf("kotlin", targetClass.packageName.asString()),
+                            omitPackages = omitPackagesFor(targetClass.packageName),
                             generateSourceAnnotation = generateSourceAnnotation,
                             annotated = targetDeclaration,
                         )

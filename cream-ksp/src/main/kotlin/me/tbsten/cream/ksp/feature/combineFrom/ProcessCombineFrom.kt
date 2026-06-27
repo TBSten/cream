@@ -17,6 +17,7 @@ import me.tbsten.cream.ksp.core.common.asDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.createNewKotlinFile
 import me.tbsten.cream.ksp.core.common.fullName
 import me.tbsten.cream.ksp.core.common.funNameTemplate
+import me.tbsten.cream.ksp.core.common.omitPackagesFor
 import me.tbsten.cream.ksp.core.common.reportCreamError
 import me.tbsten.cream.ksp.core.common.resolveClassDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.resolveClassListOrReport
@@ -118,7 +119,7 @@ internal fun processCombineFrom(): List<KSAnnotated> =
                         primarySource = primarySource,
                         otherSources = otherSources,
                         target = targetClass,
-                        omitPackages = listOf("kotlin", primarySource.packageName.asString()),
+                        omitPackages = omitPackagesFor(primarySource.packageName),
                         generateSourceAnnotation = generateSourceAnnotation,
                         annotated = targetDeclaration,
                     )

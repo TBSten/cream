@@ -14,6 +14,7 @@ import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.createNewKotlinFile
 import me.tbsten.cream.ksp.core.common.fullName
+import me.tbsten.cream.ksp.core.common.omitPackagesFor
 import me.tbsten.cream.ksp.core.common.reportCreamError
 import me.tbsten.cream.ksp.core.common.underPackageName
 import me.tbsten.cream.ksp.core.copyFun.appendCopyFunction
@@ -78,11 +79,7 @@ internal fun processCopyToChildren(): List<KSAnnotated> =
                         it.appendCopyFunction(
                             source = sourceSealedClass,
                             target = targetClass,
-                            omitPackages =
-                                listOf(
-                                    "kotlin",
-                                    sourceSealedClass.packageName.asString(),
-                                ),
+                            omitPackages = omitPackagesFor(sourceSealedClass.packageName),
                             generateSourceAnnotation = generateSourceAnnotation,
                         )
                     }

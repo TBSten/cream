@@ -17,6 +17,7 @@ import me.tbsten.cream.ksp.core.common.asClassDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.createNewKotlinFile
 import me.tbsten.cream.ksp.core.common.fullName
 import me.tbsten.cream.ksp.core.common.isValid
+import me.tbsten.cream.ksp.core.common.omitPackagesFor
 import me.tbsten.cream.ksp.core.common.reportCreamError
 import me.tbsten.cream.ksp.core.common.resolveClassDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.underPackageName
@@ -153,7 +154,7 @@ internal fun processCopyMapping(): List<KSAnnotated> =
                             it.appendCopyFunction(
                                 source = mapping.sourceClass,
                                 target = mapping.targetClass,
-                                omitPackages = listOf("kotlin", packageName.asString()),
+                                omitPackages = omitPackagesFor(packageName),
                                 generateSourceAnnotation =
                                     GenerateSourceAnnotation.CopyMapping(annotation = mapping.rawAnnotation),
                                 annotated = annotatedDeclaration,
@@ -165,7 +166,7 @@ internal fun processCopyMapping(): List<KSAnnotated> =
                                 it.appendCopyFunction(
                                     source = mapping.targetClass,
                                     target = mapping.sourceClass,
-                                    omitPackages = listOf("kotlin", packageName.asString()),
+                                    omitPackages = omitPackagesFor(packageName),
                                     generateSourceAnnotation =
                                         GenerateSourceAnnotation.CopyMapping(
                                             annotation = mapping.rawAnnotation,
