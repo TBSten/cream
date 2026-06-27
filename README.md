@@ -733,6 +733,11 @@ generated function unusable, so they are intentionally not provided:
 
 Omitting `visibility` is fully backward compatible — it keeps the previously generated code unchanged.
 
+To set a default for the whole module instead of annotating every declaration, use the
+[`cream.defaultVisibility`](#option-5-creamdefaultvisibility) option. A per-annotation
+`visibility` always wins; the project default only applies where the annotation leaves it at
+`INHERIT` (unspecified).
+
 ### Function Name (funName)
 
 By default cream derives the generated function name from the project-wide naming options
@@ -817,6 +822,7 @@ ksp {
     arg("cream.copyFunNamingStrategy", "under-package")
     arg("cream.escapeDot", "replace-to-underscore")
     arg("cream.notCopyToObject", "false")
+    arg("cream.defaultVisibility", "INHERIT")
 }
 ```
 
@@ -828,6 +834,7 @@ ksp {
 | **`cream.copyFunNamingStrategy`** | Copy function naming conventions.                                           | `under-package`, `diff`, `simple-name`, `full-name`, `inner-name` | `under-package`    |
 | **`cream.escapeDot`**             | How to escape `. ` in the name given by `cream.copyFunNamingStrategy`.      | `lower-camel-case`, `replace-to-underscore`                      | `lower-camel-case` |
 | **`cream.notCopyToObject`**       | If `true`, @CopyToChildren will not generate a copy function to the object. | `true` , `false`                                                         | `false`            |
+| **`cream.defaultVisibility`**     | Module-wide default visibility for generated functions, applied when an annotation's `visibility` is `INHERIT`. | `INHERIT`, `PUBLIC`, `INTERNAL` | `INHERIT`          |
 
 ### Option 1. `cream.copyFunNamePrefix`
 
@@ -889,6 +896,28 @@ suppress them.
 
 This option affects the entire module, but you can also limit it to a specific class by setting the
 `notCopyToObject` property of the `@CopyToChildren` annotation to `true`.
+
+### Option 5. `cream.defaultVisibility`
+
+| Default   | Possible values                       |
+|-----------|---------------------------------------|
+| `INHERIT` | One of `INHERIT`, `PUBLIC`, `INTERNAL` |
+
+Sets the module-wide default visibility for every generated copy / combine function. This is the
+project-level counterpart of the per-annotation `visibility = CopyVisibility.<...>` argument
+(see [Visibility](#visibility)). The accepted values mirror the `CopyVisibility` enum and are
+case-insensitive (`internal` and `INTERNAL` are both accepted).
+
+Precedence is:
+
+1. An explicit annotation `visibility` (anything other than `INHERIT`) — always wins.
+2. Otherwise `cream.defaultVisibility`, when it is `PUBLIC` or `INTERNAL`.
+3. Otherwise (both are `INHERIT`) the generated function inherits the target/sealed declaration's
+   own visibility, exactly as before this option existed.
+
+For example, with `cream.defaultVisibility=INTERNAL`, a plain `@CopyTo(Target::class)` generates an
+`internal` copy function without having to add `visibility = CopyVisibility.INTERNAL` to each
+annotation. Leaving the option at its `INHERIT` default keeps the previously generated code unchanged.
 
 ## 🆚 6. Comparison with Other Libraries
 

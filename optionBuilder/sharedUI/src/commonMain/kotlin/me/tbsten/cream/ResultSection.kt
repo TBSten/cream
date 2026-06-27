@@ -150,6 +150,7 @@ private fun gradleSettingCode(
             arg("cream.copyFunNamingStrategy", "${options.copyFunNamingStrategy}")
             arg("cream.escapeDot", "${options.escapeDot}")
             arg("cream.notCopyToObject", ${options.notCopyToObject})
+            arg("cream.defaultVisibility", "${options.defaultVisibility}")
         }
         """.trimIndent()
     } else {
@@ -160,6 +161,7 @@ private fun gradleSettingCode(
             arg("cream.copyFunNamingStrategy", "${options.copyFunNamingStrategy}")
             arg("cream.escapeDot", "${options.escapeDot}")
             arg("cream.notCopyToObject", ${options.notCopyToObject})
+            arg("cream.defaultVisibility", "${options.defaultVisibility}")
         }
         """.trimIndent()
     }

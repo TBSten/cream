@@ -1,6 +1,7 @@
 package me.tbsten.cream.ksp.options
 
 import kotlinx.serialization.Serializable
+import me.tbsten.cream.CopyVisibility
 import me.tbsten.cream.InternalCreamApi
 import me.tbsten.cream.ksp.InvalidCreamOptionException
 import me.tbsten.cream.ksp.util.lines
@@ -13,6 +14,7 @@ public data class CreamOptions(
     val copyFunNamingStrategy: CopyFunNamingStrategy,
     val escapeDot: EscapeDot,
     val notCopyToObject: Boolean,
+    val defaultVisibility: CopyVisibility,
 ) {
     public companion object {
         public val default: CreamOptions =
@@ -21,6 +23,7 @@ public data class CreamOptions(
                 copyFunNamingStrategy = CopyFunNamingStrategy.default,
                 escapeDot = EscapeDot.default,
                 notCopyToObject = false,
+                defaultVisibility = CopyVisibility.INHERIT,
             )
 
         public val properties: List<KProperty1<CreamOptions, *>> =
@@ -29,6 +32,7 @@ public data class CreamOptions(
                 CreamOptions::copyFunNamingStrategy,
                 CreamOptions::escapeDot,
                 CreamOptions::notCopyToObject,
+                CreamOptions::defaultVisibility,
             )
     }
 }
@@ -62,6 +66,19 @@ public fun Map<String, String>.toCreamOptions(): CreamOptions =
             },
         notCopyToObject =
             this["cream.notCopyToObject"]?.lowercase() == "true",
+        defaultVisibility =
+            this["cream.defaultVisibility"]?.let { rawValue ->
+                try {
+                    // Accept the CopyVisibility enum names case-insensitively, so both
+                    // "INTERNAL" (the serialized form) and "internal" are valid.
+                    CopyVisibility.valueOf(rawValue.uppercase())
+                } catch (e: IllegalArgumentException) {
+                    invalidDefaultVisibilityError(
+                        actualValue = rawValue,
+                        cause = e,
+                    )
+                }
+            } ?: CreamOptions.default.defaultVisibility,
     )
 
 @OptIn(InternalCreamApi::class)
@@ -102,6 +119,30 @@ private inline fun invalidEscapeDotError(
                 "",
                 *EscapeDot.entries
                     .map { "  - $it" }
+                    .toTypedArray(),
+                "",
+            ),
+        cause = cause,
+    )
+
+@Suppress("NOTHING_TO_INLINE")
+@OptIn(InternalCreamApi::class)
+private inline fun invalidDefaultVisibilityError(
+    actualValue: String?,
+    cause: IllegalArgumentException,
+): Nothing =
+    throw InvalidCreamOptionException(
+        message =
+            lines(
+                "Invalid ksp.arg[\"cream.defaultVisibility\"] = $actualValue.",
+                "It must be one of ${CopyVisibility.entries.joinToString(", ") { it.name }}",
+            ),
+        solution =
+            lines(
+                "Set one of the following for ksp.arg:",
+                "",
+                *CopyVisibility.entries
+                    .map { "  - \"${it.name}\"" }
                     .toTypedArray(),
                 "",
             ),
