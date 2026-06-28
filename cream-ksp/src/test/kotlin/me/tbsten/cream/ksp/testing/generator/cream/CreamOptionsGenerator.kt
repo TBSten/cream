@@ -18,32 +18,32 @@ import me.tbsten.cream.ksp.testing.generator.util.withRepresentativeValues
 
 /**
  * A [CreamOptions] generator with two independent sides: its [arb][Generator.arb] samples the full
- * cartesian space of the four option axes (via [combine]), while its deterministic
+ * cartesian space of the five option axes (via [combine]), while its deterministic
  * [representativeValues][Generator.representativeValues] are a small hand-picked set (via
- * [withRepresentativeValues]) centered on [CreamOptions.default] — the full 2×3×2×2 = 24 product is
- * too many for snapshot / example use. Each axis defaults to its per-axis factory below.
+ * [withRepresentativeValues]) centered on [CreamOptions.default] — the full 2×3×2×2×2 = 48 product is
+ * too many for snapshot / example use. Each axis defaults to its per-axis factory below, and any axis
+ * can be overridden by passing a custom [Generator] (e.g. to pin or widen a single option).
  */
 internal fun Generator.Companion.validCreamOptions(
     copyFunNamePrefix: Generator<String> = copyFunNamePrefix(),
     copyFunNamingStrategy: Generator<CopyFunNamingStrategy> = copyFunNamingStrategy(),
     escapeDot: Generator<EscapeDot> = escapeDot(),
     notCopyToObject: Generator<Boolean> = notCopyToObject(),
+    defaultVisibility: Generator<CopyVisibility> = defaultVisibility(),
 ): Generator<CreamOptions> =
     combine(
         copyFunNamePrefix.mapLabel { "copyFunNamePrefix=$it" },
         copyFunNamingStrategy.mapLabel { "copyFunNamingStrategy=$it" },
         escapeDot.mapLabel { "escapeDot=$it" },
         notCopyToObject.mapLabel { "notCopyToObject=$it" },
-    ) { prefix, strategy, escape, notCopyObject ->
+        defaultVisibility.mapLabel { "defaultVisibility=$it" },
+    ) { prefix, strategy, escape, notCopyObject, visibility ->
         CreamOptions(
             copyFunNamePrefix = prefix,
             copyFunNamingStrategy = strategy,
             escapeDot = escape,
             notCopyToObject = notCopyObject,
-            // The arb side pins `defaultVisibility` to its default; the representative set below adds a
-            // single INTERNAL case so snapshots golden-pin the non-INHERIT modifier without multiplying
-            // every axis. Full precedence behavior is also covered by DefaultVisibilityOptionTest.
-            defaultVisibility = CreamOptions.default.defaultVisibility,
+            defaultVisibility = visibility,
         )
     }.withRepresentativeValues {
         listOf(
@@ -117,6 +117,18 @@ internal fun Generator.Companion.notCopyToObject(
 ) = generator {
     cases(representativeValues)
     Arb.boolean()
+}
+
+/** `defaultVisibility` の軸 generator。default の INHERIT ＋ 非 INHERIT な INTERNAL。 */
+internal fun Generator.Companion.defaultVisibility(
+    representativeValues: List<Pair<String?, CopyVisibility>> =
+        listOf(
+            "Default" to CopyVisibility.INHERIT, // CreamOptions.default.defaultVisibility
+            "INTERNAL" to CopyVisibility.INTERNAL,
+        ),
+) = generator {
+    cases(representativeValues)
+    Arb.of(representativeValues.map { it.second })
 }
 
 private fun creamOptionsLabel(options: CreamOptions): String {
