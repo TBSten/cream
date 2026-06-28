@@ -3,7 +3,6 @@ package me.tbsten.cream.ksp.core.copyFun
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSDeclaration
 import me.tbsten.cream.ksp.core.common.CopyTargetRejection
 import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.core.common.concreteClassRejection
@@ -38,7 +37,6 @@ internal fun BufferedWriter.appendCopyFunction(
     target: KSClassDeclaration,
     omitPackages: List<String>,
     generateSourceAnnotation: GenerateSourceAnnotation,
-    annotated: KSDeclaration = source,
 ) {
     // Only @CopyToChildren carries a notCopyToObject control; for it, fall back to the
     // cream.notCopyToObject option when the annotation leaves it unset. Every other source
@@ -73,7 +71,6 @@ internal fun BufferedWriter.appendCopyFunction(
                             target,
                             generateSourceAnnotation,
                             omitPackages,
-                            annotated = annotated,
                         )
 
                     else -> reportRejection(rejection, target)
@@ -82,7 +79,7 @@ internal fun BufferedWriter.appendCopyFunction(
 
         ClassKind.OBJECT ->
             if (!notCopyToObject) {
-                appendCopyToObjectFunction(source, target, generateSourceAnnotation, annotated = annotated)
+                appendCopyToObjectFunction(source, target, generateSourceAnnotation)
             }
 
         // A sealed interface fans out to its concrete subclasses; a non-sealed interface cannot

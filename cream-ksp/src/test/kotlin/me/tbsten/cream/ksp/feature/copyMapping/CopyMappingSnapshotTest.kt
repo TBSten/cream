@@ -33,8 +33,9 @@ import me.tbsten.cream.ksp.testing.poet.toFileSpec
  *   diagnostics, belong in `CopyMappingInvalidUsageTest`.
  * - `canReverse` × sealed target — both feed one `generatesMultipleFunctions` boolean and are covered individually
  *   (`canReverse` family + `targetKind/sealedInterfaceTarget`); they share the multi-fn reject path.
- * - #144 sealed-target KDoc misattribution (attributes generation to the source class instead of the holder) is
- *   FROZEN as a known-quirk golden, not patched.
+ *
+ * `targetKind/sealedInterfaceTarget` pins the sealed-target fan-out: each generated leaf copy function attributes
+ * generation to the `@CopyMapping`-annotated holder (`[Mapping]`), not the source class, per issue #144.
  */
 internal class CopyMappingSnapshotTest :
     FreeSpec({

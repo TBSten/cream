@@ -74,7 +74,6 @@ internal fun processCopyFrom(): List<KSAnnotated> =
                             target = targetClass,
                             omitPackages = omitPackagesFor(targetClass.packageName),
                             generateSourceAnnotation = generateSourceAnnotation,
-                            annotated = targetDeclaration,
                         )
                     }
                 }
