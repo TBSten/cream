@@ -10,6 +10,7 @@ import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.toModifierString
 import me.tbsten.cream.ksp.util.ksp.asString
+import me.tbsten.cream.ksp.util.ksp.collectConcreteSubclasses
 import java.io.BufferedWriter
 
 /**

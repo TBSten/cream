@@ -10,7 +10,6 @@ import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.Modifier
 import me.tbsten.cream.SealedCopy
 import me.tbsten.cream.ksp.core.common.annotationsOf
-import me.tbsten.cream.ksp.util.ksp.isSealed
 
 /**
  * A concrete leaf of a `@SealedCopy` hierarchy, classified purely by whether it is **copyable** —
@@ -33,20 +32,6 @@ internal fun KSClassDeclaration.collectAbstractProperties(): List<KSPropertyDecl
     getAllProperties()
         .filter { it.isAbstract() }
         .toList()
-
-/**
- * Walk the sealed hierarchy down to the leaves (data class / object / non-sealed class),
- * flattening intermediate sealed nodes. Lazy so callers can short-circuit and to mirror
- * KSP's own [KSClassDeclaration.getSealedSubclasses] shape.
- */
-internal fun KSClassDeclaration.collectConcreteSubclasses(): Sequence<KSClassDeclaration> =
-    getSealedSubclasses().flatMap { sub ->
-        if (sub.isSealed()) {
-            sub.collectConcreteSubclasses()
-        } else {
-            sequenceOf(sub)
-        }
-    }
 
 /**
  * A leaf is classified purely by whether it is **copyable** — whether there is a
