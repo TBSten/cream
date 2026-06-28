@@ -45,11 +45,11 @@ public data class SourceD(
 
 ```kt
 ksp {
-    arg("copyFunNamePrefix", "to")
+    arg("copyFunNamePrefix", "copyTo" /* default */)
     arg("copyFunNamingStrategy", "under-package" /* default */)
-    arg("escapeDot", "replace-to-underscore")
+    arg("escapeDot", "lower-camel-case" /* default */)
     arg("notCopyToObject", "false" /* default */)
-    arg("defaultVisibility", "INHERIT" /* default */)
+    arg("defaultVisibility", "INTERNAL")
 }
 ```
 
@@ -99,7 +99,7 @@ import me.tbsten.cream.*
  * @see SourceB
  * @see Target
  */
-public fun  me.tbsten.cream.generated.SourceA.toFoo(
+internal fun  me.tbsten.cream.generated.SourceA.toFoo(
     sourceB: me.tbsten.cream.generated.SourceB,
     propertyA: String = this.propertyA,
     propertyB: Int = sourceB.propertyB,
@@ -138,7 +138,7 @@ public fun  me.tbsten.cream.generated.SourceA.toFoo(
  * @see SourceD
  * @see Target
  */
-public fun  me.tbsten.cream.generated.SourceC.toBar(
+internal fun  me.tbsten.cream.generated.SourceC.toBar(
     sourceD: me.tbsten.cream.generated.SourceD,
     propertyA: String,
     propertyB: Int,

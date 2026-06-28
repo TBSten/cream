@@ -7,14 +7,17 @@ import kotlin.Int
 import kotlin.String
 import me.tbsten.cream.CombineFrom
 
-@CombineFrom(Source::class)
-public abstract class Target(
-  public val name: String,
-  public val extra: Int,
+@CombineFrom(
+  SourceA::class,
+  SourceA::class,
+)
+public data class Target(
+  public val propertyA: String,
+  public val propertyB: Int,
 )
 
-public data class Source(
-  public val name: String,
+public data class SourceA(
+  public val propertyA: String,
 )
 ```
 
@@ -33,13 +36,13 @@ ksp {
 ## Output:ExitCode
 
 ```kt
-COMPILATION_ERROR
+OK
 ```
 
 ## Output:Console
 
 ```kt
-e: file://<TMPDIR>/Kotlin-Compilation<N>/ksp/sources/kotlin/me/tbsten/cream/generated/CombineFrom__Target.kt:31:40 Cannot create an instance of an abstract class.
+
 ```
 
 ## Output:Generated sources
@@ -53,31 +56,31 @@ import me.tbsten.cream.*
 /**
  * (Auto generate by @[CombineFrom] annotation of [Target])
  * 
- * [Source] -> [Target] copy function.
+ * [SourceA] -> [Target] copy function.
  * 
  * # Example: Basic
  * 
  * ```kt
- * val source = Source(...)
- * val target = source.copyToTarget(extra = extra)
+ * val sourceA = SourceA(...)
+ * val target = sourceA.copyToTarget(propertyB = propertyB)
  * ```
  * 
  * # Example: Override property values
  * 
  * ```kt
- * val source = Source(...)
- * val target = source.copyToTarget(extra = extra, property = value)
+ * val sourceA = SourceA(...)
+ * val target = sourceA.copyToTarget(propertyB = propertyB, property = value)
  * ```
  * 
  * 
- * @see Source
+ * @see SourceA
  * @see Target
  */
-internal fun  me.tbsten.cream.generated.Source.copyToTarget(
-    name: String = this.name,
-    extra: Int,
+internal fun  me.tbsten.cream.generated.SourceA.copyToTarget(
+    propertyA: String = this.propertyA,
+    propertyB: Int,
 ) : me.tbsten.cream.generated.Target = me.tbsten.cream.generated.Target(
-    name = name,
-    extra = extra,
+    propertyA = propertyA,
+    propertyB = propertyB,
 )
 ````

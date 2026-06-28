@@ -6,13 +6,16 @@ package me.tbsten.cream.generated
 import kotlin.String
 import me.tbsten.cream.CopyToChildren
 
-@CopyToChildren(funName = "toState")
+@CopyToChildren(
+  notCopyToObject = true,
+  funName = "toState",
+)
 public sealed interface Source {
-  public val id: String
-
-  public data class Only(
-    override val id: String,
+  public data class DataChild(
+    public val a: String,
   ) : Source
+
+  public object ObjectChild : Source
 }
 ```
 
@@ -20,11 +23,11 @@ public sealed interface Source {
 
 ```kt
 ksp {
-    arg("copyFunNamePrefix", "to")
+    arg("copyFunNamePrefix", "copyTo" /* default */)
     arg("copyFunNamingStrategy", "under-package" /* default */)
-    arg("escapeDot", "replace-to-underscore")
+    arg("escapeDot", "lower-camel-case" /* default */)
     arg("notCopyToObject", "false" /* default */)
-    arg("defaultVisibility", "INHERIT" /* default */)
+    arg("defaultVisibility", "INTERNAL")
 }
 ```
 
@@ -51,29 +54,29 @@ import me.tbsten.cream.*
 /**
  * (Auto generate by @[CopyToChildren] annotation of [Source])
  * 
- * Source -> Source.Only copy function.
+ * Source -> Source.DataChild copy function.
  * 
  * # Example: Basic
  * 
  * ```kt
  * val source = Source(...)
- * val target = source.toState()
+ * val target = source.toState(a = a)
  * ```
  * 
  * # Example: Override property values
  * 
  * ```kt
  * val source = Source(...)
- * val target = source.toState(property = value)
+ * val target = source.toState(a = a, property = value)
  * ```
  * 
  * 
  * @see Source
- * @see Source.Only
+ * @see Source.DataChild
  */
-public fun  me.tbsten.cream.generated.Source.toState(
-    id: String = this.id,
-) : me.tbsten.cream.generated.Source.Only = me.tbsten.cream.generated.Source.Only(
-    id = id,
+internal fun  me.tbsten.cream.generated.Source.toState(
+    a: String,
+) : me.tbsten.cream.generated.Source.DataChild = me.tbsten.cream.generated.Source.DataChild(
+    a = a,
 )
 ````

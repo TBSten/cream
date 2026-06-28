@@ -26,11 +26,11 @@ public sealed interface Source {
 
 ```kt
 ksp {
-    arg("copyFunNamePrefix", "to")
-    arg("copyFunNamingStrategy", "inner-name")
-    arg("escapeDot", "replace-to-underscore")
+    arg("copyFunNamePrefix", "copyTo" /* default */)
+    arg("copyFunNamingStrategy", "under-package" /* default */)
+    arg("escapeDot", "lower-camel-case" /* default */)
     arg("notCopyToObject", "false" /* default */)
-    arg("defaultVisibility", "INHERIT" /* default */)
+    arg("defaultVisibility", "INTERNAL")
 }
 ```
 
@@ -77,7 +77,7 @@ import me.tbsten.cream.*
  * @see Source
  * @see Source.Done
  */
-public fun  me.tbsten.cream.generated.Source.intoDone(
+internal fun  me.tbsten.cream.generated.Source.intoDone(
     id: String = this.id,
     data: String,
 ) : me.tbsten.cream.generated.Source.Done = me.tbsten.cream.generated.Source.Done(
@@ -108,7 +108,7 @@ public fun  me.tbsten.cream.generated.Source.intoDone(
  * @see Source
  * @see Source.Loading
  */
-public fun  me.tbsten.cream.generated.Source.intoLoading(
+internal fun  me.tbsten.cream.generated.Source.intoLoading(
     id: String = this.id,
 ) : me.tbsten.cream.generated.Source.Loading = me.tbsten.cream.generated.Source.Loading(
     id = id,

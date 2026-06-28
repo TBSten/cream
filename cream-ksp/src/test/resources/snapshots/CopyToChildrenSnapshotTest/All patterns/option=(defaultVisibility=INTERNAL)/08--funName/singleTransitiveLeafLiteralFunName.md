@@ -10,9 +10,11 @@ import me.tbsten.cream.CopyToChildren
 public sealed interface Source {
   public val id: String
 
-  public data class Only(
-    override val id: String,
-  ) : Source
+  public sealed interface Branch : Source {
+    public data class Only(
+      override val id: String,
+    ) : Branch
+  }
 }
 ```
 
@@ -20,11 +22,11 @@ public sealed interface Source {
 
 ```kt
 ksp {
-    arg("copyFunNamePrefix", "to")
+    arg("copyFunNamePrefix", "copyTo" /* default */)
     arg("copyFunNamingStrategy", "under-package" /* default */)
-    arg("escapeDot", "replace-to-underscore")
+    arg("escapeDot", "lower-camel-case" /* default */)
     arg("notCopyToObject", "false" /* default */)
-    arg("defaultVisibility", "INHERIT" /* default */)
+    arg("defaultVisibility", "INTERNAL")
 }
 ```
 
@@ -51,7 +53,7 @@ import me.tbsten.cream.*
 /**
  * (Auto generate by @[CopyToChildren] annotation of [Source])
  * 
- * Source -> Source.Only copy function.
+ * Source -> Source.Branch.Only copy function.
  * 
  * # Example: Basic
  * 
@@ -69,11 +71,11 @@ import me.tbsten.cream.*
  * 
  * 
  * @see Source
- * @see Source.Only
+ * @see Source.Branch.Only
  */
-public fun  me.tbsten.cream.generated.Source.toState(
+internal fun  me.tbsten.cream.generated.Source.toState(
     id: String = this.id,
-) : me.tbsten.cream.generated.Source.Only = me.tbsten.cream.generated.Source.Only(
+) : me.tbsten.cream.generated.Source.Branch.Only = me.tbsten.cream.generated.Source.Branch.Only(
     id = id,
 )
 ````

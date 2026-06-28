@@ -39,13 +39,13 @@ COMPILATION_ERROR
 ## Output:Console
 
 ```kt
-e: file://<TMPDIR>/Kotlin-Compilation<N>/ksp/sources/kotlin/me/tbsten/cream/generated/CombineFrom__Source__Outer.Target.kt:30:78 Constructor of the inner class 'inner class Target : Any' can only be called with a receiver of the containing class.
+e: file://<TMPDIR>/Kotlin-Compilation<N>/ksp/sources/kotlin/me/tbsten/cream/generated/CombineFrom__Outer.Target.kt:30:78 Constructor of the inner class 'inner class Target : Any' can only be called with a receiver of the containing class.
 ```
 
 ## Output:Generated sources
 
 ````kt
-// file: CombineFrom__Source__Outer.Target.kt
+// file: CombineFrom__Outer.Target.kt
 package me.tbsten.cream.generated
 
 import me.tbsten.cream.*

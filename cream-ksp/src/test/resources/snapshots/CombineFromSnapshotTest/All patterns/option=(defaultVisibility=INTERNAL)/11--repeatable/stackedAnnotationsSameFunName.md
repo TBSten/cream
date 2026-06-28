@@ -56,7 +56,7 @@ OK
 ## Output:Generated sources
 
 ````kt
-// file: CombineFrom__SourceA__Target.kt
+// file: CombineFrom__Target.kt
 package me.tbsten.cream.generated
 
 import me.tbsten.cream.*
@@ -64,33 +64,60 @@ import me.tbsten.cream.*
 /**
  * (Auto generate by @[CombineFrom] annotation of [Target])
  * 
- * [SourceA] + [SourceB] -> [Target] copy function.
+ * [SourceA] -> [Target] copy function.
  * 
  * # Example: Basic
  * 
  * ```kt
  * val sourceA = SourceA(...)
- * val sourceB = SourceB(...)
- * val target = sourceA.toTarget(sourceB = SourceB(...))
+ * val target = sourceA.toTarget(propertyB = propertyB)
  * ```
  * 
  * # Example: Override property values
  * 
  * ```kt
  * val sourceA = SourceA(...)
- * val sourceB = SourceB(...)
- * val target = sourceA.toTarget(sourceB = SourceB(...), property = value)
+ * val target = sourceA.toTarget(propertyB = propertyB, property = value)
  * ```
  * 
  * 
  * @see SourceA
- * @see SourceB
  * @see Target
  */
 internal fun  me.tbsten.cream.generated.SourceA.toTarget(
-    sourceB: me.tbsten.cream.generated.SourceB,
     propertyA: String = this.propertyA,
-    propertyB: Int = sourceB.propertyB,
+    propertyB: Int,
+) : me.tbsten.cream.generated.Target = me.tbsten.cream.generated.Target(
+    propertyA = propertyA,
+    propertyB = propertyB,
+)
+
+/**
+ * (Auto generate by @[CombineFrom] annotation of [Target])
+ * 
+ * [SourceB] -> [Target] copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val sourceB = SourceB(...)
+ * val target = sourceB.toTarget(propertyA = propertyA)
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val sourceB = SourceB(...)
+ * val target = sourceB.toTarget(propertyA = propertyA, property = value)
+ * ```
+ * 
+ * 
+ * @see SourceB
+ * @see Target
+ */
+internal fun  me.tbsten.cream.generated.SourceB.toTarget(
+    propertyA: String,
+    propertyB: Int = this.propertyB,
 ) : me.tbsten.cream.generated.Target = me.tbsten.cream.generated.Target(
     propertyA = propertyA,
     propertyB = propertyB,

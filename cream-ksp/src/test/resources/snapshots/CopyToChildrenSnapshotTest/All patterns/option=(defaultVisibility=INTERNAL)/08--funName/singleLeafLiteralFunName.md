@@ -20,11 +20,11 @@ public sealed interface Source {
 
 ```kt
 ksp {
-    arg("copyFunNamePrefix", "to")
+    arg("copyFunNamePrefix", "copyTo" /* default */)
     arg("copyFunNamingStrategy", "under-package" /* default */)
-    arg("escapeDot", "replace-to-underscore")
+    arg("escapeDot", "lower-camel-case" /* default */)
     arg("notCopyToObject", "false" /* default */)
-    arg("defaultVisibility", "INHERIT" /* default */)
+    arg("defaultVisibility", "INTERNAL")
 }
 ```
 
@@ -71,7 +71,7 @@ import me.tbsten.cream.*
  * @see Source
  * @see Source.Only
  */
-public fun  me.tbsten.cream.generated.Source.toState(
+internal fun  me.tbsten.cream.generated.Source.toState(
     id: String = this.id,
 ) : me.tbsten.cream.generated.Source.Only = me.tbsten.cream.generated.Source.Only(
     id = id,
