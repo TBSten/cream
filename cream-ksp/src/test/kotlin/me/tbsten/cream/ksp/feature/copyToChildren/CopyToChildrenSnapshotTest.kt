@@ -2,6 +2,7 @@ package me.tbsten.cream.ksp.feature.copyToChildren
 
 import io.kotest.core.spec.style.FreeSpec
 import me.tbsten.cream.ksp.feature.copyToChildren.scenario.excludeScenarios
+import me.tbsten.cream.ksp.feature.copyToChildren.scenario.funNameScenarios
 import me.tbsten.cream.ksp.feature.copyToChildren.scenario.genericsScenarios
 import me.tbsten.cream.ksp.feature.copyToChildren.scenario.hierarchyShapeScenarios
 import me.tbsten.cream.ksp.feature.copyToChildren.scenario.kdocScenarios
@@ -29,7 +30,7 @@ import me.tbsten.cream.ksp.testing.poet.toFileSpec
  *   representative reject (enum-child) suffices.
  * - non-data (plain) class leaf and `data object` vs plain `object` leaf — same constructor-call / OBJECT path
  *   as the covered data-class / object leaves (byte-identical).
- * - No `@Map` / `funName` / `@Repeatable` families — `@CopyToChildren` has none of those.
+ * - No `@Map` / `@Repeatable` families — `@CopyToChildren` has neither.
  * - `@CopyToChildren` + `@SealedCopy` on one type — cross-feature, belongs in `MultipleDiagnosticsTest`.
  */
 internal class CopyToChildrenSnapshotTest :
@@ -46,6 +47,7 @@ internal class CopyToChildrenSnapshotTest :
                         "kdoc" case kdocScenarios()
                         "visibility" case visibilityScenarios()
                         "notCopyToObject" case notCopyToObjectScenarios()
+                        "funName" case funNameScenarios()
                     }
                 },
                 Generator.validCreamOptions(),

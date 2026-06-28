@@ -3,6 +3,7 @@ package me.tbsten.cream.ksp.feature.copyToChildren
 import com.google.devtools.ksp.isAbstract
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.KSPLogger
+import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
@@ -15,9 +16,12 @@ import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.createNewKotlinFile
 import me.tbsten.cream.ksp.core.common.fullName
 import me.tbsten.cream.ksp.core.common.omitPackagesFor
+import me.tbsten.cream.ksp.core.common.onInvalid
 import me.tbsten.cream.ksp.core.common.reportCreamError
 import me.tbsten.cream.ksp.core.common.underPackageName
+import me.tbsten.cream.ksp.core.common.validateFunName
 import me.tbsten.cream.ksp.core.copyFun.appendCopyFunction
+import me.tbsten.cream.ksp.util.ksp.collectConcreteSubclasses
 import me.tbsten.cream.ksp.util.ksp.isSealed
 import me.tbsten.cream.ksp.util.with
 
@@ -44,14 +48,37 @@ internal fun processCopyToChildren(): List<KSAnnotated> =
             }
 
             val sourceSealedClass = copyToChildren
+            val targetClasses = sourceSealedClass.getSealedSubclasses().toList()
+
             // GSA holds the raw annotation; its notCopyToObject getter reads the @CopyToChildren
             // argument (and appendCopyFunction falls back to the cream.notCopyToObject option when unset).
+            // Its funNameTemplate getter reads the @CopyToChildren funName argument, resolved per leaf.
             val generateSourceAnnotation =
                 GenerateSourceAnnotation.CopyToChildren(
                     annotation = sourceSealedClass.annotationsOf(CopyToChildren::class).firstOrNull() ?: return@forEach,
                 )
 
-            val targetClasses = sourceSealedClass.getSealedSubclasses()
+            // @CopyToChildren fans out to every *transitive* concrete leaf (recursing through
+            // intermediate sealed nodes), and object leaves are dropped when notCopyToObject is on.
+            // A plain-literal funName only collides when MORE THAN ONE of those leaves actually
+            // becomes a function, so look at the real generated set — mirroring the generation loop
+            // below — rather than the direct children (which would over-reject a hierarchy whose
+            // single sealed child has just one concrete leaf, or whose surplus leaves are all
+            // suppressed objects). drop(1).any() answers "are there at least two" by short-circuiting
+            // at the second generated leaf instead of counting them all.
+            val notCopyToObject = generateSourceAnnotation.notCopyToObject ?: processContext.options.notCopyToObject
+            val generatesMultipleFunctions =
+                sourceSealedClass
+                    .collectConcreteSubclasses()
+                    .filterNot { leaf -> notCopyToObject && leaf.classKind == ClassKind.OBJECT }
+                    .drop(1)
+                    .any()
+            generateSourceAnnotation
+                .validateFunName(
+                    generatesMultipleFunctions = generatesMultipleFunctions,
+                    declarationFullName = sourceSealedClass.fullName,
+                    ksNode = sourceSealedClass,
+                ).onInvalid { return@forEach }
 
             // Warn for @CopyToChildren.Exclude on non-abstract properties (no-op: not in generated copy functions)
             sourceSealedClass
