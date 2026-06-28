@@ -16,11 +16,12 @@ import me.tbsten.cream.CopyVisibility
 import me.tbsten.cream.ksp.testing.poet.Prop
 import me.tbsten.cream.ksp.testing.poet.SnapshotScenario
 
-/** [this] を sealed parent として `@CopyToChildren`（任意で `notCopyToObject` / `visibility` / `kdoc`）を付与する。 */
+/** [this] を sealed parent として `@CopyToChildren`（任意で `notCopyToObject` / `visibility` / `kdoc` / `funName`）を付与する。 */
 internal fun TypeSpec.withCopyToChildren(
     notCopyToObject: Boolean? = null,
     visibility: CopyVisibility? = null,
     kdoc: CodeBlock? = null,
+    funName: CodeBlock? = null,
 ): TypeSpec =
     toBuilder()
         .addAnnotation(
@@ -30,6 +31,7 @@ internal fun TypeSpec.withCopyToChildren(
                     if (notCopyToObject != null) addMember("%L = %L", CopyToChildren::notCopyToObject.name, notCopyToObject)
                     if (visibility != null) addMember("%L = %T.%L", CopyToChildren::visibility.name, CopyVisibility::class, visibility.name)
                     if (kdoc != null) addMember("%L = %L", CopyToChildren::kdoc.name, kdoc)
+                    if (funName != null) addMember("%L = %L", CopyToChildren::funName.name, funName)
                 }.build(),
         ).build()
 
@@ -43,9 +45,10 @@ internal fun copyToChildren(
     notCopyToObject: Boolean? = null,
     visibility: CopyVisibility? = null,
     kdoc: CodeBlock? = null,
+    funName: CodeBlock? = null,
 ): SnapshotScenario =
     SnapshotScenario(
-        listOf(sealedParent.withCopyToChildren(notCopyToObject, visibility, kdoc)) + additionalTopLevel,
+        listOf(sealedParent.withCopyToChildren(notCopyToObject, visibility, kdoc, funName)) + additionalTopLevel,
     )
 
 /** [abstractProps]（注釈/可視性も保持）を持ち [children] を入れ子にした sealed interface。 */
