@@ -53,7 +53,7 @@ w: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/Input.kt:14: @Exclude on 'target
 ## Output:Generated sources
 
 ````kt
-// file: CombineFrom__SourceA__Target.kt
+// file: CombineFrom__Target.kt
 package me.tbsten.cream.generated
 
 import me.tbsten.cream.*

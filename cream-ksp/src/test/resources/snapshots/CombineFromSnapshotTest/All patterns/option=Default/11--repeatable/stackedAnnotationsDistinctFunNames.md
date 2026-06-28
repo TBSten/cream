@@ -9,15 +9,19 @@ import me.tbsten.cream.CombineFrom
 
 @CombineFrom(
   SourceA::class,
-  funName = "toTarget",
+  SourceB::class,
+  funName = "toFoo",
 )
 @CombineFrom(
-  SourceB::class,
-  funName = "toTarget",
+  SourceC::class,
+  SourceD::class,
+  funName = "toBar",
 )
 public data class Target(
   public val propertyA: String,
   public val propertyB: Int,
+  public val propertyC: String,
+  public val propertyD: Int,
 )
 
 public data class SourceA(
@@ -26,6 +30,14 @@ public data class SourceA(
 
 public data class SourceB(
   public val propertyB: Int,
+)
+
+public data class SourceC(
+  public val propertyC: String,
+)
+
+public data class SourceD(
+  public val propertyD: Int,
 )
 ```
 
@@ -63,62 +75,78 @@ import me.tbsten.cream.*
 /**
  * (Auto generate by @[CombineFrom] annotation of [Target])
  * 
- * [SourceA] -> [Target] copy function.
+ * [SourceA] + [SourceB] -> [Target] copy function.
  * 
  * # Example: Basic
  * 
  * ```kt
  * val sourceA = SourceA(...)
- * val target = sourceA.toTarget(propertyB = propertyB)
+ * val sourceB = SourceB(...)
+ * val target = sourceA.toFoo(sourceB = SourceB(...), propertyC = propertyC, propertyD = propertyD)
  * ```
  * 
  * # Example: Override property values
  * 
  * ```kt
  * val sourceA = SourceA(...)
- * val target = sourceA.toTarget(propertyB = propertyB, property = value)
+ * val sourceB = SourceB(...)
+ * val target = sourceA.toFoo(sourceB = SourceB(...), propertyC = propertyC, propertyD = propertyD, property = value)
  * ```
  * 
  * 
  * @see SourceA
+ * @see SourceB
  * @see Target
  */
-public fun  me.tbsten.cream.generated.SourceA.toTarget(
+public fun  me.tbsten.cream.generated.SourceA.toFoo(
+    sourceB: me.tbsten.cream.generated.SourceB,
     propertyA: String = this.propertyA,
-    propertyB: Int,
+    propertyB: Int = sourceB.propertyB,
+    propertyC: String,
+    propertyD: Int,
 ) : me.tbsten.cream.generated.Target = me.tbsten.cream.generated.Target(
     propertyA = propertyA,
     propertyB = propertyB,
+    propertyC = propertyC,
+    propertyD = propertyD,
 )
 
 /**
  * (Auto generate by @[CombineFrom] annotation of [Target])
  * 
- * [SourceB] -> [Target] copy function.
+ * [SourceC] + [SourceD] -> [Target] copy function.
  * 
  * # Example: Basic
  * 
  * ```kt
- * val sourceB = SourceB(...)
- * val target = sourceB.toTarget(propertyA = propertyA)
+ * val sourceC = SourceC(...)
+ * val sourceD = SourceD(...)
+ * val target = sourceC.toBar(sourceD = SourceD(...), propertyA = propertyA, propertyB = propertyB)
  * ```
  * 
  * # Example: Override property values
  * 
  * ```kt
- * val sourceB = SourceB(...)
- * val target = sourceB.toTarget(propertyA = propertyA, property = value)
+ * val sourceC = SourceC(...)
+ * val sourceD = SourceD(...)
+ * val target = sourceC.toBar(sourceD = SourceD(...), propertyA = propertyA, propertyB = propertyB, property = value)
  * ```
  * 
  * 
- * @see SourceB
+ * @see SourceC
+ * @see SourceD
  * @see Target
  */
-public fun  me.tbsten.cream.generated.SourceB.toTarget(
+public fun  me.tbsten.cream.generated.SourceC.toBar(
+    sourceD: me.tbsten.cream.generated.SourceD,
     propertyA: String,
-    propertyB: Int = this.propertyB,
+    propertyB: Int,
+    propertyC: String = this.propertyC,
+    propertyD: Int = sourceD.propertyD,
 ) : me.tbsten.cream.generated.Target = me.tbsten.cream.generated.Target(
     propertyA = propertyA,
     propertyB = propertyB,
+    propertyC = propertyC,
+    propertyD = propertyD,
 )
 ````

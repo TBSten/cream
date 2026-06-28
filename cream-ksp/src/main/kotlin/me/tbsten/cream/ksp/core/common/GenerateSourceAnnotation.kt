@@ -79,15 +79,12 @@ internal sealed interface GenerateSourceAnnotation {
     ) : GenerateSourceAnnotation
 
     /**
-     * `@CombineFrom` is `@Repeatable` and all occurrences are currently merged into ONE function,
-     * so [funNameTemplate] is the single explicit name agreed across occurrences (resolved with
-     * conflict detection in the feature processor) rather than any one occurrence's value — hence
-     * it is passed in rather than derived from [annotation]. KDoc / visibility still come from the
-     * first occurrence's [annotation]. See #134.
+     * `@CombineFrom` is `@Repeatable`; each occurrence generates its own combine function, so KDoc /
+     * visibility / funName all derive from *that* occurrence's raw [annotation] (no cross-occurrence
+     * merge).
      */
     data class CombineFrom(
         override val annotation: KSAnnotation,
-        override val funNameTemplate: String,
     ) : GenerateSourceAnnotation
 
     /**

@@ -27,10 +27,14 @@ import me.tbsten.cream.ksp.testing.poet.toFileSpec
  * Most families combine from 2 sources (SourceA = receiver, SourceB = leading param) to show the real
  * N→1 combine shape; `multiSource/singleSource` pins the degenerate 1-source path (= copyFrom).
  *
+ * `@CombineFrom` is `@Repeatable` and generates one combine function PER occurrence (a different source
+ * set yields different parameter types, so same-named functions coexist as overloads; see #134). The
+ * `repeatable` family pins this: same-named overloads (`stackedAnnotations` / `stackedAnnotationsSameFunName`),
+ * distinct funNames (`stackedAnnotationsDistinctFunNames`), the within-occurrence source dedupe
+ * (`duplicateSourceWithinOccurrence`), and the genuine overload-clash reject
+ * (`duplicateOccurrenceRejected`, two occurrences with the same funName + sources).
+ *
  * Intentionally NOT covered as snapshot cases (and why):
- * - multi-target `funName` reject — `@CombineFrom` always emits ONE merged function, so no multi-target name
- *   collision exists; cross-occurrence funName agreement is covered by `repeatable/{stackedAnnotationsSameFunName,
- *   conflictingFunNamesRejected}`.
  * - nesting / multi-constructor target — redundant with the shared combine/copy core.
  * - `generics` is intentionally single-source (it isolates the type-param-MERGE axis on the receiver); the
  *   2-generic-source combine lives in `multiSource/multiSourceGenerics` (a 2nd source with an unconsumed type
@@ -40,7 +44,7 @@ import me.tbsten.cream.ksp.testing.poet.toFileSpec
  *   combine ACCEPTS + compiles it (Kotlin 1.6+), copy REJECTS it. The still-uncompilable #132 cases are
  *   abstract/inner/private-ctor.
  * - `typealias` source/target — `SnapshotScenario` can't carry a `TypeAliasSpec` → integration / EdgeUsage.
- * - #132 + #134 (stacked occurrences merge into one fn) are FROZEN as `// TODO(#132)` / `// TODO(#134)` goldens.
+ * - #132 (combine emits uncompilable code for abstract/inner/private-ctor targets) is FROZEN as `// TODO(#132)` goldens.
  */
 internal class CombineFromSnapshotTest :
     FreeSpec({
