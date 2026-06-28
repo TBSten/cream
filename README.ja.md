@@ -727,8 +727,8 @@ internal fun ServerState.copyToMergedState(
 デフォルトでは、生成される関数名はプロジェクト全体の命名オプション
 (`cream.copyFunNamePrefix` / `cream.copyFunNamingStrategy` / `cream.escapeDot`) から導出されます。
 特定の宣言だけ名前を上書きしたい場合は、copy/combine 系アノテーション (`@CopyTo` / `@CopyFrom` /
-`@CombineTo` / `@CombineFrom` / `@CopyMapping` / `@CombineMapping` / `@SealedCopy`) に `funName`
-を渡します。プロジェクト全体のオプションには影響しません。
+`@CopyToChildren` / `@CombineTo` / `@CombineFrom` / `@CopyMapping` / `@CombineMapping` /
+`@SealedCopy`) に `funName` を渡します。プロジェクト全体のオプションには影響しません。
 
 `funName` は **テンプレート** です。いくつかの `const` トークンが名前の一部に展開されるため、
 既定の名前に prefix/suffix を足したり、ゼロから名前を組み立てたりできます:
@@ -770,10 +770,6 @@ data class Source(/* ... */)
 ```kt
 @CopyTo(Target::class, funName = "`is`")   // 生成: fun Source.`is`(...)
 ```
-
-`@CopyToChildren` は `funName` を取りません — 常に子ごとに1関数を生成するため、単一の名前を適用できない
-からです。それらの名前はプロジェクトの命名オプション、または `@CopyTo` / `@CopyFrom` / `@SealedCopy`
-(これらは `funName` を取ります) で制御してください。
 
 ## 💻 4. 利用例
 

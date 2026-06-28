@@ -737,9 +737,9 @@ Omitting `visibility` is fully backward compatible — it keeps the previously g
 
 By default cream derives the generated function name from the project-wide naming options
 (`cream.copyFunNamePrefix` / `cream.copyFunNamingStrategy` / `cream.escapeDot`). Pass `funName`
-to a copy/combine annotation (`@CopyTo`, `@CopyFrom`, `@CombineTo`, `@CombineFrom`,
-`@CopyMapping`, `@CombineMapping`, `@SealedCopy`) to override the name for that one declaration,
-without touching the project options.
+to a copy/combine annotation (`@CopyTo`, `@CopyFrom`, `@CopyToChildren`, `@CombineTo`,
+`@CombineFrom`, `@CopyMapping`, `@CombineMapping`, `@SealedCopy`) to override the name for that one
+declaration, without touching the project options.
 
 `funName` is a **template**: a few `const` tokens expand to pieces of the name, so you can keep
 the derived name and only add a prefix/suffix, or build a name from scratch:
@@ -783,10 +783,6 @@ won't compile (cream does not pre-validate the name; the Kotlin compiler reports
 ```kt
 @CopyTo(Target::class, funName = "`is`")   // generates: fun Source.`is`(...)
 ```
-
-`@CopyToChildren` does not take `funName` — it always generates one function per child, so a single
-name cannot apply. Control those names with the project naming options, or with `@CopyTo` /
-`@CopyFrom` / `@SealedCopy` (which do take `funName`).
 
 ## 💻 4. Usage Example
 

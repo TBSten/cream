@@ -54,17 +54,26 @@ package me.tbsten.cream
  * @property visibility Visibility modifier applied to every generated per-child copy
  *   function. Defaults to [CopyVisibility.INHERIT], which keeps cream's existing behaviour
  *   (each function inherits its target child's visibility).
+ * @property funName Template for the generated function names. Defaults to
+ *   [DefaultCopyFunctionName] (cream's derived name). `@CopyToChildren` fans out to **every**
+ *   concrete leaf of the sealed hierarchy, so it usually generates more than one function — embed
+ *   a per-target token such as [CopyTargetSimpleName] so each leaf gets a distinct name, e.g.
+ *   `funName = "to" + CopyTargetSimpleName`. A plain literal (no token) would make every per-leaf
+ *   function share one name and collide, so it is rejected with a compilation error whenever more
+ *   than one function is generated. See `CopyFunctionNameToken.kt`.
  *
  * @see SealedCopy
  * @see CopyTo
  * @see CopyToChildren.Exclude
  * @see CopyVisibility
+ * @see DefaultCopyFunctionName
  */
 @Target(AnnotationTarget.CLASS)
 public annotation class CopyToChildren(
     val notCopyToObject: Boolean = false,
     val kdoc: KDoc = KDoc(),
     val visibility: CopyVisibility = CopyVisibility.INHERIT,
+    val funName: String = DefaultCopyFunctionName,
 ) {
     /**
      * Remove the auto-copy default from a sealed parent's property across **all**
