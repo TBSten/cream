@@ -905,8 +905,7 @@ This option affects the entire module, but you can also limit it to a specific c
 
 Sets the module-wide default visibility for every generated copy / combine function. This is the
 project-level counterpart of the per-annotation `visibility = CopyVisibility.<...>` argument
-(see [Visibility](#visibility)). The accepted values mirror the `CopyVisibility` enum and are
-case-insensitive (`internal` and `INTERNAL` are both accepted).
+(see [Visibility](#visibility)).
 
 Precedence is:
 
@@ -917,7 +916,7 @@ Precedence is:
 
 For example, with `cream.defaultVisibility=INTERNAL`, a plain `@CopyTo(Target::class)` generates an
 `internal` copy function without having to add `visibility = CopyVisibility.INTERNAL` to each
-annotation. Leaving the option at its `INHERIT` default keeps the previously generated code unchanged.
+annotation.
 
 ## 🆚 6. Comparison with Other Libraries
 
