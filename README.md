@@ -662,6 +662,8 @@ fun LibXModel.copyToLibYModel(
 ): LibYModel = ...
 ```
 
+The generated copy function is emitted into the same package as the `@CopyMapping`-annotated declaration (the `Mapping` object above), not the source class's package. So even when the source/target are library classes in another package, the function is usable directly from the package of the module where you declared the mapping.
+
 ### KDoc
 
 Every source annotation (`@CopyTo`, `@CopyFrom`, `@CopyToChildren`, `@SealedCopy`,

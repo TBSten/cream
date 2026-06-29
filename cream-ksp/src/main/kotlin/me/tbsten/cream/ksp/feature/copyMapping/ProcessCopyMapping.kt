@@ -135,46 +135,51 @@ internal fun processCopyMapping(): List<KSAnnotated> =
                 }
             if (!allFunNamesOk) return@forEach
 
-            // Group by source class to create one file per source package
-            copyMappings
-                .groupBy { it.sourceClass.packageName }
-                .forEach { (packageName, mappings) ->
-                    // Use the first source class's file for dependencies
-                    val sourceFile =
-                        mappings.firstOrNull()?.sourceClass?.containingFile
-                            ?: annotatedDeclaration.containingFile!!
+            // issue #145: generate the copy functions into the @CopyMapping holder's package, not
+            // the source class's package, so they are discoverable where the mapping is declared
+            // (source/target are usually external-library classes living in another package).
+            val mappingPackage = annotatedDeclaration.packageName
+            val omitPackages = omitPackagesFor(mappingPackage)
 
-                    processContext.codeGenerator.createNewKotlinFile(
-                        dependencies = Dependencies(aggregating = true, sourceFile),
-                        packageName = packageName,
-                        fileName = "CopyMapping__${annotatedDeclaration.underPackageName}",
-                    ) {
-                        mappings.forEach { mapping ->
-                            it.appendCopyFunction(
-                                source = mapping.sourceClass,
-                                target = mapping.targetClass,
-                                omitPackages = omitPackagesFor(packageName),
-                                generateSourceAnnotation =
-                                    GenerateSourceAnnotation.CopyMapping(annotation = mapping.rawAnnotation),
-                            )
+            // Depend on every referenced source/target file plus the holder so incremental
+            // processing re-runs whenever any of them changes.
+            val dependencyFiles =
+                (
+                    copyMappings.flatMap {
+                        listOfNotNull(it.sourceClass.containingFile, it.targetClass.containingFile)
+                    } + listOfNotNull(annotatedDeclaration.containingFile)
+                ).distinct()
 
-                            if (mapping.canReverse) {
-                                // The reverse function shares the same annotation; `reversed` swaps
-                                // each (source -> target) property mapping for this direction.
-                                it.appendCopyFunction(
-                                    source = mapping.targetClass,
-                                    target = mapping.sourceClass,
-                                    omitPackages = omitPackagesFor(packageName),
-                                    generateSourceAnnotation =
-                                        GenerateSourceAnnotation.CopyMapping(
-                                            annotation = mapping.rawAnnotation,
-                                            reversed = true,
-                                        ),
-                                )
-                            }
-                        }
+            processContext.codeGenerator.createNewKotlinFile(
+                dependencies = Dependencies(aggregating = true, *dependencyFiles.toTypedArray()),
+                packageName = mappingPackage,
+                fileName = "CopyMapping__${annotatedDeclaration.underPackageName}",
+            ) {
+                copyMappings.forEach { mapping ->
+                    it.appendCopyFunction(
+                        source = mapping.sourceClass,
+                        target = mapping.targetClass,
+                        omitPackages = omitPackages,
+                        generateSourceAnnotation =
+                            GenerateSourceAnnotation.CopyMapping(annotation = mapping.rawAnnotation),
+                    )
+
+                    if (mapping.canReverse) {
+                        // The reverse function shares the same annotation; `reversed` swaps
+                        // each (source -> target) property mapping for this direction.
+                        it.appendCopyFunction(
+                            source = mapping.targetClass,
+                            target = mapping.sourceClass,
+                            omitPackages = omitPackages,
+                            generateSourceAnnotation =
+                                GenerateSourceAnnotation.CopyMapping(
+                                    annotation = mapping.rawAnnotation,
+                                    reversed = true,
+                                ),
+                        )
                     }
                 }
+            }
         }
 
         return invalidCopyMappingTargets
