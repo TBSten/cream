@@ -9,6 +9,7 @@ import me.tbsten.cream.SealedCopy
 import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.toModifierString
+import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.util.ksp.asString
 import me.tbsten.cream.ksp.util.ksp.collectConcreteSubclasses
 import java.io.BufferedWriter
@@ -22,7 +23,7 @@ import java.io.BufferedWriter
  * [SealedCopyTypeRendering.kt][renderSealedReceiverType], KDoc in [appendSealedCopyKDoc] and the
  * non-copyable diagnostic in [nonCopyableErrorException].
  */
-context(logger: KSPLogger)
+context(options: CreamOptions, logger: KSPLogger)
 internal fun BufferedWriter.appendSealedCopyFunction(
     sealedClass: KSClassDeclaration,
     funName: String,
@@ -61,6 +62,7 @@ internal fun BufferedWriter.appendSealedCopyFunction(
     appendSealedCopyBody(sealedClass, classifiedLeaves, abstractProperties, nonCopyableStrategy)
 }
 
+context(options: CreamOptions)
 private fun BufferedWriter.appendSealedCopyHeader(
     sealedClass: KSClassDeclaration,
     funName: String,

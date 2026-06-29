@@ -80,6 +80,7 @@ internal class FunctionNameTemplateTest :
                     copyFunNamingStrategy = CopyFunNamingStrategy.`simple-name`,
                     escapeDot = EscapeDot.`replace-to-underscore`,
                     notCopyToObject = false,
+                    defaultVisibility = CreamOptions.default.defaultVisibility,
                 )
             // fixed rendering, unaffected by options
             resolve(CopyTargetUnderPackage, nonDefault) shouldBe "UiStateSuccess"

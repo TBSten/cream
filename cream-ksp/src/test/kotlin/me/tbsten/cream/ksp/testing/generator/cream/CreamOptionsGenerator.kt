@@ -5,6 +5,7 @@ import io.kotest.property.arbitrary.bind
 import io.kotest.property.arbitrary.boolean
 import io.kotest.property.arbitrary.list
 import io.kotest.property.arbitrary.of
+import me.tbsten.cream.CopyVisibility
 import me.tbsten.cream.ksp.options.CopyFunNamingStrategy
 import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.options.EscapeDot
@@ -17,28 +18,32 @@ import me.tbsten.cream.ksp.testing.generator.util.withRepresentativeValues
 
 /**
  * A [CreamOptions] generator with two independent sides: its [arb][Generator.arb] samples the full
- * cartesian space of the four option axes (via [combine]), while its deterministic
+ * cartesian space of the five option axes (via [combine]), while its deterministic
  * [representativeValues][Generator.representativeValues] are a small hand-picked set (via
- * [withRepresentativeValues]) centered on [CreamOptions.default] — the full 2×3×2×2 = 24 product is
- * too many for snapshot / example use. Each axis defaults to its per-axis factory below.
+ * [withRepresentativeValues]) centered on [CreamOptions.default] — the full 2×3×2×2×2 = 48 product is
+ * too many for snapshot / example use. Each axis defaults to its per-axis factory below, and any axis
+ * can be overridden by passing a custom [Generator] (e.g. to pin or widen a single option).
  */
 internal fun Generator.Companion.validCreamOptions(
     copyFunNamePrefix: Generator<String> = copyFunNamePrefix(),
     copyFunNamingStrategy: Generator<CopyFunNamingStrategy> = copyFunNamingStrategy(),
     escapeDot: Generator<EscapeDot> = escapeDot(),
     notCopyToObject: Generator<Boolean> = notCopyToObject(),
+    defaultVisibility: Generator<CopyVisibility> = defaultVisibility(),
 ): Generator<CreamOptions> =
     combine(
         copyFunNamePrefix.mapLabel { "copyFunNamePrefix=$it" },
         copyFunNamingStrategy.mapLabel { "copyFunNamingStrategy=$it" },
         escapeDot.mapLabel { "escapeDot=$it" },
         notCopyToObject.mapLabel { "notCopyToObject=$it" },
-    ) { prefix, strategy, escape, notCopyObject ->
+        defaultVisibility.mapLabel { "defaultVisibility=$it" },
+    ) { prefix, strategy, escape, notCopyObject, visibility ->
         CreamOptions(
             copyFunNamePrefix = prefix,
             copyFunNamingStrategy = strategy,
             escapeDot = escape,
             notCopyToObject = notCopyObject,
+            defaultVisibility = visibility,
         )
     }.withRepresentativeValues {
         listOf(
@@ -53,6 +58,7 @@ internal fun Generator.Companion.validCreamOptions(
                 copyFunNamingStrategy = CopyFunNamingStrategy.`inner-name`,
                 escapeDot = EscapeDot.`replace-to-underscore`,
             ),
+            CreamOptions.default.copy(defaultVisibility = CopyVisibility.INTERNAL),
         ).forEach { options -> creamOptionsLabel(options) case options }
     }
 
@@ -113,6 +119,18 @@ internal fun Generator.Companion.notCopyToObject(
     Arb.boolean()
 }
 
+/** `defaultVisibility` の軸 generator。default の INHERIT ＋ 非 INHERIT な INTERNAL。 */
+internal fun Generator.Companion.defaultVisibility(
+    representativeValues: List<Pair<String?, CopyVisibility>> =
+        listOf(
+            "Default" to CopyVisibility.INHERIT, // CreamOptions.default.defaultVisibility
+            "INTERNAL" to CopyVisibility.INTERNAL,
+        ),
+) = generator {
+    cases(representativeValues)
+    Arb.of(representativeValues.map { it.second })
+}
+
 private fun creamOptionsLabel(options: CreamOptions): String {
     val default = CreamOptions.default
     val parts =
@@ -121,6 +139,7 @@ private fun creamOptionsLabel(options: CreamOptions): String {
             if (options.copyFunNamingStrategy != default.copyFunNamingStrategy) add("strategy=${options.copyFunNamingStrategy.name}")
             if (options.escapeDot != default.escapeDot) add("escapeDot=${options.escapeDot.name}")
             if (options.notCopyToObject != default.notCopyToObject) add("notCopyToObject=${options.notCopyToObject}")
+            if (options.defaultVisibility != default.defaultVisibility) add("defaultVisibility=${options.defaultVisibility.name}")
         }
     return if (parts.isEmpty()) "Default" else parts.joinToString(separator = ", ", prefix = "(", postfix = ")")
 }

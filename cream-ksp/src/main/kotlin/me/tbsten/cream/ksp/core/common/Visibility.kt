@@ -6,6 +6,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.Visibility
 import me.tbsten.cream.CopyVisibility
+import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.util.ksp.getArgument
 
 internal val KSClassDeclaration.visibilityStr: String
@@ -24,15 +25,22 @@ internal val KSClassDeclaration.visibilityStr: String
  * Resolve the visibility modifier to emit for a generated copy function.
  *
  * This is the single source of truth for the [CopyVisibility] -> Kotlin modifier mapping.
- * [CopyVisibility.INHERIT] falls back to [inheritFrom]'s own visibility, preserving cream's
- * behaviour from before the `visibility` argument existed.
+ *
+ * Precedence: an explicit annotation `visibility` wins. When the annotation leaves it at
+ * [CopyVisibility.INHERIT] (unspecified), the project-level `cream.defaultVisibility` option
+ * ([CreamOptions.defaultVisibility]) is applied. When that is *also* [CopyVisibility.INHERIT]
+ * (the default), the modifier falls back to [inheritFrom]'s own visibility, preserving cream's
+ * behaviour from before either knob existed.
  */
-internal fun CopyVisibility.toModifierString(inheritFrom: KSClassDeclaration): String =
-    when (this) {
+context(options: CreamOptions)
+internal fun CopyVisibility.toModifierString(inheritFrom: KSClassDeclaration): String {
+    val effective = if (this == CopyVisibility.INHERIT) options.defaultVisibility else this
+    return when (effective) {
         CopyVisibility.INHERIT -> inheritFrom.visibilityStr
         CopyVisibility.PUBLIC -> "public"
         CopyVisibility.INTERNAL -> "internal"
     }
+}
 
 /**
  * Read a [CopyVisibility] from a `visibility` annotation argument. KSP surfaces enum
