@@ -48,10 +48,6 @@ internal fun BufferedWriter.appendCopyFunction(
             ?: false
 
     when (target.classKind) {
-        // A regular class and an annotation class share the same generation path: both are built by
-        // calling the primary constructor (`Target(prop = ...)`). Kotlin has allowed instantiating an
-        // annotation class via its constructor since 1.6, so the generated call compiles for both.
-        // See issue #132 — copy now accepts annotation-class targets, matching @CombineTo/@CombineFrom.
         ClassKind.CLASS,
         ClassKind.ANNOTATION_CLASS,
         ->
