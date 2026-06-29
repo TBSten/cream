@@ -85,10 +85,7 @@ private fun runCompilation(
     val tee = TeeOutputStream(System.out, captured)
     val compilation =
         KotlinCompilation().apply {
-            // issue #155: do NOT inheritClassPath. `inheritClassPath = true` adds the whole test
-            // runtime classpath (KSP, kctfork, kotest, mockk, kotlinpoet, konsist, ...) to every
-            // in-process compilation, which the compiler then scans on each run. Test inputs only
-            // reference the cream-runtime annotations and the Kotlin stdlib, so pass just those.
+            // For performance, limit the classpath to creamCompilationClasspath (issue #155).
             inheritClassPath = false
             classpaths = creamCompilationClasspath
             useKsp2()
