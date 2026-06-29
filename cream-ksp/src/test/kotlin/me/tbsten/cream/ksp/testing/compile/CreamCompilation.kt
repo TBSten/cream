@@ -7,10 +7,12 @@ import com.tschuchort.compiletesting.SourceFile
 import com.tschuchort.compiletesting.kspProcessorOptions
 import com.tschuchort.compiletesting.symbolProcessorProviders
 import com.tschuchort.compiletesting.useKsp2
+import me.tbsten.cream.CopyTo
 import me.tbsten.cream.ksp.CreamSymbolProcessorProvider
 import org.intellij.lang.annotations.Language
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.io.OutputStream
 
 /**
@@ -83,7 +85,9 @@ private fun runCompilation(
     val tee = TeeOutputStream(System.out, captured)
     val compilation =
         KotlinCompilation().apply {
-            inheritClassPath = true
+            // For performance, limit the classpath to creamCompilationClasspath (issue #155).
+            inheritClassPath = false
+            classpaths = creamCompilationClasspath
             useKsp2()
             symbolProcessorProviders += CreamSymbolProcessorProvider()
             if (options.isNotEmpty()) {
@@ -97,6 +101,20 @@ private fun runCompilation(
         compilation = compilation,
         compilerOutputBuffer = captured,
     )
+}
+
+private val creamCompilationClasspath: List<File> =
+    listOf(
+        CopyTo::class.java, // cream-runtime
+        Unit::class.java, // kotlin-stdlib
+    ).map { it.classpathRoot() }.distinct()
+
+private fun Class<*>.classpathRoot(): File {
+    val location =
+        checkNotNull(protectionDomain?.codeSource?.location) {
+            "Cannot locate the classpath root for $name (codeSource is null)."
+        }
+    return File(location.toURI())
 }
 
 private class TeeOutputStream(
