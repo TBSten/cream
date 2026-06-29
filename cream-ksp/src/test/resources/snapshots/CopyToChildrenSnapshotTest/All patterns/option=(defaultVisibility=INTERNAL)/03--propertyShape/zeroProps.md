@@ -1,4 +1,4 @@
-## Input:Input
+## Input:me.tbsten.cream.generated.Source
 
 ```kt
 package me.tbsten.cream.generated
@@ -32,7 +32,7 @@ COMPILATION_ERROR
 ## Output:Console
 
 ```kt
-e: file://<TMPDIR>/Kotlin-Compilation<N>/sources/Input.kt:7:26 Data class must have at least one primary constructor parameter.
+e: file://<TMPDIR>/Kotlin-Compilation<N>/sources/me.tbsten.cream.generated.Source.kt:7:26 Data class must have at least one primary constructor parameter.
 ```
 
 ## Output:Generated sources

@@ -1,4 +1,4 @@
-## Input:Input
+## Input:me.tbsten.cream.generated.Source
 
 ```kt
 package me.tbsten.cream.generated
@@ -40,7 +40,7 @@ COMPILATION_ERROR
 
 ```kt
 e: Error occurred in KSP, check log for detail
-e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/Input.kt:12: Invalid cream usage: Unsupported target inner class (me.tbsten.cream.generated.Outer.Target). An inner class requires an enclosing instance and cannot be a target.
+e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/me.tbsten.cream.generated.Source.kt:12: Invalid cream usage: Unsupported target inner class (me.tbsten.cream.generated.Outer.Target). An inner class requires an enclosing instance and cannot be a target.
 
 Solution: 
   Make me.tbsten.cream.generated.Outer.Target a top-level or nested (non-inner) class.

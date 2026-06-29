@@ -1,4 +1,4 @@
-## Input:Input
+## Input:me.tbsten.cream.generated.Target
 
 ```kt
 package me.tbsten.cream.generated
@@ -36,7 +36,7 @@ COMPILATION_ERROR
 
 ```kt
 e: Error occurred in KSP, check log for detail
-e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/Input.kt:8: Invalid cream usage: @CombineFrom requires at least one source class.
+e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/me.tbsten.cream.generated.Target.kt:8: Invalid cream usage: @CombineFrom requires at least one source class.
 
 Solution: 
   Specify at least one source class in @CombineFrom.sources of me.tbsten.cream.generated.Target.

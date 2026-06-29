@@ -1,4 +1,4 @@
-## Input:Input
+## Input:me.tbsten.cream.generated.Source
 
 ```kt
 package me.tbsten.cream.generated
@@ -49,7 +49,7 @@ COMPILATION_ERROR
 
 ```kt
 e: Error occurred in KSP, check log for detail
-e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/Input.kt:10: Invalid cream usage: @CopyTo on me.tbsten.cream.generated.Source sets a fixed funName "toState",
+e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/me.tbsten.cream.generated.Source.kt:10: Invalid cream usage: @CopyTo on me.tbsten.cream.generated.Source sets a fixed funName "toState",
 but it generates more than one function (multiple targets or sources, a sealed
 target, or a reversible mapping). Those functions would all share that name and collide.
 

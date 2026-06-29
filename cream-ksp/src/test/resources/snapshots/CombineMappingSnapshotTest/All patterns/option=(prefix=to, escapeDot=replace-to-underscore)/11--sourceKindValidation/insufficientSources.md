@@ -1,4 +1,4 @@
-## Input:Input
+## Input:me.tbsten.cream.generated.Mapping
 
 ```kt
 package me.tbsten.cream.generated
@@ -45,7 +45,7 @@ COMPILATION_ERROR
 
 ```kt
 e: Error occurred in KSP, check log for detail
-e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/Input.kt:11: Invalid cream usage: @CombineMapping requires at least 2 source classes, but got 1.
+e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/me.tbsten.cream.generated.Mapping.kt:11: Invalid cream usage: @CombineMapping requires at least 2 source classes, but got 1.
 
 Solution: 
   Specify at least 2 source classes in @CombineMapping.sources

@@ -1,4 +1,4 @@
-## Input:Input
+## Input:me.tbsten.cream.generated.Source
 
 ```kt
 package me.tbsten.cream.generated
@@ -46,7 +46,7 @@ COMPILATION_ERROR
 
 ```kt
 e: Error occurred in KSP, check log for detail
-e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/Input.kt:7: Invalid cream usage: Cannot generate copy() for sealed type 'Source' because the following subtype(s) cannot be copied: Source.Empty, Source.Frozen
+e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/me.tbsten.cream.generated.Source.kt:7: Invalid cream usage: Cannot generate copy() for sealed type 'Source' because the following subtype(s) cannot be copied: Source.Empty, Source.Frozen
 
 Solution: 
   Choose one of the following strategies on @SealedCopy:

@@ -1,4 +1,4 @@
-## Input:Input
+## Input:me.tbsten.cream.generated.Target
 
 ```kt
 package me.tbsten.cream.generated
@@ -40,7 +40,7 @@ OK
 ## Output:Console
 
 ```kt
-w: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/Input.kt:11: @Exclude on 'targetOnly' has no effect: not a matched property
+w: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/me.tbsten.cream.generated.Target.kt:11: @Exclude on 'targetOnly' has no effect: not a matched property
 ```
 
 ## Output:Generated sources

@@ -1,4 +1,4 @@
-## Input:Input
+## Input:me.tbsten.cream.generated.Parent
 
 ```kt
 package me.tbsten.cream.generated

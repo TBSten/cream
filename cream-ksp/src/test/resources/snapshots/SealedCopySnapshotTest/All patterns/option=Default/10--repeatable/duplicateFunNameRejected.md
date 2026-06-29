@@ -1,4 +1,4 @@
-## Input:Input
+## Input:me.tbsten.cream.generated.Source
 
 ```kt
 package me.tbsten.cream.generated
@@ -39,7 +39,7 @@ COMPILATION_ERROR
 
 ```kt
 e: Error occurred in KSP, check log for detail
-e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/Input.kt:8: Invalid cream usage: @SealedCopy on me.tbsten.cream.generated.Source generates more than one function named "snapshot".
+e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/me.tbsten.cream.generated.Source.kt:8: Invalid cream usage: @SealedCopy on me.tbsten.cream.generated.Source generates more than one function named "snapshot".
 Stacked @SealedCopy annotations are written to one file, so each must produce a distinct name.
 
 Solution: 

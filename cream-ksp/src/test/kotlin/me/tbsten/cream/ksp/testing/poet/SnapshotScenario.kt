@@ -39,12 +39,17 @@ internal data class ScenarioFile(
 
 /**
  * [SnapshotScenario] を [FileSpec] 群にする（`runCompileSnapshotTest(inputs = ...)` に渡す入力）。
- * [ScenarioFile] ごとに 1 ファイル。単一ファイル時の名前は [fileNamePrefix]（既定 `Input`）のまま、
- * 複数ファイル時は `Input1` / `Input2` … と連番を付けて衝突を避ける。
+ * [ScenarioFile] ごとに 1 ファイル。ファイル名（= snapshot の `Input:` facet 名）は、そのファイルの
+ * 先頭宣言の完全修飾名（例 `com.example.myapp.Source`）にして、何が入力かが facet 見出しから分かるようにする。
  */
-internal fun SnapshotScenario.toFileSpecs(fileNamePrefix: String = "Input"): List<FileSpec> =
-    files.mapIndexed { index, file ->
-        val fileName = if (files.size == 1) fileNamePrefix else "$fileNamePrefix${index + 1}"
+internal fun SnapshotScenario.toFileSpecs(): List<FileSpec> =
+    files.map { file ->
+        val fileName =
+            file.topLevelDeclarations
+                .firstOrNull()
+                ?.name
+                ?.let { "${file.packageName}.$it" }
+                ?: file.packageName
         FileSpec
             .builder(file.packageName, fileName)
             .apply { file.topLevelDeclarations.forEach { addType(it) } }

@@ -1,4 +1,4 @@
-## Input:Input
+## Input:me.tbsten.cream.generated.Target
 
 ```kt
 package me.tbsten.cream.generated
@@ -41,7 +41,7 @@ COMPILATION_ERROR
 
 ```kt
 e: Error occurred in KSP, check log for detail
-e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/Input.kt:9: Invalid cream usage: @CombineFrom on me.tbsten.cream.generated.Target generates the same overload more than once: SourceA.to_Target().
+e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/me.tbsten.cream.generated.Target.kt:9: Invalid cream usage: @CombineFrom on me.tbsten.cream.generated.Target generates the same overload more than once: SourceA.to_Target().
 Stacked @CombineFrom annotations are written to one file, so each must produce a distinct overload.
 
 Solution: 
