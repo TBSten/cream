@@ -27,8 +27,9 @@ import me.tbsten.cream.ksp.testing.poet.toFileSpec
  * Intentionally NOT covered as snapshot cases (and why):
  * - `@Exclude` — `@CopyMapping` has none (source/target are external classes you cannot annotate).
  * - `typealias` source/target — `SnapshotScenario` can't carry a `TypeAliasSpec`; covered by integration `TypeAliasTest`.
- * - cross-package `@Repeatable` multi-file fan-out (`groupBy { sourceClass.packageName }` → N files) — needs the
- *   multi-`FileSpec` overload (single `GENERATED_PACKAGE` here); `repeatable/multipleAnnotations` covers same-package.
+ * - cross-package emission (source/target in a different package than the holder) — the snapshot
+ *   harness emits a single `GENERATED_PACKAGE`, so this is covered by `CopyMappingEdgeUsageTest`
+ *   (issue #145: the copy function lands in the holder package, never the source package).
  * - one-bad-annotation-suppresses-the-holder short-circuit + missing source/target diagnostics — pure misuse
  *   diagnostics, belong in `CopyMappingInvalidUsageTest`.
  * - `canReverse` × sealed target — both feed one `generatesMultipleFunctions` boolean and are covered individually
