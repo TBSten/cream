@@ -4,23 +4,23 @@
 package me.tbsten.cream.generated
 
 import kotlin.String
-import me.tbsten.cream.CopyTo
+import me.tbsten.cream.CopyFrom
 
-@CopyTo(Target::class)
+@CopyFrom(Source::class)
+public annotation class Target
+
 public data class Source(
   public val name: String,
 )
-
-public annotation class Target
 ```
 
 ## KSP options
 
 ```kt
 ksp {
-    arg("copyFunNamePrefix", "to")
+    arg("copyFunNamePrefix", "copyTo" /* default */)
     arg("copyFunNamingStrategy", "under-package" /* default */)
-    arg("escapeDot", "replace-to-underscore")
+    arg("escapeDot", "lower-camel-case" /* default */)
     arg("notCopyToObject", "false" /* default */)
     arg("defaultVisibility", "INHERIT" /* default */)
 }
@@ -41,13 +41,13 @@ OK
 ## Output:Generated sources
 
 ````kt
-// file: CopyTo__Source.kt
+// file: CopyFrom__Target.kt
 package me.tbsten.cream.generated
 
 import me.tbsten.cream.*
 
 /**
- * (Auto generate by @[CopyTo] annotation of [Source])
+ * (Auto generate by @[CopyFrom] annotation of [Target])
  * 
  * Source -> Target copy function.
  * 
@@ -55,21 +55,21 @@ import me.tbsten.cream.*
  * 
  * ```kt
  * val source = Source(...)
- * val target = source.to_Target()
+ * val target = source.copyToTarget()
  * ```
  * 
  * # Example: Override property values
  * 
  * ```kt
  * val source = Source(...)
- * val target = source.to_Target(property = value)
+ * val target = source.copyToTarget(property = value)
  * ```
  * 
  * 
  * @see Source
  * @see Target
  */
-public fun  me.tbsten.cream.generated.Source.to_Target(
+public fun  me.tbsten.cream.generated.Source.copyToTarget(
 ) : me.tbsten.cream.generated.Target = me.tbsten.cream.generated.Target(
 )
 ````

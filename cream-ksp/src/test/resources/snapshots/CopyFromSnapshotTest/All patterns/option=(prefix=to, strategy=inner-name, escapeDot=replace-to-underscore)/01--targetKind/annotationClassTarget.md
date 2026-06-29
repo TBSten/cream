@@ -4,14 +4,14 @@
 package me.tbsten.cream.generated
 
 import kotlin.String
-import me.tbsten.cream.CopyTo
+import me.tbsten.cream.CopyFrom
 
-@CopyTo(Target::class)
+@CopyFrom(Source::class)
+public annotation class Target
+
 public data class Source(
   public val name: String,
 )
-
-public annotation class Target
 ```
 
 ## KSP options
@@ -19,7 +19,7 @@ public annotation class Target
 ```kt
 ksp {
     arg("copyFunNamePrefix", "to")
-    arg("copyFunNamingStrategy", "under-package" /* default */)
+    arg("copyFunNamingStrategy", "inner-name")
     arg("escapeDot", "replace-to-underscore")
     arg("notCopyToObject", "false" /* default */)
     arg("defaultVisibility", "INHERIT" /* default */)
@@ -41,13 +41,13 @@ OK
 ## Output:Generated sources
 
 ````kt
-// file: CopyTo__Source.kt
+// file: CopyFrom__Target.kt
 package me.tbsten.cream.generated
 
 import me.tbsten.cream.*
 
 /**
- * (Auto generate by @[CopyTo] annotation of [Source])
+ * (Auto generate by @[CopyFrom] annotation of [Target])
  * 
  * Source -> Target copy function.
  * 

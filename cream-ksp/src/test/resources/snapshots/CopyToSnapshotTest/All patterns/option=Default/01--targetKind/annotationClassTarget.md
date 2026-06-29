@@ -29,21 +29,47 @@ ksp {
 ## Output:ExitCode
 
 ```kt
-COMPILATION_ERROR
+OK
 ```
 
 ## Output:Console
 
 ```kt
-e: Error occurred in KSP, check log for detail
-e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/Input.kt:11: Invalid cream usage: Unsupported target annotation class (me.tbsten.cream.generated.Target). An annotation class cannot be used as a target.
 
-Solution: 
-  Specify a class, object, or sealed interface as the target.
 ```
 
 ## Output:Generated sources
 
-```kt
+````kt
+// file: CopyTo__Source.kt
+package me.tbsten.cream.generated
 
-```
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CopyTo] annotation of [Source])
+ * 
+ * Source -> Target copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = Source(...)
+ * val target = source.copyToTarget()
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val source = Source(...)
+ * val target = source.copyToTarget(property = value)
+ * ```
+ * 
+ * 
+ * @see Source
+ * @see Target
+ */
+public fun  me.tbsten.cream.generated.Source.copyToTarget(
+) : me.tbsten.cream.generated.Target = me.tbsten.cream.generated.Target(
+)
+````

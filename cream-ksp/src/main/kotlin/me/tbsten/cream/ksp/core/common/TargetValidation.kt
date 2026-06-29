@@ -11,7 +11,7 @@ import me.tbsten.cream.ksp.InvalidCreamUsageException
  * Why a class declaration cannot be used as the *target* of a generated copy / combine function.
  *
  * cream generates `Target(prop = ...)` to build the target, so a valid target must be a concrete
- * class (or object) whose primary constructor the generated code can call. `@CopyTo` / `@CopyFrom`
+ * class, annotation class, or object whose primary constructor the generated code can call. `@CopyTo` / `@CopyFrom`
  * additionally accept a sealed type (interface or class), which is not rejected but fans out to its
  * concrete subclasses. The dispatcher ([me.tbsten.cream.ksp.core.copyFun.appendCopyFunction]) decides
  * which rejection applies per [com.google.devtools.ksp.symbol.ClassKind]; this enum is the single
@@ -36,10 +36,6 @@ internal enum class CopyTargetRejection(
     NON_SEALED_INTERFACE(
         message = "Unsupported target interface (%s). It must be a sealed interface.",
         solution = "Please make %s a sealed interface.",
-    ),
-    ANNOTATION_CLASS(
-        message = "Unsupported target annotation class (%s). An annotation class cannot be used as a target.",
-        solution = "Specify a class, object, or sealed interface as the target.",
     ),
     ENUM_CLASS(
         message = "Unsupported target enum class (%s). An enum entry cannot be constructed as a target.",
@@ -72,8 +68,9 @@ internal enum class CopyTargetRejection(
  * subclasses instead of rejecting it, so this function is only reached for non-sealed classes.
  * (A sealed class would otherwise be caught by the `abstract` case below, since `sealed` implies
  * `abstract`.) Checks `abstract`, then `inner`, and finally the primary constructor visibility for
- * an otherwise concrete class. Only applies to `ClassKind.CLASS`; other kinds (interface / enum /
- * object / annotation class) are routed by the dispatcher.
+ * an otherwise concrete class. Applies to `ClassKind.CLASS` and `ClassKind.ANNOTATION_CLASS` (an
+ * annotation class is never abstract / inner and its primary constructor is public, so it is always
+ * accepted as a target); other kinds (interface / enum / object) are routed by the dispatcher.
  */
 internal fun KSClassDeclaration.concreteClassRejection(): CopyTargetRejection? =
     when {

@@ -48,11 +48,9 @@ internal fun BufferedWriter.appendCopyFunction(
             ?: false
 
     when (target.classKind) {
-        // An annotation class cannot currently be used as a copy target; it is rejected with a
-        // clean diagnostic.
-        ClassKind.ANNOTATION_CLASS -> reportRejection(CopyTargetRejection.ANNOTATION_CLASS, target)
-
-        ClassKind.CLASS ->
+        ClassKind.CLASS,
+        ClassKind.ANNOTATION_CLASS,
+        ->
             if (target.isSealed()) {
                 // A sealed class, like a sealed interface, cannot be instantiated directly; fan out
                 // to its concrete subclasses. The sealed check must come BEFORE concreteClassRejection()
