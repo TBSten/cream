@@ -20,13 +20,13 @@ import me.tbsten.cream.ksp.testing.generator.Generator
 import me.tbsten.cream.ksp.testing.generator.cream.validCreamOptions
 import me.tbsten.cream.ksp.testing.generator.util.cartesian
 import me.tbsten.cream.ksp.testing.generator.util.union
-import me.tbsten.cream.ksp.testing.poet.toFileSpec
+import me.tbsten.cream.ksp.testing.poet.toFileSpecs
 
 /**
  * Golden snapshot coverage for `@CopyTo` (source-annotated 1→1 copy). See `.claude/skills/cream-snapshot-test`.
  *
  * Intentionally NOT covered as snapshot cases (and why):
- * - `typealias` source/target — `SnapshotScenario` models only `List<TypeSpec>`, not `TypeAliasSpec`; alias
+ * - `typealias` source/target — `SnapshotScenario` carries only `TypeSpec` declarations, not `TypeAliasSpec`; alias
  *   resolution is generic and covered by integration `test/.../copyTo/TypeAliasTest.kt`.
  * - `@CopyTo.Map` on a `TYPE_PARAMETER` — KotlinPoet can't render an annotation on a type-param declaration;
  *   the VALUE_PARAMETER form (the `map` family) covers the behavior.
@@ -64,7 +64,7 @@ internal class CopyToSnapshotTest :
                     val (scenario, creamOptions) = value
 
                     testCaseName!! {
-                        runCompileSnapshotTest(input = scenario.toFileSpec(), options = creamOptions)
+                        runCompileSnapshotTest(inputs = scenario.toFileSpecs(), options = creamOptions)
                     }
                 }
         }

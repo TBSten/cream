@@ -18,7 +18,7 @@ import me.tbsten.cream.ksp.testing.generator.Generator
 import me.tbsten.cream.ksp.testing.generator.cream.validCreamOptions
 import me.tbsten.cream.ksp.testing.generator.util.cartesian
 import me.tbsten.cream.ksp.testing.generator.util.union
-import me.tbsten.cream.ksp.testing.poet.toFileSpec
+import me.tbsten.cream.ksp.testing.poet.toFileSpecs
 
 /**
  * Golden snapshot coverage for `@CombineTo` (source-annotated N→1 combine). See `.claude/skills/cream-snapshot-test`.
@@ -69,7 +69,7 @@ internal class CombineToSnapshotTest :
                     val (scenario, creamOptions) = value
 
                     testCaseName!! {
-                        runCompileSnapshotTest(input = scenario.toFileSpec(), options = creamOptions)
+                        runCompileSnapshotTest(inputs = scenario.toFileSpecs(), options = creamOptions)
                     }
                 }
         }
