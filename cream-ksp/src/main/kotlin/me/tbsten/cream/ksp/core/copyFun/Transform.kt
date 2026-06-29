@@ -48,11 +48,13 @@ internal fun BufferedWriter.appendCopyFunction(
             ?: false
 
     when (target.classKind) {
-        // An annotation class cannot currently be used as a copy target; it is rejected with a
-        // clean diagnostic.
-        ClassKind.ANNOTATION_CLASS -> reportRejection(CopyTargetRejection.ANNOTATION_CLASS, target)
-
-        ClassKind.CLASS ->
+        // A regular class and an annotation class share the same generation path: both are built by
+        // calling the primary constructor (`Target(prop = ...)`). Kotlin has allowed instantiating an
+        // annotation class via its constructor since 1.6, so the generated call compiles for both.
+        // See issue #132 — copy now accepts annotation-class targets, matching @CombineTo/@CombineFrom.
+        ClassKind.CLASS,
+        ClassKind.ANNOTATION_CLASS,
+        ->
             if (target.isSealed()) {
                 // A sealed class, like a sealed interface, cannot be instantiated directly; fan out
                 // to its concrete subclasses. The sealed check must come BEFORE concreteClassRejection()
