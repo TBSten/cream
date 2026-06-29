@@ -135,9 +135,6 @@ internal fun processCopyMapping(): List<KSAnnotated> =
                 }
             if (!allFunNamesOk) return@forEach
 
-            // issue #145: generate the copy functions into the @CopyMapping holder's package, not
-            // the source class's package, so they are discoverable where the mapping is declared
-            // (source/target are usually external-library classes living in another package).
             val mappingPackage = annotatedDeclaration.packageName
             val omitPackages = omitPackagesFor(mappingPackage)
 
