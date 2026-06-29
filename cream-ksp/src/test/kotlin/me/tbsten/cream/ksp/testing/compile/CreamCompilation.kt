@@ -7,10 +7,12 @@ import com.tschuchort.compiletesting.SourceFile
 import com.tschuchort.compiletesting.kspProcessorOptions
 import com.tschuchort.compiletesting.symbolProcessorProviders
 import com.tschuchort.compiletesting.useKsp2
+import me.tbsten.cream.CopyTo
 import me.tbsten.cream.ksp.CreamSymbolProcessorProvider
 import org.intellij.lang.annotations.Language
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.io.OutputStream
 
 /**
@@ -83,7 +85,12 @@ private fun runCompilation(
     val tee = TeeOutputStream(System.out, captured)
     val compilation =
         KotlinCompilation().apply {
-            inheritClassPath = true
+            // issue #155: do NOT inheritClassPath. `inheritClassPath = true` adds the whole test
+            // runtime classpath (KSP, kctfork, kotest, mockk, kotlinpoet, konsist, ...) to every
+            // in-process compilation, which the compiler then scans on each run. Test inputs only
+            // reference the cream-runtime annotations and the Kotlin stdlib, so pass just those.
+            inheritClassPath = false
+            classpaths = creamCompilationClasspath
             useKsp2()
             symbolProcessorProviders += CreamSymbolProcessorProvider()
             if (options.isNotEmpty()) {
@@ -97,6 +104,28 @@ private fun runCompilation(
         compilation = compilation,
         compilerOutputBuffer = captured,
     )
+}
+
+/**
+ * Minimal compile classpath for cream test inputs (issue #155): the cream-runtime jar (the
+ * `@CopyTo` / `@CopyFrom` / `@Combine*` / `@CopyMapping` annotations the inputs and generated code
+ * reference) plus the Kotlin stdlib (`String`, `Int`, collections, ...). Both are already on the
+ * test classpath, so we resolve their classpath roots from a known class in each — no build-script
+ * plumbing needed. This replaces `inheritClassPath = true`, which dragged the entire test runtime
+ * classpath into every compilation.
+ */
+private val creamCompilationClasspath: List<File> =
+    listOf(
+        CopyTo::class.java, // cream-runtime
+        Unit::class.java, // kotlin-stdlib
+    ).map { it.classpathRoot() }.distinct()
+
+private fun Class<*>.classpathRoot(): File {
+    val location =
+        checkNotNull(protectionDomain?.codeSource?.location) {
+            "Cannot locate the classpath root for $name (codeSource is null)."
+        }
+    return File(location.toURI())
 }
 
 private class TeeOutputStream(
