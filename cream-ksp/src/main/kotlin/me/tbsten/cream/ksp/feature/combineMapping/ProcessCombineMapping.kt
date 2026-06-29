@@ -124,40 +124,38 @@ internal fun processCombineMapping(): List<KSAnnotated> =
             if (parsedMappings.any { it == null }) return@forEach
             val combineMappings = parsedMappings.filterNotNull()
 
-            // Group by first source class package to create one file per source package
-            combineMappings
-                .groupBy { it.sourceClasses.firstOrNull()?.packageName }
-                .forEach { (packageName, mappings) ->
-                    if (packageName == null) return@forEach
-                    // Use the first source class's file for dependencies
-                    val sourceFile =
-                        mappings
-                            .firstOrNull()
-                            ?.sourceClasses
-                            ?.firstOrNull()
-                            ?.containingFile
-                            ?: annotatedDeclaration.containingFile!!
+            val mappingPackage = annotatedDeclaration.packageName
+            val omitPackages = omitPackagesFor(mappingPackage)
 
-                    processContext.codeGenerator.createNewKotlinFile(
-                        dependencies = Dependencies(aggregating = true, sourceFile),
-                        packageName = packageName,
-                        fileName = "CombineMapping__${annotatedDeclaration.underPackageName}",
-                    ) {
-                        mappings.forEach { mapping ->
-                            val primarySource = mapping.sourceClasses.firstOrNull() ?: return@forEach
-                            val otherSources = mapping.sourceClasses.drop(1)
+            // Depend on every referenced source/target file plus the holder so incremental
+            // processing re-runs whenever any of them changes.
+            val dependencyFiles =
+                (
+                    combineMappings.flatMap { mapping ->
+                        mapping.sourceClasses.mapNotNull { it.containingFile } +
+                            listOfNotNull(mapping.targetClass.containingFile)
+                    } + listOfNotNull(annotatedDeclaration.containingFile)
+                ).distinct()
 
-                            it.appendCombineToFunction(
-                                primarySource = primarySource,
-                                otherSources = otherSources,
-                                target = mapping.targetClass,
-                                omitPackages = omitPackagesFor(packageName),
-                                generateSourceAnnotation =
-                                    GenerateSourceAnnotation.CombineMapping(annotation = mapping.rawAnnotation),
-                            )
-                        }
-                    }
+            processContext.codeGenerator.createNewKotlinFile(
+                dependencies = Dependencies(aggregating = true, *dependencyFiles.toTypedArray()),
+                packageName = mappingPackage,
+                fileName = "CombineMapping__${annotatedDeclaration.underPackageName}",
+            ) {
+                combineMappings.forEach { mapping ->
+                    val primarySource = mapping.sourceClasses.firstOrNull() ?: return@forEach
+                    val otherSources = mapping.sourceClasses.drop(1)
+
+                    it.appendCombineToFunction(
+                        primarySource = primarySource,
+                        otherSources = otherSources,
+                        target = mapping.targetClass,
+                        omitPackages = omitPackages,
+                        generateSourceAnnotation =
+                            GenerateSourceAnnotation.CombineMapping(annotation = mapping.rawAnnotation),
+                    )
                 }
+            }
         }
 
         return invalidCombineMappingTargets
