@@ -103,14 +103,6 @@ private fun runCompilation(
     )
 }
 
-/**
- * Minimal compile classpath for cream test inputs (issue #155): the cream-runtime jar (the
- * `@CopyTo` / `@CopyFrom` / `@Combine*` / `@CopyMapping` annotations the inputs and generated code
- * reference) plus the Kotlin stdlib (`String`, `Int`, collections, ...). Both are already on the
- * test classpath, so we resolve their classpath roots from a known class in each — no build-script
- * plumbing needed. This replaces `inheritClassPath = true`, which dragged the entire test runtime
- * classpath into every compilation.
- */
 private val creamCompilationClasspath: List<File> =
     listOf(
         CopyTo::class.java, // cream-runtime
