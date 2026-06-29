@@ -124,9 +124,6 @@ internal fun processCombineMapping(): List<KSAnnotated> =
             if (parsedMappings.any { it == null }) return@forEach
             val combineMappings = parsedMappings.filterNotNull()
 
-            // issue #145: generate into the @CombineMapping holder's package, not the (first)
-            // source class's package, so the combine functions are discoverable where the mapping
-            // is declared (sources/target are usually external-library classes in another package).
             val mappingPackage = annotatedDeclaration.packageName
             val omitPackages = omitPackagesFor(mappingPackage)
 
