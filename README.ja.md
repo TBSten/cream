@@ -654,8 +654,6 @@ fun LibXModel.copyToLibYModel(
 ): LibYModel = ...
 ```
 
-生成されるコピー関数は、`@CopyMapping` を付与した宣言（上記の `Mapping`）と同じパッケージに生成されます。そのため、コピー元/コピー先が別パッケージのライブラリクラスであっても、マッピングを宣言したあなたのモジュール側のパッケージからそのまま利用できます。
-
 ### KDoc
 
 各ソースアノテーション (`@CopyTo`, `@CopyFrom`, `@CopyToChildren`, `@SealedCopy`,
