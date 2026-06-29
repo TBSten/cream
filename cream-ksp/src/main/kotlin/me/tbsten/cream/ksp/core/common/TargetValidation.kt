@@ -11,8 +11,7 @@ import me.tbsten.cream.ksp.InvalidCreamUsageException
  * Why a class declaration cannot be used as the *target* of a generated copy / combine function.
  *
  * cream generates `Target(prop = ...)` to build the target, so a valid target must be a concrete
- * class, annotation class, or object whose primary constructor the generated code can call (Kotlin
- * allows instantiating an annotation class via its constructor since 1.6). `@CopyTo` / `@CopyFrom`
+ * class, annotation class, or object whose primary constructor the generated code can call. `@CopyTo` / `@CopyFrom`
  * additionally accept a sealed type (interface or class), which is not rejected but fans out to its
  * concrete subclasses. The dispatcher ([me.tbsten.cream.ksp.core.copyFun.appendCopyFunction]) decides
  * which rejection applies per [com.google.devtools.ksp.symbol.ClassKind]; this enum is the single
