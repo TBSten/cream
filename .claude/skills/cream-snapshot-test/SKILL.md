@@ -196,7 +196,7 @@ internal class <Feat>SnapshotTest :
                 .forEach { (testCaseName, value) ->
                     val (scenario, creamOptions) = value
                     testCaseName!! {
-                        runCompileSnapshotTest(input = scenario.toFileSpec(), options = creamOptions)
+                        runCompileSnapshotTest(inputs = scenario.files, options = creamOptions)
                     }
                 }
         }
@@ -351,14 +351,18 @@ the snapshots surfaced (with an issue link if you filed one); and the **Step 7 c
   Kotlin — a scenario bug to fix, NOT a golden to keep. copyToChildren shipped an
   `internal`-data-class-nested-in-`interface` case that was an illegal-input error masquerading as a
   visibility test (fix: make the child a top-level sibling, or use a sealed-class parent).
-- **`SnapshotScenario` is single-package / single-`FileSpec`** (`toFileSpec` puts every decl in one
-  `GENERATED_PACKAGE` file). So two things can't be expressed in the generator union and must be
-  deferred (note them in your report): (1) **cross-package** output fan-out — a `groupBy { package }`
-  that emits *multiple* files needs the `runCompileSnapshotTest(inputs = listOf(fileA, fileB))`
-  multi-`FileSpec` overload (a hand-written case in `EdgeUsageTest`, not the union); a *same-package*
-  `repeatable` case fits fine. (2) **`typealias`** referencing — a Kotlin `typealias` is a KotlinPoet
-  `TypeAliasSpec`, not a `TypeSpec`, so `SnapshotScenario(List<TypeSpec>)` can't carry it; alias
-  resolution is generic and already integration-tested under `test/.../<name>/TypeAlias*.kt`.
+- **`SnapshotScenario` holds a `List<FileSpec>` (`scenario.files`, one per package).** The
+  single-package convenience (`SnapshotScenario(vararg/List<TypeSpec>)`) wraps every decl in one
+  `GENERATED_PACKAGE` file (named after the first decl's FQN). So: (1) **cross-package** output
+  (source/target in a different package than the holder) IS expressible — build each file with
+  `inputFileSpec(packageName, …)` and pass them all
+  (`SnapshotScenario(files = listOf(inputFileSpec("a", …), inputFileSpec("b", …)))`); `scenario.files`
+  goes straight into `runCompileSnapshotTest(inputs = …)`. The curated generator union stays
+  single-package, so a cross-package case is a hand-written scenario (or an `EdgeUsageTest` case), not
+  part of the union; a *same-package* `repeatable` case fits the union fine. (2) **`typealias`**
+  referencing — a Kotlin `typealias` is a KotlinPoet `TypeAliasSpec`, not a `TypeSpec`, so the
+  `TypeSpec`-based factories can't carry it; alias resolution is generic and already
+  integration-tested under `test/.../<name>/TypeAlias*.kt`.
 
 ## Reference files
 

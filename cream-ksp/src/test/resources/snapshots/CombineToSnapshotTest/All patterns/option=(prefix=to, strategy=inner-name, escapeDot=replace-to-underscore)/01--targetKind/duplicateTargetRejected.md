@@ -1,4 +1,4 @@
-## Input:Input
+## Input:me.tbsten.cream.generated.Source
 
 ```kt
 package me.tbsten.cream.generated
@@ -41,7 +41,7 @@ COMPILATION_ERROR
 
 ```kt
 e: Error occurred in KSP, check log for detail
-e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/Input.kt:10: Invalid cream usage: Duplicate target me.tbsten.cream.generated.Target in @CombineTo of me.tbsten.cream.generated.Source.
+e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/me.tbsten.cream.generated.Source.kt:10: Invalid cream usage: Duplicate target me.tbsten.cream.generated.Target in @CombineTo of me.tbsten.cream.generated.Source.
 
 Solution: 
   Remove the duplicate target from @CombineTo (list each target at most once).

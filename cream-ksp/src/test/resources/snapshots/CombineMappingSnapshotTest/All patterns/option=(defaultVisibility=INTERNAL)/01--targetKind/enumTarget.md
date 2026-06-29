@@ -1,4 +1,4 @@
-## Input:Input
+## Input:me.tbsten.cream.generated.Mapping
 
 ```kt
 package me.tbsten.cream.generated
@@ -49,7 +49,7 @@ COMPILATION_ERROR
 
 ```kt
 e: Error occurred in KSP, check log for detail
-e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/Input.kt:21: Invalid cream usage: Unsupported combine to enum class (me.tbsten.cream.generated.Target).
+e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/me.tbsten.cream.generated.Mapping.kt:21: Invalid cream usage: Unsupported combine to enum class (me.tbsten.cream.generated.Target).
 
 Solution: 
   Please make me.tbsten.cream.generated.Target a class or object.

@@ -1,4 +1,4 @@
-## Input:Input
+## Input:me.tbsten.cream.generated.Mapping
 
 ```kt
 package me.tbsten.cream.generated
@@ -45,7 +45,7 @@ COMPILATION_ERROR
 
 ```kt
 e: Error occurred in KSP, check log for detail
-e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/Input.kt:17: Invalid cream usage: Unsupported target abstract class (me.tbsten.cream.generated.Target). An abstract class cannot be instantiated.
+e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/me.tbsten.cream.generated.Mapping.kt:17: Invalid cream usage: Unsupported target abstract class (me.tbsten.cream.generated.Target). An abstract class cannot be instantiated.
 
 Solution: 
   Specify a concrete (non-abstract) class as the target.

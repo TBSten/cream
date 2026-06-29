@@ -1,4 +1,4 @@
-## Input:Input
+## Input:me.tbsten.cream.generated.Mapping
 
 ```kt
 package me.tbsten.cream.generated
@@ -48,7 +48,7 @@ COMPILATION_ERROR
 
 ```kt
 e: Error occurred in KSP, check log for detail
-e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/Input.kt:10: Invalid cream usage: me.tbsten.cream.generated.SourceB (Specified in @CombineMapping.sources) must be a class.
+e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/me.tbsten.cream.generated.Mapping.kt:10: Invalid cream usage: me.tbsten.cream.generated.SourceB (Specified in @CombineMapping.sources) must be a class.
 
 Solution: 
   Specify a class in @CombineMapping.sources

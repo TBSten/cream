@@ -1,4 +1,4 @@
-## Input:Input
+## Input:me.tbsten.cream.generated.SourceA
 
 ```kt
 package me.tbsten.cream.generated
@@ -58,7 +58,7 @@ COMPILATION_ERROR
 
 ```kt
 e: Error occurred in KSP, check log for detail
-e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/Input.kt:12: Invalid cream usage: @CombineTo on me.tbsten.cream.generated.SourceA sets a fixed funName "toTarget",
+e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/me.tbsten.cream.generated.SourceA.kt:12: Invalid cream usage: @CombineTo on me.tbsten.cream.generated.SourceA sets a fixed funName "toTarget",
 but it generates more than one function (multiple targets or sources, a sealed
 target, or a reversible mapping). Those functions would all share that name and collide.
 
@@ -67,7 +67,7 @@ Solution:
     funName = "to" + CopyTargetSimpleName
   or split the declaration into separate annotations.
 
-e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/Input.kt:21: Invalid cream usage: @CombineTo on me.tbsten.cream.generated.SourceB sets a fixed funName "toTarget",
+e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/me.tbsten.cream.generated.SourceA.kt:21: Invalid cream usage: @CombineTo on me.tbsten.cream.generated.SourceB sets a fixed funName "toTarget",
 but it generates more than one function (multiple targets or sources, a sealed
 target, or a reversible mapping). Those functions would all share that name and collide.
 

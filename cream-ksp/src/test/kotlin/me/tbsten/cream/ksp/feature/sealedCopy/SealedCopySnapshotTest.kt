@@ -17,7 +17,6 @@ import me.tbsten.cream.ksp.testing.generator.Generator
 import me.tbsten.cream.ksp.testing.generator.cream.validCreamOptions
 import me.tbsten.cream.ksp.testing.generator.util.cartesian
 import me.tbsten.cream.ksp.testing.generator.util.union
-import me.tbsten.cream.ksp.testing.poet.toFileSpec
 
 /**
  * Golden snapshot coverage for `@SealedCopy` (sealed self-copy, type-preserving). See `.claude/skills/cream-snapshot-test`.
@@ -63,7 +62,7 @@ internal class SealedCopySnapshotTest :
                     val (scenario, creamOptions) = value
 
                     testCaseName!! {
-                        runCompileSnapshotTest(input = scenario.toFileSpec(), options = creamOptions)
+                        runCompileSnapshotTest(inputs = scenario.files, options = creamOptions)
                     }
                 }
         }

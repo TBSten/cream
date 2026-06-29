@@ -19,7 +19,6 @@ import me.tbsten.cream.ksp.testing.generator.Generator
 import me.tbsten.cream.ksp.testing.generator.cream.validCreamOptions
 import me.tbsten.cream.ksp.testing.generator.util.cartesian
 import me.tbsten.cream.ksp.testing.generator.util.union
-import me.tbsten.cream.ksp.testing.poet.toFileSpec
 
 /**
  * Golden snapshot coverage for `@CopyMapping` (holder-annotated library 1↔1 copy). See `.claude/skills/cream-snapshot-test`.
@@ -66,7 +65,7 @@ internal class CopyMappingSnapshotTest :
                     val (scenario, creamOptions) = value
 
                     testCaseName!! {
-                        runCompileSnapshotTest(input = scenario.toFileSpec(), options = creamOptions)
+                        runCompileSnapshotTest(inputs = scenario.files, options = creamOptions)
                     }
                 }
         }

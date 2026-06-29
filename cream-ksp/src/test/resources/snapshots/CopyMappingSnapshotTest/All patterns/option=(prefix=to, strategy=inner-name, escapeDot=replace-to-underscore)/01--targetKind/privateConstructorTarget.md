@@ -1,4 +1,4 @@
-## Input:Input
+## Input:me.tbsten.cream.generated.Mapping
 
 ```kt
 package me.tbsten.cream.generated
@@ -45,7 +45,7 @@ COMPILATION_ERROR
 
 ```kt
 e: Error occurred in KSP, check log for detail
-e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/Input.kt:17: Invalid cream usage: Unsupported target me.tbsten.cream.generated.Target: its primary constructor is private and cannot be called from generated code.
+e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/me.tbsten.cream.generated.Mapping.kt:17: Invalid cream usage: Unsupported target me.tbsten.cream.generated.Target: its primary constructor is private and cannot be called from generated code.
 
 Solution: 
   Make the primary constructor of me.tbsten.cream.generated.Target public or internal.

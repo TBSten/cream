@@ -1,4 +1,4 @@
-## Input:Input
+## Input:me.tbsten.cream.generated.Source
 
 ```kt
 package me.tbsten.cream.generated
@@ -36,7 +36,7 @@ COMPILATION_ERROR
 
 ```kt
 e: Error occurred in KSP, check log for detail
-e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/Input.kt:8: Invalid cream usage: Unsupported target enum class (me.tbsten.cream.generated.Child). An enum entry cannot be constructed as a target.
+e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/me.tbsten.cream.generated.Source.kt:8: Invalid cream usage: Unsupported target enum class (me.tbsten.cream.generated.Child). An enum entry cannot be constructed as a target.
 
 Solution: 
   Specify a class, object, annotation class, or sealed interface as the target.

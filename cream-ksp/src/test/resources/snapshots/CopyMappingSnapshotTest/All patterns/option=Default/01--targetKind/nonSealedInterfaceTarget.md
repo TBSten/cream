@@ -1,4 +1,4 @@
-## Input:Input
+## Input:me.tbsten.cream.generated.Mapping
 
 ```kt
 package me.tbsten.cream.generated
@@ -43,7 +43,7 @@ COMPILATION_ERROR
 
 ```kt
 e: Error occurred in KSP, check log for detail
-e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/Input.kt:16: Invalid cream usage: Unsupported target interface (me.tbsten.cream.generated.Target). It must be a sealed interface.
+e: [ksp] <TMPDIR>/Kotlin-Compilation<N>/sources/me.tbsten.cream.generated.Mapping.kt:16: Invalid cream usage: Unsupported target interface (me.tbsten.cream.generated.Target). It must be a sealed interface.
 
 Solution: 
   Please make me.tbsten.cream.generated.Target a sealed interface.
