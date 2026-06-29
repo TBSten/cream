@@ -13,34 +13,30 @@ internal class SnapshotScenarioTest :
         "vararg 宣言は単一パッケージ・単一ファイルになり先頭宣言の FQN で命名される" {
             val scenario = SnapshotScenario(clazz("Source"), clazz("Target"))
 
-            val files = scenario.toFileSpecs()
-
-            files.size shouldBe 1
-            files[0].packageName shouldBe GENERATED_PACKAGE
+            scenario.files.size shouldBe 1
+            scenario.files[0].packageName shouldBe GENERATED_PACKAGE
             // ファイル名（= Input: facet 名）は先頭宣言の完全修飾名にする。
-            files[0].name shouldBe "$GENERATED_PACKAGE.Source"
-            files[0].toString() shouldContain "class Source"
-            files[0].toString() shouldContain "class Target"
+            scenario.files[0].name shouldBe "$GENERATED_PACKAGE.Source"
+            scenario.files[0].toString() shouldContain "class Source"
+            scenario.files[0].toString() shouldContain "class Target"
         }
 
-        "ScenarioFile を複数渡すとパッケージごとに別ファイルへ分かれ各先頭宣言の FQN で命名される" {
+        "inputFileSpec を複数渡すとパッケージごとに別ファイルになり各先頭宣言の FQN で命名される" {
             val scenario =
                 SnapshotScenario(
                     files =
                         listOf(
-                            ScenarioFile("com.example.lib", clazz("LibSource")),
-                            ScenarioFile("com.example.mapping", clazz("Mapping")),
+                            inputFileSpec("com.example.lib", clazz("LibSource")),
+                            inputFileSpec("com.example.mapping", clazz("Mapping")),
                         ),
                 )
 
-            val files = scenario.toFileSpecs()
-
-            files.size shouldBe 2
-            files[0].packageName shouldBe "com.example.lib"
-            files[0].name shouldBe "com.example.lib.LibSource"
-            files[0].toString() shouldContain "class LibSource"
-            files[1].packageName shouldBe "com.example.mapping"
-            files[1].name shouldBe "com.example.mapping.Mapping"
-            files[1].toString() shouldContain "class Mapping"
+            scenario.files.size shouldBe 2
+            scenario.files[0].packageName shouldBe "com.example.lib"
+            scenario.files[0].name shouldBe "com.example.lib.LibSource"
+            scenario.files[0].toString() shouldContain "class LibSource"
+            scenario.files[1].packageName shouldBe "com.example.mapping"
+            scenario.files[1].name shouldBe "com.example.mapping.Mapping"
+            scenario.files[1].toString() shouldContain "class Mapping"
         }
     })
