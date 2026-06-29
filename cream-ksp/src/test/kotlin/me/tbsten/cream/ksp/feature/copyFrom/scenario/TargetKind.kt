@@ -92,5 +92,6 @@ internal fun targetKindScenarios(): Generator<SnapshotScenario> {
                 source,
             ),
         "privateConstructorTarget" to copyFrom(clazz("Target", Prop("name"), Prop("extra", INT), constructorVisibility = PRIVATE), source),
+        "annotationClassTarget" to copyFrom(TypeSpec.annotationBuilder("Target").build(), source),
     )
 }
