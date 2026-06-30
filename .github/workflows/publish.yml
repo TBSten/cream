@@ -1,7 +1,11 @@
 name: Publish
 on:
   release:
-    types: [ released, prereleased ]
+    # Use `published` so the workflow fires for both full releases and
+    # pre-releases — including pre-releases published from a draft, where
+    # `prereleased` does NOT fire (GitHub spec). `released` alone never
+    # fires for pre-releases. See docs: events-that-trigger-workflows#release.
+    types: [ published ]
   workflow_dispatch:
 
 jobs:
