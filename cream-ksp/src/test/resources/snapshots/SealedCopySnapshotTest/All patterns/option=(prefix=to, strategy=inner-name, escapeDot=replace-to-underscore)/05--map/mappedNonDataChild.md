@@ -13,7 +13,7 @@ public sealed interface Source {
   public class Custom(
     override val name: String,
   ) : Source {
-    @SealedCopy.Map
+    @SealedCopy.Via
     public fun cloneWith(name: String = this.name): Custom = Custom(name)
   }
 }
