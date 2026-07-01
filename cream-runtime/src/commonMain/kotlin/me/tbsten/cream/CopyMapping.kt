@@ -81,10 +81,39 @@ import kotlin.reflect.KClass
  * // Reverse: yProp -> xProp
  * ```
  *
+ * # Exclude
+ *
+ * Because the source and target classes live in libraries you cannot annotate, `@CopyTo.Exclude` /
+ * `@CopyFrom.Exclude` are not available here. Use the `excludes` parameter instead: each entry names a
+ * generated (target-side) parameter whose `= this.<property>` auto-copy default should be dropped, making it
+ * required — the annotation-level equivalent of `@Exclude`.
+ *
+ * ```kt
+ * @CopyMapping(
+ *     source = LibXModel::class,
+ *     target = LibYModel::class,
+ *     excludes = ["shareProp"],  // drop the auto-default for shareProp -> now required
+ * )
+ * private object Mapping
+ *
+ * // auto generate
+ * fun LibXModel.copyToLibYModel(
+ *     shareProp: String,          // no `= this.shareProp` default — required
+ *     yProp: Int,
+ * ): LibYModel = ...
+ * ```
+ *
+ * An `excludes` entry that matches no auto-defaulted parameter has no effect and emits a KSP warning.
+ * `excludes` reference target-side names; a renamed-then-excluded property is fine
+ * (`properties = [Map(source = "xProp", target = "yProp")]` + `excludes = ["yProp"]`).
+ *
  * @param source The source class to copy from
  * @param target The target class to copy to
  * @param canReverse If true, also generates a reverse copy function (target -> source). Default is false.
  * @param properties Property mappings that define how to map properties with different names between source and target.
+ * @param excludes Names of generated (target-side) parameters whose auto-copy default should be dropped, making
+ *   them required. The annotation-level equivalent of `@Exclude` for external classes. Unmatched entries emit a
+ *   KSP warning.
  * @param funName Template for the generated function name. Defaults to [DefaultCopyFunctionName]
  *   (cream's derived name). Embed naming tokens such as [CopyTargetSimpleName] to compose a name.
  *   When `canReverse` is true (or the target is sealed) use a token so the forward and reverse
@@ -107,6 +136,7 @@ public annotation class CopyMapping(
     val target: KClass<*>,
     val canReverse: Boolean = false,
     val properties: Array<Map> = [],
+    val excludes: Array<String> = [],
     val kdoc: KDoc = KDoc(),
     val funName: String = DefaultCopyFunctionName,
     val visibility: CopyVisibility = CopyVisibility.INHERIT,

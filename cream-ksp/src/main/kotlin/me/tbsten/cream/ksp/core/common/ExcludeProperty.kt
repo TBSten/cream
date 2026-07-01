@@ -2,6 +2,7 @@ package me.tbsten.cream.ksp.core.common
 
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSNode
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
 import me.tbsten.cream.CombineFrom
@@ -37,12 +38,14 @@ internal fun KSValueParameter.isExcludedFromCopy(
             annotationsOf(CombineFrom.Exclude::class).any()
         is GenerateSourceAnnotation.CopyToChildren ->
             matchedProperty?.annotationsOf(CopyToChildren.Exclude::class)?.any() == true
+        // CopyMapping / CombineMapping cannot annotate external classes with @Exclude, so the annotation-level
+        // `excludes` names the generated (target-side) parameter whose auto-copy default should be dropped.
+        is GenerateSourceAnnotation.CopyMapping ->
+            name?.asString() in generateSourceAnnotation.excludedParameterNames
+        is GenerateSourceAnnotation.CombineMapping ->
+            name?.asString() in generateSourceAnnotation.excludedParameterNames
         // SealedCopy is handled separately in appendSealedCopyHeader (not via this function).
-        // CopyMapping / CombineMapping: library-to-library, @Exclude not applicable.
-        is GenerateSourceAnnotation.SealedCopy,
-        is GenerateSourceAnnotation.CopyMapping,
-        is GenerateSourceAnnotation.CombineMapping,
-        -> false
+        is GenerateSourceAnnotation.SealedCopy -> false
     }
 
 /**
@@ -89,6 +92,37 @@ internal fun KSValueParameter.warnIfTargetExcludeHasNoEffect(
     if (hasExclude) {
         logger.warn("@Exclude on '$paramName' has no effect: not a matched property", this)
     }
+}
+
+/**
+ * Warns for each `@CopyMapping` / `@CombineMapping` `excludes` entry that names no auto-defaulted parameter of
+ * [generatedParameters] (a generated parameter matched to some [sources] property). Such an entry drops no default,
+ * so it is a no-op — mirroring the unmatched-`@Exclude` warning. Non-mapping annotations are ignored.
+ */
+internal fun GenerateSourceAnnotation.warnUnmatchedExcludes(
+    generatedParameters: List<KSValueParameter>,
+    sources: List<KSClassDeclaration>,
+    node: KSNode,
+    logger: KSPLogger,
+) {
+    val gsa = this
+    val excludes =
+        when (gsa) {
+            is GenerateSourceAnnotation.CopyMapping -> gsa.excludedParameterNames
+            is GenerateSourceAnnotation.CombineMapping -> gsa.excludedParameterNames
+            else -> return
+        }
+    if (excludes.isEmpty()) return
+    val autoDefaultedNames =
+        generatedParameters
+            .filter { param -> sources.any { source -> param.findMatchedProperty(source, gsa) != null } }
+            .mapNotNull { it.name?.asString() }
+            .toSet()
+    excludes
+        .filterNot { it in autoDefaultedNames }
+        .forEach { name ->
+            logger.warn("excludes entry '$name' has no effect: not an auto-defaulted parameter", node)
+        }
 }
 
 /**

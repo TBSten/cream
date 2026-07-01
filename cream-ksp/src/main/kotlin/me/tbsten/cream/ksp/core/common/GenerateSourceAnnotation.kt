@@ -3,6 +3,7 @@ package me.tbsten.cream.ksp.core.common
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSDeclaration
 import me.tbsten.cream.CopyVisibility
+import me.tbsten.cream.ksp.util.ksp.getArgument
 
 /**
  * Identifies the source annotation that triggered a generation and exposes the user-facing
@@ -100,6 +101,10 @@ internal sealed interface GenerateSourceAnnotation {
                 annotation.extractPropertyMappings().let { pairs ->
                     if (reversed) pairs.map { (source, target) -> target to source } else pairs
                 }
+
+        /** Generated (target-side) parameter names whose auto-copy default is dropped (`excludes`). */
+        val excludedParameterNames: List<String>
+            get() = annotation.excludedParameterNames()
     }
 
     /** `@CombineMapping` property remappings. `@CombineMapping` has no reverse direction. */
@@ -108,5 +113,12 @@ internal sealed interface GenerateSourceAnnotation {
     ) : GenerateSourceAnnotation {
         val propertyMappings: List<Pair<String, String>>
             get() = annotation.extractPropertyMappings()
+
+        /** Generated (target-side) parameter names whose auto-copy default is dropped (`excludes`). */
+        val excludedParameterNames: List<String>
+            get() = annotation.excludedParameterNames()
     }
 }
+
+/** Read the `excludes: Array<String>` argument of a `@CopyMapping` / `@CombineMapping` as a list of names. */
+private fun KSAnnotation.excludedParameterNames(): List<String> = getArgument<List<*>>("excludes")?.filterIsInstance<String>() ?: emptyList()
