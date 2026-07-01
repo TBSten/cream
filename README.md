@@ -873,6 +873,7 @@ ksp {
     arg("cream.escapeDot", "replace-to-underscore")
     arg("cream.notCopyToObject", "false")
     arg("cream.defaultVisibility", "INHERIT")
+    arg("cream.nonCopyableStrategy", "ERROR")
 }
 ```
 
@@ -885,6 +886,7 @@ ksp {
 | **`cream.escapeDot`**             | How to escape `. ` in the name given by `cream.copyFunNamingStrategy`.      | `lower-camel-case`, `replace-to-underscore`                      | `lower-camel-case` |
 | **`cream.notCopyToObject`**       | If `true`, @CopyToChildren will not generate a copy function to the object. | `true` , `false`                                                         | `false`            |
 | **`cream.defaultVisibility`**     | Module-wide default visibility for generated functions, applied when an annotation's `visibility` is `INHERIT`. | `INHERIT`, `PUBLIC`, `INTERNAL` | `INHERIT`          |
+| **`cream.nonCopyableStrategy`**   | Module-wide default `@SealedCopy` strategy for non-copyable (`object` / no-`copy`) leaves, applied when an annotation's `nonCopyableStrategy` is `INHERIT`. | `INHERIT`, `ERROR`, `RETURN_AS_IS`, `RETURN_NULL` | `ERROR` (effective) |
 
 ### Option 1. `cream.copyFunNamePrefix`
 
@@ -967,6 +969,28 @@ Precedence is:
 For example, with `cream.defaultVisibility=INTERNAL`, a plain `@CopyTo(Target::class)` generates an
 `internal` copy function without having to add `visibility = CopyVisibility.INTERNAL` to each
 annotation.
+
+### Option 6. `cream.nonCopyableStrategy`
+
+| Default             | Possible values                                          |
+|---------------------|----------------------------------------------------------|
+| `ERROR` (effective) | One of `INHERIT`, `ERROR`, `RETURN_AS_IS`, `RETURN_NULL` |
+
+Sets the module-wide default [`nonCopyableStrategy`](#sealedcopy) for `@SealedCopy` — how a sealed
+hierarchy's non-copyable leaves (`object`s, or non-data classes without a compatible `copy(...)` /
+`@SealedCopy.Via`) are handled. This is the project-level counterpart of the per-annotation
+`nonCopyableStrategy = NonCopyableStrategy.<...>` argument. Like `cream.defaultVisibility` it only takes
+effect where the annotation leaves the value at its `INHERIT` sentinel, and it only affects `@SealedCopy`.
+
+Precedence is:
+
+1. An explicit annotation `nonCopyableStrategy` (anything other than `INHERIT`) — always wins.
+2. Otherwise `cream.nonCopyableStrategy`, when it selects `ERROR` / `RETURN_AS_IS` / `RETURN_NULL`.
+3. Otherwise (both are `INHERIT`) the effective strategy is `ERROR`, exactly as before this option existed.
+
+For example, with `cream.nonCopyableStrategy=RETURN_AS_IS`, a plain `@SealedCopy` on a hierarchy that
+contains an `object` leaf emits `is Empty -> this` for it instead of failing the build, without adding
+`nonCopyableStrategy = NonCopyableStrategy.RETURN_AS_IS` to each annotation.
 
 ## 🆚 6. Comparison with Other Libraries
 
