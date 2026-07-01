@@ -629,8 +629,27 @@ warning.
 affects the `@CopyToChildren`-generated per-child copy functions. Both annotations can coexist on the same sealed
 type without interfering.
 
-`@CopyMapping` and `@CombineMapping` do not support `@Exclude` (the source and target classes are not in your own
-code, so annotating their properties is not possible).
+`@CopyMapping` and `@CombineMapping` cannot use `@Exclude` (their source/target classes live in libraries you
+cannot annotate). Use their `excludes` parameter instead — each entry names a generated (target-side) parameter
+whose auto-copy default is dropped, making it required. This is the annotation-level equivalent of `@Exclude`, the
+same way `properties = [Map(...)]` is the annotation-level equivalent of `.Map`.
+
+```kt
+@CopyMapping(
+    source = LibXModel::class,
+    target = LibYModel::class,
+    excludes = ["shareProp"],  // drop shareProp's auto-default — now required
+)
+private object Mapping
+
+// Generated:
+fun LibXModel.copyToLibYModel(
+    shareProp: String,          // required — no `= this.shareProp`
+    yProp: Int,
+): LibYModel = ...
+```
+
+An `excludes` entry that matches no auto-defaulted parameter has no effect and emits a KSP warning.
 
 <details>
 <summary>Generated code examples</summary>
