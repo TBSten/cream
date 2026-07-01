@@ -22,6 +22,7 @@ import me.tbsten.cream.ksp.core.common.reportCreamError
 import me.tbsten.cream.ksp.core.common.resolveClassDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.resolveToClassDeclaration
 import me.tbsten.cream.ksp.core.common.underPackageName
+import me.tbsten.cream.ksp.core.common.warnUnmatchedExcludes
 import me.tbsten.cream.ksp.util.ksp.getArgument
 import me.tbsten.cream.ksp.util.with
 
@@ -123,6 +124,22 @@ internal fun processCombineMapping(): List<KSAnnotated> =
                 }
             if (parsedMappings.any { it == null }) return@forEach
             val combineMappings = parsedMappings.filterNotNull()
+
+            // Warn on `excludes` entries that match no auto-defaulted parameter (mirrors the @Exclude no-op
+            // warning). Done before generation so it fires regardless of file emission.
+            combineMappings.forEach { mapping ->
+                GenerateSourceAnnotation
+                    .CombineMapping(annotation = mapping.rawAnnotation)
+                    .warnUnmatchedExcludes(
+                        generatedParameters =
+                            mapping.targetClass.primaryConstructor
+                                ?.parameters
+                                .orEmpty(),
+                        sources = mapping.sourceClasses,
+                        node = annotatedDeclaration,
+                        logger = processContext.logger,
+                    )
+            }
 
             val mappingPackage = annotatedDeclaration.packageName
             val omitPackages = omitPackagesFor(mappingPackage)

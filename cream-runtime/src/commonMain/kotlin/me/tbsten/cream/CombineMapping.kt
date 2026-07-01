@@ -77,6 +77,27 @@ import kotlin.reflect.KClass
  * ): LibCModel = ...
  * ```
  *
+ * # Exclude
+ *
+ * Because the source and target classes live in libraries you cannot annotate, `@CombineTo.Exclude` /
+ * `@CombineFrom.Exclude` are not available here. Use the `excludes` parameter instead: each entry names a
+ * generated (target-side) parameter whose `= this.<property>` / `= <source>.<property>` auto-copy default should
+ * be dropped, making it required — the annotation-level equivalent of `@Exclude`.
+ *
+ * ```kt
+ * @CombineMapping(
+ *     sources = [LibAModel::class, LibBModel::class],
+ *     target = LibCModel::class,
+ *     excludes = ["propA"],  // drop the auto-default for propA -> now required
+ * )
+ * private object Mapping
+ * ```
+ *
+ * `excludes` entries are **always target-side names** (the combine-destination constructor parameter),
+ * even when `properties` renames the matching source property.
+ *
+ * An `excludes` entry that matches no auto-defaulted parameter has no effect and emits a KSP warning.
+ *
  * @param sources The source classes to combine from (must have at least 2 sources)
  * @param target The target class to combine to
  * @param properties Property mappings that define how to map properties with different names between sources and target.
@@ -87,6 +108,9 @@ import kotlin.reflect.KClass
  *   (cream's derived name). Embed naming tokens such as [CopyTargetSimpleName] to compose a name,
  *   or pass a plain literal. `@CombineMapping` always generates a single function.
  *   See `CopyFunctionNameToken.kt`.
+ * @param excludes Names of generated parameters whose auto-copy default should be dropped, making them
+ *   required. Always specify the **target-side** (combine-destination constructor parameter) name. The
+ *   annotation-level equivalent of `@Exclude` for external classes. Unmatched entries emit a KSP warning.
  *
  * @see CombineTo
  * @see CombineFrom
@@ -104,6 +128,8 @@ public annotation class CombineMapping(
     val kdoc: KDoc = KDoc(),
     val visibility: CopyVisibility = CopyVisibility.INHERIT,
     val funName: String = DefaultCopyFunctionName,
+    // New parameters are appended at the tail so published positional usages stay source-compatible.
+    val excludes: Array<String> = [],
 ) {
     /**
      * Defines a property name mapping between a source class and the target class.
