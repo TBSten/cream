@@ -48,7 +48,7 @@ internal fun nonCopyableErrorException(
                 appendLine("For non-data class subtypes you can also:")
                 appendLine("  • Make the subtype a 'data class'")
                 appendLine("  • Add a 'copy(...)' member function that accepts the abstract properties")
-                appendLine("  • Or annotate that copy-shaped function with @SealedCopy.Map")
+                appendLine("  • Or annotate that copy-shaped function with @SealedCopy.Via")
             }
         }
 
