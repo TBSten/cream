@@ -69,4 +69,17 @@ internal class OptionsDiagnosticTest :
                 "Input" facetOf source
             }
         }
+
+        "invalidNonCopyableStrategy" {
+            val result = compileWithCream(source, options = mapOf("cream.nonCopyableStrategy" to "not-a-strategy"))
+
+            withClue(result.messages) {
+                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+                result.normalizedCompilerOutput() shouldContain "cream.nonCopyableStrategy"
+            }
+            assertMatchesSnapshot(name = "OptionsDiagnosticTest.invalidNonCopyableStrategy.output") {
+                facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
+                "Input" facetOf source
+            }
+        }
     })
