@@ -91,7 +91,8 @@ package me.tbsten.cream
  *   `CopyFunctionNameToken.kt`.
  * @property nonCopyableStrategy How to handle subtypes that have no `copy(...)` to delegate to
  *   (objects, or normal classes without a compatible copy function). Defaults to
- *   [NonCopyableStrategy.ERROR].
+ *   [NonCopyableStrategy.INHERIT], which defers to the project-level `cream.nonCopyableStrategy`
+ *   option; when that is unset too, the effective strategy is [NonCopyableStrategy.ERROR].
  * @property kdoc Custom KDoc (description / examples) injected into the generated
  *   function's KDoc, the same way as cream's other source annotations. See [KDoc].
  * @property visibility Visibility modifier of the generated extension function. Defaults to
@@ -109,7 +110,7 @@ package me.tbsten.cream
 @Repeatable
 public annotation class SealedCopy(
     val funName: String = DefaultCopyFunctionName,
-    val nonCopyableStrategy: NonCopyableStrategy = NonCopyableStrategy.ERROR,
+    val nonCopyableStrategy: NonCopyableStrategy = NonCopyableStrategy.INHERIT,
     val kdoc: KDoc = KDoc(),
     val visibility: CopyVisibility = CopyVisibility.INHERIT,
 ) {
@@ -237,8 +238,10 @@ public annotation class SealedCopy(
  * - It is a normal `class` that has no compatible `copy(...)` member function
  *   (and no [SealedCopy.Via] redirect to one).
  *
- * The three strategies differ in **what cream emits for the non-copyable branches**
- * and, for [RETURN_NULL], in the return type of the generated function. Given:
+ * [ERROR], [RETURN_AS_IS] and [RETURN_NULL] are the three real strategies; they differ in **what
+ * cream emits for the non-copyable branches** and, for [RETURN_NULL], in the return type of the
+ * generated function. [INHERIT] is a sentinel that defers to the project-level
+ * `cream.nonCopyableStrategy` option. Given:
  *
  * ```kt
  * @SealedCopy(nonCopyableStrategy = <strategy>)
@@ -256,12 +259,26 @@ public annotation class SealedCopy(
  */
 public enum class NonCopyableStrategy {
     /**
+     * Sentinel: defer to the project-level `cream.nonCopyableStrategy` KSP option. This is the
+     * default for [SealedCopy.nonCopyableStrategy], mirroring [CopyVisibility.INHERIT] for `visibility`.
+     *
+     * Resolution order:
+     * 1. An explicit annotation `nonCopyableStrategy` (anything other than `INHERIT`) — always wins.
+     * 2. Otherwise the `cream.nonCopyableStrategy` option, when it selects a real strategy.
+     * 3. Otherwise [ERROR] — the effective default when nothing is configured (fully backward compatible).
+     *
+     * `INHERIT` is never itself a real strategy: it is resolved to one of the three before generation.
+     */
+    INHERIT,
+
+    /**
      * Refuse to generate the function. The KSP processor raises an
      * `InvalidCreamUsageException` whose message names the offending subtype(s) and
      * recommends the other strategy values (or `@SealedCopy.Via`).
      *
-     * This is the default because silent fallbacks for non-data classes are usually a
-     * design mistake the author should see early.
+     * This is the **effective default** when neither the annotation nor `cream.nonCopyableStrategy`
+     * selects a strategy, because silent fallbacks for non-data classes are usually a design mistake
+     * the author should see early.
      *
      * # Generated code
      *

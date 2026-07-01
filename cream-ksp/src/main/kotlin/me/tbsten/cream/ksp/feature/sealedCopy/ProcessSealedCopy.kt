@@ -132,11 +132,16 @@ internal fun processSealedCopy(): List<KSAnnotated> =
                     fileName = "SealedCopy__${annotated.underPackageName}",
                 ) {
                     annotationsWithFunName.forEach { (sealedAnnotation, funName) ->
-                        val nonCopyableStrategy =
+                        // Precedence mirrors cream.defaultVisibility: an explicit annotation strategy wins; a bare
+                        // @SealedCopy (or an explicit INHERIT) defers to cream.nonCopyableStrategy; when that is also
+                        // INHERIT the effective strategy is ERROR (fully backward compatible).
+                        val annotationStrategy =
                             sealedAnnotation
                                 .getArgument<Any>("nonCopyableStrategy")
                                 ?.toNonCopyableStrategy()
-                                ?: NonCopyableStrategy.ERROR
+                                ?: NonCopyableStrategy.INHERIT
+                        val nonCopyableStrategy =
+                            resolveNonCopyableStrategy(annotationStrategy, processContext.options.nonCopyableStrategy)
 
                         // Pass the raw per-occurrence annotation: @SealedCopy is @Repeatable and each
                         // occurrence is its own variant, so GSA must read kdoc/visibility/funName from
@@ -204,6 +209,20 @@ private fun KSPLogger.reportSealedCopyDuplicateFunName(
         ),
         annotated,
     )
+}
+
+/**
+ * Resolve the effective [NonCopyableStrategy] from the (already-defaulted-to-[NonCopyableStrategy.INHERIT])
+ * per-annotation value and the project-level [optionStrategy] (`cream.nonCopyableStrategy`). An explicit
+ * annotation value wins; `INHERIT` defers to the option; when that is also `INHERIT` the fallback is
+ * [NonCopyableStrategy.ERROR]. Mirrors `CopyVisibility.toModifierString`'s precedence for `cream.defaultVisibility`.
+ */
+private fun resolveNonCopyableStrategy(
+    annotationStrategy: NonCopyableStrategy,
+    optionStrategy: NonCopyableStrategy,
+): NonCopyableStrategy {
+    val effective = if (annotationStrategy != NonCopyableStrategy.INHERIT) annotationStrategy else optionStrategy
+    return if (effective != NonCopyableStrategy.INHERIT) effective else NonCopyableStrategy.ERROR
 }
 
 /**
