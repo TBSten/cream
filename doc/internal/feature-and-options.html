@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>機能とオプションの対応 — cream.kt</title>
+<style>
+  :root {
+    --bg: #fafafa; --fg: #1f2328; --muted: #656d76; --border: #d0d7de;
+    --head: #2d333b; --headfg: #fff; --stripe: #f3f4f6;
+    --yes: #1a7f37; --yesbg: #e6f4ea; --no: #cf222e; --nobg: #fbe9eb;
+    --apply: #57606a; --applybg: #eef1f4; --alt: #9a6700; --altbg: #fff3d6;
+    --accent: #692DFA;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", "Segoe UI", sans-serif;
+    margin: 0; padding: 2rem 1.5rem 4rem; background: var(--bg); color: var(--fg); line-height: 1.6;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  h1 { font-size: 1.5rem; margin: 0 0 .25rem; }
+  .meta { color: var(--muted); font-size: .85rem; margin-bottom: 1.4rem; }
+  code { background: #eaeef2; padding: .1em .35em; border-radius: 4px; font-size: .85em;
+         font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .legend { display: flex; flex-wrap: wrap; gap: .5rem 1rem; margin: .6rem 0 1.2rem; font-size: .85rem; }
+  .legend span { display: inline-flex; align-items: center; gap: .35rem; }
+  .pill { display: inline-block; min-width: 1.4em; text-align: center; padding: .05em .45em;
+          border-radius: 999px; font-weight: 600; font-size: .82em; }
+  .yes   { color: var(--yes);   background: var(--yesbg); }
+  .no    { color: var(--no);    background: var(--nobg); }
+  .apply { color: var(--apply); background: var(--applybg); }
+  .alt   { color: var(--alt);   background: var(--altbg); }
+  .tablewrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; }
+  table { border-collapse: collapse; width: 100%; font-size: .86rem; background: #fff; }
+  th, td { border: 1px solid var(--border); padding: .5rem .6rem; text-align: center; vertical-align: middle; }
+  thead th { position: sticky; top: 0; background: var(--head); color: var(--headfg); z-index: 2; font-weight: 600; }
+  tbody th { text-align: left; background: #f6f8fa; font-weight: 600; white-space: nowrap; position: sticky; left: 0; z-index: 1; }
+  td.opt-proj { text-align: left; white-space: nowrap; }
+  tbody tr:nth-child(even) td { background: var(--stripe); }
+  tbody tr:nth-child(even) th { background: #eef1f4; }
+  tr.hot th, tr.hot td.opt-proj { color: var(--accent); }
+  tbody tr.group th { text-align: left; white-space: normal; position: static;
+                      background: #ece5ff; color: var(--accent); font-size: .84rem;
+                      border-top: 2px solid var(--accent); }
+  @media (max-width: 640px) { body { padding: 1.2rem .8rem 3rem; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>機能とオプションの対応</h1>
+  <div class="meta"><b>v0.9.0-alpha01 時点の情報</b>。出典は <code>cream-runtime</code> の注釈定義と <code>CreamOptions</code>（<code>cream-ksp/shared</code>）。</div>
+
+  <div class="legend">
+    <span><span class="pill yes">✓</span> その単位で指定可</span>
+    <span><span class="pill no">✕</span> 該当引数なし</span>
+    <span><span class="pill apply">適用</span> 引数は無いがプロジェクト設定が効く</span>
+    <span><span class="pill alt">✱</span> 別オプションが担当</span>
+  </div>
+  <div class="tablewrap">
+  <table>
+    <thead>
+      <tr>
+        <th>オプション</th>
+        <th>プロジェクト単位<br>(<code>ksp.arg</code>)</th>
+        <th>CopyTo</th>
+        <th>CopyFrom</th>
+        <th>CopyToChildren</th>
+        <th>SealedCopy</th>
+        <th>CombineTo</th>
+        <th>CombineFrom</th>
+        <th>CopyMapping</th>
+        <th>CombineMapping</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="group"><th colspan="10">命名 — 生成関数の名前</th></tr>
+      <tr>
+        <th>関数名 prefix</th>
+        <td class="opt-proj"><span class="pill yes">✓</span> <code>cream.copyFunNamePrefix</code></td>
+        <td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td>
+      </tr>
+      <tr>
+        <th>関数名 strategy</th>
+        <td class="opt-proj"><span class="pill yes">✓</span> <code>cream.copyFunNamingStrategy</code></td>
+        <td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td>
+      </tr>
+      <tr>
+        <th>ドット処理 escapeDot</th>
+        <td class="opt-proj"><span class="pill yes">✓</span> <code>cream.escapeDot</code></td>
+        <td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td>
+      </tr>
+      <tr class="hot">
+        <th>funName（名前個別上書き）</th>
+        <td class="opt-proj">—（既定値が上記3つを合成）</td>
+        <td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td>
+      </tr>
+      <tr class="group"><th colspan="10">可視性・ドキュメント</th></tr>
+      <tr class="hot">
+        <th>visibility</th>
+        <td class="opt-proj"><span class="pill yes">✓</span> <code>cream.defaultVisibility</code></td>
+        <td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td>
+      </tr>
+      <tr>
+        <th>kdoc</th>
+        <td class="opt-proj"><span class="pill no">✕</span> 無</td>
+        <td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td>
+      </tr>
+      <tr class="group"><th colspan="10">コピー挙動の制御（機能固有トグル）</th></tr>
+      <tr>
+        <th>notCopyToObject</th>
+        <td class="opt-proj"><span class="pill yes">✓</span> <code>cream.notCopyToObject</code></td>
+        <td><span class="pill apply">適用</span></td><td><span class="pill apply">適用</span></td><td><span class="pill yes">✓</span></td><td><span class="pill alt">✱</span></td><td><span class="pill apply">適用</span></td><td><span class="pill apply">適用</span></td><td><span class="pill apply">適用</span></td><td><span class="pill apply">適用</span></td>
+      </tr>
+      <tr>
+        <th>nonCopyableStrategy</th>
+        <td class="opt-proj"><span class="pill no">✕</span> 無</td>
+        <td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill yes">✓</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td>
+      </tr>
+      <tr>
+        <th>canReverse</th>
+        <td class="opt-proj"><span class="pill no">✕</span> 無</td>
+        <td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill yes">✓</span></td><td><span class="pill no">✕</span></td>
+      </tr>
+      <tr class="group"><th colspan="10">プロパティ単位の制御</th></tr>
+      <tr>
+        <th>名前マッピング (<code>.Map</code>/<code>properties</code>)</th>
+        <td class="opt-proj"><span class="pill no">✕</span> 無</td>
+        <td><span class="pill yes">✓</span>Map</td><td><span class="pill yes">✓</span>Map</td><td><span class="pill no">✕</span></td><td><span class="pill yes">✓</span>Map</td><td><span class="pill yes">✓</span>Map</td><td><span class="pill yes">✓</span>Map</td><td><span class="pill yes">✓</span>prop</td><td><span class="pill yes">✓</span>prop</td>
+      </tr>
+      <tr>
+        <th>自動コピー除外 (<code>.Exclude</code>)</th>
+        <td class="opt-proj"><span class="pill no">✕</span> 無</td>
+        <td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td>
+      </tr>
+      <tr class="group"><th colspan="10">対象の指定</th></tr>
+      <tr>
+        <th>対象指定 targets/sources</th>
+        <td class="opt-proj">—（必須引数）</td>
+        <td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td>—<br><small>(自身)</small></td><td>—<br><small>(自身)</small></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+</body>
+</html>
