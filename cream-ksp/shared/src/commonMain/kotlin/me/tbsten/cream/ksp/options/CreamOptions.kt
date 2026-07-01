@@ -3,6 +3,7 @@ package me.tbsten.cream.ksp.options
 import kotlinx.serialization.Serializable
 import me.tbsten.cream.CopyVisibility
 import me.tbsten.cream.InternalCreamApi
+import me.tbsten.cream.NonCopyableStrategy
 import me.tbsten.cream.ksp.InvalidCreamOptionException
 import me.tbsten.cream.ksp.util.lines
 import kotlin.reflect.KProperty1
@@ -15,6 +16,7 @@ public data class CreamOptions(
     val escapeDot: EscapeDot,
     val notCopyToObject: Boolean,
     val defaultVisibility: CopyVisibility,
+    val nonCopyableStrategy: NonCopyableStrategy,
 ) {
     public companion object {
         public val default: CreamOptions =
@@ -24,6 +26,7 @@ public data class CreamOptions(
                 escapeDot = EscapeDot.default,
                 notCopyToObject = false,
                 defaultVisibility = CopyVisibility.INHERIT,
+                nonCopyableStrategy = NonCopyableStrategy.INHERIT,
             )
 
         public val properties: List<KProperty1<CreamOptions, *>> =
@@ -33,6 +36,7 @@ public data class CreamOptions(
                 CreamOptions::escapeDot,
                 CreamOptions::notCopyToObject,
                 CreamOptions::defaultVisibility,
+                CreamOptions::nonCopyableStrategy,
             )
     }
 }
@@ -79,6 +83,19 @@ public fun Map<String, String>.toCreamOptions(): CreamOptions =
                     )
                 }
             } ?: CreamOptions.default.defaultVisibility,
+        nonCopyableStrategy =
+            this["cream.nonCopyableStrategy"]?.let { rawValue ->
+                try {
+                    // Accept the NonCopyableStrategy enum names case-insensitively, so both
+                    // "RETURN_AS_IS" (the serialized form) and "return_as_is" are valid.
+                    NonCopyableStrategy.valueOf(rawValue.uppercase())
+                } catch (e: IllegalArgumentException) {
+                    invalidNonCopyableStrategyError(
+                        actualValue = rawValue,
+                        cause = e,
+                    )
+                }
+            } ?: CreamOptions.default.nonCopyableStrategy,
     )
 
 @OptIn(InternalCreamApi::class)
@@ -142,6 +159,30 @@ private inline fun invalidDefaultVisibilityError(
                 "Set one of the following for ksp.arg:",
                 "",
                 *CopyVisibility.entries
+                    .map { "  - \"${it.name}\"" }
+                    .toTypedArray(),
+                "",
+            ),
+        cause = cause,
+    )
+
+@Suppress("NOTHING_TO_INLINE")
+@OptIn(InternalCreamApi::class)
+private inline fun invalidNonCopyableStrategyError(
+    actualValue: String?,
+    cause: IllegalArgumentException,
+): Nothing =
+    throw InvalidCreamOptionException(
+        message =
+            lines(
+                "Invalid ksp.arg[\"cream.nonCopyableStrategy\"] = $actualValue.",
+                "It must be one of ${NonCopyableStrategy.entries.joinToString(", ") { it.name }}",
+            ),
+        solution =
+            lines(
+                "Set one of the following for ksp.arg:",
+                "",
+                *NonCopyableStrategy.entries
                     .map { "  - \"${it.name}\"" }
                     .toTypedArray(),
                 "",
