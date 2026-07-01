@@ -6,6 +6,7 @@ import io.kotest.property.arbitrary.boolean
 import io.kotest.property.arbitrary.list
 import io.kotest.property.arbitrary.of
 import me.tbsten.cream.CopyVisibility
+import me.tbsten.cream.NonCopyableStrategy
 import me.tbsten.cream.ksp.options.CopyFunNamingStrategy
 import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.options.EscapeDot
@@ -44,6 +45,9 @@ internal fun Generator.Companion.validCreamOptions(
             escapeDot = escape,
             notCopyToObject = notCopyObject,
             defaultVisibility = visibility,
+            // nonCopyableStrategy only affects @SealedCopy, so it is not a shared snapshot axis (that would add a
+            // redundant option dir to every feature). Its precedence is covered by SealedCopyEdgeUsageTest.
+            nonCopyableStrategy = NonCopyableStrategy.INHERIT,
         )
     }.withRepresentativeValues {
         listOf(
