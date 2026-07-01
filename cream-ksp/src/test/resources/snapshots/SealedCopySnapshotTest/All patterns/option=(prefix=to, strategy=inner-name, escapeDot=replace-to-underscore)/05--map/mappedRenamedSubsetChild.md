@@ -10,11 +10,19 @@ import me.tbsten.cream.SealedCopy
 public sealed interface Source {
   public val name: String
 
+  public val label: String
+
+  public data class Loading(
+    override val name: String,
+    override val label: String,
+  ) : Source
+
   public class Custom(
     override val name: String,
+    override val label: String,
   ) : Source {
     @SealedCopy.Via
-    public fun cloneWith(name: String = this.name): Custom = Custom(name)
+    public fun cloneWith(name: String, @SealedCopy.Map("label") newLabel: String): Custom = Custom(name = name, label = newLabel)
   }
 }
 ```
@@ -23,9 +31,9 @@ public sealed interface Source {
 
 ```kt
 ksp {
-    arg("copyFunNamePrefix", "copyTo" /* default */)
-    arg("copyFunNamingStrategy", "under-package" /* default */)
-    arg("escapeDot", "lower-camel-case" /* default */)
+    arg("copyFunNamePrefix", "to")
+    arg("copyFunNamingStrategy", "inner-name")
+    arg("escapeDot", "replace-to-underscore")
     arg("notCopyToObject", "false" /* default */)
     arg("defaultVisibility", "INHERIT" /* default */)
 }
@@ -75,10 +83,13 @@ import me.tbsten.cream.*
  * 
  * @see Source
  * @see Source.Custom
+ * @see Source.Loading
  */
 public fun me.tbsten.cream.generated.Source.copy(
     name: String = this.name,
+    label: String = this.label,
 ): me.tbsten.cream.generated.Source = when (this) {
-    is me.tbsten.cream.generated.Source.Custom -> this.cloneWith(name = name)
+    is me.tbsten.cream.generated.Source.Custom -> this.cloneWith(name = name, newLabel = label)
+    is me.tbsten.cream.generated.Source.Loading -> this.copy(name = name, label = label)
 }
 ````
