@@ -361,6 +361,55 @@ fun MyState.copy(
 
 </details>
 
+### SealedCopy.Via, SealedCopy.Map
+
+By default `@SealedCopy` delegates each branch to that subtype's `copy(...)` (the synthetic one a `data class`
+provides). When a subtype is **not** a `data class` — or its copy-shaped function has a different name — mark the
+function you want cream to delegate to with **`@SealedCopy.Via`**.
+
+If that delegate does not accept every abstract property under its own parameter names, bind a parameter to a
+differently-named abstract property with **`@SealedCopy.Map("<property>")`**. This is the same "map to a
+differently-named counterpart" meaning `.Map` has on every other annotation.
+
+```kt
+@SealedCopy
+sealed interface MyState {
+    val name: String
+    val count: Int
+
+    data class Loading(override val name: String, override val count: Int) : MyState
+
+    class Custom(
+        override val name: String,
+        override val count: Int,
+    ) : MyState {
+        @SealedCopy.Via
+        fun cloneWith(
+            name: String,                          // matched to abstract property `name`
+            @SealedCopy.Map("count") amount: Int,  // matched to abstract property `count`
+        ): Custom = Custom(name = name, count = amount)
+    }
+}
+
+// Generated:
+fun MyState.copy(
+    name: String = this.name,
+    count: Int = this.count,
+): MyState = when (this) {
+    is MyState.Custom -> this.cloneWith(name = name, amount = count)  // uses the delegate's own parameter names
+    is MyState.Loading -> this.copy(name = name, count = count)
+}
+```
+
+Because the call uses the delegate's own parameter names, it always resolves to the annotated member function and
+never falls back to the generated extension. cream **validates** the delegate up front: every abstract property
+must be supplied (by name or via `@SealedCopy.Map`) and every parameter must either bind to an abstract property or
+have a default value. A gap is reported as a compile-time error instead of silently mis-generating.
+
+> **Migration (0.9.x):** `@SealedCopy.Via` replaces the old **function-level** `@SealedCopy.Map`. Rename any
+> `@SealedCopy.Map` placed on a function to `@SealedCopy.Via`. `@SealedCopy.Map` now takes a property name and is
+> placed on a `@Via` parameter (name mapping). This is a breaking change; cream is pre-1.0 (`0.9.0-alpha`).
+
 ### CombineTo
 
 Use `@CombineTo` to generate copy functions **from multiple source classes to a single target class**.
