@@ -873,7 +873,7 @@ ksp {
     arg("cream.escapeDot", "replace-to-underscore")
     arg("cream.notCopyToObject", "false")
     arg("cream.defaultVisibility", "INHERIT")
-    arg("cream.nonCopyableStrategy", "ERROR")
+    arg("cream.nonCopyableStrategy", "INHERIT")
 }
 ```
 
