@@ -106,6 +106,11 @@ internal fun KSValueParameter.warnIfTargetExcludeHasNoEffect(
  * The candidate parameters mirror what generation actually emits (see [generatedCopyParameters]): a class fans out
  * over **every** constructor, and a sealed target fans out over its concrete leaves — so the check is correct for
  * multi-constructor and sealed targets, not just a single primary constructor.
+ *
+ * For `@CopyMapping(canReverse = true)` the reverse function excludes via the source-side translation of each
+ * entry (see [GenerateSourceAnnotation.CopyMapping.excludedParameterNames]), so an entry that misses every
+ * forward parameter can still drop a reverse default. Such an entry is not a no-op, so it must not warn —
+ * keeping the warning consistent with what the reverse generation actually does.
  */
 internal fun GenerateSourceAnnotation.warnUnmatchedExcludes(
     targetClass: KSClassDeclaration,
@@ -114,10 +119,13 @@ internal fun GenerateSourceAnnotation.warnUnmatchedExcludes(
     logger: KSPLogger,
 ) {
     val gsa = this
-    val excludes =
+    // `excludes` as written (target-side names), plus the reversed-direction GSA when `canReverse`
+    // also generates a reverse function (null otherwise).
+    val (excludes, reversedGsa) =
         when (gsa) {
-            is GenerateSourceAnnotation.CopyMapping -> gsa.excludedParameterNames
-            is GenerateSourceAnnotation.CombineMapping -> gsa.excludedParameterNames
+            is GenerateSourceAnnotation.CopyMapping ->
+                gsa.excludedParameterNames to (if (gsa.canReverse) gsa.copy(reversed = true) else null)
+            is GenerateSourceAnnotation.CombineMapping -> gsa.excludedParameterNames to null
             else -> return
         }
     if (excludes.isEmpty()) return
@@ -127,11 +135,28 @@ internal fun GenerateSourceAnnotation.warnUnmatchedExcludes(
             .filter { param -> sources.any { source -> param.findMatchedProperty(source, gsa) != null } }
             .mapNotNull { it.name?.asString() }
             .toSet()
-    excludes
-        .filterNot { it in autoDefaultedNames }
-        .forEach { name ->
+    // The reverse function copies target -> source, so its auto-defaulted parameters come from the *source*
+    // classes' constructors matched against [targetClass]. `reversedGsa.excludedParameterNames` is the
+    // entry-by-entry source-side translation of `excludes` (same index = same entry).
+    val reverseExcludes = reversedGsa?.excludedParameterNames
+    val reverseAutoDefaultedNames =
+        reversedGsa
+            ?.let { reversed ->
+                sources
+                    .flatMap { forwardSource ->
+                        forwardSource
+                            .generatedCopyParameters()
+                            .filter { param -> param.findMatchedProperty(targetClass, reversed) != null }
+                            .mapNotNull { param -> param.name?.asString() }
+                    }.toSet()
+            }.orEmpty()
+    excludes.forEachIndexed { index, name ->
+        val effectiveForward = name in autoDefaultedNames
+        val effectiveReverse = reverseExcludes != null && reverseExcludes[index] in reverseAutoDefaultedNames
+        if (!effectiveForward && !effectiveReverse) {
             logger.warn("excludes entry '$name' has no effect: not an auto-defaulted parameter", node)
         }
+    }
 }
 
 /**

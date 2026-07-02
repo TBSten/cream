@@ -93,15 +93,17 @@ import kotlin.reflect.KClass
  * private object Mapping
  * ```
  *
+ * `excludes` entries are **always target-side names** (the combine-destination constructor parameter),
+ * even when `properties` renames the matching source property.
+ *
  * An `excludes` entry that matches no auto-defaulted parameter has no effect and emits a KSP warning.
- * `excludes` reference target-side names.
  *
  * @param sources The source classes to combine from (must have at least 2 sources)
  * @param target The target class to combine to
  * @param properties Property mappings that define how to map properties with different names between sources and target.
- * @param excludes Names of generated (target-side) parameters whose auto-copy default should be dropped, making
- *   them required. The annotation-level equivalent of `@Exclude` for external classes. Unmatched entries emit a
- *   KSP warning.
+ * @param excludes Names of generated parameters whose auto-copy default should be dropped, making them
+ *   required. Always specify the **target-side** (combine-destination constructor parameter) name. The
+ *   annotation-level equivalent of `@Exclude` for external classes. Unmatched entries emit a KSP warning.
  * @param visibility Visibility modifier of the generated copy function. Defaults to
  *   [CopyVisibility.INHERIT], which keeps cream's existing behaviour (the function inherits
  *   the target class's visibility).

@@ -96,6 +96,10 @@ internal sealed interface GenerateSourceAnnotation {
         override val annotation: KSAnnotation,
         val reversed: Boolean = false,
     ) : GenerateSourceAnnotation {
+        /** Whether the annotation also generates the reverse (target -> source) function (`canReverse`). */
+        val canReverse: Boolean
+            get() = annotation.getArgument<Boolean>("canReverse") ?: false
+
         val propertyMappings: List<Pair<String, String>>
             get() =
                 annotation.extractPropertyMappings().let { pairs ->
