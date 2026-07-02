@@ -112,9 +112,11 @@ public annotation class SealedCopy(
     /**
      * Select which function `@SealedCopy` delegates to for a subtype (**delegate selection**).
      *
-     * By default `@SealedCopy` delegates to each subtype's `copy(...)` (the synthetic one a
-     * `data class` provides). When a subtype is not a `data class` — or its copy-shaped function
-     * lives under a different name — annotate that function with `@SealedCopy.Via`. The generated
+     * By default `@SealedCopy` delegates to each subtype's `copy(...)` — the synthetic one a
+     * `data class` provides, or a manually declared `copy(...)` member that already accepts every
+     * abstract property (a non-`data class` with such a member needs no annotation). Annotate a
+     * function with `@SealedCopy.Via` only when there is no such `copy(...)` to delegate to, or when
+     * the delegate lives under a different name or takes a different parameter shape. The generated
      * `copy()` then calls the annotated function for that subtype's branch, passing each of its
      * value parameters the matching abstract property.
      *
