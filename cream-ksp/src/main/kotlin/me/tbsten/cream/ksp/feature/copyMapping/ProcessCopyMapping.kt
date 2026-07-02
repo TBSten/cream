@@ -142,10 +142,7 @@ internal fun processCopyMapping(): List<KSAnnotated> =
                 GenerateSourceAnnotation
                     .CopyMapping(annotation = mapping.rawAnnotation)
                     .warnUnmatchedExcludes(
-                        generatedParameters =
-                            mapping.targetClass.primaryConstructor
-                                ?.parameters
-                                .orEmpty(),
+                        targetClass = mapping.targetClass,
                         sources = listOf(mapping.sourceClass),
                         node = annotatedDeclaration,
                         logger = processContext.logger,

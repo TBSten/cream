@@ -1,6 +1,8 @@
 package me.tbsten.cream.ksp.core.common
 
+import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.processing.KSPLogger
+import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSNode
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
@@ -11,6 +13,8 @@ import me.tbsten.cream.CopyFrom
 import me.tbsten.cream.CopyTo
 import me.tbsten.cream.CopyToChildren
 import me.tbsten.cream.ksp.core.common.annotationsOf
+import me.tbsten.cream.ksp.util.ksp.collectConcreteSubclasses
+import me.tbsten.cream.ksp.util.ksp.isSealed
 import kotlin.reflect.KClass
 
 /**
@@ -96,11 +100,15 @@ internal fun KSValueParameter.warnIfTargetExcludeHasNoEffect(
 
 /**
  * Warns for each `@CopyMapping` / `@CombineMapping` `excludes` entry that names no auto-defaulted parameter of
- * [generatedParameters] (a generated parameter matched to some [sources] property). Such an entry drops no default,
- * so it is a no-op — mirroring the unmatched-`@Exclude` warning. Non-mapping annotations are ignored.
+ * [targetClass]'s generated copy function(s). An entry that matches no such parameter drops no default, so it is a
+ * no-op — mirroring the unmatched-`@Exclude` warning. Non-mapping annotations are ignored.
+ *
+ * The candidate parameters mirror what generation actually emits (see [generatedCopyParameters]): a class fans out
+ * over **every** constructor, and a sealed target fans out over its concrete leaves — so the check is correct for
+ * multi-constructor and sealed targets, not just a single primary constructor.
  */
 internal fun GenerateSourceAnnotation.warnUnmatchedExcludes(
-    generatedParameters: List<KSValueParameter>,
+    targetClass: KSClassDeclaration,
     sources: List<KSClassDeclaration>,
     node: KSNode,
     logger: KSPLogger,
@@ -114,7 +122,8 @@ internal fun GenerateSourceAnnotation.warnUnmatchedExcludes(
         }
     if (excludes.isEmpty()) return
     val autoDefaultedNames =
-        generatedParameters
+        targetClass
+            .generatedCopyParameters()
             .filter { param -> sources.any { source -> param.findMatchedProperty(source, gsa) != null } }
             .mapNotNull { it.name?.asString() }
             .toSet()
@@ -124,6 +133,18 @@ internal fun GenerateSourceAnnotation.warnUnmatchedExcludes(
             logger.warn("excludes entry '$name' has no effect: not an auto-defaulted parameter", node)
         }
 }
+
+/**
+ * The value parameters across every constructor a copy function is generated for, matching the generation dispatch
+ * (`appendCopyFunction`): a sealed target fans out over its concrete leaves' constructors, an `object` has none, and
+ * any other class fans out over all of its own constructors.
+ */
+private fun KSClassDeclaration.generatedCopyParameters(): List<KSValueParameter> =
+    when {
+        isSealed() -> collectConcreteSubclasses().flatMap { leaf -> leaf.getConstructors().flatMap { it.parameters } }.toList()
+        classKind == ClassKind.OBJECT -> emptyList()
+        else -> getConstructors().flatMap { it.parameters }.toList()
+    }
 
 /**
  * Warns when a source-side @Exclude (on a source property) never suppresses any

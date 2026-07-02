@@ -102,9 +102,21 @@ internal sealed interface GenerateSourceAnnotation {
                     if (reversed) pairs.map { (source, target) -> target to source } else pairs
                 }
 
-        /** Generated (target-side) parameter names whose auto-copy default is dropped (`excludes`). */
+        /**
+         * Generated parameter names whose auto-copy default is dropped (`excludes`). Entries are written target-side;
+         * for the [reversed] direction the generated parameters are source-side, so each name is translated to its
+         * source counterpart via the property mapping (a shared, same-named property translates to itself), keeping
+         * `excludes` symmetric under `canReverse` + renamed `properties`.
+         */
         val excludedParameterNames: List<String>
-            get() = annotation.excludedParameterNames()
+            get() {
+                val raw = annotation.excludedParameterNames()
+                if (!reversed) return raw
+                val forwardMappings = annotation.extractPropertyMappings()
+                return raw.map { targetName ->
+                    forwardMappings.firstOrNull { (_, target) -> target == targetName }?.first ?: targetName
+                }
+            }
     }
 
     /** `@CombineMapping` property remappings. `@CombineMapping` has no reverse direction. */
