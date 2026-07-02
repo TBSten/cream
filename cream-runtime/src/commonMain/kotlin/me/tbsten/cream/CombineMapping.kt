@@ -101,9 +101,6 @@ import kotlin.reflect.KClass
  * @param sources The source classes to combine from (must have at least 2 sources)
  * @param target The target class to combine to
  * @param properties Property mappings that define how to map properties with different names between sources and target.
- * @param excludes Names of generated parameters whose auto-copy default should be dropped, making them
- *   required. Always specify the **target-side** (combine-destination constructor parameter) name. The
- *   annotation-level equivalent of `@Exclude` for external classes. Unmatched entries emit a KSP warning.
  * @param visibility Visibility modifier of the generated copy function. Defaults to
  *   [CopyVisibility.INHERIT], which keeps cream's existing behaviour (the function inherits
  *   the target class's visibility).
@@ -111,6 +108,9 @@ import kotlin.reflect.KClass
  *   (cream's derived name). Embed naming tokens such as [CopyTargetSimpleName] to compose a name,
  *   or pass a plain literal. `@CombineMapping` always generates a single function.
  *   See `CopyFunctionNameToken.kt`.
+ * @param excludes Names of generated parameters whose auto-copy default should be dropped, making them
+ *   required. Always specify the **target-side** (combine-destination constructor parameter) name. The
+ *   annotation-level equivalent of `@Exclude` for external classes. Unmatched entries emit a KSP warning.
  *
  * @see CombineTo
  * @see CombineFrom
@@ -125,10 +125,11 @@ public annotation class CombineMapping(
     val sources: Array<KClass<*>>,
     val target: KClass<*>,
     val properties: Array<Map> = [],
-    val excludes: Array<String> = [],
     val kdoc: KDoc = KDoc(),
     val visibility: CopyVisibility = CopyVisibility.INHERIT,
     val funName: String = DefaultCopyFunctionName,
+    // New parameters are appended at the tail so published positional usages stay source-compatible.
+    val excludes: Array<String> = [],
 ) {
     /**
      * Defines a property name mapping between a source class and the target class.

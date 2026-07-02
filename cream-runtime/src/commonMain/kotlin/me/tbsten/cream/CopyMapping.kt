@@ -115,11 +115,6 @@ import kotlin.reflect.KClass
  * @param target The target class to copy to
  * @param canReverse If true, also generates a reverse copy function (target -> source). Default is false.
  * @param properties Property mappings that define how to map properties with different names between source and target.
- * @param excludes Names of generated parameters whose auto-copy default should be dropped, making them
- *   required. Always specify the **target-side** (copy-destination constructor parameter) name — also for the
- *   `canReverse = true` reverse function, where each name is translated to its source-side counterpart
- *   internally. The annotation-level equivalent of `@Exclude` for external classes. Entries that drop no
- *   default in any direction emit a KSP warning.
  * @param funName Template for the generated function name. Defaults to [DefaultCopyFunctionName]
  *   (cream's derived name). Embed naming tokens such as [CopyTargetSimpleName] to compose a name.
  *   When `canReverse` is true (or the target is sealed) use a token so the forward and reverse
@@ -128,6 +123,11 @@ import kotlin.reflect.KClass
  *   [CopyVisibility.INHERIT], which keeps cream's existing behaviour (the function inherits
  *   the target class's visibility). When `canReverse` is true, the same visibility is applied
  *   to both the forward and reverse functions.
+ * @param excludes Names of generated parameters whose auto-copy default should be dropped, making them
+ *   required. Always specify the **target-side** (copy-destination constructor parameter) name — also for the
+ *   `canReverse = true` reverse function, where each name is translated to its source-side counterpart
+ *   internally. The annotation-level equivalent of `@Exclude` for external classes. Entries that drop no
+ *   default in any direction emit a KSP warning.
  *
  * @see CopyTo
  * @see CopyFrom
@@ -142,10 +142,11 @@ public annotation class CopyMapping(
     val target: KClass<*>,
     val canReverse: Boolean = false,
     val properties: Array<Map> = [],
-    val excludes: Array<String> = [],
     val kdoc: KDoc = KDoc(),
     val funName: String = DefaultCopyFunctionName,
     val visibility: CopyVisibility = CopyVisibility.INHERIT,
+    // New parameters are appended at the tail so published positional usages stay source-compatible.
+    val excludes: Array<String> = [],
 ) {
     /**
      * Defines a property name mapping between source and target classes.
