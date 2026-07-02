@@ -5,6 +5,7 @@ import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.string.shouldContain
+import io.kotest.matchers.string.shouldContainOnlyOnce
 import me.tbsten.cream.ksp.testing.compile.compileWithCream
 import me.tbsten.cream.ksp.testing.compile.normalizedCompilerOutput
 import me.tbsten.cream.ksp.testing.snapshot.assertMatchesSnapshot
@@ -142,6 +143,40 @@ internal class SealedCopyInvalidUsageTest :
                 result.normalizedCompilerOutput() shouldContain "@SealedCopy.Via"
             }
             assertMatchesSnapshot(name = "SealedCopyInvalidUsageTest.multipleViaFunctions.output") {
+                facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
+                "Input" facetOf source
+            }
+        }
+
+        "重ねた @SealedCopy でも無効な @Via のエラーは 1 回だけ報告される" {
+            val source =
+                """
+                package sealed.diag
+
+                import me.tbsten.cream.SealedCopy
+
+                @SealedCopy
+                @SealedCopy(funName = "copyOrNull")
+                sealed interface State {
+                    val id: String
+                    val count: Int
+
+                    class Custom(
+                        override val id: String,
+                        override val count: Int,
+                    ) : State {
+                        @SealedCopy.Via
+                        fun cloneWith(id: String): Custom = Custom(id = id, count = this.count)
+                    }
+                }
+                """.trimIndent()
+            val result = compileWithCream(source)
+
+            withClue(result.messages) {
+                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+                result.normalizedCompilerOutput() shouldContainOnlyOnce "does not supply every abstract property"
+            }
+            assertMatchesSnapshot(name = "SealedCopyInvalidUsageTest.viaErrorReportedOncePerSealedClass.output") {
                 facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
                 "Input" facetOf source
             }

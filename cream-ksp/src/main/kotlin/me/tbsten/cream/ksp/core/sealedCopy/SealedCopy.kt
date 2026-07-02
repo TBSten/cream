@@ -22,6 +22,12 @@ import java.io.BufferedWriter
  * lives in [SealedCopyLeaf.kt][classify], type-text rendering in
  * [SealedCopyTypeRendering.kt][renderSealedReceiverType], KDoc in [appendSealedCopyKDoc] and the
  * non-copyable diagnostic in [nonCopyableErrorException].
+ *
+ * Callers must validate every subtype's `@SealedCopy.Via` delegate with [collectSealedCopyViaErrors]
+ * (and generate nothing on errors) **before** calling — once per sealed class, not per annotation:
+ * `@SealedCopy` is `@Repeatable` and this function runs once per occurrence, so validating here would
+ * report the same errors once per stacked annotation. A signature-mismatched delegate would otherwise
+ * generate a call that infinitely recurses (StackOverflowError) or fails at the user's compiler.
  */
 context(options: CreamOptions, logger: KSPLogger)
 internal fun BufferedWriter.appendSealedCopyFunction(
@@ -33,15 +39,6 @@ internal fun BufferedWriter.appendSealedCopyFunction(
 ) {
     val abstractProperties = sealedClass.collectAbstractProperties()
     val concreteSubclasses = sealedClass.collectConcreteSubclasses().toList()
-
-    // Validate @SealedCopy.Via delegates before emitting anything. A signature-mismatched delegate would
-    // otherwise generate a call that infinitely recurses (StackOverflowError) or fails at the user's compiler,
-    // so report a clean positioned COMPILATION_ERROR and emit nothing for this function.
-    val viaErrors = concreteSubclasses.flatMap { it.collectSealedCopyViaErrors(abstractProperties) }
-    if (viaErrors.isNotEmpty()) {
-        viaErrors.forEach { logger.error(it.message, it.node) }
-        return
-    }
 
     val classifiedLeaves = concreteSubclasses.map { it.classify(abstractProperties) }
     val nonCopyableLeaves = classifiedLeaves.filterIsInstance<SealedCopyLeaf.NonCopyable>()
