@@ -27,8 +27,9 @@ import me.tbsten.cream.ksp.testing.generator.util.union
  * - `RETURN_AS_IS` / `RETURN_NULL` on a non-data-class non-copyable leaf — same NonCopyable branch as the `object`
  *   leaf used in goldens → byte-identical.
  * - `data object` vs plain `object` leaf — same `ClassKind.OBJECT` → byte-identical.
- * - `@SealedCopy.Map` pointing at an incompatible delegate — produces uncompilable USER code (user error); the
- *   happy-path delegation is covered.
+ * - A `@SealedCopy.Via` delegate that fails validation (missing coverage / unmapped parameter / multiple `@Via`)
+ *   — a clean positioned cream error, covered by `SealedCopyInvalidUsageTest`; the happy-path delegation
+ *   (including the subset + `@SealedCopy.Map` rename case) is covered here in `05--map`.
  * - No `zeroProps` — an empty `data class` is illegal Kotlin; `hierarchyShape/noAbstractProperties` covers the
  *   empty-param self-copy instead.
  * - `<T : Any?>` unbounded-type-param rendering is SHARED with copy (verified vs copyTo) — not a sealedCopy quirk.

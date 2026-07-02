@@ -22,6 +22,12 @@ import java.io.BufferedWriter
  * lives in [SealedCopyLeaf.kt][classify], type-text rendering in
  * [SealedCopyTypeRendering.kt][renderSealedReceiverType], KDoc in [appendSealedCopyKDoc] and the
  * non-copyable diagnostic in [nonCopyableErrorException].
+ *
+ * Callers must validate every subtype's `@SealedCopy.Via` delegate with [collectSealedCopyViaErrors]
+ * (and generate nothing on errors) **before** calling — once per sealed class, not per annotation:
+ * `@SealedCopy` is `@Repeatable` and this function runs once per occurrence, so validating here would
+ * report the same errors once per stacked annotation. A signature-mismatched delegate would otherwise
+ * generate a call that infinitely recurses (StackOverflowError) or fails at the user's compiler.
  */
 context(options: CreamOptions, logger: KSPLogger)
 internal fun BufferedWriter.appendSealedCopyFunction(
@@ -32,11 +38,9 @@ internal fun BufferedWriter.appendSealedCopyFunction(
     generateSourceAnnotation: GenerateSourceAnnotation.SealedCopy,
 ) {
     val abstractProperties = sealedClass.collectAbstractProperties()
-    val classifiedLeaves =
-        sealedClass
-            .collectConcreteSubclasses()
-            .map { it.classify(abstractProperties) }
-            .toList()
+    val concreteSubclasses = sealedClass.collectConcreteSubclasses().toList()
+
+    val classifiedLeaves = concreteSubclasses.map { it.classify(abstractProperties) }
     val nonCopyableLeaves = classifiedLeaves.filterIsInstance<SealedCopyLeaf.NonCopyable>()
 
     if (nonCopyableStrategy == NonCopyableStrategy.ERROR && nonCopyableLeaves.isNotEmpty()) {
@@ -59,7 +63,7 @@ internal fun BufferedWriter.appendSealedCopyFunction(
 
     appendSealedCopyKDoc(sealedClass, funName, classifiedLeaves, nullable, generateSourceAnnotation, requiredParamNames)
     appendSealedCopyHeader(sealedClass, funName, returnTypeText, abstractProperties, omitPackages, generateSourceAnnotation.visibility)
-    appendSealedCopyBody(sealedClass, classifiedLeaves, abstractProperties, nonCopyableStrategy)
+    appendSealedCopyBody(sealedClass, classifiedLeaves, nonCopyableStrategy)
 }
 
 context(options: CreamOptions)
@@ -100,16 +104,17 @@ private fun BufferedWriter.appendSealedCopyHeader(
 private fun BufferedWriter.appendSealedCopyBody(
     sealedClass: KSClassDeclaration,
     classifiedLeaves: List<SealedCopyLeaf>,
-    abstractProperties: List<KSPropertyDeclaration>,
     nonCopyableStrategy: NonCopyableStrategy,
 ) {
     classifiedLeaves.forEach { leaf ->
         when (leaf) {
             is SealedCopyLeaf.Copyable -> {
+                // Build the call from the delegate's own parameters (`parameterName = abstractProperty`) rather
+                // than from all abstract properties, so a @Via delegate with renamed / subset parameters resolves
+                // to the member function and never falls back to this generated extension (infinite recursion).
                 val args =
-                    abstractProperties.joinToString(", ") { prop ->
-                        val name = prop.simpleName.asString()
-                        "$name = $name"
+                    leaf.argumentBindings.joinToString(", ") { binding ->
+                        "${binding.parameterName} = ${binding.abstractPropertyName}"
                     }
                 appendLine("    is ${renderWhenBranchType(leaf.declaration, sealedClass)} -> this.${leaf.funName}($args)")
             }

@@ -110,13 +110,22 @@ public annotation class SealedCopy(
     val visibility: CopyVisibility = CopyVisibility.INHERIT,
 ) {
     /**
-     * Mark the function `@SealedCopy` should delegate to for a subtype.
+     * Select which function `@SealedCopy` delegates to for a subtype (**delegate selection**).
      *
-     * By default `@SealedCopy` delegates to each subtype's `copy(...)` (the synthetic one
-     * for a `data class`). Apply `@SealedCopy.Map` **directly to a copy-shaped function**
-     * when the subtype is not a `data class` and its copy lives under a different name —
-     * the delegated name is taken from the annotated function itself, so no argument is
-     * needed.
+     * By default `@SealedCopy` delegates to each subtype's `copy(...)` — the synthetic one a
+     * `data class` provides, or a manually declared `copy(...)` member that already accepts every
+     * abstract property (a non-`data class` with such a member needs no annotation). Annotate a
+     * function with `@SealedCopy.Via` only when there is no such `copy(...)` to delegate to, or when
+     * the delegate lives under a different name or takes a different parameter shape. The generated
+     * `copy()` then calls the annotated function for that subtype's branch, passing each of its
+     * value parameters the matching abstract property.
+     *
+     * The delegate does not have to accept every abstract property under its own parameter names:
+     * use [SealedCopy.Map] on a parameter to bind it to a differently-named abstract property, and
+     * give any extra parameter a default value so cream can omit it. cream validates that **every
+     * abstract property is supplied** (by name or via `@SealedCopy.Map`) and that **every parameter
+     * is either bound to an abstract property or has a default**; a gap is reported as a
+     * compile-time error rather than silently mis-generating.
      *
      * # Example
      *
@@ -124,19 +133,69 @@ public annotation class SealedCopy(
      * @SealedCopy
      * sealed interface MyState {
      *   val name: String
+     *   val count: Int
      *
-     *   class Custom(override val name: String) : MyState {
-     *     @SealedCopy.Map
-     *     fun cloneWith(name: String = this.name): Custom = Custom(name)
+     *   class Custom(
+     *       override val name: String,
+     *       override val count: Int,
+     *   ) : MyState {
+     *     @SealedCopy.Via
+     *     fun cloneWith(
+     *         name: String,                          // matched to abstract property `name`
+     *         @SealedCopy.Map("count") amount: Int,  // matched to abstract property `count`
+     *     ): Custom = Custom(name = name, count = amount)
      *   }
      * }
+     *
+     * // The Custom branch of the generated MyState.copy(...) becomes:
+     * //   is MyState.Custom -> this.cloneWith(name = name, amount = count)
      * ```
      *
-     * The generated `MyState.copy(...)` will then call `this.cloneWith(...)` for the
-     * `Custom` branch instead of `this.copy(...)`.
+     * Because the call uses the delegate's own parameter names, it always resolves to the
+     * annotated member function — it can never fall back to the generated extension, so it is
+     * free of the infinite-recursion hazard a signature-mismatched delegate used to cause.
+     *
+     * > **Migration:** `@SealedCopy.Via` replaces the old `@SealedCopy.Map` (which used to be
+     * > placed on a function for delegate selection). Rename any function-level `@SealedCopy.Map`
+     * > to `@SealedCopy.Via`; `@SealedCopy.Map` now maps a `@Via` parameter to an abstract
+     * > property (see [SealedCopy.Map]).
+     *
+     * @see SealedCopy.Map
+     * @see SealedCopy
      */
     @Target(AnnotationTarget.FUNCTION)
-    public annotation class Map
+    public annotation class Via
+
+    /**
+     * Bind a [SealedCopy.Via] function's value parameter to an abstract property of the sealed
+     * parent by name (**name mapping**), when the parameter name differs from the property name.
+     *
+     * Place this on a parameter of a `@SealedCopy.Via`-annotated function. Without it, a parameter
+     * is matched to the abstract property that shares its name; with it, the parameter receives the
+     * abstract property named [value] instead.
+     *
+     * This mirrors `@CopyTo.Map` / `@CopyFrom.Map` and the other annotations' `.Map`: across all of
+     * cream, `.Map` means "map to a differently-named counterpart". (Delegate selection — what the
+     * old function-level `@SealedCopy.Map` meant — now lives on [SealedCopy.Via].)
+     *
+     * # Example
+     *
+     * ```kt
+     * @SealedCopy.Via
+     * fun cloneWith(
+     *     name: String,                          // matched to abstract property `name`
+     *     @SealedCopy.Map("count") amount: Int,  // matched to abstract property `count`
+     * ): Custom = Custom(name = name, count = amount)
+     * ```
+     *
+     * @property value The name of the abstract property (declared on the sealed parent) this
+     *   parameter should receive.
+     * @see SealedCopy.Via
+     */
+    @Target(AnnotationTarget.VALUE_PARAMETER)
+    public annotation class Map(
+        val value: String,
+    )
 
     /**
      * Remove the auto-copy default from a sealed parent's abstract property, making the
@@ -169,7 +228,7 @@ public annotation class SealedCopy(
      * ): MyState = when (this) { ... }
      * ```
      *
-     * @see SealedCopy.Map
+     * @see SealedCopy.Via
      * @see SealedCopy
      * @see CopyToChildren.Exclude
      */
@@ -184,7 +243,7 @@ public annotation class SealedCopy(
  * A subtype is considered "non-copyable" when:
  * - It is an `object` / `data object` (singleton, no copy concept), OR
  * - It is a normal `class` that has no compatible `copy(...)` member function
- *   (and no [SealedCopy.Map] redirect to one).
+ *   (and no [SealedCopy.Via] redirect to one).
  *
  * The three strategies differ in **what cream emits for the non-copyable branches**
  * and, for [RETURN_NULL], in the return type of the generated function. Given:
@@ -207,7 +266,7 @@ public enum class NonCopyableStrategy {
     /**
      * Refuse to generate the function. The KSP processor raises an
      * `InvalidCreamUsageException` whose message names the offending subtype(s) and
-     * recommends the other strategy values (or `@SealedCopy.Map`).
+     * recommends the other strategy values (or `@SealedCopy.Via`).
      *
      * This is the default because silent fallbacks for non-data classes are usually a
      * design mistake the author should see early.
@@ -225,7 +284,7 @@ public enum class NonCopyableStrategy {
      *   • @SealedCopy(nonCopyableStrategy = RETURN_AS_IS)
      *   • @SealedCopy(nonCopyableStrategy = RETURN_NULL)
      *   • Make the subtype a 'data class', add a 'copy(...)' member, or
-     *     annotate its copy-shaped function with @SealedCopy.Map
+     *     annotate its copy-shaped function with @SealedCopy.Via
      * ```
      */
     ERROR,
