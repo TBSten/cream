@@ -363,9 +363,10 @@ fun MyState.copy(
 
 ### SealedCopy.Via, SealedCopy.Map
 
-By default `@SealedCopy` delegates each branch to that subtype's `copy(...)` (the synthetic one a `data class`
-provides). When a subtype is **not** a `data class` — or its copy-shaped function has a different name — mark the
-function you want cream to delegate to with **`@SealedCopy.Via`**.
+By default `@SealedCopy` delegates each branch to that subtype's `copy(...)` — the synthetic one a `data class`
+provides, or a manually declared `copy(...)` member that already accepts every abstract property. Mark a function
+with **`@SealedCopy.Via`** only when there is no such `copy(...)` to delegate to (e.g. a non-`data class` without a
+compatible `copy`), or when the delegate has a different name or a different parameter shape.
 
 If that delegate does not accept every abstract property under its own parameter names, bind a parameter to a
 differently-named abstract property with **`@SealedCopy.Map("<property>")`**. This is the same "map to a
