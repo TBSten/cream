@@ -131,10 +131,7 @@ internal fun processCombineMapping(): List<KSAnnotated> =
                 GenerateSourceAnnotation
                     .CombineMapping(annotation = mapping.rawAnnotation)
                     .warnUnmatchedExcludes(
-                        generatedParameters =
-                            mapping.targetClass.primaryConstructor
-                                ?.parameters
-                                .orEmpty(),
+                        targetClass = mapping.targetClass,
                         sources = mapping.sourceClasses,
                         node = annotatedDeclaration,
                         logger = processContext.logger,
