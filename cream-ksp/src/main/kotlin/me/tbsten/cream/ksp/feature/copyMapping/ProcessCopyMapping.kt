@@ -21,6 +21,7 @@ import me.tbsten.cream.ksp.core.common.reportCreamError
 import me.tbsten.cream.ksp.core.common.resolveClassDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.underPackageName
 import me.tbsten.cream.ksp.core.common.validateFunName
+import me.tbsten.cream.ksp.core.common.warnUnmatchedExcludes
 import me.tbsten.cream.ksp.core.copyFun.appendCopyFunction
 import me.tbsten.cream.ksp.util.ksp.getArgument
 import me.tbsten.cream.ksp.util.ksp.isSealed
@@ -134,6 +135,19 @@ internal fun processCopyMapping(): List<KSAnnotated> =
                         ).isValid
                 }
             if (!allFunNamesOk) return@forEach
+
+            // Warn on `excludes` entries that match no auto-defaulted parameter (mirrors the @Exclude no-op
+            // warning). Done before generation so it fires regardless of file emission.
+            copyMappings.forEach { mapping ->
+                GenerateSourceAnnotation
+                    .CopyMapping(annotation = mapping.rawAnnotation)
+                    .warnUnmatchedExcludes(
+                        targetClass = mapping.targetClass,
+                        sources = listOf(mapping.sourceClass),
+                        node = annotatedDeclaration,
+                        logger = processContext.logger,
+                    )
+            }
 
             val mappingPackage = annotatedDeclaration.packageName
             val omitPackages = omitPackagesFor(mappingPackage)

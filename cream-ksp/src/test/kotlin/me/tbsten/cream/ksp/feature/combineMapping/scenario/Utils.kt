@@ -17,6 +17,7 @@ internal fun TypeSpec.withCombineMapping(
     sources: List<ClassName>,
     target: ClassName,
     properties: List<Pair<String, String>> = emptyList(),
+    excludes: List<String> = emptyList(),
     visibility: CopyVisibility? = null,
     kdoc: CodeBlock? = null,
     funName: CodeBlock? = null,
@@ -29,6 +30,7 @@ internal fun TypeSpec.withCombineMapping(
                 .addMember("%L = %T::class", CombineMapping::target.name, target)
                 .apply {
                     if (properties.isNotEmpty()) addMember("%L = %L", CombineMapping::properties.name, propertiesBlock(properties))
+                    if (excludes.isNotEmpty()) addMember("%L = %L", CombineMapping::excludes.name, excludesBlock(excludes))
                     if (visibility != null) addMember("${CombineMapping::visibility.name} = %T.%L", CopyVisibility::class, visibility.name)
                     if (kdoc != null) addMember("%L = %L", CombineMapping::kdoc.name, kdoc)
                     if (funName != null) addMember("%L = %L", CombineMapping::funName.name, funName)
@@ -44,6 +46,7 @@ internal fun combineMapping(
     sources: List<TypeSpec>,
     target: TypeSpec,
     properties: List<Pair<String, String>> = emptyList(),
+    excludes: List<String> = emptyList(),
     visibility: CopyVisibility? = null,
     kdoc: CodeBlock? = null,
     funName: CodeBlock? = null,
@@ -54,6 +57,7 @@ internal fun combineMapping(
                 sources.map { classNameOf(it.name!!) },
                 classNameOf(target.name!!),
                 properties,
+                excludes,
                 visibility,
                 kdoc,
                 funName,
@@ -81,6 +85,18 @@ private fun propertiesBlock(properties: List<Pair<String, String>>): CodeBlock =
             properties.forEachIndexed { index, (source, target) ->
                 if (index > 0) add(", ")
                 add("%T(source = %S, target = %S)", CombineMapping.Map::class, source, target)
+            }
+        }.add("]")
+        .build()
+
+private fun excludesBlock(excludes: List<String>): CodeBlock =
+    CodeBlock
+        .builder()
+        .add("[")
+        .apply {
+            excludes.forEachIndexed { index, name ->
+                if (index > 0) add(", ")
+                add("%S", name)
             }
         }.add("]")
         .build()
