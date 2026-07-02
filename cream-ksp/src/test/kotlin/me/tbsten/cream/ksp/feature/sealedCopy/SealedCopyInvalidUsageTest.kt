@@ -82,6 +82,37 @@ internal class SealedCopyInvalidUsageTest :
             }
         }
 
+        "サブタイプに代入できない戻り値型の @Via はエラーになる" {
+            val source =
+                """
+                package sealed.diag
+
+                import me.tbsten.cream.SealedCopy
+
+                @SealedCopy
+                sealed interface State {
+                    val id: String
+
+                    class Custom(
+                        override val id: String,
+                    ) : State {
+                        @SealedCopy.Via
+                        fun cloneWith(id: String): String = id
+                    }
+                }
+                """.trimIndent()
+            val result = compileWithCream(source)
+
+            withClue(result.messages) {
+                result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK
+                result.normalizedCompilerOutput() shouldContain "not assignable"
+            }
+            assertMatchesSnapshot(name = "SealedCopyInvalidUsageTest.viaReturnTypeNotAssignable.output") {
+                facet("Compiler output", result.normalizedCompilerOutput(), lang = "text")
+                "Input" facetOf source
+            }
+        }
+
         "multipleViaFunctions" {
             val source =
                 """

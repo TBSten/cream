@@ -30,6 +30,8 @@ internal data class SealedCopyViaError(
  *     cannot supply it and the call would fail at the user's compiler.
  *  3. A [SealedCopy.Map]`("x")` must reference an existing abstract property, and the parameter type must be
  *     assignable from that property's type.
+ *  4. The `@Via` function's return type must be assignable to the subtype itself; its result stands in for
+ *     the subtype in the generated `when` branch, so anything else would fail at the user's compiler.
  */
 internal fun KSClassDeclaration.collectSealedCopyViaErrors(abstractProperties: List<KSPropertyDeclaration>): List<SealedCopyViaError> {
     val viaFunctions = viaFunctions()
@@ -102,6 +104,25 @@ internal fun KSClassDeclaration.collectSealedCopyViaErrors(abstractProperties: L
                         node = param,
                     )
         }
+    }
+
+    // Rule 4: the delegate's result stands in for this subtype in the generated `when` branch, so its
+    // return type must be assignable to the subtype itself. Star-project both sides so generic subtypes
+    // (e.g. `Success<T>`) compare by declaration rather than by unresolvable type arguments. Error types
+    // are skipped: the user's compiler already reports them.
+    val returnType = via.returnType?.resolve()
+    if (returnType != null &&
+        !returnType.isError &&
+        !asStarProjectedType().isAssignableFrom(returnType.starProjection())
+    ) {
+        errors +=
+            SealedCopyViaError(
+                message =
+                    "@SealedCopy.Via function '${via.simpleName.asString()}' returns '$returnType', " +
+                        "which is not assignable to '$underPackageName'. " +
+                        "Change its return type to '$underPackageName' (or a subtype of it).",
+                node = via,
+            )
     }
 
     // Rule 1: every abstract property must be covered by some parameter.
