@@ -44,4 +44,15 @@ internal fun excludeScenarios(): Generator<SnapshotScenario> =
                 canReverse = true,
                 excludes = listOf("shared"),
             ),
+        // canReverse + a renamed property: `excludes` is target-side, but the reverse function's parameter is
+        // source-side, so it must be translated (targetName -> sourceName). Both directions drop the default.
+        "excludeRenamedWithCanReverse" to
+            copyMapping(
+                mappingHolder(),
+                dataClass("Source", Prop("sourceName"), Prop("shared")),
+                dataClass("Target", Prop("targetName"), Prop("shared")),
+                properties = listOf("sourceName" to "targetName"),
+                canReverse = true,
+                excludes = listOf("targetName"),
+            ),
     )
