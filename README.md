@@ -407,10 +407,6 @@ never falls back to the generated extension. cream **validates** the delegate up
 must be supplied (by name or via `@SealedCopy.Map`) and every parameter must either bind to an abstract property or
 have a default value. A gap is reported as a compile-time error instead of silently mis-generating.
 
-> **Migration (0.9.x):** `@SealedCopy.Via` replaces the old **function-level** `@SealedCopy.Map`. Rename any
-> `@SealedCopy.Map` placed on a function to `@SealedCopy.Via`. `@SealedCopy.Map` now takes a property name and is
-> placed on a `@Via` parameter (name mapping). This is a breaking change; cream is pre-1.0 (`0.9.0-alpha`).
-
 ### CombineTo
 
 Use `@CombineTo` to generate copy functions **from multiple source classes to a single target class**.
