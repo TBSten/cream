@@ -5,8 +5,6 @@ import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
-import com.google.devtools.ksp.symbol.KSType
-import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.Modifier
 import me.tbsten.cream.SealedCopy
@@ -150,18 +148,3 @@ private fun KSClassDeclaration.findCompatibleCopyFunction(
                 }
             }
         }
-
-internal fun isParameterAssignableFromProperty(
-    propertyType: KSType,
-    parameterType: KSType,
-): Boolean {
-    if (parameterType.isAssignableFrom(propertyType)) return true
-    // Cover the generic case where both sides are unresolved type parameters
-    // sharing the same name (e.g. Result<T> → Success<T>'s ctor takes T).
-    val propDecl = propertyType.declaration
-    val paramDecl = parameterType.declaration
-    if (propDecl is KSTypeParameter && paramDecl is KSTypeParameter) {
-        return propDecl.name.asString() == paramDecl.name.asString()
-    }
-    return false
-}
