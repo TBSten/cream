@@ -1,10 +1,9 @@
 package me.tbsten.cream
 
 /**
- * Generate a `copy()` function on a sealed type that preserves the original subtype
- * while updating abstract properties declared on the sealed parent. A single extension
- * is emitted on the sealed parent and an exhaustive `when` dispatches to each subtype's
- * own `copy(...)`.
+ * Generate one `copy()` extension on a sealed type. It updates the abstract properties
+ * declared on the sealed parent and keeps the concrete subtype: `when (this)` dispatches
+ * to each subtype's own `copy(...)`, so a `Loading` stays a `Loading`.
  *
  * # Example
  *
@@ -34,31 +33,20 @@ package me.tbsten.cream
  *
  * # Difference from [CopyToChildren]
  *
- * `@CopyToChildren` generates per-child copy functions whose **return type is the
- * child** (e.g. `MyState.copyToMyStateLoading(...): MyState.Loading`). It models a
- * type-narrowing transition where the caller knows which concrete subtype they want
- * to produce — typically `Loading → Success` or similar.
+ * - `@CopyToChildren` — the caller picks which subtype to **produce**: one function per child,
+ *   returning that child (`MyState.copyToMyStateLoading(...): MyState.Loading`). Use it for
+ *   state transitions like `Loading → Success`.
+ * - `@SealedCopy` — the caller does not need to know which subtype it **holds**: one function,
+ *   keeping the subtype (`MyState.copy(...): MyState`). Use it to update shared properties.
  *
- * `@SealedCopy` keeps the parent type as both receiver and return type
- * (`MyState.copy(...): MyState`). The concrete subtype is preserved by runtime
- * dispatch — the caller does not need to know which one they're holding. Pick this
- * when you only want to update shared properties.
- *
- * Both annotations may coexist on the same sealed type when both shapes are useful.
+ * Both annotations may coexist on the same sealed type.
  *
  * # Difference from Arrow Optics
  *
- * Arrow Optics's `@optics` generates `Lens` / `Prism` values for sealed hierarchies
- * and lets you compose updates through them (`state.copy(MyState.name, "x")`,
- * `MyState.loading.compose(Loading.count).modify(state) { it + 1 }`). It is
- * powerful when you compose many independent updates, but it pulls in the Arrow
- * runtime and reads as optics calls at the use site.
- *
- * `@SealedCopy` emits a plain Kotlin extension whose call site reads like an
- * ordinary `copy(...)` — no extra DSL, no Arrow runtime. Pick Arrow when you need
- * composable optics across many shapes; pick `@SealedCopy` when you just want one
- * `MyState.copy(...)` that does the right thing for the abstract properties of the
- * parent.
+ * Arrow Optics's `@optics` generates composable `Lens` / `Prism` values — powerful when you
+ * chain many independent updates, but it adds the Arrow runtime and optics-style call sites.
+ * `@SealedCopy` emits a plain Kotlin extension that reads like an ordinary `copy(...)` — no
+ * extra DSL, no extra dependency.
  *
  * # NonCopyableStrategy
  *
@@ -92,11 +80,8 @@ package me.tbsten.cream
  *
  * # Exclude
  *
- * Annotate an **abstract property declared on the sealed parent** with [SealedCopy.Exclude] to
- * drop its `= this.<property>` auto-copy default. The matching parameter stays in the generated
- * `copy()` signature but becomes required at the call site. This affects only the
- * `@SealedCopy`-generated `copy()` and not any `@CopyToChildren` functions. See
- * [SealedCopy.Exclude] for details and an example.
+ * [SealedCopy.Exclude] on an abstract property removes its `= this.<property>` default, so the
+ * caller must pass that parameter explicitly. See [SealedCopy.Exclude] for an example.
  *
  * @property funName Template for the generated extension function name. Defaults to
  *   [DefaultCopyFunctionName], which for `@SealedCopy` resolves to `"copy"`. Override with a
@@ -129,22 +114,21 @@ public annotation class SealedCopy(
     val visibility: CopyVisibility = CopyVisibility.INHERIT,
 ) {
     /**
-     * Select which function `@SealedCopy` delegates to for a subtype (**delegate selection**).
+     * Select the function a `@SealedCopy` branch delegates to.
      *
-     * By default `@SealedCopy` delegates to each subtype's `copy(...)` — the synthetic one a
-     * `data class` provides, or a manually declared `copy(...)` member that already accepts every
-     * abstract property (a non-`data class` with such a member needs no annotation). Annotate a
-     * function with `@SealedCopy.Via` only when there is no such `copy(...)` to delegate to, or when
-     * the delegate lives under a different name or takes a different parameter shape. The generated
-     * `copy()` then calls the annotated function for that subtype's branch, passing each of its
-     * value parameters the matching abstract property.
+     * By default each branch calls the subtype's own `copy(...)` — the synthetic one of a
+     * `data class`, or a hand-written member that accepts every abstract property. Annotate a
+     * function with `@SealedCopy.Via` when there is no such `copy(...)`, or when the delegate
+     * has a different name or parameter shape; the generated branch then calls it instead.
      *
-     * The delegate does not have to accept every abstract property under its own parameter names:
-     * use [SealedCopy.Map] on a parameter to bind it to a differently-named abstract property, and
-     * give any extra parameter a default value so cream can omit it. cream validates that **every
-     * abstract property is supplied** (by name or via `@SealedCopy.Map`) and that **every parameter
-     * is either bound to an abstract property or has a default**; a gap is reported as a
-     * compile-time error rather than silently mis-generating.
+     * The delegate's parameters do not have to mirror the abstract property names:
+     * - a parameter named after an abstract property receives that property,
+     * - [SealedCopy.Map] binds a differently-named parameter to a property,
+     * - any other parameter just needs a default value.
+     *
+     * cream validates the delegate at compile time: every abstract property must be supplied,
+     * and every parameter must be bound or defaulted. A gap is a compile-time error — never a
+     * silently mis-generated function.
      *
      * # Example
      *
