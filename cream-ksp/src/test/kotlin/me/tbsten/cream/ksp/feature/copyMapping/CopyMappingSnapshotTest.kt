@@ -3,6 +3,7 @@ package me.tbsten.cream.ksp.feature.copyMapping
 import io.kotest.core.spec.style.FreeSpec
 import me.tbsten.cream.ksp.feature.copyMapping.scenario.canReverseScenarios
 import me.tbsten.cream.ksp.feature.copyMapping.scenario.constructorScenarios
+import me.tbsten.cream.ksp.feature.copyMapping.scenario.excludeScenarios
 import me.tbsten.cream.ksp.feature.copyMapping.scenario.funNameScenarios
 import me.tbsten.cream.ksp.feature.copyMapping.scenario.genericsScenarios
 import me.tbsten.cream.ksp.feature.copyMapping.scenario.kdocScenarios
@@ -24,7 +25,6 @@ import me.tbsten.cream.ksp.testing.generator.util.union
  * Golden snapshot coverage for `@CopyMapping` (holder-annotated library 1↔1 copy). See `.claude/skills/cream-snapshot-test`.
  *
  * Intentionally NOT covered as snapshot cases (and why):
- * - `@Exclude` — `@CopyMapping` has none (source/target are external classes you cannot annotate).
  * - `typealias` source/target — `SnapshotScenario` can't carry a `TypeAliasSpec`; covered by integration `TypeAliasTest`.
  * - cross-package emission (source/target in a different package than the holder) — the snapshot
  *   harness emits a single `GENERATED_PACKAGE`, so this is covered by `CopyMappingEdgeUsageTest`
@@ -56,6 +56,8 @@ internal class CopyMappingSnapshotTest :
                         "visibility" case visibilityScenarios()
                         "funName" case funNameScenarios()
                         "repeatable" case repeatableScenarios()
+                        // New axis appended last so existing scenario dirs keep their number prefix (no renumber churn).
+                        "exclude" case excludeScenarios()
                     }
                 },
                 Generator.validCreamOptions(),

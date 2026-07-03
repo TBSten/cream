@@ -3,6 +3,7 @@ package me.tbsten.cream.ksp.core.common
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSDeclaration
 import me.tbsten.cream.CopyVisibility
+import me.tbsten.cream.ksp.util.ksp.getArgument
 
 /**
  * Identifies the source annotation that triggered a generation and exposes the user-facing
@@ -95,11 +96,31 @@ internal sealed interface GenerateSourceAnnotation {
         override val annotation: KSAnnotation,
         val reversed: Boolean = false,
     ) : GenerateSourceAnnotation {
+        /** Whether the annotation also generates the reverse (target -> source) function (`canReverse`). */
+        val canReverse: Boolean
+            get() = annotation.getArgument<Boolean>("canReverse") ?: false
+
         val propertyMappings: List<Pair<String, String>>
             get() =
                 annotation.extractPropertyMappings().let { pairs ->
                     if (reversed) pairs.map { (source, target) -> target to source } else pairs
                 }
+
+        /**
+         * Generated parameter names whose auto-copy default is dropped (`excludes`). Entries are written target-side;
+         * for the [reversed] direction the generated parameters are source-side, so each name is translated to its
+         * source counterpart via the property mapping (a shared, same-named property translates to itself), keeping
+         * `excludes` symmetric under `canReverse` + renamed `properties`.
+         */
+        val excludedParameterNames: List<String>
+            get() {
+                val raw = annotation.excludedParameterNames()
+                if (!reversed) return raw
+                val forwardMappings = annotation.extractPropertyMappings()
+                return raw.map { targetName ->
+                    forwardMappings.firstOrNull { (_, target) -> target == targetName }?.first ?: targetName
+                }
+            }
     }
 
     /** `@CombineMapping` property remappings. `@CombineMapping` has no reverse direction. */
@@ -108,5 +129,12 @@ internal sealed interface GenerateSourceAnnotation {
     ) : GenerateSourceAnnotation {
         val propertyMappings: List<Pair<String, String>>
             get() = annotation.extractPropertyMappings()
+
+        /** Generated (target-side) parameter names whose auto-copy default is dropped (`excludes`). */
+        val excludedParameterNames: List<String>
+            get() = annotation.excludedParameterNames()
     }
 }
+
+/** Read the `excludes: Array<String>` argument of a `@CopyMapping` / `@CombineMapping` as a list of names. */
+private fun KSAnnotation.excludedParameterNames(): List<String> = getArgument<List<*>>("excludes")?.filterIsInstance<String>() ?: emptyList()
