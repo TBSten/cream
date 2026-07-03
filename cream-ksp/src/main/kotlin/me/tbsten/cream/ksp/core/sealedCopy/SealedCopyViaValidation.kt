@@ -34,7 +34,8 @@ internal data class SealedCopyViaError(
  *     the subtype in the generated `when` branch, so anything else would fail at the user's compiler.
  */
 internal fun KSClassDeclaration.collectSealedCopyViaErrors(abstractProperties: List<KSPropertyDeclaration>): List<SealedCopyViaError> {
-    val viaFunctions = viaFunctions()
+    // Materialized: unlike classify()'s firstOrNull(), rule 0 needs every occurrence to count and name them.
+    val viaFunctions = viaFunctions().toList()
     if (viaFunctions.isEmpty()) return emptyList()
 
     if (viaFunctions.size > 1) {

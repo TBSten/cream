@@ -51,10 +51,9 @@ internal fun KSClassDeclaration.collectAbstractProperties(): List<KSPropertyDecl
         .toList()
 
 /** Functions on this subtype marked with [SealedCopy.Via] (the explicit delegate marker). */
-internal fun KSClassDeclaration.viaFunctions(): List<KSFunctionDeclaration> =
+internal fun KSClassDeclaration.viaFunctions(): Sequence<KSFunctionDeclaration> =
     getAllFunctions()
         .filter { it.annotationsOf(SealedCopy.Via::class).any() }
-        .toList()
 
 /** The abstract property this parameter binds to: its [SealedCopy.Map] `value`, or the parameter name. */
 internal fun KSValueParameter.mappedAbstractPropertyName(): String? {
