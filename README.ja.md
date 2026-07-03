@@ -355,6 +355,53 @@ fun MyState.copy(
 
 </details>
 
+### SealedCopy.Via, SealedCopy.Map
+
+デフォルトでは、`@SealedCopy` は各分岐をそのサブタイプの `copy(...)` — `data class` が自動生成するもの、
+またはすべての abstract プロパティを受け取る手書きの `copy(...)` メンバ — に委譲します。
+**`@SealedCopy.Via`** を関数に付けるのは、委譲できる `copy(...)` が存在しない場合 (例: 互換な `copy` を
+持たない非 `data class`) や、委譲先が別の名前・別のパラメータ形状を持つ場合だけです。
+
+委譲先のパラメータ名が abstract プロパティ名と一致しない場合は、**`@SealedCopy.Map("<プロパティ名>")`** で
+そのパラメータを別名の abstract プロパティに紐付けます。これは他のアノテーションの `.Map` と同じ
+「別名の相手に対応付ける」という意味です。
+
+```kt
+@SealedCopy
+sealed interface MyState {
+    val name: String
+    val count: Int
+
+    data class Loading(override val name: String, override val count: Int) : MyState
+
+    class Custom(
+        override val name: String,
+        override val count: Int,
+    ) : MyState {
+        @SealedCopy.Via
+        fun cloneWith(
+            name: String,                          // abstract プロパティ `name` に対応
+            @SealedCopy.Map("count") amount: Int,  // abstract プロパティ `count` に対応
+        ): Custom = Custom(name = name, count = amount)
+    }
+}
+
+// 生成されるコード
+fun MyState.copy(
+    name: String = this.name,
+    count: Int = this.count,
+): MyState = when (this) {
+    is MyState.Custom -> this.cloneWith(name = name, amount = count)  // 委譲先自身のパラメータ名で呼び出す
+    is MyState.Loading -> this.copy(name = name, count = count)
+}
+```
+
+生成される呼び出しは委譲先自身のパラメータ名を使うため、必ず `@Via` を付けたメンバ関数に解決され、
+生成された拡張関数自身にフォールバックすることはありません。また cream は委譲先を事前に **検証** します:
+すべての abstract プロパティが (名前または `@SealedCopy.Map` で) 供給されること、すべてのパラメータが
+abstract プロパティに紐付くかデフォルト値を持つこと。満たさない場合は黙って誤生成せず、
+コンパイル時エラーとして報告されます。
+
 ### CombineTo
 
 `@CombineTo` を使用すると、**複数のソースクラスから1つのターゲットクラスへ**コピー関数を生成できます。
