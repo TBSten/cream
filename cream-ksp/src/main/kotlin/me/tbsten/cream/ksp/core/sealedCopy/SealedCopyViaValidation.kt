@@ -23,7 +23,8 @@ internal data class SealedCopyViaError(
  * Returns one [SealedCopyViaError] per problem; an empty list means the `@Via` delegates are safe to generate.
  *
  * Rules (all → `logger.error`):
- *  0. At most one `@SealedCopy.Via` per subtype (multiple would silently pick one).
+ *  0. Declaring more than one `@SealedCopy.Via` on a subtype is an error — cream refuses to
+ *     silently pick one of them.
  *  1. Every abstract property must be supplied by some `@Via` parameter (by name or via [SealedCopy.Map]);
  *     otherwise the update would be silently dropped.
  *  2. Every `@Via` parameter must either bind to an abstract property or have a default value; otherwise cream
