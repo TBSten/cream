@@ -361,6 +361,52 @@ fun MyState.copy(
 
 </details>
 
+### SealedCopy.Via, SealedCopy.Map
+
+By default `@SealedCopy` delegates each branch to that subtype's `copy(...)` — the synthetic one a `data class`
+provides, or a manually declared `copy(...)` member that already accepts every abstract property. Mark a function
+with **`@SealedCopy.Via`** only when there is no such `copy(...)` to delegate to (e.g. a non-`data class` without a
+compatible `copy`), or when the delegate has a different name or a different parameter shape.
+
+If that delegate does not accept every abstract property under its own parameter names, bind a parameter to a
+differently-named abstract property with **`@SealedCopy.Map("<property>")`**. This is the same "map to a
+differently-named counterpart" meaning `.Map` has on every other annotation.
+
+```kt
+@SealedCopy
+sealed interface MyState {
+    val name: String
+    val count: Int
+
+    data class Loading(override val name: String, override val count: Int) : MyState
+
+    class Custom(
+        override val name: String,
+        override val count: Int,
+    ) : MyState {
+        @SealedCopy.Via
+        fun cloneWith(
+            name: String,                          // matched to abstract property `name`
+            @SealedCopy.Map("count") amount: Int,  // matched to abstract property `count`
+        ): Custom = Custom(name = name, count = amount)
+    }
+}
+
+// Generated:
+fun MyState.copy(
+    name: String = this.name,
+    count: Int = this.count,
+): MyState = when (this) {
+    is MyState.Custom -> this.cloneWith(name = name, amount = count)  // uses the delegate's own parameter names
+    is MyState.Loading -> this.copy(name = name, count = count)
+}
+```
+
+Because the call uses the delegate's own parameter names, it always resolves to the annotated member function and
+never falls back to the generated extension. cream **validates** the delegate up front: every abstract property
+must be supplied (by name or via `@SealedCopy.Map`) and every parameter must either bind to an abstract property or
+have a default value. A gap is reported as a compile-time error instead of silently mis-generating.
+
 ### CombineTo
 
 Use `@CombineTo` to generate copy functions **from multiple source classes to a single target class**.

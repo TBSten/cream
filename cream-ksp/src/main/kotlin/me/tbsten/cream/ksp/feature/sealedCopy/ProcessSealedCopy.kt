@@ -21,6 +21,9 @@ import me.tbsten.cream.ksp.core.common.reportCreamError
 import me.tbsten.cream.ksp.core.common.resolveSealedCopyFunName
 import me.tbsten.cream.ksp.core.common.underPackageName
 import me.tbsten.cream.ksp.core.sealedCopy.appendSealedCopyFunction
+import me.tbsten.cream.ksp.core.sealedCopy.collectAbstractProperties
+import me.tbsten.cream.ksp.core.sealedCopy.collectSealedCopyViaErrors
+import me.tbsten.cream.ksp.util.ksp.collectConcreteSubclasses
 import me.tbsten.cream.ksp.util.ksp.getArgument
 import me.tbsten.cream.ksp.util.ksp.isSealed
 import me.tbsten.cream.ksp.util.lines
@@ -100,6 +103,23 @@ internal fun processSealedCopy(): List<KSAnnotated> =
                         prop,
                     )
                 }
+
+            // Validate @SealedCopy.Via delegates once per sealed class, not inside
+            // appendSealedCopyFunction: @SealedCopy is @Repeatable and each occurrence appends its
+            // own function, so validating per occurrence would report the same errors once per
+            // stacked annotation. A signature-mismatched delegate would generate a call that
+            // infinitely recurses (StackOverflowError) or fails at the user's compiler, so report
+            // positioned COMPILATION_ERRORs and generate nothing for this sealed class.
+            val abstractProperties = annotated.collectAbstractProperties()
+            val viaErrors =
+                annotated
+                    .collectConcreteSubclasses()
+                    .flatMap { it.collectSealedCopyViaErrors(abstractProperties) }
+                    .toList()
+            if (viaErrors.isNotEmpty()) {
+                viaErrors.forEach { processContext.logger.error(it.message, it.node) }
+                return@forEach
+            }
 
             processContext.codeGenerator
                 .createNewKotlinFile(

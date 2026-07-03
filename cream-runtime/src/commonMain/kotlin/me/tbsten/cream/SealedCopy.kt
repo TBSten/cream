@@ -1,10 +1,9 @@
 package me.tbsten.cream
 
 /**
- * Generate a `copy()` function on a sealed type that preserves the original subtype
- * while updating abstract properties declared on the sealed parent. A single extension
- * is emitted on the sealed parent and an exhaustive `when` dispatches to each subtype's
- * own `copy(...)`.
+ * Generate one `copy()` extension on a sealed type. It updates the abstract properties
+ * declared on the sealed parent and keeps the concrete subtype: `when (this)` dispatches
+ * to each subtype's own `copy(...)`, so a `Loading` stays a `Loading`.
  *
  * # Example
  *
@@ -34,31 +33,39 @@ package me.tbsten.cream
  *
  * # Difference from [CopyToChildren]
  *
- * `@CopyToChildren` generates per-child copy functions whose **return type is the
- * child** (e.g. `MyState.copyToMyStateLoading(...): MyState.Loading`). It models a
- * type-narrowing transition where the caller knows which concrete subtype they want
- * to produce — typically `Loading → Success` or similar.
+ * - `@CopyToChildren` — the caller picks which subtype to **produce**: one function per child,
+ *   returning that child (`MyState.copyToMyStateLoading(...): MyState.Loading`). Use it for
+ *   state transitions like `Loading → Success`.
+ * - `@SealedCopy` — the caller does not need to know which subtype it **holds**: one function,
+ *   keeping the subtype (`MyState.copy(...): MyState`). Use it to update shared properties.
  *
- * `@SealedCopy` keeps the parent type as both receiver and return type
- * (`MyState.copy(...): MyState`). The concrete subtype is preserved by runtime
- * dispatch — the caller does not need to know which one they're holding. Pick this
- * when you only want to update shared properties.
- *
- * Both annotations may coexist on the same sealed type when both shapes are useful.
+ * Both annotations may coexist on the same sealed type.
  *
  * # Difference from Arrow Optics
  *
- * Arrow Optics's `@optics` generates `Lens` / `Prism` values for sealed hierarchies
- * and lets you compose updates through them (`state.copy(MyState.name, "x")`,
- * `MyState.loading.compose(Loading.count).modify(state) { it + 1 }`). It is
- * powerful when you compose many independent updates, but it pulls in the Arrow
- * runtime and reads as optics calls at the use site.
+ * Arrow Optics's `@optics` generates composable `Lens` / `Prism` values — powerful when you
+ * chain many independent updates, but it adds the Arrow runtime and optics-style call sites.
+ * `@SealedCopy` emits a plain Kotlin extension that reads like an ordinary `copy(...)` — no
+ * extra DSL, no extra dependency.
  *
- * `@SealedCopy` emits a plain Kotlin extension whose call site reads like an
- * ordinary `copy(...)` — no extra DSL, no Arrow runtime. Pick Arrow when you need
- * composable optics across many shapes; pick `@SealedCopy` when you just want one
- * `MyState.copy(...)` that does the right thing for the abstract properties of the
- * parent.
+ * # NonCopyableStrategy
+ *
+ * Not every subtype has a `copy(...)` to delegate to:
+ *
+ * - `object` / `data object` subtypes are singletons — there is nothing to copy.
+ * - A normal `class` may lack a compatible `copy(...)` member (and a [SealedCopy.Via]
+ *   redirect to one).
+ *
+ * [nonCopyableStrategy] chooses what the generated `copy()` does with such branches:
+ *
+ * - [NonCopyableStrategy.ERROR] (default) — refuse to generate; the build fails at KSP time
+ *   with a message naming the offending subtype(s).
+ * - [NonCopyableStrategy.RETURN_AS_IS] — emit `is X -> this`; the original instance is
+ *   returned unchanged and the parameter updates do not apply to that subtype.
+ * - [NonCopyableStrategy.RETURN_NULL] — widen the return type to nullable and emit
+ *   `is X -> null`; callers must handle the nullable result.
+ *
+ * See each [NonCopyableStrategy] entry's KDoc for the concrete generated code.
  *
  * # Multiple annotations
  *
@@ -73,11 +80,8 @@ package me.tbsten.cream
  *
  * # Exclude
  *
- * Annotate an **abstract property declared on the sealed parent** with [SealedCopy.Exclude] to
- * drop its `= this.<property>` auto-copy default. The matching parameter stays in the generated
- * `copy()` signature but becomes required at the call site. This affects only the
- * `@SealedCopy`-generated `copy()` and not any `@CopyToChildren` functions. See
- * [SealedCopy.Exclude] for details and an example.
+ * [SealedCopy.Exclude] on an abstract property removes its `= this.<property>` default, so the
+ * caller must pass that parameter explicitly. See [SealedCopy.Exclude] for an example.
  *
  * @property funName Template for the generated extension function name. Defaults to
  *   [DefaultCopyFunctionName], which for `@SealedCopy` resolves to `"copy"`. Override with a
@@ -110,13 +114,21 @@ public annotation class SealedCopy(
     val visibility: CopyVisibility = CopyVisibility.INHERIT,
 ) {
     /**
-     * Mark the function `@SealedCopy` should delegate to for a subtype.
+     * Select the function a `@SealedCopy` branch delegates to.
      *
-     * By default `@SealedCopy` delegates to each subtype's `copy(...)` (the synthetic one
-     * for a `data class`). Apply `@SealedCopy.Map` **directly to a copy-shaped function**
-     * when the subtype is not a `data class` and its copy lives under a different name —
-     * the delegated name is taken from the annotated function itself, so no argument is
-     * needed.
+     * By default each branch calls the subtype's own `copy(...)` — the synthetic one of a
+     * `data class`, or a hand-written member that accepts every abstract property. Annotate a
+     * function with `@SealedCopy.Via` when there is no such `copy(...)`, or when the delegate
+     * has a different name or parameter shape; the generated branch then calls it instead.
+     *
+     * The delegate's parameters do not have to mirror the abstract property names:
+     * - a parameter named after an abstract property receives that property,
+     * - [SealedCopy.Map] binds a differently-named parameter to a property,
+     * - any other parameter just needs a default value.
+     *
+     * cream validates the delegate at compile time: every abstract property must be supplied,
+     * and every parameter must be bound or defaulted. A gap is a compile-time error — never a
+     * silently mis-generated function.
      *
      * # Example
      *
@@ -124,19 +136,58 @@ public annotation class SealedCopy(
      * @SealedCopy
      * sealed interface MyState {
      *   val name: String
+     *   val count: Int
      *
-     *   class Custom(override val name: String) : MyState {
-     *     @SealedCopy.Map
-     *     fun cloneWith(name: String = this.name): Custom = Custom(name)
+     *   class Custom(
+     *       override val name: String,
+     *       override val count: Int,
+     *   ) : MyState {
+     *     @SealedCopy.Via
+     *     fun cloneWith(
+     *         name: String,                          // matched to abstract property `name`
+     *         @SealedCopy.Map("count") amount: Int,  // matched to abstract property `count`
+     *     ): Custom = Custom(name = name, count = amount)
      *   }
      * }
+     *
+     * // The Custom branch of the generated MyState.copy(...) becomes:
+     * //   is MyState.Custom -> this.cloneWith(name = name, amount = count)
      * ```
      *
-     * The generated `MyState.copy(...)` will then call `this.cloneWith(...)` for the
-     * `Custom` branch instead of `this.copy(...)`.
+     * @see SealedCopy.Map
+     * @see SealedCopy
      */
     @Target(AnnotationTarget.FUNCTION)
-    public annotation class Map
+    public annotation class Via
+
+    /**
+     * Bind a [SealedCopy.Via] function's value parameter to an abstract property of the sealed
+     * parent by name (**name mapping**), when the parameter name differs from the property name.
+     *
+     * Place this on a parameter of a `@SealedCopy.Via`-annotated function. Without it, a parameter
+     * is matched to the abstract property that shares its name; with it, the parameter receives the
+     * abstract property named [value] instead.
+     *
+     * This mirrors `@CopyTo.Map` / `@CopyFrom.Map` and the other annotations' `.Map`.
+     *
+     * # Example
+     *
+     * ```kt
+     * @SealedCopy.Via
+     * fun cloneWith(
+     *     name: String,                          // matched to abstract property `name`
+     *     @SealedCopy.Map("count") amount: Int,  // matched to abstract property `count`
+     * ): Custom = Custom(name = name, count = amount)
+     * ```
+     *
+     * @property value The name of the abstract property (declared on the sealed parent) this
+     *   parameter should receive.
+     * @see SealedCopy.Via
+     */
+    @Target(AnnotationTarget.VALUE_PARAMETER)
+    public annotation class Map(
+        val value: String,
+    )
 
     /**
      * Remove the auto-copy default from a sealed parent's abstract property, making the
@@ -169,7 +220,7 @@ public annotation class SealedCopy(
      * ): MyState = when (this) { ... }
      * ```
      *
-     * @see SealedCopy.Map
+     * @see SealedCopy.Via
      * @see SealedCopy
      * @see CopyToChildren.Exclude
      */
@@ -184,7 +235,7 @@ public annotation class SealedCopy(
  * A subtype is considered "non-copyable" when:
  * - It is an `object` / `data object` (singleton, no copy concept), OR
  * - It is a normal `class` that has no compatible `copy(...)` member function
- *   (and no [SealedCopy.Map] redirect to one).
+ *   (and no [SealedCopy.Via] redirect to one).
  *
  * The three strategies differ in **what cream emits for the non-copyable branches**
  * and, for [RETURN_NULL], in the return type of the generated function. Given:
@@ -207,7 +258,7 @@ public enum class NonCopyableStrategy {
     /**
      * Refuse to generate the function. The KSP processor raises an
      * `InvalidCreamUsageException` whose message names the offending subtype(s) and
-     * recommends the other strategy values (or `@SealedCopy.Map`).
+     * recommends the other strategy values (or `@SealedCopy.Via`).
      *
      * This is the default because silent fallbacks for non-data classes are usually a
      * design mistake the author should see early.
@@ -225,7 +276,7 @@ public enum class NonCopyableStrategy {
      *   • @SealedCopy(nonCopyableStrategy = RETURN_AS_IS)
      *   • @SealedCopy(nonCopyableStrategy = RETURN_NULL)
      *   • Make the subtype a 'data class', add a 'copy(...)' member, or
-     *     annotate its copy-shaped function with @SealedCopy.Map
+     *     annotate its copy-shaped function with @SealedCopy.Via
      * ```
      */
     ERROR,

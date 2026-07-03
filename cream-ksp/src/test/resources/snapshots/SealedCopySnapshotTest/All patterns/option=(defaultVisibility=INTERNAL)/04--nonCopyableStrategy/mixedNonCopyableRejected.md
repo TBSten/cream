@@ -58,7 +58,7 @@ Solution:
   For non-data class subtypes you can also:
     • Make the subtype a 'data class'
     • Add a 'copy(...)' member function that accepts the abstract properties
-    • Or annotate that copy-shaped function with @SealedCopy.Map
+    • Or annotate that copy-shaped function with @SealedCopy.Via
 ```
 
 ## Output:Generated sources
