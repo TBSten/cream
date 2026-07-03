@@ -46,6 +46,7 @@ ksp {
     arg("escapeDot", "replace-to-underscore")
     arg("notCopyToObject", "false" /* default */)
     arg("defaultVisibility", "INHERIT" /* default */)
+    arg("nonCopyableStrategy", "INHERIT" /* default */)
 }
 ```
 

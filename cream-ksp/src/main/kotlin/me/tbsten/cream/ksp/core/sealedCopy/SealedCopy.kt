@@ -129,6 +129,8 @@ private fun BufferedWriter.appendSealedCopyBody(
                         NonCopyableStrategy.RETURN_NULL -> "null"
                         // ERROR has already been handled above; emit RETURN_AS_IS as a defensive default.
                         NonCopyableStrategy.ERROR -> "this"
+                        // INHERIT is a sentinel resolved to a real strategy in the feature layer before generation.
+                        NonCopyableStrategy.INHERIT -> error("nonCopyableStrategy must be resolved before code generation")
                     }
                 appendLine("    is ${renderWhenBranchType(leaf.declaration, sealedClass)} -> $whenBranchValue")
             }

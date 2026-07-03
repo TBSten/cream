@@ -16,7 +16,7 @@
 | kdoc | ✕ 無 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | **コピー挙動の制御（機能固有トグル）** | | | | | | | | | |
 | notCopyToObject | ✓ `cream.notCopyToObject` | 適用 | 適用 | ✓ | ✱ | 適用 | 適用 | 適用 | 適用 |
-| nonCopyableStrategy | ✕ 無 | ✕ | ✕ | ✕ | ✓ | ✕ | ✕ | ✕ | ✕ |
+| nonCopyableStrategy | ✓ `cream.nonCopyableStrategy` | ✕ | ✕ | ✕ | ✓ | ✕ | ✕ | ✕ | ✕ |
 | canReverse | ✕ 無 | ✕ | ✕ | ✕ | ✕ | ✕ | ✕ | ✓ | ✕ |
 | **プロパティ単位の制御** | | | | | | | | | |
 | 名前マッピング (`.Map`/`properties`) | ✕ 無 | ✓ Map | ✓ Map | ✕ | ✓ Map | ✓ Map | ✓ Map | ✓ prop | ✓ prop |
