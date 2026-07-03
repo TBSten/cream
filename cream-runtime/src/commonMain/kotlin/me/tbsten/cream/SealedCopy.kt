@@ -60,6 +60,25 @@ package me.tbsten.cream
  * `MyState.copy(...)` that does the right thing for the abstract properties of the
  * parent.
  *
+ * # NonCopyableStrategy
+ *
+ * Not every subtype has a `copy(...)` to delegate to:
+ *
+ * - `object` / `data object` subtypes are singletons — there is nothing to copy.
+ * - A normal `class` may lack a compatible `copy(...)` member (and a [SealedCopy.Via]
+ *   redirect to one).
+ *
+ * [nonCopyableStrategy] chooses what the generated `copy()` does with such branches:
+ *
+ * - [NonCopyableStrategy.ERROR] (default) — refuse to generate; the build fails at KSP time
+ *   with a message naming the offending subtype(s).
+ * - [NonCopyableStrategy.RETURN_AS_IS] — emit `is X -> this`; the original instance is
+ *   returned unchanged and the parameter updates do not apply to that subtype.
+ * - [NonCopyableStrategy.RETURN_NULL] — widen the return type to nullable and emit
+ *   `is X -> null`; callers must handle the nullable result.
+ *
+ * See each [NonCopyableStrategy] entry's KDoc for the concrete generated code.
+ *
  * # Multiple annotations
  *
  * `@SealedCopy` is `@Repeatable`. Stack multiple annotations to generate variants
@@ -151,15 +170,6 @@ public annotation class SealedCopy(
      * //   is MyState.Custom -> this.cloneWith(name = name, amount = count)
      * ```
      *
-     * Because the call uses the delegate's own parameter names, it always resolves to the
-     * annotated member function — it can never fall back to the generated extension, so it is
-     * free of the infinite-recursion hazard a signature-mismatched delegate used to cause.
-     *
-     * > **Migration:** `@SealedCopy.Via` replaces the old `@SealedCopy.Map` (which used to be
-     * > placed on a function for delegate selection). Rename any function-level `@SealedCopy.Map`
-     * > to `@SealedCopy.Via`; `@SealedCopy.Map` now maps a `@Via` parameter to an abstract
-     * > property (see [SealedCopy.Map]).
-     *
      * @see SealedCopy.Map
      * @see SealedCopy
      */
@@ -174,9 +184,7 @@ public annotation class SealedCopy(
      * is matched to the abstract property that shares its name; with it, the parameter receives the
      * abstract property named [value] instead.
      *
-     * This mirrors `@CopyTo.Map` / `@CopyFrom.Map` and the other annotations' `.Map`: across all of
-     * cream, `.Map` means "map to a differently-named counterpart". (Delegate selection — what the
-     * old function-level `@SealedCopy.Map` meant — now lives on [SealedCopy.Via].)
+     * This mirrors `@CopyTo.Map` / `@CopyFrom.Map` and the other annotations' `.Map`.
      *
      * # Example
      *
