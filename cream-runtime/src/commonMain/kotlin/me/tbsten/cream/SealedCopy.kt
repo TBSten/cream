@@ -58,8 +58,11 @@ package me.tbsten.cream
  *
  * [nonCopyableStrategy] chooses what the generated `copy()` does with such branches:
  *
- * - [NonCopyableStrategy.ERROR] (default) — refuse to generate; the build fails at KSP time
- *   with a message naming the offending subtype(s).
+ * - [NonCopyableStrategy.INHERIT] (default) — defer to the project-level
+ *   `cream.nonCopyableStrategy` KSP option; when that is unset too, [NonCopyableStrategy.ERROR]
+ *   applies.
+ * - [NonCopyableStrategy.ERROR] — refuse to generate; the build fails at KSP time
+ *   with a message naming the offending subtype(s). This is the effective default.
  * - [NonCopyableStrategy.RETURN_AS_IS] — emit `is X -> this`; the original instance is
  *   returned unchanged and the parameter updates do not apply to that subtype.
  * - [NonCopyableStrategy.RETURN_NULL] — widen the return type to nullable and emit
