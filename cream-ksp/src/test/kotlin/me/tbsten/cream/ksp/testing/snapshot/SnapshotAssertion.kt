@@ -1,8 +1,10 @@
 package me.tbsten.cream.ksp.testing.snapshot
 
 import io.kotest.assertions.fail
+import io.kotest.assertions.withClue
 import io.kotest.core.test.TestScope
 import io.kotest.core.test.parents
+import io.kotest.matchers.shouldBe
 import java.io.File
 
 /**
@@ -88,12 +90,10 @@ internal fun assertMatchesSnapshot(
             return
         }
         fail(
-            """
-            Snapshot file not found: ${file.path}
-            Run with -Dcream.snapshot.update=true to create it.
-            Actual content:
-            $normalizedActual
-            """.trimIndent(),
+            "Snapshot file not found: ${file.path}\n" +
+                "Run with -Dcream.snapshot.update=true to create it.\n" +
+                "Actual content:\n" +
+                normalizedActual,
         )
     }
 
@@ -103,16 +103,12 @@ internal fun assertMatchesSnapshot(
             file.writeText(normalizedActual, Charsets.UTF_8)
             return
         }
-        fail(
-            """
-            Snapshot mismatch for ${file.path}
-            Run with -Dcream.snapshot.update=true to update.
-            --- Expected ---
-            $expected
-            --- Actual ---
-            $normalizedActual
-            """.trimIndent(),
-        )
+        withClue(
+            "Snapshot mismatch for ${file.path}\n" +
+                "Run with -Dcream.snapshot.update=true to update.",
+        ) {
+            normalizedActual shouldBe expected
+        }
     }
 }
 
