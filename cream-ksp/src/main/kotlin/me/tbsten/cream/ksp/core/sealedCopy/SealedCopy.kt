@@ -48,7 +48,7 @@ internal fun Appendable.appendSealedCopyFunction(
     if (nonCopyableStrategy == NonCopyableStrategy.ERROR && nonCopyableLeaves.isNotEmpty()) {
         val exception = nonCopyableErrorException(sealedClass, nonCopyableLeaves, funName)
         // Report a clean positioned COMPILATION_ERROR and emit nothing for this function so the
-        // transactional writer leaves no partial file behind.
+        // transactional output buffer leaves no partial file behind.
         logger.error(exception.message.orEmpty(), sealedClass)
         return
     }

@@ -1,7 +1,7 @@
 package me.tbsten.cream.ksp.core.combineFun
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import me.tbsten.cream.ksp.core.common.KDocWriter
+import me.tbsten.cream.ksp.core.common.KDocAppender
 import me.tbsten.cream.ksp.core.common.underPackageName
 
 private fun KSClassDeclaration.lowerCamelName(): String = underPackageName.replaceFirstChar { it.lowercase() }
@@ -10,7 +10,7 @@ private fun KSClassDeclaration.lowerCamelName(): String = underPackageName.repla
  * `[A] + [B] -> [Target] copy function.` — the auto description line shared by every
  * combine-function KDoc (CombineTo / CombineFrom, class- and object-target).
  */
-internal fun KDocWriter.appendCombineAutoDescription(
+internal fun KDocAppender.appendCombineAutoDescription(
     sources: List<KSClassDeclaration>,
     target: KSClassDeclaration,
 ) {
