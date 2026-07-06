@@ -10,7 +10,6 @@ import me.tbsten.cream.ksp.core.common.fullName
 import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.util.ksp.isSealed
 import me.tbsten.cream.ksp.util.safeCast
-import java.io.BufferedWriter
 
 /**
  * Report a target that cannot be a copy target.
@@ -32,7 +31,7 @@ private fun reportRejection(
 }
 
 context(options: CreamOptions, logger: KSPLogger)
-internal fun BufferedWriter.appendCopyFunction(
+internal fun Appendable.appendCopyFunction(
     source: KSClassDeclaration,
     target: KSClassDeclaration,
     omitPackages: List<String>,

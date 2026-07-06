@@ -20,7 +20,7 @@ internal fun CodeGenerator.createNewKotlinFile(
     dependencies: Dependencies,
     packageName: KSName,
     fileName: String,
-    block: (BufferedWriter) -> Unit,
+    block: (Appendable) -> Unit,
 ) {
     val buffer = StringWriter()
     BufferedWriter(buffer).use(block)

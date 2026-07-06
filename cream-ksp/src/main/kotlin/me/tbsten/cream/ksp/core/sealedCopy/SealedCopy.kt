@@ -12,7 +12,6 @@ import me.tbsten.cream.ksp.core.common.toModifierString
 import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.util.ksp.asString
 import me.tbsten.cream.ksp.util.ksp.collectConcreteSubclasses
-import java.io.BufferedWriter
 
 /**
  * Append a single `<sealedType>.<funName>(...)` extension that returns the sealed parent
@@ -30,7 +29,7 @@ import java.io.BufferedWriter
  * generate a call that infinitely recurses (StackOverflowError) or fails at the user's compiler.
  */
 context(options: CreamOptions, logger: KSPLogger)
-internal fun BufferedWriter.appendSealedCopyFunction(
+internal fun Appendable.appendSealedCopyFunction(
     sealedClass: KSClassDeclaration,
     funName: String,
     nonCopyableStrategy: NonCopyableStrategy,
@@ -70,7 +69,7 @@ internal fun BufferedWriter.appendSealedCopyFunction(
 }
 
 context(options: CreamOptions)
-private fun BufferedWriter.appendSealedCopyHeader(
+private fun Appendable.appendSealedCopyHeader(
     sealedClass: KSClassDeclaration,
     funName: String,
     returnTypeText: String,
@@ -104,7 +103,7 @@ private fun BufferedWriter.appendSealedCopyHeader(
     appendLine()
 }
 
-private fun BufferedWriter.appendSealedCopyBody(
+private fun Appendable.appendSealedCopyBody(
     sealedClass: KSClassDeclaration,
     classifiedLeaves: List<SealedCopyLeaf>,
     nonCopyableStrategy: NonCopyableStrategy,

@@ -4,10 +4,9 @@ import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.options.CreamOptions
-import java.io.BufferedWriter
 
 context(options: CreamOptions, logger: KSPLogger)
-internal fun BufferedWriter.appendCopyToSealedClassFunction(
+internal fun Appendable.appendCopyToSealedClassFunction(
     source: KSClassDeclaration,
     targetClass: KSClassDeclaration,
     omitPackages: List<String>,
