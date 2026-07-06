@@ -4,100 +4,54 @@
 ![GitHub License](https://img.shields.io/github/license/TBSten/cream)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/TBSten/cream)
 
-<a href="https://github.com/TBSten/cream/blob/main/README.md">English</a> |
+[English](./README.md) |
 日本語 |
-<a href="https://deepwiki.com/TBSten/cream">DeepWiki</a>
+[DeepWiki](https://deepwiki.com/TBSten/cream)
+
+**目次:**
+[cream.kt を使う理由](#creamkt-を使う理由) ·
+[セットアップ](#セットアップ) ·
+[クイックスタート](#クイックスタート) ·
+[アノテーション](#アノテーション) ·
+[カスタマイズ](#カスタマイズ) ·
+[ユースケース](#ユースケース)
+
+---
 
 cream.kt は **宣言的データコピー（Declarative data copy）** を可能にし、**クラスを跨いだ copy** をしやすくする KSP Plugin です。
-
-あるオブジェクトをほぼ同じクラスの別インスタンスへコピーする Mapper を自動生成します。
-
-## ⭐️ 0. 要点
-
-**クラスを跨いだ copy を自動生成する KSP Plugin**
-
-- **Before**: 手動でプロパティを一つずつコピー
-- **After**: `prevState.toNextState(data = newData)` で変換。自明なデータの引き継ぎを省略できるため、可読性が向上します。
+クラスにアノテーションを付けるだけで、ほぼ同じ形の別クラスへのコピー関数を自動生成します —
+名前が一致するプロパティは自動で引き継がれます。
 
 ```kt
 // 従来の書き方
-// ❌ 具体的のどのデータが追加・変更されたかがパッと分かりずらい
+// ❌ 具体的にどのデータが追加・変更されたかがパッと分かりづらい
 MyUiState.Success(
     userName = prevState.userName,    // 手動コピー
     password = prevState.password,    // 手動コピー
-    data = newData
+    data = newData,
 )
 
-// cream.kt を使った書き方
-// (toSuccess が自動生成される)
+// cream.kt を使った書き方 — copyToMyUiStateSuccess が自動生成される
 // ✅ data が追加されたことがパッとわかる
-prevState.copyToSuccess(data = newData)  // 自動コピー
+prevState.copyToMyUiStateSuccess(data = newData)
 ```
 
-## 🤔 1. モチベーション
+関数名はカスタマイズできます（例: `toSuccess` に短縮）→ [Function name](doc/customization/fun-name.ja.md)
 
-あなたのプロジェクトに以下のような UiState があったとします。
+## cream.kt を使う理由
 
-```kt
-sealed interface MyUiState {
-    val userName: String
-    val password: String
+- **宣言的データコピー** — アノテーション 1 つでコピー関数を生成。名前が一致するプロパティは
+  デフォルト引数になるため、変更したい値だけを渡せばよくなります。
+- **クラスを跨いだ状態遷移** — data class の `copy()` に似ていますが、クラスを跨げます
+  （例: `Loading` → `Success`）。sealed class/interface による状態管理のために設計されています。
+- **Kotlin Multiplatform 対応** — ランタイムアノテーションは全 Kotlin プラットフォーム向けに公開されています。
 
-    data class Loading(
-        override val userName: String,
-        override val password: String,
-    ) : MyUiState
+他のマッピングライブラリとの比較は [comparison](doc/comparison.ja.md)（MapStruct, KOMM）も参照してください。
 
-    data class Stable(
-        override val userName: String,
-        override val password: String,
-        val loadedData: List<String>,
-    ) : MyUiState
-}
-```
+## セットアップ
 
-MyUiState が Loading から Stable に遷移するとします。
-その場合
-
-```kt
-val prevState: MyUiState.Loading = TODO()
-val loadedData: List<String> = TODO()
-
-MyUiState.Stable(
-    // ⚠️ See here !
-    userName = prevState.userName,
-    password = prevState.password,
-    loadedData = loadedData,
-)
-```
-
-「⚠️ See here !」の下の 2 行に注目してください。
-prevState からデータを引き継いで Stable state をインスタンス化していますが、これでは MyUiState
-の変更 (ex. プロパティの追加, 削除) に 子クラスである MyUiState.Stable が影響を受けてしまいます。
-MyUiState のプロパティが増えるたびにこのコピーのコードも増やす必要が出てきてしまいます。
-
-cream.kt を使用することで先ほどのコードは以下のように簡略化できます。
-
-```kt
-val prevState: MyUiState.Loading = TODO()
-val loadedData: List<String> = TODO()
-
-prevState.copyToStable(
-    loadedData = loadedData,
-)
-```
-
-`userName = prevState.userName, password = prevState.password,` の部分がなくなりスッキリしました。
-
-特に理由がなければ以前の値（上の例では prevState: MyUiState.Loading ）を引き継ぐという動作は **data
-class の copy メソッド** に似ています。
-copy と違い、**cream.kt では クラスを跨いだ状態遷移** も可能にします(上記の例では .Loading -> .Stable
-へクラスを跨いで状態をコピーしています)。
-
-## ⚙️ 2. セットアップ
-
-|                   |                                                                         |
-|-------------------|-------------------------------------------------------------------------|
+|                   |                                                                          |
+|-------------------|--------------------------------------------------------------------------|
 | `<cream-version>` | ![GitHub Release](https://img.shields.io/github/v/release/TBSten/cream) |
 | `<ksp-version>`   | ![GitHub Release](https://img.shields.io/github/v/release/google/ksp)   |
 
@@ -113,888 +67,136 @@ dependencies {
 }
 ```
 
-<details>
+Kotlin Multiplatform（commonMain）では KSP の制約により追加セットアップが必要です
+→ [Kotlin Multiplatform サポート](doc/customization/multiplatform.ja.md)
 
-<summary> Kotlin Multiplatform プロジェクト </summary>
+## クイックスタート
 
-現在 KSP は Kotlin Multiplatform の commonMain
-のような中間ソースセットにコードを生成することをサポートしていません。 ([参照](https://github.com/google/ksp/issues/567))
-この制限により現在 cream.kt では commonMain などのクラスからコピー関数を生成することはできません。
-
-ただし 以下のようにセットアップすることで commonMain コードのみ コード生成させることが可能になります。
-(この場合 各プラットフォームのアノテーションは処理されない点に注意してください。)
+コピー元クラスに `@CopyTo` を付けると、ターゲットクラスへのコピー関数が生成されます:
 
 ```kt
-fun Project.setupKspForMultiplatformWorkaround() {
-    kotlin.sourceSets.commonMain {
-        kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
-    }
+import me.tbsten.cream.CopyTo
 
-    tasks.configureEach {
-        if (name.startsWith("ksp") && name != "kspCommonMainKotlinMetadata") {
-            dependsOn(tasks.named("kspCommonMainKotlinMetadata"))
-            enabled = false
-        }
-    }
-}
-setupKspForMultiplatformWorkaround()
-```
-
-参考: https://github.com/TBSten/cream/blob/main/test/build.gradle.kts#L54-L66
-
-</details>
-
-## ❇️ 3. 利用方法
-
-### CopyTo
-
-`@CopyTo` を付与したクラスから指定した遷移先のクラスへ遷移する copy 関数を生成します。
-
-```kt
 @CopyTo(UiState.Success::class)
 class UiState {
     data class Success(
-        val data: Data,
-    )
-}
-
-// auto generate
-fun UiState.copyToUiStateSuccess(
-    data: Data,
-): UiState.Success = /* ... */
-
-// usage
-val uiState: UiState = /* ... */
-val nextUiState: UiState.Success = uiState.copyToUiStateSuccess(
-    data = /* ... */,
-)
-```
-
-copy 関数は遷移先クラスのコンストラクタごとに生成されます。
-遷移元クラスのプロパティ名と一致するコンストラクタの引数はデフォルト値が設定されます。
-
-```kt
-@CopyTo(UiState.Success::class)
-class ItemDetailUiState(
-    val itemId: String
-) {
-    data class Success(
-        override val itemId: String,
-        val data: Data,
-    )
-}
-
-// auto generate
-fun UiState.copyToUiStateSuccess(
-    itemId: String = this.itemId,
-    data: Data,
-): UiState.Success = /* ... */
-
-// usage
-val uiState: UiState = /* ... */
-val nextUiState: UiState.Success = uiState.copyToUiStateSuccess(
-    data = /* ... */,
-)
-```
-
-### CopyFrom
-
-`@CopyTo` と似ていますが、引数に **遷移元** のクラスを指定する点が違います。
-
-```kt
-data class DataLayerModel(
-    val data: Data,
-)
-
-@CopyFrom(DataLayerModel::class)
-data class DomainLayerModel(
-    val data: Data,
-)
-
-// auto generate
-fun DataLayerModel.toDomainLayerModel(
-    data: Data,
-): DomainLayerModel = /* ... */
-```
-
-### CopyToChildren
-
-sealed class/interface に付与することで、その sealed class/interface -> 継承する
-**すべての推移的な具象 leaf クラス** へコピーするコピー関数を自動生成します。直接の子だけでなく、途中のネストした
-sealed 型を再帰的に辿って末端の具象クラスまで生成されます。
-
-```kt
-@CopyToChildren
-sealed interface UiState {
-    data object Loading : UiState
-
-    sealed interface Success : UiState {
-        val data: Data
-
-        data class Done(
-            override val data: Data,
-        ) : Success
-
-        data class Refreshing(
-            override val data: Data,
-        ) : Success
-    }
-}
-
-// auto generate
-fun UiState.copyToUiStateSuccessDone(
-    data: Data,
-): UiState.Success.Done = /* ... */
-
-fun UiState.copyToUiStateSuccessRefreshing(
-    data: Data,
-): UiState.Success.Refreshing = /* ... */
-```
-
-上記の例では `Done` と `Refreshing` は中間の `sealed interface Success` の配下にネストしていますが、
-それでもコピー関数が生成されます。途中のすべての中間 sealed 型を再帰的に辿り、末端の具象 leaf まで
-生成されるためです。
-
-これは各 sealed class/interface に @CopyTo を都度指定するよりも圧倒的に楽です。
-
-### SealedCopy
-
-sealed class/interface に付与することで、**サブタイプを保ったまま** 共通の abstract プロパティ
-を更新する `copy()` 関数を 自動生成します。
-
-`@CopyToChildren` は子ごとに **戻り型が子型** のコピー関数を生成する (型を絞る遷移) のに対し、
-`@SealedCopy` は **親型を保つ** 単一関数を生成します。
-
-```kt
-@SealedCopy
-sealed interface MyState {
-    val name: String
-    val count: Int
-
-    data class Loading(override val name: String, override val count: Int) : MyState
-    data class Success(
-        override val name: String,
-        override val count: Int,
         val data: String,
-    ) : MyState
-}
-```
-
-<details>
-<summary> 生成されるコード </summary>
-
-```kt
-fun MyState.copy(
-    name: String = this.name,
-    count: Int = this.count,
-): MyState = when (this) {
-    is MyState.Loading -> this.copy(name = name, count = count)
-    is MyState.Success -> this.copy(name = name, count = count)
-}
-```
-
-</details>
-
-```kt
-// usage
-val state: MyState = MyState.Loading("a", 1)
-val updated: MyState = state.copy(name = "b")  // MyState.Loading("b", 1)
-```
-
-デフォルトでは、`object` サブタイプ (または `copy(...)` を持たない通常 class) は
-「copy 不能」 として扱われ、コンパイル時にエラーになります (`nonCopyableStrategy = ERROR`)。
-`nonCopyableStrategy` を変更すると、copy 不能なサブタイプの扱い方を切り替えられます。
-
-<details>
-<summary> <code>nonCopyableStrategy = RETURN_AS_IS</code> </summary>
-
-copy 不能な場合は **更新せずにインスタンスをそのまま返します** (`-> this`)。
-
-```kt
-@SealedCopy(nonCopyableStrategy = NonCopyableStrategy.RETURN_AS_IS)
-sealed interface MyState {
-    val name: String
-
-    data class Loading(override val name: String) : MyState
-    data object Empty : MyState { override val name: String = "" }
-}
-
-// 生成されるコード
-fun MyState.copy(
-    name: String = this.name,
-): MyState = when (this) {
-    is MyState.Empty -> this  // copy 不能: そのまま返す
-    is MyState.Loading -> this.copy(name = name)
-}
-```
-
-</details>
-
-<details>
-<summary> <code>nonCopyableStrategy = RETURN_NULL</code> </summary>
-
-copy 不能な場合は **null を返します**。この場合、生成関数の戻り型は `MyState?` に広がります。
-
-```kt
-@SealedCopy(nonCopyableStrategy = NonCopyableStrategy.RETURN_NULL)
-sealed interface MyState {
-    val name: String
-
-    data class Loading(override val name: String) : MyState
-    data object Empty : MyState { override val name: String = "" }
-}
-
-// 生成されるコード
-fun MyState.copy(
-    name: String = this.name,
-): MyState? = when (this) {
-    is MyState.Empty -> null  // copy 不能: null を返す
-    is MyState.Loading -> this.copy(name = name)
-}
-```
-
-</details>
-
-### SealedCopy.Via, SealedCopy.Map
-
-デフォルトでは、`@SealedCopy` は各分岐をそのサブタイプの `copy(...)` — `data class` が自動生成するもの、
-またはすべての abstract プロパティを受け取る手書きの `copy(...)` メンバ — に委譲します。
-**`@SealedCopy.Via`** を関数に付けるのは、委譲できる `copy(...)` が存在しない場合 (例: 互換な `copy` を
-持たない非 `data class`) や、委譲先が別の名前・別のパラメータ形状を持つ場合だけです。
-
-委譲先のパラメータ名が abstract プロパティ名と一致しない場合は、**`@SealedCopy.Map("<プロパティ名>")`** で
-そのパラメータを別名の abstract プロパティに紐付けます。これは他のアノテーションの `.Map` と同じ
-「別名の相手に対応付ける」という意味です。
-
-```kt
-@SealedCopy
-sealed interface MyState {
-    val name: String
-    val count: Int
-
-    data class Loading(override val name: String, override val count: Int) : MyState
-
-    class Custom(
-        override val name: String,
-        override val count: Int,
-    ) : MyState {
-        @SealedCopy.Via
-        fun cloneWith(
-            name: String,                          // abstract プロパティ `name` に対応
-            @SealedCopy.Map("count") amount: Int,  // abstract プロパティ `count` に対応
-        ): Custom = Custom(name = name, count = amount)
-    }
-}
-
-// 生成されるコード
-fun MyState.copy(
-    name: String = this.name,
-    count: Int = this.count,
-): MyState = when (this) {
-    is MyState.Custom -> this.cloneWith(name = name, amount = count)  // 委譲先自身のパラメータ名で呼び出す
-    is MyState.Loading -> this.copy(name = name, count = count)
-}
-```
-
-生成される呼び出しは委譲先自身のパラメータ名を使うため、必ず `@Via` を付けたメンバ関数に解決され、
-生成された拡張関数自身にフォールバックすることはありません。また cream は委譲先を事前に **検証** します:
-すべての abstract プロパティが (名前または `@SealedCopy.Map` で) 供給されること、すべてのパラメータが
-abstract プロパティに紐付くかデフォルト値を持つこと。満たさない場合は黙って誤生成せず、
-コンパイル時エラーとして報告されます。
-
-### CombineTo
-
-`@CombineTo` を使用すると、**複数のソースクラスから1つのターゲットクラスへ**コピー関数を生成できます。
-複数のデータソースを組み合わせて1つの状態を作成する際に便利です。
-
-```kt
-@CombineTo(SuccessState::class)
-data class LoadingState(
-    val itemId: String,
-)
-
-@CombineTo(SuccessState::class)
-data class SuccessAction(
-    val data: Data,
-)
-
-data class SuccessState(
-    val itemId: String,  // from LoadingState.itemId
-    val data: Data,      // from SuccessAction.data
-    val lastUpdateAt: Date,
-)
-
-// auto generate
-fun LoadingState.copyToSuccessState(
-    successAction: SuccessAction,
-    itemId: String = this.itemId,
-    data: Data = successAction.data,
-    lastUpdateAt: Date,
-): SuccessState = /* ... */
-
-// usage
-val loadingState: LoadingState = /* ... */
-val action: SuccessAction = /* ... */
-val successState: SuccessState = loadingState.copyToSuccessState(
-    successAction = action,
-    lastUpdateAt = Date(),
-)
-```
-
-複数のソースクラスに同じプロパティ名がある場合、**(receiver ではなく) 引数として渡したソースクラスの値が
-優先** されます。生成される関数は primary source を receiver とする拡張関数で、他のソースは引数として渡される
-ため、重複するプロパティでは receiver よりも後に並ぶ引数側のソースが優先されます。
-
-### CombineFrom
-
-`@CombineFrom` は `@CombineTo` の逆で、**ターゲット側**に複数のソースクラスを指定します。
-
-```kt
-data class LoadingState(
-    val itemId: String,
-)
-
-data class SuccessAction(
-    val data: Data,
-)
-
-@CombineFrom(LoadingState::class, SuccessAction::class)
-data class SuccessState(
-    val itemId: String,  // from LoadingState.itemId
-    val data: Data,      // from SuccessAction.data
-    val lastUpdateAt: Date,
-)
-
-// auto generate
-fun LoadingState.copyToSuccessState(
-    successAction: SuccessAction,
-    itemId: String = this.itemId,
-    data: Data = successAction.data,
-    lastUpdateAt: Date,
-): SuccessState = /* ... */
-```
-
-`@CombineTo` と `@CombineFrom` は生成される関数は同じですが、アノテーションを付ける場所が異なります。
-
-- ソース側を編集できる場合は `@CombineTo`
-- ターゲット側を編集できる場合は `@CombineFrom`
-
-を選択してください。
-
-### CopyTo.Map, CopyFrom.Map, CombineTo.Map, CombineFrom.Map
-
-`@CopyTo.Map`、`@CopyFrom.Map`、`@CombineTo.Map`、`@CombineFrom.Map` を使用してプロパティごとに対応するプロパティを指定できます。
-これはコピー元とコピー先でプロパティ名が違う時にマッピングするのに便利です。
-
-#### CopyTo.Map / CopyFrom.Map
-
-```kt
-@CopyTo(DataModel::class)
-data class DomainModel(
-    @CopyTo.Map("dataId")
-    val domainId: String,
-)
-
-data class DataModel(
-    val dataId: String,
-)
-
-// auto genarate
-fun DomainModel.copyToDataModel(
-    dataId: String = this.domainId, // domainId と dataId がマッピングされます
-): DataModel = ...
-```
-
-```kt
-@CopyFrom(DataModel::class)
-data class DomainModel(
-    @CopyFrom.Map("dataId")
-    val domainId: String,
-)
-
-data class DataModel(
-    val dataId: String,
-)
-
-// auto generate
-fun DataModel.copyToDomainModel(
-    domainId: String = this.dataId, // dataId と domainId がマッピングされます
-)
-```
-
-#### CombineTo.Map / CombineFrom.Map
-
-複数のソースクラスから1つのターゲットクラスへコピーする際も同様にプロパティマッピングが可能です。
-
-**ソース側でマッピングを指定する場合:**
-
-```kt
-@CombineTo(TargetState::class)
-data class SourceA(
-    @CombineTo.Map("targetProperty")
-    val sourceProperty: String,
-)
-
-@CombineTo(TargetState::class)
-data class SourceB(
-    val otherProperty: Int,
-)
-
-data class TargetState(
-    val targetProperty: String,
-    val otherProperty: Int,
-)
-
-// auto generate
-fun SourceA.copyToTargetState(
-    sourceB: SourceB,
-    targetProperty: String = this.sourceProperty, // sourceProperty と targetProperty がマッピングされます
-    otherProperty: Int = sourceB.otherProperty,
-): TargetState = ...
-```
-
-**ターゲット側でマッピングを指定する場合:**
-
-```kt
-data class SourceA(
-    val sourceProperty: String,
-)
-
-data class SourceB(
-    val otherSourceProperty: Int,
-)
-
-@CombineFrom(SourceA::class, SourceB::class)
-data class TargetState(
-    @CombineFrom.Map("sourceProperty")
-    val targetProperty: String,
-    @CombineFrom.Map("otherSourceProperty")
-    val otherProperty: Int,
-)
-
-// auto generate
-fun SourceA.copyToTargetState(
-    sourceB: SourceB,
-    targetProperty: String = this.sourceProperty, // sourceProperty と targetProperty がマッピングされます
-    otherProperty: Int = sourceB.otherSourceProperty, // otherSourceProperty と otherProperty がマッピングされます
-): TargetState = ...
-```
-
-### CopyTo.Exclude, CopyFrom.Exclude, CombineTo.Exclude, CombineFrom.Exclude, SealedCopy.Exclude, CopyToChildren.Exclude
-
-プロパティに付与することで、生成コピー関数から**自動コピーのデフォルト値を除去**し、その引数を必須にします。
-引数自体は関数シグネチャに残りますが、`= this.<プロパティ>` というデフォルトが消え、呼び出し側が明示的に値を指定する必要があります。
-
-| アノテーション | 付与する場所 |
-|---|---|
-| `@CopyTo.Exclude` | ソースクラスのコンストラクタパラメータ |
-| `@CopyFrom.Exclude` | ターゲットクラスのコンストラクタパラメータ |
-| `@CombineTo.Exclude` | ソースクラスのプロパティ |
-| `@CombineFrom.Exclude` | ターゲットクラスのコンストラクタパラメータ |
-| `@SealedCopy.Exclude` | sealed 親の abstract プロパティ |
-| `@CopyToChildren.Exclude` | sealed 親のプロパティ（全ての per-child コピー関数に適用） |
-
-```kt
-sealed interface State {
-    val name: String
-    val count: Int
-
-    @CopyFrom(State::class)
-    data class Success(
-        val name: String,
-        @CopyFrom.Exclude val count: Int, // 自動コピーのデフォルトなし — 呼び出し側が指定
     )
 }
-
-// 生成されるコード:
-fun State.copyToStateSuccess(
-    name: String = this.name,
-    count: Int,              // 必須 — デフォルトなし
-): State.Success = State.Success(name = name, count = count)
-```
-
-matched でない引数に `@Exclude` を付けても**効果がなく**、KSP の warning が出ます。
-
-`@SealedCopy.Exclude` は `@SealedCopy` が生成する `copy()` 関数のみに効き、`@CopyToChildren.Exclude` は
-`@CopyToChildren` が生成する per-child コピー関数のみに効きます。
-同じ sealed 型に両方のアノテーションが共存しても互いに干渉しません。
-
-`@CopyMapping` および `@CombineMapping` は `@Exclude` に対応していません
-（コピー元/コピー先クラスが自分のコードでないため、プロパティへのアノテーション付与が不可能です）。
-
-<details>
-<summary>生成されるコード例</summary>
-
-**@SealedCopy.Exclude** — sealed 親の abstract プロパティに付与:
-
-```kt
-@SealedCopy
-sealed interface MyState {
-    val name: String
-    @SealedCopy.Exclude val count: Int  // 呼び出し側が count を指定
-
-    data class Loading(override val name: String, override val count: Int) : MyState
-}
-
-// 生成されるコード:
-fun MyState.copy(
-    name: String = this.name,
-    count: Int,               // 必須
-): MyState = when (this) {
-    is MyState.Loading -> this.copy(name = name, count = count)
-}
-```
-
-**@CopyToChildren.Exclude** — sealed 親のプロパティ → 全 per-child 関数に適用:
-
-```kt
-@CopyToChildren
-sealed interface UiState {
-    val sessionId: String
-    @CopyToChildren.Exclude val count: Int  // 全 copyToCn で必須
-
-    data class Loading(override val sessionId: String, override val count: Int) : UiState
-    data class Success(override val sessionId: String, override val count: Int, val data: String) : UiState
-}
-
-// 生成されるコード:
-fun UiState.copyToUiStateLoading(
-    sessionId: String = this.sessionId,
-    count: Int,   // 必須
-): UiState.Loading = ...
-
-fun UiState.copyToUiStateSuccess(
-    sessionId: String = this.sessionId,
-    count: Int,   // 必須
-    data: String,
-): UiState.Success = ...
-```
-
-</details>
-
-### CopyMapping
-
-コピー元/コピー先クラスが両方とも自分のソースコードではないが、コピー関数を生成したい場合は CopyMapping を使用できます。
-これにより コピー元クラス, コピー先クラスを両方とも一切編集することなく それらの関数のコピー関数を生成することが可能です。
-
-```kt
-// in library X
-data class LibXModel(
-    val shareProp: String,
-    val xProp: Int,
-)
-
-// in library Y
-data class LibYModel(
-    val shareProp: String,
-    val yProp: Int,
-)
-
-// in your module
-@CopyMapping(LibXModel::class, LibYModel::class)
-private object Mapping
-
-// auto generate
-fun LibXModel.copyToLibYModel(
-    shareProp: String = this.shareProp,
-    yProp: Int,
-): LibYModel = ...
-```
-
-### KDoc
-
-各ソースアノテーション (`@CopyTo`, `@CopyFrom`, `@CopyToChildren`, `@SealedCopy`,
-`@CombineTo`, `@CombineFrom`, `@CopyMapping`, `@CombineMapping`) には `kdoc = KDoc(...)`
-パラメータを指定でき、生成される関数の KDoc に独自の説明や例を追加できます。
-
-```kt
-@CopyTo(
-    Target::class,
-    kdoc = KDoc(
-        description = "この関数は ~ の場合は使わないでください。",
-        examples = [
-            """
-            # 推奨
-
-            ```kt
-            val target = source.copyToTarget()
-            ```
-            """,
-        ],
-    ),
-)
-data class Source(val shared: String)
-```
-
-生成される KDoc は以下の順序でレンダリングされます:
-
-1. 自動生成ヘッダ (`(Auto generate by @[...] of [...])`)
-2. 自動生成の説明行 (`Source -> Target copy function.`)
-3. `KDoc.description` (指定した場合のみ)
-4. 自動生成の `# Example: Basic` / `# Example: Override property values`
-5. `KDoc.examples` (各要素を `trimIndent` した上でそのまま挿入)
-6. `@see` 参照
-
-`examples` の各要素はそのまま挿入されるため、`# 見出し` や
-` ```kt ... ``` ` のフェンスは要素内で自由に記述してください。
-
-### Visibility (可視性)
-
-デフォルトでは、生成される copy 関数は生成元となる target (または sealed) 宣言の可視性を引き継ぎます。
-特定の可視性を強制したい場合は、copy を生成する各アノテーション (`@CopyTo` / `@CopyFrom` /
-`@CopyToChildren` / `@SealedCopy` / `@CombineTo` / `@CombineFrom`) に
-`visibility = CopyVisibility.<...>` を渡します。
-
-```kt
-@CopyTo(MergedState::class, visibility = CopyVisibility.INTERNAL)
-data class ServerState(val shared: String)
 
 // 自動生成
-internal fun ServerState.copyToMergedState(
-    shared: String = this.shared,
-    /* ... */
-): MergedState = ...
+fun UiState.copyToUiStateSuccess(
+    data: String,
+): UiState.Success = /* ... */
+
+// 使い方
+val uiState: UiState = /* ... */
+val nextUiState: UiState.Success = uiState.copyToUiStateSuccess(
+    data = /* ... */,
+)
 ```
 
-`CopyVisibility` には以下の値があります。生成される copy 関数はトップレベルの拡張関数なので、
-使用可能なままになる修飾子だけを提供しています。`private` (生成されたファイル内でしか見えない) や
-`protected` (トップレベル宣言には付けられない) は生成された関数を使えなくしてしまうため、
-意図的に提供していません。
+コピー元クラスのプロパティと名前が一致するコンストラクタ引数にはデフォルト値が設定されるため、
+変更したい値だけを渡せば OK です。詳細: [Copy](doc/copy.ja.md)
 
-| 値 | 生成される修飾子 |
-|----|------------------|
-| `INHERIT` (デフォルト) | target/sealed 宣言の可視性を引き継ぐ (このオプション追加前の挙動) |
-| `PUBLIC` | `public` |
-| `INTERNAL` | `internal` |
+## ユースケース
 
-`visibility` を省略した場合は完全に後方互換であり、これまで生成されていたコードは変わりません。
+### UI の状態遷移
 
-個々の宣言にアノテーションを付ける代わりに、モジュール全体のデフォルトを設定したい場合は
-[`cream.defaultVisibility`](#オプション-5-creamdefaultvisibility) オプションを使います。各アノテーションの
-`visibility` が常に優先され、プロジェクトのデフォルトはアノテーションが `INHERIT`（未指定）のままの箇所にのみ
-適用されます。
+Android アプリ開発などの GUI の状態を管理する必要がある場面では sealed interface での状態の管理が便利ですが、状態が移動する際の コンストラクタ呼び出しはわかりにくいものになりがちです。
 
-### Function Name (関数名 / funName)
-
-デフォルトでは、生成される関数名はプロジェクト全体の命名オプション
-(`cream.copyFunNamePrefix` / `cream.copyFunNamingStrategy` / `cream.escapeDot`) から導出されます。
-特定の宣言だけ名前を上書きしたい場合は、copy/combine 系アノテーション (`@CopyTo` / `@CopyFrom` /
-`@CopyToChildren` / `@CombineTo` / `@CombineFrom` / `@CopyMapping` / `@CombineMapping` /
-`@SealedCopy`) に `funName` を渡します。プロジェクト全体のオプションには影響しません。
-
-`funName` は **テンプレート** です。いくつかの `const` トークンが名前の一部に展開されるため、
-既定の名前に prefix/suffix を足したり、ゼロから名前を組み立てたりできます:
+cream.kt を使うことで sealed interface を使いつつ 状態遷移をシンプルに保てます。
 
 ```kt
-import me.tbsten.cream.*
+sealed interface HomeState {
+    @CopyTo(Success::class, Error::class)
+    data object Loading : HomeState
 
-@CopyTo(UiState.Success::class)                                              // copyToUiStateSuccess (デフォルト)
-@CopyTo(UiState.Success::class, funName = DefaultCopyFunctionName + "OrNull") // copyToUiStateSuccessOrNull
-@CopyTo(UiState.Success::class, funName = "to" + CopyTargetSimpleName)        // toSuccess
-@CopyTo(UiState.Success::class, funName = "to_" + copy_target_under_package)  // to_uistate_success
-@CopyTo(UiState.Success::class, funName = "toState")                          // toState (リテラル)
-data class Source(/* ... */)
-```
+    data class Success(
+        val data: HomeScreenData,
+    ) : HomeState
 
-トークンは `const val` なので、`+` で連結してもコンパイル時定数のままです。
+    data class Error(
+        val message: String,
+    ) : HomeState
+}
 
-| トークン | 展開結果 (target が `com.example.UiState.Success` の場合) |
-|----------|----------------------------------------------------------|
-| `DefaultCopyFunctionName` | cream の既定名 (`copyToUiStateSuccess`、`@SealedCopy` では `copy`) |
-| `CopyTargetSimpleName` / `copy_target_simple_name` | `Success` / `success` |
-| `CopyTargetUnderPackage` / `copy_target_under_package` | `UiStateSuccess` / `uistate_success` |
-| `CopyTargetInnerName` / `copy_target_inner_name` | `Success` / `success` |
-| `CopyTargetFullName` / `copy_target_full_name` | `ComExampleUiStateSuccess` / `com_example_uistate_success` |
+class HomeViewModel : ViewModel() {
+    private val _state = MutableStateFlow<HomeState>(HomeState.Loading)
 
-`PascalCase` トークンは `.` 区切りの各セグメントの先頭を大文字にし、`snake_case` トークンは各セグメントを
-小文字にして `_` で連結します。`DefaultCopyFunctionName` と異なり、`CopyTarget*` トークンは
-`cream.copyFunNamingStrategy` / `cream.escapeDot` に依存しない固定の描画になります。
+    fun initialLoad() = viewModelScope.launch {
+        val loadingState = HomeState.Loading
+        _state.update { loadingState }
 
-1 つのアノテーションが複数の関数を生成する場合 (複数 target/source、sealed target、`canReverse` な
-`@CopyMapping`) に純粋なリテラルの `funName` を指定すると、すべて同名になってしまうためビルド時に
-エラーになります。トークンを含めれば各関数が別名になります。`funName` を省略した場合は完全に後方互換で、
-これまで生成されていた名前は変わりません。
-
-純粋なリテラルの `funName` は有効な Kotlin の関数名である必要があります。Kotlin のキーワード
-(`is`、`in`、`object` など) やスペースを含む名前にしたい場合はバッククォートで囲みます。そうしないと
-コンパイルが通りません (cream は名前の検証を行わず、Kotlin コンパイラが報告します):
-
-```kt
-@CopyTo(Target::class, funName = "`is`")   // 生成: fun Source.`is`(...)
-```
-
-## 💻 4. 利用例
-
-主に想定されている cream.kt のユースケースを以下に示します。
-それぞれのユースケース向けの [Context7](https://context7.com/) を利用すると あなたの生成 AI に cream.kt
-の情報を即座に適用できるため便利でしょう。
-
-- ViewModel などでの sealed interface/class を使った状態管理における、状態遷移のコードを改善する。
-    - [Context7 ドキュメント](https://context7.com/tbsten/cream?topic=Improve+ViewModel+state+management&tokens=2000)
-- Data <-> Domain などのレイヤーを跨ぐ際にデータモデルを変換する必要がある際に、データモデルのコピーを改善する。
-    - [Context7 ドキュメント](https://context7.com/tbsten/cream?topic=Cross-Layer+Data+Model+Copy&tokens=2000)
-
-(利用例は一例であり、cream.kt の利用範囲を制限するものではありません。他のユースケースで不都合がある場合は issue
-で作成してください。)
-
-## 🔨 5. オプション
-
-生成される copy 関数の名前をカスタマイズするためのいくつかのオプションが用意されています。
-すべてのオプションの設定は任意です。必要に応じて設定してください。
-
-各オプションの動作を確認するためには [Option Builder](http://tbsten.github.io/cream/option-builder) が便利です。
-
-各オプション設定時の生成されるコピー関数名の詳細な例は、
-[@CopyFunctionNameTest.kt](./cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/transform/CopyFunctionNameTest.kt)
-のテストケースも参考にしてください。
-
-```kts
-// module/build.gradle.kts
-
-ksp {
-    arg("cream.copyFunNamePrefix", "copyTo")
-    arg("cream.copyFunNamingStrategy", "under-package")
-    arg("cream.escapeDot", "replace-to-underscore")
-    arg("cream.notCopyToObject", "false")
-    arg("cream.defaultVisibility", "INHERIT")
+        runCatching {
+            fetchHomeScreenDataFromServer()
+        }.fold(
+            onSuccess = { _state.update { loadingState.copyToHomeStateSuccess(data = it) } },
+            onFailure = { _state.update { loadingState.copyToHomeStateError(message = it.message ?: "Unknown error") } },
+        )
+    }
 }
 ```
 
-### オプションの一覧
+詳細は [sealed class を使った UI 状態管理](doc/use-case/ui-state-management-by-sealed-class/README.ja.md) を参照してください。
 
-| オプション名                            | 説明                                                          | 設定例                                                                      | デフォルト              |
-|-----------------------------------|-------------------------------------------------------------|--------------------------------------------------------------------------|--------------------|
-| **`cream.copyFunNamePrefix`**     | 生成されるコピー関数の先頭につく文字列                                         | `copyTo`, `transitionTo`, `to`, `mapTo`                                  | `copyTo`           |
-| **`cream.copyFunNamingStrategy`** | コピー関数の命名方法。                                                 | `under-package`, `diff`, `simple-name`, `full-name`, `inner-name` | `under-package`    |
-| **`cream.escapeDot`**             | `cream.copyFunNamingStrategy` で命名された名前に含まれる `.` をエスケープする方法。 | `lower-camel-case`, `replace-to-underscore`                      | `lower-camel-case` |
-| **`cream.notCopyToObject`**       | `true` の場合 @CopyToChildren で object へのコピー関数を生成しないようにします。    | `true` , `false`                                                         | `false`            |
-| **`cream.defaultVisibility`**     | 生成される関数のモジュール全体のデフォルト可視性。アノテーションの `visibility` が `INHERIT` の場合に適用されます。 | `INHERIT`, `PUBLIC`, `INTERNAL` | `INHERIT`          |
+### レイヤーを跨ぐデータ遷移
 
-### オプション 1. `cream.copyFunNamePrefix`
+データレイヤーとドメインレイヤーでモデルを別々に定義するとデータレイヤーの変更をアプリの他の部分（UI レイヤーなど）へ影響しないようにすることができ便利です。
 
-| デフォルト    | 設定可能な値 |
-|----------|--------|
-| `copyTo` | 任意の文字列 |
+しかし、小中規模のアプリではマッピングはしばしば面倒なボイラープレートを生み出します。cream.kt を利用することで、この詰め替えコードを自動生成に置き換えられます:
 
-生成されるコピー関数名の先頭につく クラス名を設定します。
-`copyTo` や `to` などのコピーや状態の遷移を表す端的な文字列を設定してください。
+```kt
+// domain layer
+data class Item(
+    val itemId: String,
+    val name: String,
+    val price: Int,
+)
 
-### オプション 2. `cream.copyFunNamingStrategy`
+// data layer
+@CopyTo(Item::class)
+data class GetItemApiResponse(
+    val itemId: String,
+    val name: String,
+    val price: Int,
+)
 
-| デフォルト           | 設定可能な値                                                                          |
-|-----------------|---------------------------------------------------------------------------------|
-| `under-package` | `under-package`, `diff`, `simple-name`, `full-name`, `inner-name`　のいずれか。 |
+class ItemRepositoryImpl : ItemRepository {
+    override suspend fun getItem(itemId: String): Item {
+        val apiResponse = itemApi.getItem(itemId)
+        return apiResponse.copyToItem()
+    }
+}
+```
 
-コピー関数の prefix 以降のクラス名文字列の設定方法です。以下の表に示す設定方法をサポートします。
-これら以外の命名方法が欲しい場合は [issue](https://github.com/TBSten/cream/issues?q=sort%3Aupdated-desc+is%3Aissue+is%3Aopen)
-にリクエストしてください。
+詳細は [レイヤーを跨ぐモデルマッピング](doc/use-case/model-mapping.ja.md) を参照してください。
 
-| 設定値             | 説明                                                                | `com.example.Aaa.Bbb` -> `com.example.Aaa.Bbb.Ccc.Ddd` に遷移するコピー関数を生成する例 |
-|-----------------|-------------------------------------------------------------------|-------------------------------------------------------------------------|
-| `under-package` | パッケージ階層を反映した名前を使用します。                                             | Hoge.Fuga.copyTo **`Aaa.Bbb.Ccc.Ddd`** (...)                            |
-| `diff`          | 遷移元クラスとの差分のみを含めた名前を使用する。                                          | Hoge.Fuga.copyTo **`CccDdd`** (...)                                     |
-| `simple-name`   | 遷移先クラス::class.simpleName を使用する。                                   | Hoge.Fuga.copyTo **`Ddd`** (...)                                        |
-| `full-name`     | 対象クラス::class.qualifiedName を使用する。                                 | Hoge.Fuga.copyTo **`ComExampleAaaBbbCccDdd`** (...)                     |
-| `inner-name`    | ネストされたクラスの 2 階層目以降のクラス名を使用する。（ネストされていないクラスの場合は `simple-name` と同じ） | Hoge.Fuga.copyTo **`BbbCccDdd`** (...)                                  |
+## アノテーション
 
-<img src="./doc/cream.copyFunNamingStrategy.png" width="800" />
+各機能の詳細な情報は以下のドキュメントを参照してください。
 
-### オプション 3. `cream.escapeDot`
+| アノテーション | 付ける場所 | 生成されるもの | Docs |
+|---|---|---|---|
+| `@CopyTo(Target::class)` | コピー元クラス | コピー元 → ターゲットへのコピー関数 | [docs](doc/copy.ja.md#copyto) |
+| `@CopyFrom(Source::class)` | ターゲットクラス | `@CopyTo` と同じ（アノテーションをターゲット側に置く） | [docs](doc/copy.ja.md#copyfrom) |
+| `@CopyMapping(Source::class, Target::class)` | 自モジュール内の宣言 | 変更できないクラス同士（ライブラリのクラスなど）のコピー関数 | [docs](doc/copy.ja.md#copymapping) |
+| `@CopyToChildren` | sealed class/interface | sealed 親から**全ての**子クラスへのコピー関数 | [docs](doc/copy-to-children.ja.md) |
+| `@SealedCopy` | sealed class/interface | 子 type を維持する、sealed 親の `copy()` | [docs](doc/sealed-copy.ja.md) |
+| `@CombineTo(Target::class)` | 各コピー元クラス | **複数**のコピー元 → 1 つのターゲットへの combine 関数 | [docs](doc/combine.ja.md#combineto) |
+| `@CombineFrom(SourceA::class, SourceB::class, ...)` | ターゲットクラス | `@CombineTo` と同じ（アノテーションをターゲット側に置く） | [docs](doc/combine.ja.md#combinefrom) |
+| `@CombineMapping(...)` | 自モジュール内の宣言 | 変更できないクラス同士の combine 関数 | [docs](doc/combine.ja.md#combinemapping) |
 
-| デフォルト              | 設定可能な値                                                     |
-|--------------------|------------------------------------------------------------|
-| `lower-camel-case` | `lower-camel-case`, `replace-to-underscore`　のいずれか。 |
+## カスタマイズ
 
-`cream.copyFunNamingStrategy` で取得したクラス名をエスケープする方法を設定します。
+細かなカスタマイズが必要な場合は以下を参照してください。
 
-Kotlin の関数名には通常 `.` を含めることはできないため 設定例に示すいずれかの方法で命名可能な文字列に変更する必要があります。
+| やりたいこと | API | Docs |
+|---|---|---|
+| 名前が違うプロパティを対応付ける | `.Map`（`@CopyTo.Map` など） | [Property mapping](doc/customization/property-mapping.ja.md) |
+| 自動コピーのデフォルト値を外して必須引数にする | `.Exclude`（`@CopyTo.Exclude` など） | [Exclude](doc/customization/exclude.ja.md) |
+| 生成される KDoc に説明・例を追加する | `kdoc = KDoc(...)` | [KDoc](doc/customization/kdoc.ja.md) |
+| 生成される関数の可視性を制御する | `visibility` / `CopyVisibility` | [Visibility](doc/customization/visibility.ja.md) |
+| 生成される関数名を変える（宣言ごと / モジュール全体） | `funName` / `cream.copyFunNamePrefix` / … | [Function name](doc/customization/fun-name.ja.md) |
+| モジュール全体の KSP オプションを一覧する | `cream.*` KSP オプション | [KSP Options](doc/customization/options.ja.md) |
 
-| 設定値                     | 説明                                 | `com.example.Hoge.Fuga` -> `com.example.Hoge.Piyo` に遷移するコピー関数を生成する例 |
-|-------------------------|------------------------------------|---------------------------------------------------------------------|
-| `lower-camel-case`      | ドットで区切られた各要素をキャメルケースで連結し、先頭を小文字にする | Hoge.Fuga.copyTohogePiyo(...)                                       |
-| `replace-to-underscore` | ドットをアンダースコアに置換する                   | Hoge.Fuga.copyTo_hoge_piyo(...)                                     |
-
-### Option 4. `cream.notCopyToObject`
-
-| デフォルト   | 設定可能な値                |
-|---------|-----------------------|
-| `false` | `true`,`false` のいずれか。 |
-
-true を設定すると、あるクラスから object へのコピー関数を生成しなくなります。
-
-object へのコピー関数は、実際にはコピーではなく object のインスタンスをそのまま返します。
-これがあなたの好みに合わない場合、このオプションに `true` を設定して data object へのコピーを抑止できます。
-
-またこのオプションはモジュール全体に影響しますが、 `@CopyToChildren` の notCopyToObject プロパティを
-true にすることで アノテーションをつけたクラスのみに絞ることも可能です。
-
-### オプション 5. `cream.defaultVisibility`
-
-| デフォルト   | 設定可能な値                              |
-|----------|-------------------------------------|
-| `INHERIT` | `INHERIT`, `PUBLIC`, `INTERNAL` のいずれか。 |
-
-生成されるすべての copy / combine 関数に対する、モジュール全体のデフォルト可視性を設定します。
-これはアノテーションごとの `visibility = CopyVisibility.<...>` 引数（[Visibility](#visibility-可視性) を参照）の
-プロジェクトレベル版です。
-
-優先順位は以下の通りです:
-
-1. アノテーションで明示した `visibility`（`INHERIT` 以外）が常に優先されます。
-2. 次に `cream.defaultVisibility`（`PUBLIC` または `INTERNAL` の場合）。
-3. どちらも `INHERIT` の場合は、このオプション追加前と同じく、生成関数は target/sealed 宣言自身の
-   可視性を引き継ぎます。
-
-例えば `cream.defaultVisibility=INTERNAL` を設定すると、素の `@CopyTo(Target::class)` でも各アノテーションに
-`visibility = CopyVisibility.INTERNAL` を付けずに `internal` な copy 関数が生成されます。
-
-## 🆚 6. 他のライブラリとの比較
-
-Kotlin のデータマッピングライブラリを選択する際、いくつかの選択肢があります。ここでは cream.kt と他の人気ライブラリとの比較を示します。
-
-### vs. MapStruct
-
-**MapStruct** は、異なるオブジェクトタイプ間のマッピングに特化した成熟した Java ベースのコード生成ライブラリです。
-
-| 機能                 | cream.kt                    | MapStruct             |
-|--------------------|-----------------------------|-----------------------|
-| **言語**             | Kotlin ファーストで KSP を使用       | Java ファーストでアノテーション処理  |
-| **状態遷移**           | ✅ sealed class の状態遷移に最適化    | ❌ Entity-DTO マッピングに特化 |
-| **デフォルト値のオーバーライド** | ✅ 生成された関数でデフォルト値をオーバーライド可能  | ⚠️ デフォルト値の扱いが限定的      |
-| **マルチプラットフォーム**    | ✅ Kotlin Multiplatform サポート | ❌ JVM のみ              |
-| **IDE サポート**       | ✅ ネイティブな Kotlin IDE 統合      | ⚠️ Java プロジェクトに最適     |
-| **ユースケース**         | フロントエンド状態管理（UI 状態など）        | バックエンド Entity-DTO 変換  |
-
-**MapStruct より cream.kt を選ぶべきケース:**
-
-- Kotlin で開発している（特に Kotlin Multiplatform）
-- sealed class での UI 状態遷移を管理する必要がある
-- 状態遷移時にデフォルト値をオーバーライドしたい
-- 軽量で Kotlin ネイティブなソリューションを好む
-
-### vs. KOMM (Kotlin Object Multiplatform Mapper)
-
-**KOMM** は軽量な Kotlin Multiplatform マッピングライブラリで、同じく KSP を使用してコード生成を行います。
-
-| 機能                     | cream.kt                                        | KOMM               |
-|------------------------|-------------------------------------------------|--------------------|
-| **構造の不一致処理**           | ✅ ソースとターゲットの構造が異なる場合の処理が優れている                   | ⚠️ より多くの手動設定が必要    |
-| **デフォルト値のオーバーライド**     | ✅ マッチしたプロパティはすべてデフォルト値が設定され、オーバーライド可能           | ⚠️ より限定的なデフォルト値の扱い |
-| **高度な機能**              | ✅ `@CopyToChildren`、`@CombineTo`、`@CopyMapping` | ⚠️ よりシンプルな機能セット    |
-| **Object シングルトンへのコピー** | ✅ `object` 型へのコピー（オプトアウト可能）                     | ❌ サポートなし           |
-| **複雑さ**                | ⚠️ より多くの機能 = 学習曲線がやや急                           | ✅ よりシンプルで軽量        |
-| **柔軟性**                | ⚠️ 状態管理パターンに特化している                              | ✅ より汎用的な柔軟性        |
-
-**KOMM より cream.kt を選ぶべきケース:**
-
-- 複雑な状態管理を持つアプリケーションを構築している（例: [Tart](https://github.com/TBSten/tart) のようなライブラリを使用）
-- sealed interface からすべての子クラスへコピーする必要がある（`@CopyToChildren`）
-- UI 状態のための sealed class 階層を頻繁に扱う
-- 複数のソースクラスを 1 つのターゲットに結合する必要がある（`@CombineTo`）
-- ソースコードを変更せずにライブラリ間マッピングが必要（`@CopyMapping`）
-
-**KOMM の方が適しているケース:**
-
-- よりシンプルで汎用的なマッピングライブラリが欲しい
-- 意見の強いパターンよりも最大限の柔軟性を好む
-- 複雑な状態階層なしでよりシンプルなマッピングニーズがある
