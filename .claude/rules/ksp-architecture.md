@@ -50,13 +50,13 @@ feature ─▶ ProcessContext   （唯一の上向き依存。ProcessContext は
 - `-Xcontext-parameters`（Kotlin 2.2.20、要 flag）。`ProcessContext = {resolver, options, codeGenerator, logger}`。**`logger` は必須**（`KSPLogger?` 禁止）。
 - **層別 context（必要な capability だけ宣言）**:
   - feature: `context(ctx: ProcessContext) fun processXxx(): List<KSAnnotated>`
-  - core: `context(options: CreamOptions, logger: KSPLogger) fun BufferedWriter.appendXxx(...)`（resolver/codeGenerator は受け取らない）
+  - core: `context(options: CreamOptions, logger: KSPLogger) fun Appendable.appendXxx(...)`（resolver/codeGenerator は受け取らない）
 - per-call の値（source/target/omitPackages/funNameTemplate/`GenerateSourceAnnotation` 等）は通常の関数引数のまま。
 
 ## Naming
 
 - feature: ファイル `Process<Name>.kt`、関数 `processXxx`（top-level / lowerCamel）。
-- core 生成関数: `appendXxx`（`BufferedWriter` 拡張、文字列 append ベース。KotlinPoet 不使用）。
+- core 生成関数: `appendXxx`（`Appendable` 拡張、文字列 append ベース。KotlinPoet 不使用）。
 - `GenerateSourceAnnotation`（sealed, `ksp/GenerateSourceAnnotation.kt`, package `me.tbsten.cream.ksp`）: 8 実装で生成元注釈を識別。新注釈追加時は網羅する。
 
 ## Cross-cutting rules

@@ -3,8 +3,6 @@ package me.tbsten.cream.ksp.core.common
 import com.google.devtools.ksp.processing.CodeGenerator
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.symbol.KSName
-import java.io.BufferedWriter
-import java.io.StringWriter
 
 /**
  * Write a generated Kotlin file, but only when [block] actually produces declarations.
@@ -20,10 +18,10 @@ internal fun CodeGenerator.createNewKotlinFile(
     dependencies: Dependencies,
     packageName: KSName,
     fileName: String,
-    block: (BufferedWriter) -> Unit,
+    block: (Appendable) -> Unit,
 ) {
-    val buffer = StringWriter()
-    BufferedWriter(buffer).use(block)
+    val buffer = StringBuilder()
+    block(buffer)
     val body = buffer.toString()
 
     if (body.isEmpty()) return

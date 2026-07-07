@@ -7,10 +7,9 @@ import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.core.common.fullName
 import me.tbsten.cream.ksp.options.CreamOptions
-import java.io.BufferedWriter
 
 context(options: CreamOptions, logger: KSPLogger)
-internal fun BufferedWriter.appendCombineToFunction(
+internal fun Appendable.appendCombineToFunction(
     primarySource: KSClassDeclaration,
     otherSources: List<KSClassDeclaration>,
     target: KSClassDeclaration,

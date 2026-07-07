@@ -9,10 +9,9 @@ import me.tbsten.cream.ksp.core.common.resolveFunName
 import me.tbsten.cream.ksp.core.common.toModifierString
 import me.tbsten.cream.ksp.core.common.underPackageName
 import me.tbsten.cream.ksp.options.CreamOptions
-import java.io.BufferedWriter
 
 context(options: CreamOptions)
-internal fun BufferedWriter.appendCopyToObjectFunction(
+internal fun Appendable.appendCopyToObjectFunction(
     source: KSClassDeclaration,
     targetObject: KSClassDeclaration,
     generateSourceAnnotation: GenerateSourceAnnotation,
@@ -41,7 +40,7 @@ internal fun BufferedWriter.appendCopyToObjectFunction(
     appendLine()
 }
 
-private fun BufferedWriter.appendCopyToObjectKDoc(
+private fun Appendable.appendCopyToObjectKDoc(
     source: KSClassDeclaration,
     target: KSClassDeclaration,
     generateSourceAnnotation: GenerateSourceAnnotation,

@@ -24,10 +24,9 @@ import me.tbsten.cream.ksp.core.common.warnIfTargetExcludeHasNoEffect
 import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.util.escapeKotlinIdentifier
 import me.tbsten.cream.ksp.util.ksp.asString
-import java.io.BufferedWriter
 
 context(options: CreamOptions, logger: KSPLogger)
-internal fun BufferedWriter.appendCopyToClassFunction(
+internal fun Appendable.appendCopyToClassFunction(
     source: KSClassDeclaration,
     targetClass: KSClassDeclaration,
     generateSourceAnnotation: GenerateSourceAnnotation,
@@ -105,7 +104,7 @@ internal fun BufferedWriter.appendCopyToClassFunction(
     }
 }
 
-private fun BufferedWriter.appendCopyToClassKDoc(
+private fun Appendable.appendCopyToClassKDoc(
     source: KSClassDeclaration,
     target: KSClassDeclaration,
     generateSourceAnnotation: GenerateSourceAnnotation,

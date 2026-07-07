@@ -9,14 +9,13 @@ import me.tbsten.cream.ksp.util.escapeKotlinIdentifier
 import me.tbsten.cream.ksp.util.isCountMoreThan
 import me.tbsten.cream.ksp.util.ksp.asString
 import me.tbsten.cream.ksp.util.lines
-import java.io.BufferedWriter
 
 /**
  * Appends the generic type parameter list `<T : Bound, ...>` for a generated copy/combine function,
  * based on [typeParameters]. Each parameter is rendered with its single inline bound when present
  * (but not `kotlin.Any?`). Emits nothing when [typeParameters] is empty.
  */
-internal fun BufferedWriter.appendTypeParameterList(
+internal fun Appendable.appendTypeParameterList(
     typeParameters: CopyFunctionTypeParameters,
     omitPackages: List<String>,
 ) {
@@ -47,7 +46,7 @@ internal fun BufferedWriter.appendTypeParameterList(
  * e.g. `com.example.Source<T1, T2>`. If [sourceClass] has no type parameters, only the
  * class name is appended. Throws [UnknownCreamException] if a type parameter cannot be resolved.
  */
-internal fun BufferedWriter.appendSourceClassWithTypeArgs(
+internal fun Appendable.appendSourceClassWithTypeArgs(
     sourceClass: KSClassDeclaration,
     targetClass: KSClassDeclaration,
     typeParameters: CopyFunctionTypeParameters,
@@ -84,7 +83,7 @@ internal fun BufferedWriter.appendSourceClassWithTypeArgs(
  * e.g. `com.example.Target<T1, T2>`. If [targetClass] has no type parameters, only the
  * class name is appended. Throws [UnknownCreamException] if a type parameter cannot be resolved.
  */
-internal fun BufferedWriter.appendTargetClassWithTypeArgs(
+internal fun Appendable.appendTargetClassWithTypeArgs(
     sourceClass: KSClassDeclaration,
     targetClass: KSClassDeclaration,
     typeParameters: CopyFunctionTypeParameters,
@@ -149,7 +148,7 @@ internal fun resolveConstructorParamTypeParameter(
  * Appends the ` where T : A, T : B` clause for type parameters that carry more than one upper
  * bound. Returns without output when no parameter needs it.
  */
-internal fun BufferedWriter.appendWhereClause(
+internal fun Appendable.appendWhereClause(
     typeParameters: CopyFunctionTypeParameters,
     omitPackages: List<String>,
 ) {
@@ -174,7 +173,7 @@ internal fun BufferedWriter.appendWhereClause(
  * Appends the `= TargetClass(\n    p1 = p1,\n    p2 = p2,\n)` constructor call body.
  * Used at the end of both copy and combine generated function bodies.
  */
-internal fun BufferedWriter.appendConstructorCallBody(
+internal fun Appendable.appendConstructorCallBody(
     targetClass: KSClassDeclaration,
     constructor: KSFunctionDeclaration,
 ) {
