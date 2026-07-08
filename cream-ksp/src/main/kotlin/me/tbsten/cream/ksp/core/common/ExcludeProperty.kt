@@ -1,5 +1,6 @@
 package me.tbsten.cream.ksp.core.common
 
+import com.google.devtools.ksp.getConstructors
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
@@ -10,6 +11,8 @@ import me.tbsten.cream.CopyFrom
 import me.tbsten.cream.CopyTo
 import me.tbsten.cream.CopyToChildren
 import me.tbsten.cream.ksp.core.common.annotationsOf
+import me.tbsten.cream.ksp.util.ksp.collectConcreteSubclasses
+import me.tbsten.cream.ksp.util.ksp.isSealed
 import kotlin.reflect.KClass
 
 /**
@@ -37,12 +40,14 @@ internal fun KSValueParameter.isExcludedFromCopy(
             annotationsOf(CombineFrom.Exclude::class).any()
         is GenerateSourceAnnotation.CopyToChildren ->
             matchedProperty?.annotationsOf(CopyToChildren.Exclude::class)?.any() == true
+        // CopyMapping / CombineMapping: library-to-library, so there is no property to annotate;
+        // the annotation-level `excludes` names the generated (target-side) parameter instead.
+        is GenerateSourceAnnotation.CopyMapping ->
+            name?.asString() in generateSourceAnnotation.excludes
+        is GenerateSourceAnnotation.CombineMapping ->
+            name?.asString() in generateSourceAnnotation.excludes
         // SealedCopy is handled separately in appendSealedCopyHeader (not via this function).
-        // CopyMapping / CombineMapping: library-to-library, @Exclude not applicable.
-        is GenerateSourceAnnotation.SealedCopy,
-        is GenerateSourceAnnotation.CopyMapping,
-        is GenerateSourceAnnotation.CombineMapping,
-        -> false
+        is GenerateSourceAnnotation.SealedCopy -> false
     }
 
 /**
@@ -124,3 +129,68 @@ internal fun KSPropertyDeclaration.warnIfSourceExcludeHasNoEffect(
         logger.warn("@Exclude on '$propName' has no effect: not a matched property", this)
     }
 }
+
+/**
+ * One generated direction of a `@CopyMapping` / `@CombineMapping`: the function(s) from [sources]
+ * into [targetClass], generated under [generateSourceAnnotation]. [excludeNames] holds this
+ * direction's (possibly Map-translated) spelling of each user-written `excludes` entry,
+ * index-aligned with the original `excludes` list.
+ */
+internal class MappingExcludesDirection(
+    val sources: List<KSClassDeclaration>,
+    val targetClass: KSClassDeclaration,
+    val generateSourceAnnotation: GenerateSourceAnnotation,
+    val excludeNames: List<String>,
+)
+
+/**
+ * Warns when a `@CopyMapping` / `@CombineMapping` `excludes` entry never suppresses any
+ * auto-copy default — i.e. no generated parameter carrying that (target-side) name has a matched
+ * source property. Mirrors the unmatched `@Exclude` warnings above; anchored at the annotated
+ * mapping holder because the mapped external classes carry no annotation to point at.
+ *
+ * Evaluated once per mapping annotation (called from the mapping features, not per generated
+ * function), so neither the `canReverse` reverse pass nor a sealed target's per-leaf fan-out can
+ * duplicate the warning, and the message always names the entry as the user wrote it
+ * ([originalExcludes]) — never its Map-translated reverse spelling. An entry is effective when
+ * its direction-local spelling suppresses a default on any constructor parameter of any concrete
+ * target in any direction (every transitive concrete leaf when the target is sealed; an `object`
+ * target has no parameters, so its entries always warn).
+ */
+internal fun warnIfMappingExcludesHaveNoEffect(
+    originalExcludes: List<String>,
+    directions: List<MappingExcludesDirection>,
+    logger: KSPLogger,
+) {
+    val anchor =
+        directions.firstOrNull()?.generateSourceAnnotation?.annotatedDeclaration ?: return
+    originalExcludes.forEachIndexed { index, entry ->
+        val suppressesDefault =
+            directions.any { direction ->
+                val localName = direction.excludeNames.getOrNull(index) ?: entry
+                direction.concreteTargets().any { concreteTarget ->
+                    concreteTarget.getConstructors().any { constructor ->
+                        constructor.parameters.any { parameter ->
+                            parameter.name?.asString() == localName &&
+                                direction.sources.any { source ->
+                                    parameter.findMatchedProperty(source, direction.generateSourceAnnotation) != null
+                                }
+                        }
+                    }
+                }
+            }
+        if (!suppressesDefault) {
+            logger.warn(
+                "excludes entry '$entry' has no effect: not a matched property",
+                anchor,
+            )
+        }
+    }
+}
+
+private fun MappingExcludesDirection.concreteTargets(): Sequence<KSClassDeclaration> =
+    if (targetClass.isSealed()) {
+        targetClass.collectConcreteSubclasses()
+    } else {
+        sequenceOf(targetClass)
+    }

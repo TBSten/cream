@@ -198,7 +198,7 @@ When you need finer-grained customization, see the following.
 | I want to... | API | Docs |
 |---|---|---|
 | Map properties whose names differ | `.Map` (e.g. `@CopyTo.Map`) | [Property mapping](doc/customization/property-mapping.md) |
-| Drop the auto-copy default and make callers pass a value | `.Exclude` (e.g. `@CopyTo.Exclude`) | [Exclude](doc/customization/exclude.md) |
+| Drop the auto-copy default and make callers pass a value | `.Exclude` (e.g. `@CopyTo.Exclude`), `excludes` for mapping annotations | [Exclude](doc/customization/exclude.md) |
 | Add my own notes/examples to the generated KDoc | `kdoc = KDoc(...)` | [KDoc](doc/customization/kdoc.md) |
 | Control the visibility of generated functions | `visibility` / `CopyVisibility` | [Visibility](doc/customization/visibility.md) |
 | Rename generated functions (per-declaration / module-wide) | `funName` / `cream.copyFunNamePrefix` / … | [Function name](doc/customization/fun-name.md) |

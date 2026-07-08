@@ -13,6 +13,7 @@ import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.ProcessContext
 import me.tbsten.cream.ksp.core.combineFun.appendCombineToFunction
 import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
+import me.tbsten.cream.ksp.core.common.MappingExcludesDirection
 import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.asClassDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.createNewKotlinFile
@@ -22,6 +23,7 @@ import me.tbsten.cream.ksp.core.common.reportCreamError
 import me.tbsten.cream.ksp.core.common.resolveClassDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.resolveToClassDeclaration
 import me.tbsten.cream.ksp.core.common.underPackageName
+import me.tbsten.cream.ksp.core.common.warnIfMappingExcludesHaveNoEffect
 import me.tbsten.cream.ksp.util.ksp.getArgument
 import me.tbsten.cream.ksp.util.with
 
@@ -123,6 +125,26 @@ internal fun processCombineMapping(): List<KSAnnotated> =
                 }
             if (parsedMappings.any { it == null }) return@forEach
             val combineMappings = parsedMappings.filterNotNull()
+
+            // The `excludes` no-effect warning is evaluated once per mapping annotation (not per
+            // generated function) so a sealed target's fan-out cannot duplicate it.
+            combineMappings.forEach { mapping ->
+                val generateSourceAnnotation =
+                    GenerateSourceAnnotation.CombineMapping(annotation = mapping.rawAnnotation)
+                warnIfMappingExcludesHaveNoEffect(
+                    originalExcludes = generateSourceAnnotation.excludes,
+                    directions =
+                        listOf(
+                            MappingExcludesDirection(
+                                sources = mapping.sourceClasses,
+                                targetClass = mapping.targetClass,
+                                generateSourceAnnotation = generateSourceAnnotation,
+                                excludeNames = generateSourceAnnotation.excludes,
+                            ),
+                        ),
+                    logger = processContext.logger,
+                )
+            }
 
             val mappingPackage = annotatedDeclaration.packageName
             val omitPackages = omitPackagesFor(mappingPackage)

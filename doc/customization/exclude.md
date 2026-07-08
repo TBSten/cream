@@ -4,7 +4,8 @@
 
 Marks a property so the generated copy function **removes its auto-copy default**, making the parameter required.
 The parameter itself remains in the function signature; it just loses the `= this.<property>` default and the caller
-must supply an explicit value.
+must supply an explicit value. For `@CopyMapping` / `@CombineMapping` — where the mapped classes cannot be
+annotated — the same effect is available via the [`excludes` annotation argument](#copymapping--combinemapping--excludes).
 
 ## Where to place it
 
@@ -16,6 +17,8 @@ must supply an explicit value.
 | `@CombineFrom.Exclude` | Target class constructor parameter |
 | `@SealedCopy.Exclude` | Abstract property on the sealed parent |
 | `@CopyToChildren.Exclude` | Property on the sealed parent (applied to all per-child copy functions) |
+| `@CopyMapping(excludes = [...])` | `excludes` argument of the annotation (target-side property names) |
+| `@CombineMapping(excludes = [...])` | `excludes` argument of the annotation (target-side property names) |
 
 ## CopyTo.Exclude
 
@@ -218,17 +221,79 @@ val loading: UiState.Loading = state.copyToUiStateLoading(
 )
 ```
 
+## CopyMapping / CombineMapping — `excludes`
+
+`@CopyMapping` / `@CombineMapping` map classes you don't own, so there is no property to annotate.
+Instead, list the parameters to make required in the `excludes` annotation argument. Each entry
+names a generated parameter — i.e. a **target-side** property name, consistent with the generated
+signature (including `properties = [Map(...)]` renames).
+
+```kt
+import me.tbsten.cream.CopyMapping
+
+// in library X / Y — cannot be modified
+data class LibXModel(val shareProp: String, val xProp: Int)
+data class LibYModel(val shareProp: String, val yProp: Int)
+
+@CopyMapping(
+    source = LibXModel::class,
+    target = LibYModel::class,
+    excludes = ["shareProp"],
+)
+private object Mapping
+
+// Generated:
+fun LibXModel.copyToLibYModel(
+    shareProp: String,       // required — no default
+    yProp: Int,
+): LibYModel = ...
+```
+
+`@CombineMapping(excludes = [...])` works the same way: entries name target-side parameters of
+the generated combine function.
+
+### With `canReverse = true`
+
+`excludes` applies in **both** directions. Entries are translated through the reversed
+`properties` mappings: an entry that names the `target` of a `Map(source = ..., target = ...)`
+excludes the **source-side** parameter in the reverse function; entries without a mapping
+(same-named shared properties) apply as-is.
+
+```kt
+@CopyMapping(
+    source = LibXModel::class,
+    target = LibYModel::class,
+    canReverse = true,
+    properties = [CopyMapping.Map(source = "xProp", target = "yProp")],
+    excludes = ["yProp"],
+)
+private object Mapping
+
+// Forward — yProp is required:
+fun LibXModel.copyToLibYModel(
+    shareProp: String = this.shareProp,
+    yProp: Int,              // required — no default
+): LibYModel = ...
+
+// Reverse — the exclude is translated through the reversed Map, so xProp is required:
+fun LibYModel.copyToLibXModel(
+    shareProp: String = this.shareProp,
+    xProp: Int,              // required — no default
+): LibXModel = ...
+```
+
 ## Details / Edge cases
 
 Applying `@Exclude` to a parameter that is not matched to any source property has **no effect** and emits a KSP
+warning. Likewise, an `excludes` entry that matches no auto-defaulted parameter has no effect and emits a KSP
 warning.
 
 `@SealedCopy.Exclude` only affects the `@SealedCopy`-generated `copy()` function; `@CopyToChildren.Exclude` only
 affects the `@CopyToChildren`-generated per-child copy functions. Both annotations can coexist on the same sealed
 type without interfering.
 
-`@CopyMapping` and `@CombineMapping` do not support `@Exclude` (the source and target classes are not in your own
-code, so annotating their properties is not possible).
+`@CopyMapping` and `@CombineMapping` have no `.Exclude` annotation (the source and target classes are not in your
+own code, so annotating their properties is not possible) — use the `excludes` annotation argument instead.
 
 ## See also
 

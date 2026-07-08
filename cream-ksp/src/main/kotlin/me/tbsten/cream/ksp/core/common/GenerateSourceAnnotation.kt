@@ -100,6 +100,23 @@ internal sealed interface GenerateSourceAnnotation {
                 annotation.extractPropertyMappings().let { pairs ->
                     if (reversed) pairs.map { (source, target) -> target to source } else pairs
                 }
+
+        /**
+         * Generated (target-side) parameter names whose auto-copy default is dropped. For the
+         * [reversed] function each entry is translated through the property mappings: an entry
+         * naming the `target` of a `Map(source, target)` pair excludes the reverse function's
+         * source-side parameter; entries without a mapping (same-named shared properties) apply
+         * as-is.
+         */
+        val excludes: List<String>
+            get() {
+                val names = annotation.extractExcludes()
+                if (!reversed) return names
+                val mappings = annotation.extractPropertyMappings()
+                return names.map { name ->
+                    mappings.firstOrNull { (_, target) -> target == name }?.first ?: name
+                }
+            }
     }
 
     /** `@CombineMapping` property remappings. `@CombineMapping` has no reverse direction. */
@@ -108,5 +125,9 @@ internal sealed interface GenerateSourceAnnotation {
     ) : GenerateSourceAnnotation {
         val propertyMappings: List<Pair<String, String>>
             get() = annotation.extractPropertyMappings()
+
+        /** Generated (target-side) parameter names whose auto-copy default is dropped. */
+        val excludes: List<String>
+            get() = annotation.extractExcludes()
     }
 }

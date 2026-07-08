@@ -53,6 +53,33 @@ import kotlin.reflect.KClass
  * ): LibYModel = ...
  * ```
  *
+ * # Excluding auto-copy defaults
+ *
+ * Use the `excludes` parameter to remove the auto-copy default of generated parameters.
+ * Each entry names a generated parameter — i.e. a **target-side** property name (consistent
+ * with the generated signature, including `properties` renames). The parameter stays in the
+ * signature but becomes required:
+ *
+ * ```kt
+ * @CopyMapping(
+ *     source = LibXModel::class,
+ *     target = LibYModel::class,
+ *     excludes = ["shareProp"],
+ * )
+ * private object Mapping
+ *
+ * // auto generate
+ * fun LibXModel.copyToLibYModel(
+ *     shareProp: String,  // no default — caller must specify
+ *     yProp: Int,
+ * ): LibYModel = ...
+ * ```
+ *
+ * When `canReverse = true`, `excludes` applies in both directions. Entries are translated
+ * through the reversed `properties` mappings: an entry naming the `target` of a
+ * [CopyMapping.Map] excludes the source-side parameter in the reverse function; entries
+ * without a mapping (same-named shared properties) apply as-is.
+ *
  * # Bidirectional Mapping
  *
  * Set `canReverse = true` to generate copy functions in both directions:
@@ -85,6 +112,10 @@ import kotlin.reflect.KClass
  * @param target The target class to copy to
  * @param canReverse If true, also generates a reverse copy function (target -> source). Default is false.
  * @param properties Property mappings that define how to map properties with different names between source and target.
+ * @param excludes Generated parameter names (target-side property names) whose auto-copy default
+ *   is removed, making the parameter required. When `canReverse` is true, entries are translated
+ *   through the reversed `properties` mappings for the reverse function. An entry that matches no
+ *   auto-defaulted parameter has no effect and emits a KSP warning.
  * @param funName Template for the generated function name. Defaults to [DefaultCopyFunctionName]
  *   (cream's derived name). Embed naming tokens such as [CopyTargetSimpleName] to compose a name.
  *   When `canReverse` is true (or the target is sealed) use a token so the forward and reverse
@@ -107,6 +138,7 @@ public annotation class CopyMapping(
     val target: KClass<*>,
     val canReverse: Boolean = false,
     val properties: Array<Map> = [],
+    val excludes: Array<String> = [],
     val kdoc: KDoc = KDoc(),
     val funName: String = DefaultCopyFunctionName,
     val visibility: CopyVisibility = CopyVisibility.INHERIT,
