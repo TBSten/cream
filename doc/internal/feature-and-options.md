@@ -19,7 +19,7 @@
 | nonCopyableStrategy | ✕ 無 | ✕ | ✕ | ✕ | ✓ | ✕ | ✕ | ✕ | ✕ |
 | canReverse | ✕ 無 | ✕ | ✕ | ✕ | ✕ | ✕ | ✕ | ✓ | ✕ |
 | **プロパティ単位の制御** | | | | | | | | | |
-| 名前マッピング (`.Map`/`properties`) | ✕ 無 | ✓ Map | ✓ Map | ✕ | ✓ Map | ✓ Map | ✓ Map | ✓ prop | ✓ prop |
+| 名前マッピング (`.Map`/`properties`) | ✕ 無 | ✓ Map | ✓ Map | ✓ Map | ✓ Map | ✓ Map | ✓ Map | ✓ prop | ✓ prop |
 | デリゲート選択 (`.Via`) | ✕ 無 | ✕ | ✕ | ✕ | ✓ | ✕ | ✕ | ✕ | ✕ |
 | 自動コピー除外 (`.Exclude`) | ✕ 無 | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✕ | ✕ |
 | **対象の指定** | | | | | | | | | |

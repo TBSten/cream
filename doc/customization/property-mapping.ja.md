@@ -2,8 +2,8 @@
 
 # プロパティマッピング (.Map)
 
-`@CopyTo.Map`、`@CopyFrom.Map`、`@CombineTo.Map`、`@CombineFrom.Map` を使用してプロパティごとに対応するプロパティを指定できます。
-これはコピー元とコピー先でプロパティ名が違う時にマッピングするのに便利です。
+`@CopyTo.Map`、`@CopyFrom.Map`、`@CopyToChildren.Map`、`@SealedCopy.Map`、`@CombineTo.Map`、`@CombineFrom.Map` を使用して、名前の異なるプロパティ同士を紐づけられます。
+生成されるコピー関数の両側 — コピー元とコピー先のクラス、あるいは sealed 親とその子 — で同じ値が別名になっている時に便利です。
 
 > [!NOTE]
 > `.Map` は、変更できない *2 つのクラスの間* にコピー関数そのものを生成する
@@ -158,6 +158,51 @@ fun SourceA.copyToTargetState(
 
 </details>
 
+## CopyToChildren.Map
+
+`@CopyToChildren.Map` は sealed 親に宣言したプロパティに付与し、子クラスの別名の
+コンストラクタパラメータに紐づけます。
+
+```kt
+import me.tbsten.cream.CopyToChildren
+
+@CopyToChildren
+sealed interface UiState {
+    @CopyToChildren.Map("id")
+    val sessionId: String
+
+    data class Loading(val id: String) : UiState {
+        override val sessionId: String get() = id
+    }
+
+    data class Success(val id: String, val data: String) : UiState {
+        override val sessionId: String get() = id
+    }
+}
+
+// usage
+val state: UiState = UiState.Loading(id = "id-1")
+val success: UiState.Success = state.copyToUiStateSuccess(data = "data")
+// success.id == "id-1"
+```
+
+<details>
+<summary>生成されるコード</summary>
+
+```kt
+// auto generate
+fun UiState.copyToUiStateLoading(
+    id: String = this.sessionId, // sessionId と id がマッピングされます
+): UiState.Loading = ...
+
+fun UiState.copyToUiStateSuccess(
+    id: String = this.sessionId, // sessionId と id がマッピングされます
+    data: String,
+): UiState.Success = ...
+```
+
+</details>
+
 ## SealedCopy.Map
 
 `@SealedCopy.Map` も「別名の対応先にマッピングする」という同じ意味を持ちますが、付与する場所は
@@ -170,5 +215,6 @@ abstract プロパティに紐づけます。
 
 - [Excluding auto-copy defaults (.Exclude)](./exclude.ja.md) — マッピングではなく、引数の自動コピーデフォルトを除去したい場合
 - [Copy — @CopyTo / @CopyFrom / @CopyMapping](../copy.ja.md)
+- [Copy to children — @CopyToChildren](../copy-to-children.ja.md)
 - [Combine — @CombineTo / @CombineFrom / @CombineMapping](../combine.ja.md)
 - [Sealed copy — @SealedCopy](../sealed-copy.ja.md)
