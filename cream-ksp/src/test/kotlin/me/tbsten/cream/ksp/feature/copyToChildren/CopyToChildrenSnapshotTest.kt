@@ -6,6 +6,7 @@ import me.tbsten.cream.ksp.feature.copyToChildren.scenario.funNameScenarios
 import me.tbsten.cream.ksp.feature.copyToChildren.scenario.genericsScenarios
 import me.tbsten.cream.ksp.feature.copyToChildren.scenario.hierarchyShapeScenarios
 import me.tbsten.cream.ksp.feature.copyToChildren.scenario.kdocScenarios
+import me.tbsten.cream.ksp.feature.copyToChildren.scenario.mapScenarios
 import me.tbsten.cream.ksp.feature.copyToChildren.scenario.notCopyToObjectScenarios
 import me.tbsten.cream.ksp.feature.copyToChildren.scenario.propertyShapeScenarios
 import me.tbsten.cream.ksp.feature.copyToChildren.scenario.sealedParentKindScenarios
@@ -29,7 +30,7 @@ import me.tbsten.cream.ksp.testing.generator.util.union
  *   representative reject (enum-child) suffices.
  * - non-data (plain) class leaf and `data object` vs plain `object` leaf — same constructor-call / OBJECT path
  *   as the covered data-class / object leaves (byte-identical).
- * - No `@Map` / `@Repeatable` families — `@CopyToChildren` has neither.
+ * - No `@Repeatable` family — `@CopyToChildren` is not repeatable.
  * - `@CopyToChildren` + `@SealedCopy` on one type — cross-feature, belongs in `MultipleDiagnosticsTest`.
  */
 internal class CopyToChildrenSnapshotTest :
@@ -47,6 +48,7 @@ internal class CopyToChildrenSnapshotTest :
                         "visibility" case visibilityScenarios()
                         "notCopyToObject" case notCopyToObjectScenarios()
                         "funName" case funNameScenarios()
+                        "map" case mapScenarios()
                     }
                 },
                 Generator.validCreamOptions(),
