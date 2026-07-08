@@ -1,6 +1,7 @@
 package me.tbsten.cream.ksp.feature.combineMapping
 
 import io.kotest.core.spec.style.FreeSpec
+import me.tbsten.cream.ksp.feature.combineMapping.scenario.excludesScenarios
 import me.tbsten.cream.ksp.feature.combineMapping.scenario.funNameScenarios
 import me.tbsten.cream.ksp.feature.combineMapping.scenario.genericsScenarios
 import me.tbsten.cream.ksp.feature.combineMapping.scenario.kdocScenarios
@@ -23,7 +24,9 @@ import me.tbsten.cream.ksp.testing.generator.util.union
  * Golden snapshot coverage for `@CombineMapping` (holder-annotated library N→1 combine). See `.claude/skills/cream-snapshot-test`.
  *
  * Intentionally NOT covered as snapshot cases (and why):
- * - `@Exclude` — `@CombineMapping` has none; `canReverse` — N→1 is not invertible. Both N/A.
+ * - `@Exclude` — `@CombineMapping` has none (sources/target are external classes you cannot annotate);
+ *   the annotation-level `excludes` argument covers the same semantics (`excludes` family).
+ * - `canReverse` — N→1 is not invertible. N/A.
  * - sealed / interface / object SOURCES — rejected by source-kind validation (`sourceKindValidation/nonClassSource`),
  *   so they are reject cases, not positive `sourceKind` cases.
  * - annotation-class source ACCEPTED — allowed but degenerate; the scenario builders don't emit one → EdgeUsage.
@@ -55,6 +58,7 @@ internal class CombineMappingSnapshotTest :
                         "funName" case funNameScenarios()
                         "repeatable" case repeatableScenarios()
                         "sourceKindValidation" case sourceKindValidationScenarios()
+                        "excludes" case excludesScenarios()
                     }
                 },
                 Generator.validCreamOptions(),

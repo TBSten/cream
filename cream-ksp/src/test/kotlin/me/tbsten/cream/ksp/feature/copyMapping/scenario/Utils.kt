@@ -18,6 +18,7 @@ internal fun TypeSpec.withCopyMapping(
     target: ClassName,
     canReverse: Boolean = false,
     properties: List<Pair<String, String>> = emptyList(),
+    excludes: List<String> = emptyList(),
     visibility: CopyVisibility? = null,
     kdoc: CodeBlock? = null,
     funName: CodeBlock? = null,
@@ -31,6 +32,7 @@ internal fun TypeSpec.withCopyMapping(
                 .apply {
                     if (canReverse) addMember("%L = %L", CopyMapping::canReverse.name, true)
                     if (properties.isNotEmpty()) addMember("%L = %L", CopyMapping::properties.name, propertiesBlock(properties))
+                    if (excludes.isNotEmpty()) addMember("%L = %L", CopyMapping::excludes.name, excludesBlock(excludes))
                     if (visibility != null) addMember("${CopyMapping::visibility.name} = %T.%L", CopyVisibility::class, visibility.name)
                     if (kdoc != null) addMember("%L = %L", CopyMapping::kdoc.name, kdoc)
                     if (funName != null) addMember("%L = %L", CopyMapping::funName.name, funName)
@@ -47,12 +49,22 @@ internal fun copyMapping(
     target: TypeSpec,
     canReverse: Boolean = false,
     properties: List<Pair<String, String>> = emptyList(),
+    excludes: List<String> = emptyList(),
     visibility: CopyVisibility? = null,
     kdoc: CodeBlock? = null,
     funName: CodeBlock? = null,
 ): SnapshotScenario =
     SnapshotScenario(
-        holder.withCopyMapping(classNameOf(source.name!!), classNameOf(target.name!!), canReverse, properties, visibility, kdoc, funName),
+        holder.withCopyMapping(
+            classNameOf(source.name!!),
+            classNameOf(target.name!!),
+            canReverse,
+            properties,
+            excludes,
+            visibility,
+            kdoc,
+            funName,
+        ),
         source,
         target,
     )
@@ -65,6 +77,18 @@ private fun propertiesBlock(properties: List<Pair<String, String>>): CodeBlock =
             properties.forEachIndexed { index, (source, target) ->
                 if (index > 0) add(", ")
                 add("%T(source = %S, target = %S)", CopyMapping.Map::class, source, target)
+            }
+        }.add("]")
+        .build()
+
+private fun excludesBlock(excludes: List<String>): CodeBlock =
+    CodeBlock
+        .builder()
+        .add("[")
+        .apply {
+            excludes.forEachIndexed { index, name ->
+                if (index > 0) add(", ")
+                add("%S", name)
             }
         }.add("]")
         .build()
