@@ -15,6 +15,7 @@ and `cream-runtime/src/commonMain/kotlin/me/tbsten/cream/<Name>.kt`.
 | sealed self-copy | SealedCopy (✅ done) | **sealedCopy** (done) | `appendSealedCopyFunction` |
 | N→1 combine | CombineTo (✅ done), CombineFrom (✅ done) | **combineTo / combineFrom** (done) | `appendCombineToFunction` |
 | library mapping | CopyMapping (✅ done), CombineMapping (✅ done) | **copyMapping / combineMapping** (done) | `appendCopyFunction` / `appendCombineToFunction` |
+| function bridge (function-annotated) | CallFrom (✅ done) | **callFrom** (done) | `appendCallFromFunction` |
 
 `GenerateSourceAnnotation` (8 sealed subtypes) per-subtype fields: `CopyToChildren.notCopyToObject: Boolean?`,
 `CombineFrom.funNameTemplate: String`, `CopyMapping.reversed: Boolean`. The rest carry no extra field.
@@ -186,3 +187,51 @@ Suite built: `feature/combineMapping/scenario/` (13 files / 38 scenarios / 114 g
   cross-package multi-file grouping + the one-bad-annotation-suppresses-holder short-circuit (single
   `GENERATED_PACKAGE` generator can't express multi-package input) → EdgeUsage / integration tests.
 - Existing test data: `test/src/commonTest/.../combineMapping/{Basic,TypeAlias,PropertyMapping,Overlap,FunName,MultiSource}Test.kt`
+
+## CallFrom — data class → function bridge overload (issue #10)  ✅ DONE — live reference (function-annotated)
+
+Suite built: `feature/callFrom/scenario/` (18 files / 55 scenarios / 220 goldens). The only
+**function-annotated** feature: the annotated declaration is a `FunSpec`, not a `TypeSpec`.
+
+- Annotated: the **target function** carries `@CallFrom(vararg sources)` (`@Target(FUNCTION)`); each
+  source (argument-holder class) generates one same-name bridge overload whose first parameter is the
+  holder and whose matched parameters default to `= <sourceParam>.<prop>`; the body forwards the
+  *parameters* (`x = x`), so caller overrides win. Member functions bridge as top-level **extension
+  functions** on the enclosing class (FQ receiver — same FQ rendering as copy's receiver, not a quirk);
+  top-level extension functions bridge as extensions on the same receiver.
+  Not `@Repeatable`; NO `funName` arg (always a same-name overload) → no funName/repeatable families.
+- `@CallFrom.Map("sourceProp")` / `@CallFrom.Exclude` on the target function's **value parameters**
+  (copyFrom-style target-side placement). `visibility` arg: INHERIT resolves against the annotated
+  *function*, clamped to `internal` when the function / enclosing class / source class is internal
+  (explicit PUBLIC over that cap is a diagnostic). File name: `CallFrom__<fn underPackageName, '.'→'_'>`.
+- Scenario infra: `SnapshotScenario`'s TypeSpec factories can't carry a top-level function →
+  `scenario/Utils.kt` adds `FunSpec.withCallFrom(...)` + `callFrom(function, vararg sources)` +
+  `functionScenario(...)` building the `FileSpec` directly (function first, then declarations); member
+  cases embed the annotated `FunSpec` in a `TypeSpec` and reuse the standard factory.
+- **Families used (17)**: sourceKind, **functionKind** (recast targetKind: top-level / member /
+  object member / companion member), nesting (nested source ref + fn in nested class), generics
+  (fun-only / source-only / shared / bounded type params), **signatureShape** (recast constructor:
+  suspend+return, vararg — matched String prop does NOT default a vararg param, body forwards
+  `items = items`; `originalDefaultFallsBack` pins that an unmatched param with an original default
+  is OMITTED from the bridge so the original default applies, `originalDefaultOverriddenByMatch`
+  pins that a matched param's auto-copy wins over the original default), propertyShape (zeroParams
+  uses a plain class), matching (partialMatch / typeIncompatible), **multiSource** (N sources → N
+  independent overloads, NO merge — unlike combine), map (3 copyFrom-style cases), exclude
+  (+ no-effect warning + `excludeOnParamWithOriginalDefault`: Exclude keeps the param required even
+  when the original has a default), kdoc, visibility (+ INHERIT clamping for internal enclosing /
+  source), **extension** (top-level / generic receiver / nullable-receiver suspend),
+  **modifiers** (operator / infix / inline / tailrec — none transcribed, bridge still compiles),
+  **returnShape** (Nothing / nullable), **typealiasShape** (aliased param / property; needs
+  `functionScenario(typeAliases = ...)`), **deprecated** (WARNING function / matched source
+  property → `@Deprecated` propagated onto the bridge). Dropped: targetKind/constructor (recast),
+  funName/repeatable (annotation lacks them); context parameters (invisible to the KSP API —
+  documented limitation, nothing observable to snapshot).
+- All 220 goldens exit OK (rejects live in `CallFromInvalidUsageTest` diagnostics: private/protected /
+  local (needs `inDepth = true` resolution!) / abstract / expect / member extension /
+  generic-class member / reified / ERROR-deprecated function & source class / empty & duplicated
+  sources / bridge-param name collision / private source class / explicit PUBLIC over an internal
+  cap / duplicate bridge signatures / clash with an existing user-written overload).
+- No structural twin (own core `appendCallFromFunction`) → byte-identity substitute = behavioral
+  spot-checks (`= <sourceParam>.<prop>`, body param forwarding, visibility precedence) + FQ-receiver
+  falsification against copy goldens.
+- Existing test data: `test/src/commonTest/.../callFrom/{Basic,Vararg,Extension,Defaults,Modifiers,Shapes}Test.kt`

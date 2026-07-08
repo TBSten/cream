@@ -17,6 +17,7 @@ annotated — the same effect is available via the [`excludes` annotation argume
 | `@CombineFrom.Exclude` | Target class constructor parameter |
 | `@SealedCopy.Exclude` | Abstract property on the sealed parent |
 | `@CopyToChildren.Exclude` | Property on the sealed parent (applied to all per-child copy functions) |
+| `@CallFrom.Exclude` | Parameter of the [`@CallFrom`](../call-from.md)-annotated function |
 | `@CopyMapping(excludes = [...])` | `excludes` argument of the annotation (target-side property names) |
 | `@CombineMapping(excludes = [...])` | `excludes` argument of the annotation (target-side property names) |
 

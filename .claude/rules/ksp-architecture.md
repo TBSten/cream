@@ -14,7 +14,7 @@ paths:
 |---|---|---|
 | top-level (root) | `ksp/*.kt` | KSP エントリ + 横断 infra（`CreamSymbolProcessor` / `Provider` / `ProcessContext` / `GenerateSourceAnnotation`）。詳細は `ksp-top-level.md` |
 | feature | `ksp/feature/<name>/` | 注釈ごとの入口「発見 → 引数抽出 → 検証 → core 呼び出し」。生成ロジックは持たない。詳細は `ksp-feature-top-level.md` |
-| core | `ksp/core/<sub>/` | cream 固有の生成ロジック（`common` / `copyFun` / `combineFun` / `sealedCopy`）。詳細は `ksp-core-top-level.md` |
+| core | `ksp/core/<sub>/` | cream 固有の生成ロジック（`common` / `copyFun` / `combineFun` / `sealedCopy` / `callFrom`）。詳細は `ksp-core-top-level.md` |
 | util | `ksp/util/` | 他プロジェクトでも使える汎用ヘルパのみ（cream 固有型を含まない） |
 
 ## Dependency direction (one-way)
@@ -41,7 +41,7 @@ feature ─▶ ProcessContext   （唯一の上向き依存。ProcessContext は
   #127 で feature 単位に分割し、3 ファイル + 共有ヘルパに再配置した:
   `cream-ksp/src/test/.../AllKotlinFilesTest.kt`（root=3 ファイル / 1 ファイル原則 ≤ 300 行・`FILE_LINE_LIMIT_OVERRIDES` のみ上限 500）、
   `feature/ArchTest.kt`（`feature`=`feature.<name>` のみ・feature 間依存禁止・entry-point 署名）、
-  `core/ArchTest.kt`（`core`=`common`/`copyFun`/`combineFun`/`sealedCopy` のみ・`feature`/root infra 非依存、`util` 直下は KSP 非依存・cream 固有型非参照）。
+  `core/ArchTest.kt`（`core`=`common`/`copyFun`/`combineFun`/`sealedCopy`/`callFrom` のみ・`feature`/root infra 非依存、`util` 直下は KSP 非依存・cream 固有型非参照）。
   共有 scope・ヘルパは `testing/konsist/KonsistSupport.kt`。
   強制内容は上記の依存方向テーブルどおり。この表や上記ルールを変えたら同テストを更新すること。
 
@@ -57,7 +57,7 @@ feature ─▶ ProcessContext   （唯一の上向き依存。ProcessContext は
 
 - feature: ファイル `Process<Name>.kt`、関数 `processXxx`（top-level / lowerCamel）。
 - core 生成関数: `appendXxx`（`Appendable` 拡張、文字列 append ベース。KotlinPoet 不使用）。
-- `GenerateSourceAnnotation`（sealed, `ksp/GenerateSourceAnnotation.kt`, package `me.tbsten.cream.ksp`）: 8 実装で生成元注釈を識別。新注釈追加時は網羅する。
+- `GenerateSourceAnnotation`（sealed, `ksp/GenerateSourceAnnotation.kt`, package `me.tbsten.cream.ksp`）: 9 実装で生成元注釈を識別。新注釈追加時は網羅する。
 
 ## Cross-cutting rules
 
