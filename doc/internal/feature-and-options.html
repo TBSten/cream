@@ -48,7 +48,7 @@
 <body>
 <div class="wrap">
   <h1>機能とオプションの対応</h1>
-  <div class="meta"><b>v0.9.0-alpha01 時点の情報</b>。出典は <code>cream-runtime</code> の注釈定義と <code>CreamOptions</code>（<code>cream-ksp/shared</code>）。</div>
+  <div class="meta"><b>v0.9.0-alpha01 時点の情報 + #135 の <code>@ParentOptional</code> / <code>@ChildOptionals</code></b>。出典は <code>cream-runtime</code> の注釈定義と <code>CreamOptions</code>（<code>cream-ksp/shared</code>）。</div>
 
   <div class="legend">
     <span><span class="pill yes">✓</span> その単位で指定可</span>
@@ -70,82 +70,95 @@
         <th>CombineFrom</th>
         <th>CopyMapping</th>
         <th>CombineMapping</th>
+        <th>ParentOptional</th>
+        <th>ChildOptionals</th>
       </tr>
     </thead>
     <tbody>
-      <tr class="group"><th colspan="10">命名 — 生成関数の名前</th></tr>
+      <tr class="group"><th colspan="12">命名 — 生成関数の名前</th></tr>
       <tr>
         <th>関数名 prefix</th>
         <td class="opt-proj"><span class="pill yes">✓</span> <code>cream.copyFunNamePrefix</code></td>
-        <td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td>
+        <td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td>
       </tr>
       <tr>
         <th>関数名 strategy</th>
         <td class="opt-proj"><span class="pill yes">✓</span> <code>cream.copyFunNamingStrategy</code></td>
-        <td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td>
+        <td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td>
       </tr>
       <tr>
         <th>ドット処理 escapeDot</th>
         <td class="opt-proj"><span class="pill yes">✓</span> <code>cream.escapeDot</code></td>
-        <td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td>
+        <td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td>
       </tr>
       <tr class="hot">
         <th>funName（名前個別上書き）</th>
         <td class="opt-proj">—（既定値が上記3つを合成）</td>
-        <td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td>
+        <td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill alt">✱</span></td><td><span class="pill alt">✱</span></td>
       </tr>
-      <tr class="group"><th colspan="10">可視性・ドキュメント</th></tr>
+      <tr class="group"><th colspan="12">可視性・ドキュメント</th></tr>
       <tr class="hot">
         <th>visibility</th>
         <td class="opt-proj"><span class="pill yes">✓</span> <code>cream.defaultVisibility</code></td>
-        <td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td>
+        <td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td>
       </tr>
       <tr>
         <th>kdoc</th>
         <td class="opt-proj"><span class="pill no">✕</span> 無</td>
-        <td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td>
+        <td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td>
       </tr>
-      <tr class="group"><th colspan="10">コピー挙動の制御（機能固有トグル）</th></tr>
+      <tr class="group"><th colspan="12">コピー挙動の制御（機能固有トグル）</th></tr>
       <tr>
         <th>notCopyToObject</th>
         <td class="opt-proj"><span class="pill yes">✓</span> <code>cream.notCopyToObject</code></td>
-        <td><span class="pill apply">適用</span></td><td><span class="pill apply">適用</span></td><td><span class="pill yes">✓</span></td><td><span class="pill alt">✱</span></td><td><span class="pill apply">適用</span></td><td><span class="pill apply">適用</span></td><td><span class="pill apply">適用</span></td><td><span class="pill apply">適用</span></td>
+        <td><span class="pill apply">適用</span></td><td><span class="pill apply">適用</span></td><td><span class="pill yes">✓</span></td><td><span class="pill alt">✱</span></td><td><span class="pill apply">適用</span></td><td><span class="pill apply">適用</span></td><td><span class="pill apply">適用</span></td><td><span class="pill apply">適用</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td>
       </tr>
       <tr>
         <th>nonCopyableStrategy</th>
         <td class="opt-proj"><span class="pill no">✕</span> 無</td>
-        <td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill yes">✓</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td>
+        <td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill yes">✓</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td>
       </tr>
       <tr>
         <th>canReverse</th>
         <td class="opt-proj"><span class="pill no">✕</span> 無</td>
-        <td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill yes">✓</span></td><td><span class="pill no">✕</span></td>
+        <td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill yes">✓</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td>
       </tr>
-      <tr class="group"><th colspan="10">プロパティ単位の制御</th></tr>
+      <tr class="group"><th colspan="12">プロパティ単位の制御</th></tr>
       <tr>
         <th>名前マッピング (<code>.Map</code>/<code>properties</code>)</th>
         <td class="opt-proj"><span class="pill no">✕</span> 無</td>
-        <td><span class="pill yes">✓</span>Map</td><td><span class="pill yes">✓</span>Map</td><td><span class="pill no">✕</span></td><td><span class="pill yes">✓</span>Map</td><td><span class="pill yes">✓</span>Map</td><td><span class="pill yes">✓</span>Map</td><td><span class="pill yes">✓</span>prop</td><td><span class="pill yes">✓</span>prop</td>
+        <td><span class="pill yes">✓</span>Map</td><td><span class="pill yes">✓</span>Map</td><td><span class="pill yes">✓</span>Map</td><td><span class="pill yes">✓</span>Map</td><td><span class="pill yes">✓</span>Map</td><td><span class="pill yes">✓</span>Map</td><td><span class="pill yes">✓</span>prop</td><td><span class="pill yes">✓</span>prop</td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td>
       </tr>
       <tr>
         <th>デリゲート選択 (<code>.Via</code>)</th>
         <td class="opt-proj"><span class="pill no">✕</span> 無</td>
-        <td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill yes">✓</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td>
+        <td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill yes">✓</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td>
       </tr>
       <tr>
         <th>自動コピー除外 (<code>.Exclude</code>)</th>
         <td class="opt-proj"><span class="pill no">✕</span> 無</td>
-        <td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill no">✕</span></td><td><span class="pill no">✕</span></td>
+        <td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span> excludes</td><td><span class="pill yes">✓</span> excludes</td><td><span class="pill no">✕</span></td><td><span class="pill yes">✓</span> †</td>
       </tr>
-      <tr class="group"><th colspan="10">対象の指定</th></tr>
+      <tr class="group"><th colspan="12">対象の指定</th></tr>
       <tr>
         <th>対象指定 targets/sources</th>
         <td class="opt-proj">—（必須引数）</td>
-        <td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td>—<br><small>(自身)</small></td><td>—<br><small>(自身)</small></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td>
+        <td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td>—<br><small>(自身)</small></td><td>—<br><small>(自身)</small></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td><span class="pill yes">✓</span></td><td>—<br><small>(sealed 祖先)</small></td><td>—<br><small>(自身)</small></td>
       </tr>
     </tbody>
   </table>
   </div>
+  <p style="color: var(--muted); font-size: .85rem; margin-top: .8rem;">
+    <b>✱ (ParentOptional / ChildOptionals 列)</b>: 生成するのは関数ではなく拡張プロパティ。
+    名前の個別上書きは <code>funName</code> ではなく <code>@ParentOptional(propertyName = ...)</code> が担当
+    （<code>@ChildOptionals</code> の一括対象のプロパティでも尊重される）。
+  </p>
+  <p style="color: var(--muted); font-size: .85rem; margin-top: .8rem;">
+    <b>† (ChildOptionals 列の <code>.Exclude</code>)</b>: コピー系の <code>.Exclude</code> が
+    「自動コピーの既定値を落として引数を必須にする」のに対し、<code>@ChildOptionals.Exclude</code> は
+    「その子プロパティを一括 sweep から外し、生成アクセサ自体を作らない」を意味する（除外＝生成アクセサからの除外）。
+    ParentOptional は opt-in のため除外の概念を持たない（対象にしたくないプロパティは注釈しなければよい）。
+  </p>
 </div>
 </body>
 </html>

@@ -12,9 +12,9 @@ paths:
 
 | Layer | 場所 | 責務 |
 |---|---|---|
-| top-level (root) | `ksp/*.kt` | KSP エントリ + 横断 infra（`CreamSymbolProcessor` / `Provider` / `ProcessContext` / `GenerateSourceAnnotation`）。詳細は `ksp-top-level.md` |
+| top-level (root) | `ksp/*.kt` | KSP エントリ + 横断 infra（`CreamSymbolProcessor` / `Provider` / `ProcessContext`）。詳細は `ksp-top-level.md` |
 | feature | `ksp/feature/<name>/` | 注釈ごとの入口「発見 → 引数抽出 → 検証 → core 呼び出し」。生成ロジックは持たない。詳細は `ksp-feature-top-level.md` |
-| core | `ksp/core/<sub>/` | cream 固有の生成ロジック（`common` / `copyFun` / `combineFun` / `sealedCopy`）。詳細は `ksp-core-top-level.md` |
+| core | `ksp/core/<sub>/` | cream 固有の生成ロジック（`common` / `copyFun` / `combineFun` / `sealedCopy` / `parentOptional`）。詳細は `ksp-core-top-level.md` |
 | util | `ksp/util/` | 他プロジェクトでも使える汎用ヘルパのみ（cream 固有型を含まない） |
 
 ## Dependency direction (one-way)
@@ -41,7 +41,7 @@ feature ─▶ ProcessContext   （唯一の上向き依存。ProcessContext は
   #127 で feature 単位に分割し、3 ファイル + 共有ヘルパに再配置した:
   `cream-ksp/src/test/.../AllKotlinFilesTest.kt`（root=3 ファイル / 1 ファイル原則 ≤ 300 行・`FILE_LINE_LIMIT_OVERRIDES` のみ上限 500）、
   `feature/ArchTest.kt`（`feature`=`feature.<name>` のみ・feature 間依存禁止・entry-point 署名）、
-  `core/ArchTest.kt`（`core`=`common`/`copyFun`/`combineFun`/`sealedCopy` のみ・`feature`/root infra 非依存、`util` 直下は KSP 非依存・cream 固有型非参照）。
+  `core/ArchTest.kt`（`core`=`common`/`copyFun`/`combineFun`/`sealedCopy`/`parentOptional` のみ・`feature`/root infra 非依存、`util` 直下は KSP 非依存・cream 固有型非参照）。
   共有 scope・ヘルパは `testing/konsist/KonsistSupport.kt`。
   強制内容は上記の依存方向テーブルどおり。この表や上記ルールを変えたら同テストを更新すること。
 
@@ -57,7 +57,7 @@ feature ─▶ ProcessContext   （唯一の上向き依存。ProcessContext は
 
 - feature: ファイル `Process<Name>.kt`、関数 `processXxx`（top-level / lowerCamel）。
 - core 生成関数: `appendXxx`（`Appendable` 拡張、文字列 append ベース。KotlinPoet 不使用）。
-- `GenerateSourceAnnotation`（sealed, `ksp/GenerateSourceAnnotation.kt`, package `me.tbsten.cream.ksp`）: 8 実装で生成元注釈を識別。新注釈追加時は網羅する。
+- `GenerateSourceAnnotation`（sealed, `core/common/GenerateSourceAnnotation.kt`, package `me.tbsten.cream.ksp.core.common`）: 10 実装で生成元注釈を識別。新注釈追加時は網羅する。
 
 ## Cross-cutting rules
 
@@ -70,9 +70,9 @@ feature ─▶ ProcessContext   （唯一の上向き依存。ProcessContext は
 ## Adding a new annotation
 
 1. `cream-runtime` に注釈を定義。
-2. `ksp/GenerateSourceAnnotation.kt` の `GenerateSourceAnnotation` sealed interface に実装を追加（sealed なので網羅される）。
+2. `core/common/GenerateSourceAnnotation.kt` の `GenerateSourceAnnotation` sealed interface に実装を追加（sealed なので網羅される）。
 3. `feature/<name>/Process<Name>.kt` に `context(ctx) fun processXxx()` を追加。
-4. 生成は core（copyFun/combineFun/sealedCopy）を再利用。足りなければ core 側に追加（feature に生成ロジックを置かない）。
+4. 生成は core（copyFun/combineFun/sealedCopy/parentOptional）を再利用。足りなければ core 側に追加（feature に生成ロジックを置かない）。
 5. `CreamSymbolProcessor.process()` に dispatch を追加。
 6. `test/`（test data + commonTest）と `cream-ksp` の snapshot/diagnostic test を追加（`ksp-test.md` 準拠）。
 
