@@ -11,6 +11,7 @@ import me.tbsten.cream.CopyMapping
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.ProcessContext
 import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
+import me.tbsten.cream.ksp.core.common.MappingExcludesDirection
 import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.asClassDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.createNewKotlinFile
@@ -21,6 +22,7 @@ import me.tbsten.cream.ksp.core.common.reportCreamError
 import me.tbsten.cream.ksp.core.common.resolveClassDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.underPackageName
 import me.tbsten.cream.ksp.core.common.validateFunName
+import me.tbsten.cream.ksp.core.common.warnIfMappingExcludesHaveNoEffect
 import me.tbsten.cream.ksp.core.copyFun.appendCopyFunction
 import me.tbsten.cream.ksp.util.ksp.getArgument
 import me.tbsten.cream.ksp.util.ksp.isSealed
@@ -134,6 +136,45 @@ internal fun processCopyMapping(): List<KSAnnotated> =
                         ).isValid
                 }
             if (!allFunNamesOk) return@forEach
+
+            // The `excludes` no-effect warning is evaluated once per mapping annotation across
+            // BOTH directions (not per generated function): a `canReverse` reverse pass or a
+            // sealed target's per-leaf fan-out must not duplicate it, and the message must name
+            // the entry as the user wrote it, never its Map-translated reverse spelling.
+            copyMappings.forEach { mapping ->
+                val forward = GenerateSourceAnnotation.CopyMapping(annotation = mapping.rawAnnotation)
+                val directions =
+                    buildList {
+                        add(
+                            MappingExcludesDirection(
+                                sources = listOf(mapping.sourceClass),
+                                targetClass = mapping.targetClass,
+                                generateSourceAnnotation = forward,
+                                excludeNames = forward.excludes,
+                            ),
+                        )
+                        if (mapping.canReverse) {
+                            val reverse =
+                                GenerateSourceAnnotation.CopyMapping(
+                                    annotation = mapping.rawAnnotation,
+                                    reversed = true,
+                                )
+                            add(
+                                MappingExcludesDirection(
+                                    sources = listOf(mapping.targetClass),
+                                    targetClass = mapping.sourceClass,
+                                    generateSourceAnnotation = reverse,
+                                    excludeNames = reverse.excludes,
+                                ),
+                            )
+                        }
+                    }
+                warnIfMappingExcludesHaveNoEffect(
+                    originalExcludes = forward.excludes,
+                    directions = directions,
+                    logger = processContext.logger,
+                )
+            }
 
             val mappingPackage = annotatedDeclaration.packageName
             val omitPackages = omitPackagesFor(mappingPackage)

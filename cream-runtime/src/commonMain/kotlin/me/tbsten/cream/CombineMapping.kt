@@ -77,9 +77,38 @@ import kotlin.reflect.KClass
  * ): LibCModel = ...
  * ```
  *
+ * # Excluding auto-copy defaults
+ *
+ * Use the `excludes` parameter to remove the auto-copy default of generated parameters.
+ * Each entry names a generated parameter — i.e. a **target-side** property name (consistent
+ * with the generated signature, including `properties` renames). The parameter stays in the
+ * signature but becomes required:
+ *
+ * ```kt
+ * @CombineMapping(
+ *     sources = [LibAModel::class, LibBModel::class],
+ *     target = LibCModel::class,
+ *     excludes = ["propA"],
+ * )
+ * private object Mapping
+ *
+ * // auto generate
+ * fun LibAModel.copyToLibCModel(
+ *     libBModel: LibBModel,
+ *     propA: String,  // no default — caller must specify
+ *     valueA: Int = this.valueA,
+ *     propB: String = libBModel.propB,
+ *     valueB: Double = libBModel.valueB,
+ *     extra: String,
+ * ): LibCModel = ...
+ * ```
+ *
  * @param sources The source classes to combine from (must have at least 2 sources)
  * @param target The target class to combine to
  * @param properties Property mappings that define how to map properties with different names between sources and target.
+ * @param excludes Generated parameter names (target-side property names) whose auto-copy default
+ *   is removed, making the parameter required. An entry that matches no auto-defaulted parameter
+ *   has no effect and emits a KSP warning.
  * @param visibility Visibility modifier of the generated copy function. Defaults to
  *   [CopyVisibility.INHERIT], which keeps cream's existing behaviour (the function inherits
  *   the target class's visibility).
@@ -101,6 +130,7 @@ public annotation class CombineMapping(
     val sources: Array<KClass<*>>,
     val target: KClass<*>,
     val properties: Array<Map> = [],
+    val excludes: Array<String> = [],
     val kdoc: KDoc = KDoc(),
     val visibility: CopyVisibility = CopyVisibility.INHERIT,
     val funName: String = DefaultCopyFunctionName,

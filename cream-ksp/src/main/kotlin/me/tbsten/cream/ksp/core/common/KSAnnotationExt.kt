@@ -86,6 +86,15 @@ internal fun KSAnnotation.extractPropertyMappings(): List<Pair<String, String>> 
 }
 
 /**
+ * Extract the `excludes` argument (`@CopyMapping` / `@CombineMapping`): generated (target-side)
+ * parameter names whose auto-copy default is dropped. Returns empty when the argument is absent.
+ */
+internal fun KSAnnotation.extractExcludes(): List<String> =
+    getArgument<List<*>>("excludes")
+        ?.filterIsInstance<String>()
+        ?: emptyList()
+
+/**
  * Extract `kdoc` argument (a [me.tbsten.cream.KDoc] annotation instance) into a
  * (description, examples) pair. Returns empty when the argument is absent or empty.
  */
