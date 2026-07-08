@@ -63,7 +63,12 @@ internal fun KSValueParameter.findMatchedProperty(
                 findSourcePropertyWithPropertyMappings(source, parameterName, generateSourceAnnotation.propertyMappings)
             is GenerateSourceAnnotation.CombineMapping ->
                 findSourcePropertyWithPropertyMappings(source, parameterName, generateSourceAnnotation.propertyMappings)
-            is GenerateSourceAnnotation.SealedCopy -> null
+            // SealedCopy resolves Via-parameters in core/sealedCopy; ParentOptional / ChildOptionals
+            // are accessor generation and never resolve a source property through this function.
+            is GenerateSourceAnnotation.SealedCopy,
+            is GenerateSourceAnnotation.ParentOptional,
+            is GenerateSourceAnnotation.ChildOptionals,
+            -> null
         }
 
     return mappedProperty ?: findSourcePropertyByName(source, parameterName)

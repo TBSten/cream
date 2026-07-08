@@ -8,6 +8,10 @@ import me.tbsten.cream.NonCopyableStrategy
 import me.tbsten.cream.SealedCopy
 import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.core.common.annotationsOf
+import me.tbsten.cream.ksp.core.common.renderSealedReceiverType
+import me.tbsten.cream.ksp.core.common.renderTypeParameterList
+import me.tbsten.cream.ksp.core.common.renderWhenBranchType
+import me.tbsten.cream.ksp.core.common.renderWhereClause
 import me.tbsten.cream.ksp.core.common.toModifierString
 import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.util.ksp.asString
@@ -19,7 +23,7 @@ import me.tbsten.cream.ksp.util.ksp.collectConcreteSubclasses
  *
  * Behaviour follows the contract documented on [me.tbsten.cream.SealedCopy]. The leaf analysis
  * lives in [SealedCopyLeaf.kt][classify], type-text rendering in
- * [SealedCopyTypeRendering.kt][renderSealedReceiverType], KDoc in [appendSealedCopyKDoc] and the
+ * core/common's [SealedTypeRendering.kt][renderSealedReceiverType], KDoc in [appendSealedCopyKDoc] and the
  * non-copyable diagnostic in [nonCopyableErrorException].
  *
  * Callers must validate every subtype's `@SealedCopy.Via` delegate with [collectSealedCopyViaErrors]

@@ -24,16 +24,27 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
  */
 internal fun deprecatedAnnotationLine(sources: List<KSClassDeclaration>): String? {
     val deprecated = sources.firstDeprecation() ?: return null
-    return buildString {
+    return deprecated.toAnnotationLine()
+}
+
+/**
+ * Render this [Deprecated] as the `@Deprecated(...)` line propagated onto a generated declaration.
+ * message and level are preserved; level is only rendered when it differs from the default
+ * [DeprecationLevel.WARNING] to keep output minimal.
+ */
+internal fun Deprecated.toAnnotationLine(): String =
+    buildString {
         append("@Deprecated(")
-        append(deprecated.message.toKotlinStringLiteral())
-        if (deprecated.level != DeprecationLevel.WARNING) {
+        append(message.toKotlinStringLiteral())
+        if (level != DeprecationLevel.WARNING) {
             append(", level = DeprecationLevel.")
-            append(deprecated.level.name)
+            append(level.name)
         }
         append(")")
     }
-}
+
+/** The `@Deprecated` annotation on this declaration, or `null` when it is not deprecated. */
+internal fun KSAnnotated.deprecatedAnnotationOrNull(): Deprecated? = getAnnotationsByType(Deprecated::class).firstOrNull()
 
 /**
  * The first `@Deprecated` among these source classes, evaluated per source in declaration order:
@@ -43,11 +54,9 @@ internal fun deprecatedAnnotationLine(sources: List<KSClassDeclaration>): String
  */
 private fun List<KSClassDeclaration>.firstDeprecation(): Deprecated? =
     firstNotNullOfOrNull { source ->
-        source.deprecatedAnnotation()
-            ?: source.getAllProperties().firstNotNullOfOrNull { it.deprecatedAnnotation() }
+        source.deprecatedAnnotationOrNull()
+            ?: source.getAllProperties().firstNotNullOfOrNull { it.deprecatedAnnotationOrNull() }
     }
-
-private fun KSAnnotated.deprecatedAnnotation(): Deprecated? = getAnnotationsByType(Deprecated::class).firstOrNull()
 
 /**
  * Render this string as a Kotlin double-quoted string literal, escaping the characters that would

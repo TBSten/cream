@@ -47,7 +47,11 @@ internal fun KSValueParameter.isExcludedFromCopy(
         is GenerateSourceAnnotation.CombineMapping ->
             name?.asString() in generateSourceAnnotation.excludes
         // SealedCopy is handled separately in appendSealedCopyHeader (not via this function).
-        is GenerateSourceAnnotation.SealedCopy -> false
+        // ParentOptional / ChildOptionals: accessor generation, no @Exclude concept.
+        is GenerateSourceAnnotation.SealedCopy,
+        is GenerateSourceAnnotation.ParentOptional,
+        is GenerateSourceAnnotation.ChildOptionals,
+        -> false
     }
 
 /**
@@ -83,12 +87,15 @@ internal fun KSValueParameter.warnIfTargetExcludeHasNoEffect(
             is GenerateSourceAnnotation.CopyFrom -> annotationsOf(CopyFrom.Exclude::class).any()
             is GenerateSourceAnnotation.CombineFrom -> annotationsOf(CombineFrom.Exclude::class).any()
             // Source-side and sealed-side annotations are warned elsewhere.
+            // ParentOptional / ChildOptionals: accessor generation, no @Exclude concept.
             is GenerateSourceAnnotation.CopyTo,
             is GenerateSourceAnnotation.CombineTo,
             is GenerateSourceAnnotation.CopyToChildren,
             is GenerateSourceAnnotation.SealedCopy,
             is GenerateSourceAnnotation.CopyMapping,
             is GenerateSourceAnnotation.CombineMapping,
+            is GenerateSourceAnnotation.ParentOptional,
+            is GenerateSourceAnnotation.ChildOptionals,
             -> false
         }
     if (hasExclude) {
@@ -111,12 +118,15 @@ internal fun KSPropertyDeclaration.warnIfSourceExcludeHasNoEffect(
             is GenerateSourceAnnotation.CopyTo -> CopyTo.Exclude::class
             is GenerateSourceAnnotation.CombineTo -> CombineTo.Exclude::class
             // Target-side and sealed-side annotations are warned elsewhere.
+            // ParentOptional / ChildOptionals: accessor generation, no @Exclude concept.
             is GenerateSourceAnnotation.CopyFrom,
             is GenerateSourceAnnotation.CombineFrom,
             is GenerateSourceAnnotation.CopyToChildren,
             is GenerateSourceAnnotation.SealedCopy,
             is GenerateSourceAnnotation.CopyMapping,
             is GenerateSourceAnnotation.CombineMapping,
+            is GenerateSourceAnnotation.ParentOptional,
+            is GenerateSourceAnnotation.ChildOptionals,
             -> return
         }
     if (!isSourcePropertyExcluded(source, excludeClass)) return
