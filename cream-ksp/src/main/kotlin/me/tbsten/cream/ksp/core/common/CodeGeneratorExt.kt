@@ -32,8 +32,12 @@ internal fun CodeGenerator.createNewKotlinFile(
         fileName = fileName,
     ).bufferedWriter()
         .use {
-            it.appendLine("package ${packageName.asString()}")
-            it.appendLine()
+            // A declaration in the root package has an empty packageName; emitting a bare
+            // `package ` line would be a syntax error, so the line is skipped entirely.
+            if (packageName.asString().isNotEmpty()) {
+                it.appendLine("package ${packageName.asString()}")
+                it.appendLine()
+            }
             it.appendLine("import me.tbsten.cream.*")
             it.appendLine()
             it.append(body)

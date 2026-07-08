@@ -47,6 +47,16 @@ package me.tbsten.cream
  */
 public const val DefaultCopyFunctionName: String = "{{cream:DefaultCopyFunctionName}}"
 
+/**
+ * The default [CallFrom.funName]: the generated bridge keeps the **same name as the annotated
+ * function** (an overload). Unlike [DefaultCopyFunctionName] (which composes cream's
+ * `copyFunNamePrefix` / `copyFunNamingStrategy` / `escapeDot` options), this sentinel resolves to
+ * the target function's own name, and `@CallFrom` supports none of the `CopyTarget*` tokens below
+ * — those render a target *class*, which `@CallFrom` does not have. A custom `funName` is used as a
+ * plain literal.
+ */
+public const val DefaultCallFromFunctionName: String = "{{cream:DefaultCallFromFunctionName}}"
+
 /** Target simple name in Pascal case, e.g. `UiState.Success` -> `Success`. */
 public const val CopyTargetSimpleName: String = "{{cream:CopyTargetSimpleName}}"
 

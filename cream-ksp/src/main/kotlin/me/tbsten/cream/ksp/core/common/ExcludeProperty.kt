@@ -5,6 +5,7 @@ import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
+import me.tbsten.cream.CallFrom
 import me.tbsten.cream.CombineFrom
 import me.tbsten.cream.CombineTo
 import me.tbsten.cream.CopyFrom
@@ -34,6 +35,8 @@ internal fun KSValueParameter.isExcludedFromCopy(
             matchedProperty?.isSourcePropertyExcluded(matchedSource, CopyTo.Exclude::class) == true
         is GenerateSourceAnnotation.CopyFrom ->
             annotationsOf(CopyFrom.Exclude::class).any()
+        is GenerateSourceAnnotation.CallFrom ->
+            annotationsOf(CallFrom.Exclude::class).any()
         is GenerateSourceAnnotation.CombineTo ->
             matchedProperty?.isSourcePropertyExcluded(matchedSource, CombineTo.Exclude::class) == true
         is GenerateSourceAnnotation.CombineFrom ->
@@ -81,6 +84,7 @@ internal fun KSValueParameter.warnIfTargetExcludeHasNoEffect(
     val hasExclude =
         when (generateSourceAnnotation) {
             is GenerateSourceAnnotation.CopyFrom -> annotationsOf(CopyFrom.Exclude::class).any()
+            is GenerateSourceAnnotation.CallFrom -> annotationsOf(CallFrom.Exclude::class).any()
             is GenerateSourceAnnotation.CombineFrom -> annotationsOf(CombineFrom.Exclude::class).any()
             // Source-side and sealed-side annotations are warned elsewhere.
             is GenerateSourceAnnotation.CopyTo,
@@ -112,6 +116,7 @@ internal fun KSPropertyDeclaration.warnIfSourceExcludeHasNoEffect(
             is GenerateSourceAnnotation.CombineTo -> CombineTo.Exclude::class
             // Target-side and sealed-side annotations are warned elsewhere.
             is GenerateSourceAnnotation.CopyFrom,
+            is GenerateSourceAnnotation.CallFrom,
             is GenerateSourceAnnotation.CombineFrom,
             is GenerateSourceAnnotation.CopyToChildren,
             is GenerateSourceAnnotation.SealedCopy,

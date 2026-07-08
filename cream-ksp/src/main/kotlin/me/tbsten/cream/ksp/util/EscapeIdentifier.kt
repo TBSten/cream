@@ -75,3 +75,10 @@ internal fun String.escapeKotlinIdentifier(): String =
     } else {
         this
     }
+
+/**
+ * [escapeKotlinIdentifier] applied to every `.`-separated segment of a qualified name, so a
+ * package segment or class simple name that needs backquotes (e.g. a class declared as
+ * `` class `fun` ``) survives interpolation into generated code as `pkg.`fun``.
+ */
+internal fun String.escapeDottedKotlinIdentifier(): String = split('.').joinToString(".") { it.escapeKotlinIdentifier() }

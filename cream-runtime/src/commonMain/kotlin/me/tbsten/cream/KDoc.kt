@@ -5,7 +5,7 @@ package me.tbsten.cream
  *
  * Use as the `kdoc` argument of cream's source annotations (`@CopyTo`, `@CopyFrom`,
  * `@CopyToChildren`, `@SealedCopy`, `@CombineTo`, `@CombineFrom`, `@CopyMapping`,
- * `@CombineMapping`).
+ * `@CombineMapping`, `@CallFrom`).
  *
  * # Example
  *
