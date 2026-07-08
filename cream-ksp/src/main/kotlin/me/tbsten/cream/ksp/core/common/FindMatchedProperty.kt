@@ -41,6 +41,28 @@ import me.tbsten.cream.CopyToChildren
 internal fun KSValueParameter.findMatchedProperty(
     source: KSClassDeclaration,
     generateSourceAnnotation: GenerateSourceAnnotation,
+): KSPropertyDeclaration? =
+    findPropertyByNameResolution(source, generateSourceAnnotation) {
+        matchesSourcePropertyType(it.type.resolve())
+    }
+
+/**
+ * Resolves this target constructor parameter to a source property by NAME, walking the same
+ * annotation-scoped resolution ladder for every caller: the [generateSourceAnnotation]'s own
+ * explicit `.Map` annotations (on either side) or its mapping `properties` remappings, then the
+ * plain name match. Each step only commits to a property that [accepts]; a rejected candidate
+ * falls through to the next step, so the ladder's fall-through semantics are identical no matter
+ * the acceptance test.
+ *
+ * [findMatchedProperty] instantiates it with type compatibility ([matchesSourcePropertyType]) —
+ * the normal auto-copy default resolution. The automatic value-class conversion
+ * ([findValueClassConversionOutcome]) instantiates it with value-class convertibility, which is
+ * what makes `.Map`-renamed properties wrap/unwrap exactly like plain name matches.
+ */
+internal fun KSValueParameter.findPropertyByNameResolution(
+    source: KSClassDeclaration,
+    generateSourceAnnotation: GenerateSourceAnnotation,
+    accepts: (KSPropertyDeclaration) -> Boolean,
 ): KSPropertyDeclaration? {
     val parameterName =
         this.name?.asString()
@@ -49,24 +71,24 @@ internal fun KSValueParameter.findMatchedProperty(
     val mappedProperty =
         when (generateSourceAnnotation) {
             is GenerateSourceAnnotation.CopyTo ->
-                findSourcePropertyWithCopyToMapAnnotation(source, parameterName)
+                findSourcePropertyWithCopyToMapAnnotation(source, parameterName, accepts)
             is GenerateSourceAnnotation.CombineTo ->
-                findSourcePropertyWithCombineToMapAnnotation(source, parameterName)
+                findSourcePropertyWithCombineToMapAnnotation(source, parameterName, accepts)
             is GenerateSourceAnnotation.CopyToChildren ->
-                findSourcePropertyWithCopyToChildrenMapAnnotation(source, parameterName)
+                findSourcePropertyWithCopyToChildrenMapAnnotation(source, parameterName, accepts)
             is GenerateSourceAnnotation.CopyFrom ->
-                findSourcePropertyWithCopyFromMapAnnotation(source)
+                findSourcePropertyWithCopyFromMapAnnotation(source, accepts)
             is GenerateSourceAnnotation.CombineFrom ->
-                findSourcePropertyWithCombineFromMapAnnotationOnTarget(source)
-                    ?: findSourcePropertyWithCombineFromMapAnnotationOnSource(source, parameterName)
+                findSourcePropertyWithCombineFromMapAnnotationOnTarget(source, accepts)
+                    ?: findSourcePropertyWithCombineFromMapAnnotationOnSource(source, parameterName, accepts)
             is GenerateSourceAnnotation.CopyMapping ->
-                findSourcePropertyWithPropertyMappings(source, parameterName, generateSourceAnnotation.propertyMappings)
+                findSourcePropertyWithPropertyMappings(source, parameterName, generateSourceAnnotation.propertyMappings, accepts)
             is GenerateSourceAnnotation.CombineMapping ->
-                findSourcePropertyWithPropertyMappings(source, parameterName, generateSourceAnnotation.propertyMappings)
+                findSourcePropertyWithPropertyMappings(source, parameterName, generateSourceAnnotation.propertyMappings, accepts)
             is GenerateSourceAnnotation.SealedCopy -> null
         }
 
-    return mappedProperty ?: findSourcePropertyByName(source, parameterName)
+    return mappedProperty ?: findSourcePropertyByName(source, parameterName, accepts)
 }
 
 /**
@@ -80,6 +102,7 @@ private fun KSValueParameter.findSourcePropertyWithPropertyMappings(
     source: KSClassDeclaration,
     parameterName: String,
     propertyMappings: List<Pair<String, String>>,
+    accepts: (KSPropertyDeclaration) -> Boolean,
 ): KSPropertyDeclaration? {
     val sourcePropertyName =
         propertyMappings
@@ -90,8 +113,7 @@ private fun KSValueParameter.findSourcePropertyWithPropertyMappings(
     return source
         .getAllProperties()
         .firstOrNull {
-            it.simpleName.asString() == sourcePropertyName &&
-                this.matchesSourcePropertyType(it.type.resolve())
+            it.simpleName.asString() == sourcePropertyName && accepts(it)
         }
 }
 
@@ -108,11 +130,12 @@ private fun KSValueParameter.findSourcePropertyWithPropertyMappings(
  * property-site-only lookup would miss it.
  *
  * A source property matches when [parameterName] is listed in the annotation's `propertyNames`
- * (extracted via [propertyNamesOf]) and its type is compatible with this target parameter.
+ * (extracted via [propertyNamesOf]) and the candidate [accepts] this target parameter.
  */
 private inline fun <reified T : Annotation> KSValueParameter.findSourcePropertyWithMapAnnotationOnSource(
     source: KSClassDeclaration,
     parameterName: String,
+    accepts: (KSPropertyDeclaration) -> Boolean,
     propertyNamesOf: (T) -> Array<out String>,
 ): KSPropertyDeclaration? =
     source
@@ -130,18 +153,20 @@ private inline fun <reified T : Annotation> KSValueParameter.findSourcePropertyW
 
             mapAnnotation != null &&
                 parameterName in propertyNamesOf(mapAnnotation) &&
-                this.matchesSourcePropertyType(sourceProperty.type.resolve())
+                accepts(sourceProperty)
         }
 
 private fun KSValueParameter.findSourcePropertyWithCopyToMapAnnotation(
     source: KSClassDeclaration,
     parameterName: String,
-): KSPropertyDeclaration? = findSourcePropertyWithMapAnnotationOnSource<CopyTo.Map>(source, parameterName) { it.propertyNames }
+    accepts: (KSPropertyDeclaration) -> Boolean,
+): KSPropertyDeclaration? = findSourcePropertyWithMapAnnotationOnSource<CopyTo.Map>(source, parameterName, accepts) { it.propertyNames }
 
 private fun KSValueParameter.findSourcePropertyWithCombineToMapAnnotation(
     source: KSClassDeclaration,
     parameterName: String,
-): KSPropertyDeclaration? = findSourcePropertyWithMapAnnotationOnSource<CombineTo.Map>(source, parameterName) { it.propertyNames }
+    accepts: (KSPropertyDeclaration) -> Boolean,
+): KSPropertyDeclaration? = findSourcePropertyWithMapAnnotationOnSource<CombineTo.Map>(source, parameterName, accepts) { it.propertyNames }
 
 /**
  * Find source property using @CopyToChildren.Map annotation on a sealed parent's property.
@@ -156,6 +181,7 @@ private fun KSValueParameter.findSourcePropertyWithCombineToMapAnnotation(
 private fun KSValueParameter.findSourcePropertyWithCopyToChildrenMapAnnotation(
     source: KSClassDeclaration,
     parameterName: String,
+    accepts: (KSPropertyDeclaration) -> Boolean,
 ): KSPropertyDeclaration? =
     source
         .getAllProperties()
@@ -167,7 +193,7 @@ private fun KSValueParameter.findSourcePropertyWithCopyToChildrenMapAnnotation(
 
             if (mapAnnotation != null) {
                 parameterName in mapAnnotation.propertyNames &&
-                    this.matchesSourcePropertyType(sourceProperty.type.resolve())
+                    accepts(sourceProperty)
             } else {
                 false
             }
@@ -178,7 +204,10 @@ private fun KSValueParameter.findSourcePropertyWithCopyToChildrenMapAnnotation(
  * Target parameter specifies which source property to use.
  * Example: @CombineFrom.Map("sourcePropertyB") val targetProperty: String
  */
-private fun KSValueParameter.findSourcePropertyWithCombineFromMapAnnotationOnTarget(source: KSClassDeclaration): KSPropertyDeclaration? {
+private fun KSValueParameter.findSourcePropertyWithCombineFromMapAnnotationOnTarget(
+    source: KSClassDeclaration,
+    accepts: (KSPropertyDeclaration) -> Boolean,
+): KSPropertyDeclaration? {
     val combineFromPropertyAnnotation =
         this
             .getAnnotationsByType(CombineFrom.Map::class)
@@ -190,8 +219,7 @@ private fun KSValueParameter.findSourcePropertyWithCombineFromMapAnnotationOnTar
         return source
             .getAllProperties()
             .firstOrNull {
-                it.simpleName.asString() in sourcePropertyNames &&
-                    this.matchesSourcePropertyType(it.type.resolve())
+                it.simpleName.asString() in sourcePropertyNames && accepts(it)
             }
     }
 
@@ -206,9 +234,13 @@ private fun KSValueParameter.findSourcePropertyWithCombineFromMapAnnotationOnTar
 private fun KSValueParameter.findSourcePropertyWithCombineFromMapAnnotationOnSource(
     source: KSClassDeclaration,
     parameterName: String,
-): KSPropertyDeclaration? = findSourcePropertyWithMapAnnotationOnSource<CombineFrom.Map>(source, parameterName) { it.propertyNames }
+    accepts: (KSPropertyDeclaration) -> Boolean,
+): KSPropertyDeclaration? = findSourcePropertyWithMapAnnotationOnSource<CombineFrom.Map>(source, parameterName, accepts) { it.propertyNames }
 
-private fun KSValueParameter.findSourcePropertyWithCopyFromMapAnnotation(source: KSClassDeclaration): KSPropertyDeclaration? {
+private fun KSValueParameter.findSourcePropertyWithCopyFromMapAnnotation(
+    source: KSClassDeclaration,
+    accepts: (KSPropertyDeclaration) -> Boolean,
+): KSPropertyDeclaration? {
     val copyFromPropertyAnnotation =
         this
             .getAnnotationsByType(CopyFrom.Map::class)
@@ -220,8 +252,7 @@ private fun KSValueParameter.findSourcePropertyWithCopyFromMapAnnotation(source:
         return source
             .getAllProperties()
             .firstOrNull {
-                it.simpleName.asString() in sourcePropertyNames &&
-                    this.matchesSourcePropertyType(it.type.resolve())
+                it.simpleName.asString() in sourcePropertyNames && accepts(it)
             }
     }
 
@@ -231,12 +262,12 @@ private fun KSValueParameter.findSourcePropertyWithCopyFromMapAnnotation(source:
 private fun KSValueParameter.findSourcePropertyByName(
     source: KSClassDeclaration,
     parameterName: String,
+    accepts: (KSPropertyDeclaration) -> Boolean,
 ): KSPropertyDeclaration? =
     source
         .getAllProperties()
         .firstOrNull {
-            it.simpleName.asString() == parameterName &&
-                this.matchesSourcePropertyType(it.type.resolve())
+            it.simpleName.asString() == parameterName && accepts(it)
         }
 
 /**
