@@ -28,6 +28,7 @@ private fun options(
         escapeDot = escapeDot,
         notCopyToObject = false,
         defaultVisibility = CreamOptions.default.defaultVisibility,
+        autoValueClassMapping = CreamOptions.default.autoValueClassMapping,
     )
 
 private fun name(

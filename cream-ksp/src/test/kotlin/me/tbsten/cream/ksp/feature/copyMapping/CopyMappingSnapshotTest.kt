@@ -14,6 +14,7 @@ import me.tbsten.cream.ksp.feature.copyMapping.scenario.propertyShapeScenarios
 import me.tbsten.cream.ksp.feature.copyMapping.scenario.repeatableScenarios
 import me.tbsten.cream.ksp.feature.copyMapping.scenario.sourceKindScenarios
 import me.tbsten.cream.ksp.feature.copyMapping.scenario.targetKindScenarios
+import me.tbsten.cream.ksp.feature.copyMapping.scenario.valueClassMappingScenarios
 import me.tbsten.cream.ksp.feature.copyMapping.scenario.visibilityScenarios
 import me.tbsten.cream.ksp.testing.compile.runCompileSnapshotTest
 import me.tbsten.cream.ksp.testing.generator.Generator
@@ -59,6 +60,7 @@ internal class CopyMappingSnapshotTest :
                         "funName" case funNameScenarios()
                         "repeatable" case repeatableScenarios()
                         "excludes" case excludesScenarios()
+                        "valueClassMapping" case valueClassMappingScenarios()
                     }
                 },
                 Generator.validCreamOptions(),

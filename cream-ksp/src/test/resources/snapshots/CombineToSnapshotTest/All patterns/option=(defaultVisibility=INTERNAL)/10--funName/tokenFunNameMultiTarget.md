@@ -46,6 +46,7 @@ ksp {
     arg("escapeDot", "lower-camel-case" /* default */)
     arg("notCopyToObject", "false" /* default */)
     arg("defaultVisibility", "INTERNAL")
+    arg("autoValueClassMapping", "true" /* default */)
 }
 ```
 

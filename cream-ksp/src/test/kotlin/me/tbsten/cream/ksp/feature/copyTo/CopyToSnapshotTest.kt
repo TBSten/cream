@@ -14,6 +14,7 @@ import me.tbsten.cream.ksp.feature.copyTo.scenario.nestingScenarios
 import me.tbsten.cream.ksp.feature.copyTo.scenario.propertyShapeScenarios
 import me.tbsten.cream.ksp.feature.copyTo.scenario.sourceKindScenarios
 import me.tbsten.cream.ksp.feature.copyTo.scenario.targetKindScenarios
+import me.tbsten.cream.ksp.feature.copyTo.scenario.valueClassMappingScenarios
 import me.tbsten.cream.ksp.feature.copyTo.scenario.visibilityScenarios
 import me.tbsten.cream.ksp.testing.compile.runCompileSnapshotTest
 import me.tbsten.cream.ksp.testing.generator.Generator
@@ -26,7 +27,9 @@ import me.tbsten.cream.ksp.testing.generator.util.union
  *
  * Intentionally NOT covered as snapshot cases (and why):
  * - `typealias` source/target — the scenario factories take only `TypeSpec`, not `TypeAliasSpec`; alias
- *   resolution is generic and covered by integration `test/.../copyTo/TypeAliasTest.kt`.
+ *   resolution is generic and covered by integration `test/.../copyTo/TypeAliasTest.kt`. (Exception:
+ *   `valueClassMapping/typealiasTarget` builds its `FileSpec` by hand to pin how the value-class wrap
+ *   renders through an aliased parameter type.)
  * - `@CopyTo.Map` on a `TYPE_PARAMETER` — KotlinPoet can't render an annotation on a type-param declaration;
  *   the VALUE_PARAMETER form (the `map` family) covers the behavior.
  * - No `repeatable` / `multiSource` / `notCopyToObject` families — `@CopyTo` is not `@Repeatable`, is 1→1
@@ -54,6 +57,7 @@ internal class CopyToSnapshotTest :
                         "funName" case funNameScenarios()
                         "deprecated" case deprecatedScenarios()
                         "escaping" case escapingScenarios()
+                        "valueClassMapping" case valueClassMappingScenarios()
                     }
                 },
                 Generator.validCreamOptions(),

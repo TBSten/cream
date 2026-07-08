@@ -82,6 +82,37 @@ internal fun sealedInterface(
         .apply { abstractProperties.forEach { addProperty(PropertySpec.builder(it, STRING).build()) } }
         .build()
 
+/**
+ * `@JvmInline value class <name>(val <underlyingName>: <underlyingType>)`。kctfork は JVM コンパイル
+ * なので `@JvmInline` 必須。[constructorVisibility] / [propertyVisibility] で `private constructor` や
+ * `private val` の可視性シナリオを、[underlyingName] / [underlyingType] でチェーン
+ * （`V2(val v1: V1)`）や nullable underlying を組める。
+ */
+internal fun valueClass(
+    name: String,
+    underlyingType: TypeName = STRING,
+    underlyingName: String = "value",
+    constructorVisibility: KModifier? = null,
+    propertyVisibility: KModifier? = null,
+): TypeSpec =
+    TypeSpec
+        .classBuilder(name)
+        .addModifiers(KModifier.VALUE)
+        .addAnnotation(JvmInline::class)
+        .primaryConstructor(
+            FunSpec
+                .constructorBuilder()
+                .apply { constructorVisibility?.let { addModifiers(it) } }
+                .addParameter(underlyingName, underlyingType)
+                .build(),
+        ).addProperty(
+            PropertySpec
+                .builder(underlyingName, underlyingType)
+                .apply { propertyVisibility?.let { addModifiers(it) } }
+                .initializer(underlyingName)
+                .build(),
+        ).build()
+
 /** [this] を `inner` 修飾子付きにコピーする。 */
 internal fun TypeSpec.asInner(): TypeSpec = toBuilder().addModifiers(KModifier.INNER).build()
 
