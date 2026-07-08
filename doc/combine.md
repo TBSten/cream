@@ -271,6 +271,10 @@ repeatable, so one declaration can hold several mappings.
 - `.Exclude` (`@CombineTo.Exclude` / `@CombineFrom.Exclude`) **removes the auto-copy default** from
   the matching parameter — see [Exclude](./customization/exclude.md). `@CombineMapping` does not
   support `.Exclude` (the source/target classes are not your own code).
+- **Properties that differ only by a `value class` wrapper** (e.g. `id: String` ↔ `id: DomainId`)
+  receive auto-copy defaults automatically, with the right source qualifier
+  (e.g. `= DomainId(sourceB.id)`) — see
+  [Value class mapping](./customization/value-class-mapping.md) (always on).
 - The **KDoc** of the generated function can be augmented with `kdoc = KDoc(...)` —
   see [KDoc](./customization/kdoc.md).
 - The **visibility** of the generated function can be controlled with the `visibility`
@@ -284,6 +288,7 @@ repeatable, so one declaration can hold several mappings.
   (`@CopyMapping` is the 1-to-1 version of `@CombineMapping`)
 - [Property mapping — .Map](./customization/property-mapping.md)
 - [Exclude — .Exclude](./customization/exclude.md)
+- [Value class mapping (automatic)](./customization/value-class-mapping.md)
 - [KDoc](./customization/kdoc.md)
 - [Visibility](./customization/visibility.md)
 - [Function name — funName](./customization/fun-name.md)

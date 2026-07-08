@@ -18,6 +18,7 @@
 | notCopyToObject | ✓ `cream.notCopyToObject` | 適用 | 適用 | ✓ | ✱ | 適用 | 適用 | 適用 | 適用 |
 | nonCopyableStrategy | ✕ 無 | ✕ | ✕ | ✕ | ✓ | ✕ | ✕ | ✕ | ✕ |
 | canReverse | ✕ 無 | ✕ | ✕ | ✕ | ✕ | ✕ | ✕ | ✓ | ✕ |
+| autoValueClassMapping（#21） | ✓ `cream.autoValueClassMapping` | 適用 | 適用 | 適用 | ✕ | 適用 | 適用 | 適用 | 適用 |
 | **プロパティ単位の制御** | | | | | | | | | |
 | 名前マッピング (`.Map`/`properties`) | ✕ 無 | ✓ Map | ✓ Map | ✓ Map | ✓ Map | ✓ Map | ✓ Map | ✓ prop | ✓ prop |
 | デリゲート選択 (`.Via`) | ✕ 無 | ✕ | ✕ | ✕ | ✓ | ✕ | ✕ | ✕ | ✕ |

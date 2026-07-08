@@ -195,6 +195,7 @@ class ItemRepositoryImpl : ItemRepository {
 |---|---|---|
 | 名前が違うプロパティを対応付ける | `.Map`（`@CopyTo.Map` など） | [Property mapping](doc/customization/property-mapping.ja.md) |
 | 自動コピーのデフォルト値を外して必須引数にする | `.Exclude`（`@CopyTo.Exclude` など）、mapping 系は `excludes` | [Exclude](doc/customization/exclude.ja.md) |
+| `value class` のラップ 1 枚だけ型が違うプロパティを自動でラップ/アンラップする（デフォルト有効） | 自動 — `cream.autoValueClassMapping=false` でオプトアウト | [Value class mapping](doc/customization/value-class-mapping.ja.md) |
 | 生成される KDoc に説明・例を追加する | `kdoc = KDoc(...)` | [KDoc](doc/customization/kdoc.ja.md) |
 | 生成される関数の可視性を制御する | `visibility` / `CopyVisibility` | [Visibility](doc/customization/visibility.ja.md) |
 | 生成される関数名を変える（宣言ごと / モジュール全体） | `funName` / `cream.copyFunNamePrefix` / … | [Function name](doc/customization/fun-name.ja.md) |

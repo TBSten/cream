@@ -194,6 +194,10 @@ fun LibXModel.copyToLibYModel(
   see [Property mapping](./customization/property-mapping.md) for details.
 - **Properties can be excluded** from default-value assignment with `.Exclude` —
   see [Exclude](./customization/exclude.md).
+- **Properties that differ only by a `value class` wrapper** (e.g. `id: String` ↔ `id: DomainId`)
+  receive auto-copy defaults automatically (always on; disable module-wide with
+  `cream.autoValueClassMapping=false`) — see
+  [Value class mapping](./customization/value-class-mapping.md).
 - The **KDoc** of the generated function can be augmented with `kdoc = KDoc(...)` —
   see [KDoc](./customization/kdoc.md).
 - The **visibility** of the generated function can be controlled with the `visibility`
@@ -205,6 +209,7 @@ fun LibXModel.copyToLibYModel(
 
 - [Property mapping (`.Map`)](./customization/property-mapping.md)
 - [Exclude (`.Exclude`)](./customization/exclude.md)
+- [Value class mapping (automatic)](./customization/value-class-mapping.md)
 - [KDoc (`kdoc = KDoc(...)`)](./customization/kdoc.md)
 - [Visibility](./customization/visibility.md)
 - [Function name (`funName` / naming options)](./customization/fun-name.md)
