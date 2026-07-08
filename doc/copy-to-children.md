@@ -127,6 +127,10 @@ class. All KSP arguments are indexed in [Options](./customization/options.md).
 
 ### Other customizations
 
+- Annotating a property declared on the sealed parent with `@CopyToChildren.Map` binds it to
+  differently-named constructor parameters of the children, so the renamed parameters still get
+  the auto-copy default (`= this.<property>`) in **every** generated per-child copy function.
+  See [Property mapping](./customization/property-mapping.md) for details.
 - Annotating a property declared on the sealed parent with `@CopyToChildren.Exclude` removes its
   auto-copy default (`= this.<property>`) from **every** generated per-child copy function, making
   the parameter required. See [Exclude](./customization/exclude.md) for details.
@@ -142,6 +146,7 @@ class. All KSP arguments are indexed in [Options](./customization/options.md).
 - [@SealedCopy](./sealed-copy.md) — the complementary annotation: it generates a single `copy()`
   that **keeps the sealed parent type** as receiver and return type, whereas `@CopyToChildren`
   generates per-child functions whose return type is the child.
+- [Property mapping](./customization/property-mapping.md) — `@CopyToChildren.Map` and the other `.Map` annotations.
 - [Exclude](./customization/exclude.md) — `@CopyToChildren.Exclude` and the other `.Exclude` annotations.
 - [KDoc](./customization/kdoc.md) — the `kdoc = KDoc(...)` argument for generated functions.
 - [Visibility](./customization/visibility.md) — the `visibility` argument and `cream.defaultVisibility`.

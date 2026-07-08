@@ -2,9 +2,10 @@
 
 # Property mapping (.Map)
 
-You can use `@CopyTo.Map`, `@CopyFrom.Map`, `@CombineTo.Map`, and `@CombineFrom.Map` to map
-properties between source and target classes. This is useful when the property names differ
-between the source and target but you want to copy values between them.
+You can use `@CopyTo.Map`, `@CopyFrom.Map`, `@CopyToChildren.Map`, `@SealedCopy.Map`,
+`@CombineTo.Map`, and `@CombineFrom.Map` to map differently-named properties onto each other.
+This is useful when the two sides of a generated copy function — a source and a target class,
+or a sealed parent and its children — name the same value differently.
 
 > [!NOTE]
 > `.Map` is not [`@CopyMapping`](../copy.md#copymapping), which generates a copy function *between two classes*
@@ -159,6 +160,51 @@ fun SourceA.copyToTargetState(
 
 </details>
 
+## CopyToChildren.Map
+
+`@CopyToChildren.Map` is placed on a property declared on the sealed parent and binds it to
+differently-named constructor parameters of the child classes.
+
+```kt
+import me.tbsten.cream.CopyToChildren
+
+@CopyToChildren
+sealed interface UiState {
+    @CopyToChildren.Map("id")
+    val sessionId: String
+
+    data class Loading(val id: String) : UiState {
+        override val sessionId: String get() = id
+    }
+
+    data class Success(val id: String, val data: String) : UiState {
+        override val sessionId: String get() = id
+    }
+}
+
+// usage
+val state: UiState = UiState.Loading(id = "id-1")
+val success: UiState.Success = state.copyToUiStateSuccess(data = "data")
+// success.id == "id-1"
+```
+
+<details>
+<summary>Generated code</summary>
+
+```kt
+// auto generate
+fun UiState.copyToUiStateLoading(
+    id: String = this.sessionId, // sessionId is mapped to id
+): UiState.Loading = ...
+
+fun UiState.copyToUiStateSuccess(
+    id: String = this.sessionId, // sessionId is mapped to id
+    data: String,
+): UiState.Success = ...
+```
+
+</details>
+
 ## SealedCopy.Map
 
 `@SealedCopy.Map` carries the same "map to a differently-named counterpart" meaning, but it is
@@ -171,5 +217,6 @@ See [Sealed copy — @SealedCopy](../sealed-copy.md) for details and examples.
 
 - [Excluding auto-copy defaults (.Exclude)](./exclude.md) — remove a parameter's auto-copy default instead of mapping it
 - [Copy — @CopyTo / @CopyFrom / @CopyMapping](../copy.md)
+- [Copy to children — @CopyToChildren](../copy-to-children.md)
 - [Combine — @CombineTo / @CombineFrom / @CombineMapping](../combine.md)
 - [Sealed copy — @SealedCopy](../sealed-copy.md)
