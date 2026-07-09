@@ -11,6 +11,7 @@ import me.tbsten.cream.CopyFrom
 import me.tbsten.cream.CopyTo
 import me.tbsten.cream.CopyToChildren
 import me.tbsten.cream.ksp.core.common.annotationsOf
+import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.util.ksp.collectConcreteSubclasses
 import me.tbsten.cream.ksp.util.ksp.isSealed
 import kotlin.reflect.KClass
@@ -67,16 +68,18 @@ internal fun KSPropertyDeclaration.isSourcePropertyExcluded(
 }
 
 /**
- * Warns when a target-side @Exclude (on a VALUE_PARAMETER) annotates a parameter that
- * has no matched source property — i.e. the Exclude is a no-op because the parameter
- * already had no auto-copy default.
+ * Warns when a target-side @Exclude (on a VALUE_PARAMETER) annotates a parameter that has no
+ * candidate auto-copy default — i.e. the Exclude is a no-op because the parameter was required
+ * anyway. [hasCandidateDefault] must be `true` when the parameter matched a source property OR
+ * resolved a value-class conversion ([findValueClassConversion]): an Exclude that suppresses a
+ * conversion default IS effective and must not be warned about.
  */
 internal fun KSValueParameter.warnIfTargetExcludeHasNoEffect(
-    matchedProperty: KSPropertyDeclaration?,
+    hasCandidateDefault: Boolean,
     generateSourceAnnotation: GenerateSourceAnnotation,
     logger: KSPLogger,
 ) {
-    if (matchedProperty != null) return
+    if (hasCandidateDefault) return
     val paramName = name?.asString() ?: return
     val hasExclude =
         when (generateSourceAnnotation) {
@@ -97,9 +100,12 @@ internal fun KSValueParameter.warnIfTargetExcludeHasNoEffect(
 }
 
 /**
- * Warns when a source-side @Exclude (on a source property) never suppresses any
- * auto-copy default — i.e. none of the target parameters matched this source property.
+ * Warns when a source-side @Exclude (on a source property) never suppresses any auto-copy
+ * default — i.e. none of the target parameters matched this source property, neither as a
+ * type-compatible match nor as a value-class conversion ([findValueClassConversion], whose
+ * default the Exclude also suppresses).
  */
+context(options: CreamOptions)
 internal fun KSPropertyDeclaration.warnIfSourceExcludeHasNoEffect(
     targetParameters: List<KSValueParameter>,
     source: KSClassDeclaration,
@@ -123,7 +129,18 @@ internal fun KSPropertyDeclaration.warnIfSourceExcludeHasNoEffect(
     val propName = simpleName.asString()
     val isMatched =
         targetParameters.any { param ->
-            param.findMatchedProperty(source, generateSourceAnnotation)?.simpleName?.asString() == propName
+            // Mirrors the emission logic: the conversion only supplies a default when the
+            // parameter has NO type-compatible match, so it only makes an Exclude effective then.
+            val matched = param.findMatchedProperty(source, generateSourceAnnotation)
+            when {
+                matched != null -> matched.simpleName.asString() == propName
+                else ->
+                    param
+                        .findValueClassConversion(source, generateSourceAnnotation)
+                        ?.sourceProperty
+                        ?.simpleName
+                        ?.asString() == propName
+            }
         }
     if (!isMatched) {
         logger.warn("@Exclude on '$propName' has no effect: not a matched property", this)

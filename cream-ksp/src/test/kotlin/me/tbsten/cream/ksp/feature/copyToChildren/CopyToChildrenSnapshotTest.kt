@@ -10,6 +10,7 @@ import me.tbsten.cream.ksp.feature.copyToChildren.scenario.mapScenarios
 import me.tbsten.cream.ksp.feature.copyToChildren.scenario.notCopyToObjectScenarios
 import me.tbsten.cream.ksp.feature.copyToChildren.scenario.propertyShapeScenarios
 import me.tbsten.cream.ksp.feature.copyToChildren.scenario.sealedParentKindScenarios
+import me.tbsten.cream.ksp.feature.copyToChildren.scenario.valueClassMappingScenarios
 import me.tbsten.cream.ksp.feature.copyToChildren.scenario.visibilityScenarios
 import me.tbsten.cream.ksp.testing.compile.runCompileSnapshotTest
 import me.tbsten.cream.ksp.testing.generator.Generator
@@ -49,6 +50,7 @@ internal class CopyToChildrenSnapshotTest :
                         "notCopyToObject" case notCopyToObjectScenarios()
                         "funName" case funNameScenarios()
                         "map" case mapScenarios()
+                        "valueClassMapping" case valueClassMappingScenarios()
                     }
                 },
                 Generator.validCreamOptions(),

@@ -21,6 +21,7 @@ import me.tbsten.cream.ksp.core.common.underPackageName
 import me.tbsten.cream.ksp.core.common.validateFunName
 import me.tbsten.cream.ksp.core.common.warnIfSourceExcludeHasNoEffect
 import me.tbsten.cream.ksp.core.copyFun.appendCopyFunction
+import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.util.ksp.isSealed
 import me.tbsten.cream.ksp.util.with
 
@@ -91,7 +92,7 @@ internal fun processCopyTo(): List<KSAnnotated> =
  * so they are expanded to their concrete subclasses' parameters (mirroring the fan-out done by
  * appendCopyToSealedClassFunction).
  */
-context(logger: KSPLogger)
+context(options: CreamOptions, logger: KSPLogger)
 private fun warnIneffectiveCopyToExcludes(
     sourceClass: KSClassDeclaration,
     targetClasses: List<KSClassDeclaration>,

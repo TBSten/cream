@@ -12,6 +12,7 @@ import me.tbsten.cream.ksp.feature.copyFrom.scenario.nestingScenarios
 import me.tbsten.cream.ksp.feature.copyFrom.scenario.propertyShapeScenarios
 import me.tbsten.cream.ksp.feature.copyFrom.scenario.sourceKindScenarios
 import me.tbsten.cream.ksp.feature.copyFrom.scenario.targetKindScenarios
+import me.tbsten.cream.ksp.feature.copyFrom.scenario.valueClassMappingScenarios
 import me.tbsten.cream.ksp.feature.copyFrom.scenario.visibilityScenarios
 import me.tbsten.cream.ksp.testing.compile.runCompileSnapshotTest
 import me.tbsten.cream.ksp.testing.generator.Generator
@@ -49,6 +50,7 @@ internal class CopyFromSnapshotTest :
                         "kdoc" case kdocScenarios()
                         "visibility" case visibilityScenarios()
                         "funName" case funNameScenarios()
+                        "valueClassMapping" case valueClassMappingScenarios()
                     }
                 },
                 Generator.validCreamOptions(),

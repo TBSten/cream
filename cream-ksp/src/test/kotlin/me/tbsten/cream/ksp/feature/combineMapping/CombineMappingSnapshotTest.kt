@@ -13,6 +13,7 @@ import me.tbsten.cream.ksp.feature.combineMapping.scenario.repeatableScenarios
 import me.tbsten.cream.ksp.feature.combineMapping.scenario.sourceKindScenarios
 import me.tbsten.cream.ksp.feature.combineMapping.scenario.sourceKindValidationScenarios
 import me.tbsten.cream.ksp.feature.combineMapping.scenario.targetKindScenarios
+import me.tbsten.cream.ksp.feature.combineMapping.scenario.valueClassMappingScenarios
 import me.tbsten.cream.ksp.feature.combineMapping.scenario.visibilityScenarios
 import me.tbsten.cream.ksp.testing.compile.runCompileSnapshotTest
 import me.tbsten.cream.ksp.testing.generator.Generator
@@ -59,6 +60,7 @@ internal class CombineMappingSnapshotTest :
                         "repeatable" case repeatableScenarios()
                         "sourceKindValidation" case sourceKindValidationScenarios()
                         "excludes" case excludesScenarios()
+                        "valueClassMapping" case valueClassMappingScenarios()
                     }
                 },
                 Generator.validCreamOptions(),
