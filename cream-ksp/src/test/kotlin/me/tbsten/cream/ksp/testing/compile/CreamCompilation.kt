@@ -49,10 +49,11 @@ internal class CreamSourcesBuilder {
  */
 internal fun compileWithCream(
     options: Map<String, String> = emptyMap(),
+    kotlincArguments: List<String> = emptyList(),
     block: CreamSourcesBuilder.() -> Unit,
 ): CreamCompilationResult {
     val sources = CreamSourcesBuilder().apply(block).build()
-    return runCompilation(sources, options)
+    return runCompilation(sources, options, kotlincArguments)
 }
 
 /**
@@ -72,14 +73,16 @@ internal fun compileWithCream(
     @Language("kotlin") source: String,
     options: Map<String, String> = emptyMap(),
     sourceFileName: String = "Test.kt",
+    kotlincArguments: List<String> = emptyList(),
 ): CreamCompilationResult =
-    compileWithCream(options = options) {
+    compileWithCream(options = options, kotlincArguments = kotlincArguments) {
         sourceFileName source source
     }
 
 private fun runCompilation(
     sources: List<SourceFile>,
     options: Map<String, String>,
+    extraKotlincArguments: List<String> = emptyList(),
 ): CreamCompilationResult {
     val captured = ByteArrayOutputStream()
     val tee = TeeOutputStream(System.out, captured)
@@ -90,6 +93,9 @@ private fun runCompilation(
             classpaths = creamCompilationClasspath
             useKsp2()
             symbolProcessorProviders += CreamSymbolProcessorProvider()
+            if (extraKotlincArguments.isNotEmpty()) {
+                kotlincArguments = kotlincArguments + extraKotlincArguments
+            }
             if (options.isNotEmpty()) {
                 kspProcessorOptions = options.toMutableMap()
             }

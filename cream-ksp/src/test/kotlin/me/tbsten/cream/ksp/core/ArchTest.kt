@@ -21,7 +21,7 @@ import me.tbsten.cream.ksp.testing.konsist.inLayer
  *
  * - `core` — cream-specific generation logic. May depend on `util`; must NOT depend on `feature` nor on
  *   the root infra (`ProcessContext` / `CreamSymbolProcessor`) — it receives a per-layer context
- *   instead. Files live only in `common`/`copyFun`/`combineFun`/`sealedCopy`.
+ *   instead. Files live only in `common`/`copyFun`/`combineFun`/`sealedCopy`/`callFrom`.
  * - `util` — generic helpers reusable elsewhere, split in two: `util` (top-level) holds Kotlin-only
  *   helpers and must NOT depend on the KSP API; KSP-flavoured helpers live in `util.ksp`. Neither may
  *   depend on `core` / `feature` nor reference cream-specific types.
@@ -49,7 +49,7 @@ internal class ArchTest :
                     }
             }
 
-            "common / copyFun / combineFun / sealedCopy サブパッケージにのみ置く（core/ 直下に .kt を置かない）" {
+            "common / copyFun / combineFun / sealedCopy / callFrom サブパッケージにのみ置く（core/ 直下に .kt を置かない）" {
                 creamKspMain
                     .filter { it.inLayer(CORE_PACKAGE) }
                     .assertTrue { file -> file.packagee?.name in CORE_SUBPACKAGES }

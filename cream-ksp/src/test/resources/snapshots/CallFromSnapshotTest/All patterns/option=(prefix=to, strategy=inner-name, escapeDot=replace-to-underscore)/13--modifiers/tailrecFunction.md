@@ -1,0 +1,77 @@
+## Input:me.tbsten.cream.generated.countDown
+
+```kt
+package me.tbsten.cream.generated
+
+import kotlin.Int
+import me.tbsten.cream.CallFrom
+
+@CallFrom(CountArgs::class)
+public tailrec fun countDown(n: Int): Int = if (n <= 0) 0 else countDown(n - 1)
+
+public data class CountArgs(
+  public val n: Int,
+)
+```
+
+## KSP options
+
+```kt
+ksp {
+    arg("copyFunNamePrefix", "to")
+    arg("copyFunNamingStrategy", "inner-name")
+    arg("escapeDot", "replace-to-underscore")
+    arg("notCopyToObject", "false" /* default */)
+    arg("defaultVisibility", "INHERIT" /* default */)
+}
+```
+
+## Output:ExitCode
+
+```kt
+OK
+```
+
+## Output:Console
+
+```kt
+
+```
+
+## Output:Generated sources
+
+````kt
+// file: CallFrom__countDown.kt
+package me.tbsten.cream.generated
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CallFrom] annotation of [countDown])
+ * 
+ * CountArgs -> countDown() bridge function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val countArgs = CountArgs(...)
+ * countDown(countArgs)
+ * ```
+ * 
+ * # Example: Override parameter values
+ * 
+ * ```kt
+ * val countArgs = CountArgs(...)
+ * countDown(countArgs, parameter = value)
+ * ```
+ * 
+ * 
+ * @see CountArgs
+ */
+public fun countDown(
+    countArgs: CountArgs,
+    n: Int = countArgs.n,
+): Int = countDown(
+    n = n,
+)
+````

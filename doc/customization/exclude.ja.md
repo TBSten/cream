@@ -17,6 +17,7 @@
 | `@CombineFrom.Exclude` | ターゲットクラスのコンストラクタパラメータ |
 | `@SealedCopy.Exclude` | sealed 親の abstract プロパティ |
 | `@CopyToChildren.Exclude` | sealed 親のプロパティ（全ての per-child コピー関数に適用） |
+| `@CallFrom.Exclude` | [`@CallFrom`](../call-from.ja.md) を付与した関数のパラメータ |
 | `@CopyMapping(excludes = [...])` | アノテーションの `excludes` 引数（ターゲット側のプロパティ名） |
 | `@CombineMapping(excludes = [...])` | アノテーションの `excludes` 引数（ターゲット側のプロパティ名） |
 

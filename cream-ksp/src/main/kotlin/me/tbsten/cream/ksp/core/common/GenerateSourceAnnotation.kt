@@ -3,6 +3,7 @@ package me.tbsten.cream.ksp.core.common
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSDeclaration
 import me.tbsten.cream.CopyVisibility
+import me.tbsten.cream.DefaultCallFromFunctionName
 
 /**
  * Identifies the source annotation that triggered a generation and exposes the user-facing
@@ -129,5 +130,19 @@ internal sealed interface GenerateSourceAnnotation {
         /** Generated (target-side) parameter names whose auto-copy default is dropped. */
         val excludes: List<String>
             get() = annotation.extractExcludes()
+    }
+
+    /**
+     * `@CallFrom` is attached to a **function** (not a class); [annotatedDeclaration] is the
+     * annotated [com.google.devtools.ksp.symbol.KSFunctionDeclaration]. Its [funNameTemplate]
+     * defaults to [me.tbsten.cream.DefaultCallFromFunctionName] — the annotated function's own
+     * name (the overload behaviour) — rather than the copy default, and resolves as a plain
+     * literal because `@CallFrom` supports no naming tokens (it has no target *class* to render).
+     * See `resolveCallFromFunName` in `core/callFrom`.
+     */
+    data class CallFrom(
+        override val annotation: KSAnnotation,
+    ) : GenerateSourceAnnotation {
+        override val funNameTemplate: String get() = annotation.funNameTemplate(default = DefaultCallFromFunctionName)
     }
 }

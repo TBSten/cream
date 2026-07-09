@@ -2,7 +2,7 @@
 
 # プロパティマッピング (.Map)
 
-`@CopyTo.Map`、`@CopyFrom.Map`、`@CopyToChildren.Map`、`@SealedCopy.Map`、`@CombineTo.Map`、`@CombineFrom.Map` を使用して、名前の異なるプロパティ同士を紐づけられます。
+`@CopyTo.Map`、`@CopyFrom.Map`、`@CopyToChildren.Map`、`@SealedCopy.Map`、`@CombineTo.Map`、`@CombineFrom.Map`、`@CallFrom.Map` を使用して、名前の異なるプロパティ同士を紐づけられます。
 生成されるコピー関数の両側 — コピー元とコピー先のクラス、あるいは sealed 親とその子 — で同じ値が別名になっている時に便利です。
 
 > [!NOTE]

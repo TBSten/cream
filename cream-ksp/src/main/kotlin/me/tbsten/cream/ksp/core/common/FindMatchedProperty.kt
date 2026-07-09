@@ -6,6 +6,7 @@ import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSValueParameter
+import me.tbsten.cream.CallFrom
 import me.tbsten.cream.CombineFrom
 import me.tbsten.cream.CombineTo
 import me.tbsten.cream.CopyFrom
@@ -26,6 +27,7 @@ import me.tbsten.cream.CopyToChildren
  * - `@CopyTo.Map` / `@CombineTo.Map`: on the SOURCE side (a property or its constructor
  *   parameter); its values name TARGET parameters.
  * - `@CopyFrom.Map`: on the TARGET constructor parameter; its values name SOURCE properties.
+ * - `@CallFrom.Map`: on the annotated function's parameter; its values name SOURCE properties.
  * - `@CombineFrom.Map`: both placements — on the target parameter naming source properties,
  *   or on the source side naming target parameters.
  * - `@CopyToChildren.Map`: on a sealed parent's property only.
@@ -56,6 +58,8 @@ internal fun KSValueParameter.findMatchedProperty(
                 findSourcePropertyWithCopyToChildrenMapAnnotation(source, parameterName)
             is GenerateSourceAnnotation.CopyFrom ->
                 findSourcePropertyWithCopyFromMapAnnotation(source)
+            is GenerateSourceAnnotation.CallFrom ->
+                findSourcePropertyWithCallFromMapAnnotation(source)
             is GenerateSourceAnnotation.CombineFrom ->
                 findSourcePropertyWithCombineFromMapAnnotationOnTarget(source)
                     ?: findSourcePropertyWithCombineFromMapAnnotationOnSource(source, parameterName)
@@ -216,6 +220,31 @@ private fun KSValueParameter.findSourcePropertyWithCopyFromMapAnnotation(source:
 
     if (copyFromPropertyAnnotation != null) {
         val sourcePropertyNames = copyFromPropertyAnnotation.propertyNames
+
+        return source
+            .getAllProperties()
+            .firstOrNull {
+                it.simpleName.asString() in sourcePropertyNames &&
+                    this.matchesSourcePropertyType(it.type.resolve())
+            }
+    }
+
+    return null
+}
+
+/**
+ * Find source property using @CallFrom.Map annotation on a parameter of the annotated function.
+ * The function parameter specifies which source property supplies its default value.
+ * Example: `fun processData(@CallFrom.Map("rawData") data1: String)`
+ */
+private fun KSValueParameter.findSourcePropertyWithCallFromMapAnnotation(source: KSClassDeclaration): KSPropertyDeclaration? {
+    val callFromPropertyAnnotation =
+        this
+            .getAnnotationsByType(CallFrom.Map::class)
+            .firstOrNull()
+
+    if (callFromPropertyAnnotation != null) {
+        val sourcePropertyNames = callFromPropertyAnnotation.propertyNames
 
         return source
             .getAllProperties()
