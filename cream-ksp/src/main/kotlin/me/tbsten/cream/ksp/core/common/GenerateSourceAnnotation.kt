@@ -2,7 +2,10 @@ package me.tbsten.cream.ksp.core.common
 
 import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSDeclaration
+import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import me.tbsten.cream.CopyVisibility
+import me.tbsten.cream.ksp.util.ksp.getArgument
+import me.tbsten.cream.ParentOptional as ParentOptionalAnnotation
 
 /**
  * Identifies the source annotation that triggered a generation and exposes the user-facing
@@ -130,4 +133,26 @@ internal sealed interface GenerateSourceAnnotation {
         val excludes: List<String>
             get() = annotation.extractExcludes()
     }
+
+    /**
+     * `@ParentOptional` is attached to a **property**. [annotatedDeclaration] is overridden with the
+     * resolved [KSPropertyDeclaration] explicitly: for a primary-constructor `val`, KSP2 may surface
+     * the raw annotation on the value parameter, whose `parent` is not a `KSDeclaration` — the
+     * default getter would then fail even though the property is well known to the caller.
+     */
+    data class ParentOptional(
+        override val annotation: KSAnnotation,
+        override val annotatedDeclaration: KSPropertyDeclaration,
+    ) : GenerateSourceAnnotation {
+        /** The `propertyName` override for the generated accessor; `null` when unset or empty. */
+        val propertyName: String?
+            get() =
+                annotation
+                    .getArgument(ParentOptionalAnnotation::propertyName)
+                    ?.takeIf { it.isNotEmpty() }
+    }
+
+    data class ChildOptionals(
+        override val annotation: KSAnnotation,
+    ) : GenerateSourceAnnotation
 }

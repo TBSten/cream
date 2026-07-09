@@ -1,8 +1,7 @@
-package me.tbsten.cream.ksp.core.sealedCopy
+package me.tbsten.cream.ksp.core.common
 
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSTypeParameter
-import me.tbsten.cream.ksp.core.common.fullName
 import me.tbsten.cream.ksp.util.ksp.asString
 
 /**
@@ -14,6 +13,13 @@ import me.tbsten.cream.ksp.util.ksp.asString
  * *extra* parameter the parent does not pin (e.g. `Tagged<T, M> : Box<T>`), a bare
  * `is Box.Tagged` is rejected ("2 type arguments expected"), so we render the pinned
  * parameters with the parent's names and star-project the rest: `is Box.Tagged<T, *>`.
+ *
+ * When [sealedClass] is not a *direct* supertype of the generic [leaf] (it sits behind an
+ * intermediate type, e.g. `Leaf<T> : Mid` with `Mid : Root`), no pinning information is
+ * available here and a bare `is Leaf` is likewise rejected ("N type arguments expected"), so
+ * every parameter is star-projected: `is Leaf<*>`. The branch only needs the subtype check —
+ * generation that reads a property whose type references an unpinned type parameter is
+ * rejected up front, so the star projection never degrades an accessed value's type.
  */
 internal fun renderWhenBranchType(
     leaf: KSClassDeclaration,
@@ -25,7 +31,7 @@ internal fun renderWhenBranchType(
         leaf.superTypes
             .map { it.resolve() }
             .firstOrNull { it.declaration.fullName == sealedClass.fullName }
-            ?: return leaf.fullName
+            ?: return leaf.starProjectedTypeText()
 
     val parentParamNames = sealedClass.typeParameters.map { it.name.asString() }
     val leafParamToParentName = HashMap<String, String>()
@@ -45,6 +51,9 @@ internal fun renderWhenBranchType(
         }
     return "${leaf.fullName}<$args>"
 }
+
+/** `Leaf<*, *>` — every type parameter star-projected. */
+private fun KSClassDeclaration.starProjectedTypeText(): String = "$fullName<${typeParameters.joinToString(", ") { "*" }}>"
 
 internal fun renderTypeParameterList(
     typeParameters: List<KSTypeParameter>,

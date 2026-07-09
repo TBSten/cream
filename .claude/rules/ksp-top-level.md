@@ -13,9 +13,8 @@ paths:
 - `CreamSymbolProcessor.kt` — `process()` で全 feature を順に dispatch。option パース・round/deferred 集約。
 - `CreamSymbolProcessorProvider.kt` — KSP provider（環境から ProcessContext の材料を取り出す）。
 - `ProcessContext.kt` — `{resolver, options, codeGenerator, logger}`。leaf infra（feature/core を import しない）。
-- `GenerateSourceAnnotation.kt` — 横断型（生成元注釈の sealed）。
 
-> 補足: `GenerateSourceAnnotation` は core が生成時に使う型のため `core/common` への配置が依存方向上は自然（`ksp-architecture.md` の依存表参照）。配置はリファクタ実装時に中身の責務で判断する。
+> 補足: `GenerateSourceAnnotation`（生成元注釈の sealed）は core が生成時に使う型のため、`ksp/` 直下ではなく `core/common/GenerateSourceAnnotation.kt` に配置されている（`ksp-architecture.md` の依存表参照）。
 
 ❌ いけないこと:
 - 生成ロジックを書く（→ `core/`）
