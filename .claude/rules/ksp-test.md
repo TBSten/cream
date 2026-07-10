@@ -57,6 +57,14 @@ cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/
   `compileWithCream` → `assertMatchesSnapshot` で golden 比較する想定。case 生成の仕組み
   (`testing/generator/`) は書き方を再検討中のため一旦コードを置いていない。再設計してから
   `<Feat>SnapshotTest` を実装する（それまでは `xtest` スタブ）。snapshot は決定的に保つこと。
+- **UseCase snapshot cases**: `<Feat>SnapshotTest` には family × options の `"All patterns"` に加え、
+  `doc/use-case/` の利用例を固定する `"UseCase" - { "<題材>" { ... } }` グループを置く
+  （golden は `<Feat>SnapshotTest/UseCase/<題材>.md`。テスト名に `:` は使わない —
+  golden ファイル名になるため Windows 非対応になる）。scenario は
+  `feature/<name>/scenario/UseCases.kt` に doc のクラスを忠実に再現して置き（doc が定義しない型は
+  最小 stub で補完）、options は基本 `CreamOptions.default`。doc がその利用例で明示的に option に
+  言及している場合のみ `CreamOptions.default.copy(...)` のバリアントケースを追加する。
+  doc パスとの対応・意図的な逸脱は各テストクラスの KDoc に記録する。
 - **diagnostic 系**: 不正 annotation / 不正 option は exit code を
   `result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK` で確認し、`normalizedCompilerOutput()`
   を `*.output.md` golden と突き合わせる（`<Feat>InvalidUsageTest` / `MultipleDiagnosticsTest`）。

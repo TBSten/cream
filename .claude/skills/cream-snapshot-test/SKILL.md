@@ -205,6 +205,16 @@ internal class <Feat>SnapshotTest :
 
 Family order = `NN--` numbering = golden directory layout, so keep it deliberate and stable.
 
+**UseCase cases (doc/use-case pinning).** In addition to the `"All patterns"` matrix, a suite pins
+the examples from `doc/use-case/` inside a `"UseCase" - { "<Subject>" { ... } }` group declared
+BEFORE the `"All patterns"` block (golden: `<Feat>SnapshotTest/UseCase/<Subject>.md`; never use
+`:` in a test name — it becomes the golden file name and breaks Windows checkouts). Scenarios live
+in `scenario/UseCases.kt`, rebuilding the doc's classes faithfully (stub any type the doc leaves
+undefined; note stubs and other divergences in the test-class KDoc together with the doc path).
+Compile with `CreamOptions.default` only — add a `CreamOptions.default.copy(...)` variant case
+solely when the doc explicitly calls out an option for that example (e.g. `notCopyToObject`). If a
+doc example combines two annotations, split it per annotation into each feature's suite.
+
 ### 5. Generate goldens, then verify output-preserving
 
 Save command logs under `.local/tmp/<time>-<cmd>.log` (project convention). From the repo root:
