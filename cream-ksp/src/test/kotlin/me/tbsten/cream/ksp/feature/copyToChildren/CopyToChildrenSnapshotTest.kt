@@ -26,9 +26,11 @@ import me.tbsten.cream.ksp.testing.generator.util.union
  * See `.claude/skills/cream-snapshot-test`.
  *
  * Intentionally NOT covered as snapshot cases (and why):
- * - `notCopyToObject` option-fallback (arg unset + `cream.notCopyToObject=true`) is now pinned by the
+ * - `notCopyToObject` option-fallback (the `@CopyToChildren.notCopyToObject` annotation argument left unset
+ *   while the KSP option `cream.notCopyToObject=true` is set) is now pinned by the
  *   "UseCase/CheckoutUiState nested state machine (notCopyToObject)" case below — and it FALSIFIED the
- *   earlier assumption that it is byte-identical to `notCopyToObject/objectChildSuppressed` (arg=true):
+ *   earlier assumption that it is byte-identical to `notCopyToObject/objectChildSuppressed` (annotation
+ *   argument = true):
  *   the option is currently ignored (the object copy function is still generated; the annotation's default
  *   `false` shadows the option under KSP2). The golden captures that current behavior — a generator bug to
  *   fix separately, together with the golden.
