@@ -20,43 +20,43 @@ paths:
 ## レイアウト（issue #127: feature 単位に分割）
 
 機能 (feature) ごとにディレクトリを分け、各 feature は同じ **5 種類** のテストを持つ。
-**現状 (#127 第 1 段階)** はテスト基盤 (`testing/`) / smoke / Konsist のみ実装済みで、
-各 feature の個別テストと `core/common` / `MultipleDiagnosticsTest` は `xtest` の空スタブ
-（`// TODO(#127): reimplement ...`）。これらは順次実装し直す。
-generated case × snapshot（`testing/generator/` と `<Feat>SnapshotTest`）は **書き方を再検討中のため
-コード未配置**。下記の generator 関連はあくまで予定の設計で、再設計後に実装する。
+**現状 (#127)**: テスト基盤 (`testing/`、generator / poet 含む) / Konsist / `MultipleDiagnosticsTest` /
+全 8 feature の `<Feat>SnapshotTest`（`scenario/` 付き）は実装済み。`<Feat>BasicUsageTest` /
+`<Feat>InvalidUsageTest` / `<Feat>EdgeUsageTest` / `<Feat>PropertyTest` は一部を除きまだ `xtest` の
+空スタブ（`// TODO(#127): reimplement ...`）で、順次実装し直す。
 
 ```
 cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/
 ├── AllKotlinFilesTest.kt       # 全ファイル横断 Konsist（root 直下許可ファイル / 1 ファイル行数上限）
-├── MultipleDiagnosticsTest.kt  # フィーチャー横断（複数アノテ併用 / 複数エラー同時） ※stub
+├── MultipleDiagnosticsTest.kt  # フィーチャー横断（複数アノテ併用 / 複数エラー同時）
+├── OptionsDiagnosticTest.kt / DefaultVisibilityOptionTest.kt / options/  # option 系
 ├── feature/
 │   ├── ArchTest.kt             # feature 層レイヤリング Konsist
 │   └── <copyTo|copyFrom|copyToChildren|sealedCopy|combineTo|combineFrom|copyMapping|combineMapping>/
-│       ├── <Feat>BasicUsageTest.kt    # 正常系 (example-based)
-│       ├── <Feat>InvalidUsageTest.kt  # 不正利用 → エラー (diagnostic)
-│       ├── <Feat>EdgeUsageTest.kt     # レアケース ＋ @Map/@Exclude 等の意味的ケース
-│       ├── <Feat>PropertyTest.kt      # PBT（可視性/エスケープ/オプションは generator 次元で網羅）
-│       └── <Feat>SnapshotTest.kt      # generator 駆動スナップショット
+│       ├── <Feat>BasicUsageTest.kt    # 正常系 (example-based) ※多くは stub
+│       ├── <Feat>InvalidUsageTest.kt  # 不正利用 → エラー (diagnostic) ※多くは stub
+│       ├── <Feat>EdgeUsageTest.kt     # レアケース ＋ @Map/@Exclude 等の意味的ケース ※多くは stub
+│       ├── <Feat>PropertyTest.kt      # PBT（可視性/エスケープ/オプションは generator 次元で網羅） ※多くは stub
+│       ├── <Feat>SnapshotTest.kt      # generator 駆動スナップショット（"UseCase" + "All patterns"）
+│       └── scenario/                  # curated case（family ごとの *Scenarios() + UseCases.kt）
 ├── core/
 │   ├── ArchTest.kt             # core / util 層レイヤリング Konsist
-│   └── common/CommonLogicTest.kt      # KSP 型に依存しない純ロジック ※stub
-└── testing/                    # テスト基盤
-    ├── CreamCompilation.kt            # compileWithCream(...)（KotlinCompilation + useKsp2）
-    ├── CreamCompilationResult.kt      # 結果ラッパー (exitCode / messages / compilerOutput / 生成ソース)
-    ├── CreamCompilationResultUtils.kt # generatedSourceText() / normalizedCompilerOutput() など
-    ├── SnapshotAssertion.kt           # golden 比較 (assertMatchesSnapshot / facet)
-    ├── generator/                     # ※予定（書き方再検討中・未配置）: generated case × snapshot 基盤
-    ├── smoke/                         # 基盤が動くことの最小確認
-    │   └── CreamCompilationSmokeTest.kt
+│   └── common/                 # KSP 型に依存しない純ロジック（CopyFunctionNameTest 等）
+└── testing/                    # テスト基盤（feature 非依存）
+    ├── compile/                # compileWithCream（KotlinCompilation + useKsp2）/ runCompileSnapshotTest / 結果ラッパー
+    ├── snapshot/SnapshotAssertion.kt  # golden 比較 (assertMatchesSnapshot / facet)
+    ├── poet/                   # 入力ビルダー（Prop / clazz / sealedInterface / SnapshotScenario …）
+    ├── generator/              # generated case 基盤（Generator / union / cartesian / validCreamOptions）
+    ├── kotlincodelikestring/   # CreamOptions → ksp config 文字列などの表示ヘルパ
+    ├── smoke/                  # 基盤が動くことの最小確認
     └── konsist/KonsistSupport.kt      # Konsist scope / レイヤ判定ヘルパ（3 つの ArchTest が共有）
 ```
 
 - **feature 5 種**: 各 feature は上記 5 ファイルを持つ（正常系 / 不正系 / エッジ / PBT / snapshot）。
-- **generator × snapshot（予定 / 未実装）**: `<Feat>SnapshotTest` は generated case を
-  `compileWithCream` → `assertMatchesSnapshot` で golden 比較する想定。case 生成の仕組み
-  (`testing/generator/`) は書き方を再検討中のため一旦コードを置いていない。再設計してから
-  `<Feat>SnapshotTest` を実装する（それまでは `xtest` スタブ）。snapshot は決定的に保つこと。
+- **generator × snapshot**: `<Feat>SnapshotTest` は `scenario/` の curated case（family ごとの
+  `Generator.snapshotScenarios(...)`）を `union` でまとめ、`Generator.validCreamOptions()` と
+  `cartesian` で掛け合わせて `runCompileSnapshotTest` で golden 比較する（全 8 feature 実装済み。
+  横展開の手順は `.claude/skills/cream-snapshot-test`）。snapshot は決定的に保つこと。
 - **UseCase snapshot cases**: `<Feat>SnapshotTest` には family × options の `"All patterns"` に加え、
   `doc/use-case/` の利用例を固定する `"UseCase" - { "<題材>" { ... } }` グループを置く
   （golden は `<Feat>SnapshotTest/UseCase/<題材>.md`。テスト名に `:` は使わない —
@@ -178,5 +178,7 @@ stack frame は Gradle / JUnit / KSP / cream 自身の line 変更や `... NN mo
 - 共有ヘルパーが必要になったら `testing/`（基盤）/ `testing/generator/`（case 生成）/
   `testing/konsist/`（Konsist 共有）に追加し、本ドキュメントの「レイアウト」を更新する。
 
-> #127 第 1 段階で再構成済み: 基盤 (`testing/`)・generator・smoke・Konsist (3 つの ArchTest) は実装済みで
-> green。各 feature の 5 種テストと `core/common` は `xtest` スタブなので、ここから順次実装し直す。
+> #127 進捗: 基盤 (`testing/`)・generator・smoke・Konsist (3 つの ArchTest)・全 8 feature の
+> `<Feat>SnapshotTest`・`MultipleDiagnosticsTest`・`core/common` は実装済みで green。残る
+> `<Feat>BasicUsageTest` / `InvalidUsageTest` / `EdgeUsageTest` / `PropertyTest` は一部を除き
+> `xtest` スタブなので、ここから順次実装し直す。
