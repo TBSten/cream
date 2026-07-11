@@ -42,7 +42,11 @@ private fun feedLoadingObject(parent: ClassName): TypeSpec =
 
 internal fun feedRefreshUseCase(): SnapshotScenario {
     val parent = classNameOf("FeedUiState")
-    val shared = listOf(Prop("isRefreshing", BOOLEAN), Prop("bannerMessage", NULLABLE_STRING))
+    val shared =
+        listOf(
+            Prop("isRefreshing", BOOLEAN),
+            Prop("bannerMessage", NULLABLE_STRING),
+        )
     return sealedCopy(
         sealedInterfaceParent(
             "FeedUiState",
@@ -66,7 +70,11 @@ internal fun feedRefreshUseCase(): SnapshotScenario {
 
 internal fun counterSharedContextUseCase(): SnapshotScenario {
     val parent = classNameOf("CounterUiState")
-    val shared = listOf(Prop("userId"), Prop("sessionStartedAt", LONG))
+    val shared =
+        listOf(
+            Prop("userId"),
+            Prop("sessionStartedAt", LONG),
+        )
     return sealedCopy(
         sealedInterfaceParent(
             "CounterUiState",

@@ -54,7 +54,12 @@ private fun uiStateChild(
 
 internal fun itemDetailTransitionsUseCase(): SnapshotScenario {
     val parent = classNameOf("ItemDetailUiState")
-    val shared = listOf(Prop("itemId"), Prop("isBookmarked", BOOLEAN), Prop("snackbarMessage", NULLABLE_STRING))
+    val shared =
+        listOf(
+            Prop("itemId"),
+            Prop("isBookmarked", BOOLEAN),
+            Prop("snackbarMessage", NULLABLE_STRING),
+        )
     val sharedNames = shared.map { it.name }.toSet()
     return SnapshotScenario(
         TypeSpec

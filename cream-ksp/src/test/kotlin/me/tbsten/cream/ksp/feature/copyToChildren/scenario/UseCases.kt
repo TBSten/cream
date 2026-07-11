@@ -94,7 +94,11 @@ internal fun checkoutStateMachineUseCase(): SnapshotScenario {
 
 internal fun counterReducerUseCase(): SnapshotScenario {
     val parent = classNameOf("CounterUiState")
-    val shared = listOf(Prop("userId"), Prop("sessionStartedAt", LONG))
+    val shared =
+        listOf(
+            Prop("userId"),
+            Prop("sessionStartedAt", LONG),
+        )
     return copyToChildren(
         sealedInterfaceParent(
             "CounterUiState",
