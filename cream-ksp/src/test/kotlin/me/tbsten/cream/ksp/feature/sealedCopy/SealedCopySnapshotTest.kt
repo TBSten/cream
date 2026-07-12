@@ -1,7 +1,9 @@
 package me.tbsten.cream.ksp.feature.sealedCopy
 
 import io.kotest.core.spec.style.FreeSpec
+import me.tbsten.cream.ksp.feature.sealedCopy.scenario.counterSharedContextUseCase
 import me.tbsten.cream.ksp.feature.sealedCopy.scenario.excludeScenarios
+import me.tbsten.cream.ksp.feature.sealedCopy.scenario.feedRefreshUseCase
 import me.tbsten.cream.ksp.feature.sealedCopy.scenario.funNameScenarios
 import me.tbsten.cream.ksp.feature.sealedCopy.scenario.genericsScenarios
 import me.tbsten.cream.ksp.feature.sealedCopy.scenario.hierarchyShapeScenarios
@@ -12,6 +14,7 @@ import me.tbsten.cream.ksp.feature.sealedCopy.scenario.propertyShapeScenarios
 import me.tbsten.cream.ksp.feature.sealedCopy.scenario.repeatableScenarios
 import me.tbsten.cream.ksp.feature.sealedCopy.scenario.sealedParentKindScenarios
 import me.tbsten.cream.ksp.feature.sealedCopy.scenario.visibilityScenarios
+import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.testing.compile.runCompileSnapshotTest
 import me.tbsten.cream.ksp.testing.generator.Generator
 import me.tbsten.cream.ksp.testing.generator.cream.validCreamOptions
@@ -36,9 +39,26 @@ import me.tbsten.cream.ksp.testing.generator.util.union
  * - All 3 option variants are byte-identical (default funName `copy` + `CopyTargetSimpleName` token are
  *   option-independent); the option axis is kept only for suite uniformity.
  * - `@SealedCopy` + `@CopyToChildren` on one type — cross-feature, belongs in `MultipleDiagnosticsTest`.
+ *
+ * UseCase cases pin the doc/use-case examples with default options:
+ * - "UseCase/FeedUiState refresh and banner keep subtype" ←
+ *   doc/use-case/ui-state-management-by-sealed-class/02.md (undefined `Post` supplied as a minimal stub).
+ * - "UseCase/CounterUiState shared context update in reducer" ←
+ *   doc/use-case/ui-state-management-by-sealed-class/04.md; the doc combines `@CopyToChildren` + `@SealedCopy`
+ *   on one type, split here per annotation (the `@CopyToChildren` half lives in `CopyToChildrenSnapshotTest`).
  */
 internal class SealedCopySnapshotTest :
     FreeSpec({
+        "UseCase" - {
+            "FeedUiState refresh and banner keep subtype" {
+                runCompileSnapshotTest(inputs = feedRefreshUseCase().files, options = CreamOptions.default)
+            }
+
+            "CounterUiState shared context update in reducer" {
+                runCompileSnapshotTest(inputs = counterSharedContextUseCase().files, options = CreamOptions.default)
+            }
+        }
+
         "All patterns" - {
             cartesian(
                 union {

@@ -5,6 +5,7 @@ import me.tbsten.cream.ksp.feature.copyFrom.scenario.constructorScenarios
 import me.tbsten.cream.ksp.feature.copyFrom.scenario.excludeScenarios
 import me.tbsten.cream.ksp.feature.copyFrom.scenario.funNameScenarios
 import me.tbsten.cream.ksp.feature.copyFrom.scenario.genericsScenarios
+import me.tbsten.cream.ksp.feature.copyFrom.scenario.itemDetailTransitionsFromTargetsUseCase
 import me.tbsten.cream.ksp.feature.copyFrom.scenario.kdocScenarios
 import me.tbsten.cream.ksp.feature.copyFrom.scenario.mapScenarios
 import me.tbsten.cream.ksp.feature.copyFrom.scenario.matchingScenarios
@@ -13,6 +14,7 @@ import me.tbsten.cream.ksp.feature.copyFrom.scenario.propertyShapeScenarios
 import me.tbsten.cream.ksp.feature.copyFrom.scenario.sourceKindScenarios
 import me.tbsten.cream.ksp.feature.copyFrom.scenario.targetKindScenarios
 import me.tbsten.cream.ksp.feature.copyFrom.scenario.visibilityScenarios
+import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.testing.compile.runCompileSnapshotTest
 import me.tbsten.cream.ksp.testing.generator.Generator
 import me.tbsten.cream.ksp.testing.generator.cream.validCreamOptions
@@ -30,9 +32,20 @@ import me.tbsten.cream.ksp.testing.generator.util.union
  *
  * `targetKind/sealedInterfaceTarget` pins the sealed-target fan-out: each generated leaf copy function attributes
  * generation to the `@CopyFrom`-annotated target (`[Target]`), per issue #144.
+ *
+ * UseCase cases pin the doc/use-case examples with default options:
+ * - "UseCase/ItemDetailUiState transitions declared on targets" — mirror of
+ *   doc/use-case/ui-state-management-by-sealed-class/01.md with `@CopyFrom(Loading::class)` on Success / Error
+ *   instead of `@CopyTo` on Loading (no doc article of its own; requested as the copyFrom counterpart).
  */
 internal class CopyFromSnapshotTest :
     FreeSpec({
+        "UseCase" - {
+            "ItemDetailUiState transitions declared on targets" {
+                runCompileSnapshotTest(inputs = itemDetailTransitionsFromTargetsUseCase().files, options = CreamOptions.default)
+            }
+        }
+
         "All patterns" - {
             cartesian(
                 union {

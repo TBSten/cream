@@ -7,6 +7,7 @@ import me.tbsten.cream.ksp.feature.copyTo.scenario.escapingScenarios
 import me.tbsten.cream.ksp.feature.copyTo.scenario.excludeScenarios
 import me.tbsten.cream.ksp.feature.copyTo.scenario.funNameScenarios
 import me.tbsten.cream.ksp.feature.copyTo.scenario.genericsScenarios
+import me.tbsten.cream.ksp.feature.copyTo.scenario.itemDetailTransitionsUseCase
 import me.tbsten.cream.ksp.feature.copyTo.scenario.kdocScenarios
 import me.tbsten.cream.ksp.feature.copyTo.scenario.mapScenarios
 import me.tbsten.cream.ksp.feature.copyTo.scenario.matchingScenarios
@@ -15,6 +16,7 @@ import me.tbsten.cream.ksp.feature.copyTo.scenario.propertyShapeScenarios
 import me.tbsten.cream.ksp.feature.copyTo.scenario.sourceKindScenarios
 import me.tbsten.cream.ksp.feature.copyTo.scenario.targetKindScenarios
 import me.tbsten.cream.ksp.feature.copyTo.scenario.visibilityScenarios
+import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.testing.compile.runCompileSnapshotTest
 import me.tbsten.cream.ksp.testing.generator.Generator
 import me.tbsten.cream.ksp.testing.generator.cream.validCreamOptions
@@ -23,6 +25,10 @@ import me.tbsten.cream.ksp.testing.generator.util.union
 
 /**
  * Golden snapshot coverage for `@CopyTo` (source-annotated 1→1 copy). See `.claude/skills/cream-snapshot-test`.
+ *
+ * UseCase cases pin the doc/use-case examples with default options:
+ * - "UseCase/ItemDetailUiState transitions from Loading" ←
+ *   doc/use-case/ui-state-management-by-sealed-class/01.md (undefined `Item` supplied as a minimal stub).
  *
  * Intentionally NOT covered as snapshot cases (and why):
  * - `typealias` source/target — the scenario factories take only `TypeSpec`, not `TypeAliasSpec`; alias
@@ -36,6 +42,12 @@ import me.tbsten.cream.ksp.testing.generator.util.union
  */
 internal class CopyToSnapshotTest :
     FreeSpec({
+        "UseCase" - {
+            "ItemDetailUiState transitions from Loading" {
+                runCompileSnapshotTest(inputs = itemDetailTransitionsUseCase().files, options = CreamOptions.default)
+            }
+        }
+
         "All patterns" - {
             cartesian(
                 union {

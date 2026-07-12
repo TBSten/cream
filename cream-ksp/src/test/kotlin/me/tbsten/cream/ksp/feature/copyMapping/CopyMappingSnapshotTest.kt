@@ -7,6 +7,7 @@ import me.tbsten.cream.ksp.feature.copyMapping.scenario.excludesScenarios
 import me.tbsten.cream.ksp.feature.copyMapping.scenario.funNameScenarios
 import me.tbsten.cream.ksp.feature.copyMapping.scenario.genericsScenarios
 import me.tbsten.cream.ksp.feature.copyMapping.scenario.kdocScenarios
+import me.tbsten.cream.ksp.feature.copyMapping.scenario.layerModelMappingUseCase
 import me.tbsten.cream.ksp.feature.copyMapping.scenario.mapScenarios
 import me.tbsten.cream.ksp.feature.copyMapping.scenario.matchingScenarios
 import me.tbsten.cream.ksp.feature.copyMapping.scenario.nestingScenarios
@@ -15,6 +16,7 @@ import me.tbsten.cream.ksp.feature.copyMapping.scenario.repeatableScenarios
 import me.tbsten.cream.ksp.feature.copyMapping.scenario.sourceKindScenarios
 import me.tbsten.cream.ksp.feature.copyMapping.scenario.targetKindScenarios
 import me.tbsten.cream.ksp.feature.copyMapping.scenario.visibilityScenarios
+import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.testing.compile.runCompileSnapshotTest
 import me.tbsten.cream.ksp.testing.generator.Generator
 import me.tbsten.cream.ksp.testing.generator.cream.validCreamOptions
@@ -38,9 +40,20 @@ import me.tbsten.cream.ksp.testing.generator.util.union
  *
  * `targetKind/sealedInterfaceTarget` pins the sealed-target fan-out: each generated leaf copy function attributes
  * generation to the `@CopyMapping`-annotated holder (`[Mapping]`), not the source class, per issue #144.
+ *
+ * UseCase cases pin the doc/use-case examples with default options:
+ * - "UseCase/GetItemApiResponse Item to domain Item mapping" ← doc/use-case/model-mapping.md
+ *   (the doc's `@Serializable` is omitted — kotlinx.serialization is not on the test classpath and is
+ *   irrelevant to generation; `Instant` is `java.time.Instant` since kctfork compiles for JVM).
  */
 internal class CopyMappingSnapshotTest :
     FreeSpec({
+        "UseCase" - {
+            "GetItemApiResponse Item to domain Item mapping" {
+                runCompileSnapshotTest(inputs = layerModelMappingUseCase().files, options = CreamOptions.default)
+            }
+        }
+
         "All patterns" - {
             cartesian(
                 union {
