@@ -54,11 +54,10 @@ internal fun Generator.Companion.validCreamOptions(
                 escapeDot = EscapeDot.`replace-to-underscore`,
             ),
             CreamOptions.default.copy(
-                copyFunNamePrefix = "to",
+                notCopyToObject = true,
                 copyFunNamingStrategy = CopyFunNamingStrategy.`inner-name`,
-                escapeDot = EscapeDot.`replace-to-underscore`,
+                defaultVisibility = CopyVisibility.INTERNAL,
             ),
-            CreamOptions.default.copy(defaultVisibility = CopyVisibility.INTERNAL),
         ).forEach { options -> creamOptionsLabel(options) case options }
     }
 

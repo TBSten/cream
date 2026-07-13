@@ -1,0 +1,100 @@
+## Input:me.tbsten.cream.generated.Target
+
+```kt
+package me.tbsten.cream.generated
+
+import kotlin.Boolean
+import kotlin.Int
+import kotlin.String
+import me.tbsten.cream.CombineFrom
+
+@CombineFrom(
+  SourceA::class,
+  SourceB::class,
+)
+public data class Target(
+  public val shared: String,
+  public val uniqueA: Int,
+  public val uniqueB: Boolean,
+)
+
+public data class SourceA(
+  public val shared: String,
+  public val uniqueA: Int,
+)
+
+public data class SourceB(
+  public val shared: String,
+  public val uniqueB: Boolean,
+)
+```
+
+## KSP options
+
+```kt
+ksp {
+    arg("copyFunNamePrefix", "copyTo" /* default */)
+    arg("copyFunNamingStrategy", "inner-name")
+    arg("escapeDot", "lower-camel-case" /* default */)
+    arg("notCopyToObject", "true")
+    arg("defaultVisibility", "INTERNAL")
+}
+```
+
+## Output:ExitCode
+
+```kt
+OK
+```
+
+## Output:Console
+
+```kt
+
+```
+
+## Output:Generated sources
+
+````kt
+// file: CombineFrom__Target.kt
+package me.tbsten.cream.generated
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CombineFrom] annotation of [Target])
+ * 
+ * [SourceA] + [SourceB] -> [Target] copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val sourceA = SourceA(...)
+ * val sourceB = SourceB(...)
+ * val target = sourceA.copyToTarget(sourceB = SourceB(...))
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val sourceA = SourceA(...)
+ * val sourceB = SourceB(...)
+ * val target = sourceA.copyToTarget(sourceB = SourceB(...), property = value)
+ * ```
+ * 
+ * 
+ * @see SourceA
+ * @see SourceB
+ * @see Target
+ */
+internal fun  me.tbsten.cream.generated.SourceA.copyToTarget(
+    sourceB: me.tbsten.cream.generated.SourceB,
+    shared: String = sourceB.shared,
+    uniqueA: Int = this.uniqueA,
+    uniqueB: Boolean = sourceB.uniqueB,
+) : me.tbsten.cream.generated.Target = me.tbsten.cream.generated.Target(
+    shared = shared,
+    uniqueA = uniqueA,
+    uniqueB = uniqueB,
+)
+````

@@ -1,0 +1,79 @@
+## Input:me.tbsten.cream.generated.Source
+
+```kt
+package me.tbsten.cream.generated
+
+import kotlin.Comparable
+import me.tbsten.cream.CombineTo
+
+@CombineTo(Target::class)
+public data class Source<T : Comparable<T>>(
+  public val item: T,
+)
+
+public data class Target<T : Comparable<T>>(
+  public val item: T,
+)
+```
+
+## KSP options
+
+```kt
+ksp {
+    arg("copyFunNamePrefix", "copyTo" /* default */)
+    arg("copyFunNamingStrategy", "inner-name")
+    arg("escapeDot", "lower-camel-case" /* default */)
+    arg("notCopyToObject", "true")
+    arg("defaultVisibility", "INTERNAL")
+}
+```
+
+## Output:ExitCode
+
+```kt
+OK
+```
+
+## Output:Console
+
+```kt
+
+```
+
+## Output:Generated sources
+
+````kt
+// file: CombineTo__Source__Target.kt
+package me.tbsten.cream.generated
+
+import me.tbsten.cream.*
+
+/**
+ * (Auto generate by @[CombineTo] annotation of [Source])
+ * 
+ * [Source] -> [Target] copy function.
+ * 
+ * # Example: Basic
+ * 
+ * ```kt
+ * val source = Source(...)
+ * val target = source.copyToTarget()
+ * ```
+ * 
+ * # Example: Override property values
+ * 
+ * ```kt
+ * val source = Source(...)
+ * val target = source.copyToTarget(property = value)
+ * ```
+ * 
+ * 
+ * @see Source
+ * @see Target
+ */
+internal fun <T : Comparable<T>> me.tbsten.cream.generated.Source<T>.copyToTarget(
+    item: T = this.item,
+) : me.tbsten.cream.generated.Target<T> = me.tbsten.cream.generated.Target(
+    item = item,
+)
+````
