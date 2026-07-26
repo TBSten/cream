@@ -16,9 +16,14 @@ and `cream-runtime/src/commonMain/kotlin/me/tbsten/cream/<Name>.kt`.
 | N→1 combine | CombineTo (✅ done), CombineFrom (✅ done) | **combineTo / combineFrom** (done) | `appendCombineToFunction` |
 | library mapping | CopyMapping (✅ done), CombineMapping (✅ done) | **copyMapping / combineMapping** (done) | `appendCopyFunction` / `appendCombineToFunction` |
 
-`GenerateSourceAnnotation` (8 implementations, not sealed) per-implementation fields:
-`CopyToChildrenSourceAnnotation.notCopyToObject: Boolean?`, `CombineFromSourceAnnotation.funNameTemplate: String`,
-`CopyMappingSourceAnnotation.reversed: Boolean`. The rest carry no extra field.
+`GenerateSourceAnnotation` (8 implementations, not sealed). All metadata (`annotation`,
+`kdocDescription`, `kdocExamples`, `visibility`, `funNameTemplate`) is defined on the interface, so
+every implementation has it; the only extra constructor field on any implementation is
+`CopyMappingSourceAnnotation.reversed: Boolean`. Annotation-specific behaviour is expressed by
+overriding the interface's rule members (`findMappedSourceProperty` / `isExcluded` /
+`warnedTargetExcludeAnnotation` / `warnedSourceExcludeAnnotation` / `skipsObjectTarget`) — e.g.
+`CopyToChildrenSourceAnnotation` overrides `skipsObjectTarget` to read
+`@CopyToChildren.notCopyToObject`.
 
 ## Summary table
 
