@@ -12,7 +12,7 @@ import me.tbsten.cream.CombineMapping
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.ProcessContext
 import me.tbsten.cream.ksp.core.combineFun.appendCombineToFunction
-import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
+import me.tbsten.cream.ksp.core.common.CombineMappingSourceAnnotation
 import me.tbsten.cream.ksp.core.common.MappingExcludesDirection
 import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.asClassDeclarationOrReport
@@ -130,7 +130,7 @@ internal fun processCombineMapping(): List<KSAnnotated> =
             // generated function) so a sealed target's fan-out cannot duplicate it.
             combineMappings.forEach { mapping ->
                 val generateSourceAnnotation =
-                    GenerateSourceAnnotation.CombineMapping(annotation = mapping.rawAnnotation)
+                    CombineMappingSourceAnnotation(annotation = mapping.rawAnnotation)
                 warnIfMappingExcludesHaveNoEffect(
                     originalExcludes = generateSourceAnnotation.excludes,
                     directions =
@@ -174,7 +174,7 @@ internal fun processCombineMapping(): List<KSAnnotated> =
                         target = mapping.targetClass,
                         omitPackages = omitPackages,
                         generateSourceAnnotation =
-                            GenerateSourceAnnotation.CombineMapping(annotation = mapping.rawAnnotation),
+                            CombineMappingSourceAnnotation(annotation = mapping.rawAnnotation),
                     )
                 }
             }

@@ -10,7 +10,7 @@ import me.tbsten.cream.CombineTo
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.ProcessContext
 import me.tbsten.cream.ksp.core.combineFun.appendCombineToFunction
-import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
+import me.tbsten.cream.ksp.core.common.CombineToSourceAnnotation
 import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.asDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.createNewKotlinFile
@@ -99,7 +99,7 @@ internal fun processCombineTo(): List<KSAnnotated> =
             val combineToAnnotation =
                 combineToAnnotations.firstOrNull() ?: return@forEach
             val generateSourceAnnotation =
-                GenerateSourceAnnotation.CombineTo(annotation = combineToAnnotation).also { gsa ->
+                CombineToSourceAnnotation(annotation = combineToAnnotation).also { gsa ->
                     gsa
                         .validateFunName(
                             generatesMultipleFunctions = targetClasses.size > 1,
@@ -139,7 +139,7 @@ internal fun processCombineTo(): List<KSAnnotated> =
                         .filter { it.sourceDeclaration != sourceDeclaration }
                         .map { it.sourceDeclaration.resolveToClassDeclaration()!! }
 
-                val generateSourceAnnotation = GenerateSourceAnnotation.CombineTo(annotation = sourceEntry.annotation)
+                val generateSourceAnnotation = CombineToSourceAnnotation(annotation = sourceEntry.annotation)
 
                 processContext.codeGenerator
                     .createNewKotlinFile(

@@ -10,7 +10,7 @@ import com.google.devtools.ksp.validate
 import me.tbsten.cream.CopyMapping
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.ProcessContext
-import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
+import me.tbsten.cream.ksp.core.common.CopyMappingSourceAnnotation
 import me.tbsten.cream.ksp.core.common.MappingExcludesDirection
 import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.asClassDeclarationOrReport
@@ -127,8 +127,7 @@ internal fun processCopyMapping(): List<KSAnnotated> =
             // createNewKotlinFile so a rejected funName never leaves a partial generated file.
             val allFunNamesOk =
                 copyMappings.all { mapping ->
-                    GenerateSourceAnnotation
-                        .CopyMapping(annotation = mapping.rawAnnotation)
+                    CopyMappingSourceAnnotation(annotation = mapping.rawAnnotation)
                         .validateFunName(
                             generatesMultipleFunctions = mapping.canReverse || mapping.targetClass.isSealed(),
                             declarationFullName = annotatedDeclaration.fullName,
@@ -142,7 +141,7 @@ internal fun processCopyMapping(): List<KSAnnotated> =
             // sealed target's per-leaf fan-out must not duplicate it, and the message must name
             // the entry as the user wrote it, never its Map-translated reverse spelling.
             copyMappings.forEach { mapping ->
-                val forward = GenerateSourceAnnotation.CopyMapping(annotation = mapping.rawAnnotation)
+                val forward = CopyMappingSourceAnnotation(annotation = mapping.rawAnnotation)
                 val directions =
                     buildList {
                         add(
@@ -155,7 +154,7 @@ internal fun processCopyMapping(): List<KSAnnotated> =
                         )
                         if (mapping.canReverse) {
                             val reverse =
-                                GenerateSourceAnnotation.CopyMapping(
+                                CopyMappingSourceAnnotation(
                                     annotation = mapping.rawAnnotation,
                                     reversed = true,
                                 )
@@ -199,7 +198,7 @@ internal fun processCopyMapping(): List<KSAnnotated> =
                         target = mapping.targetClass,
                         omitPackages = omitPackages,
                         generateSourceAnnotation =
-                            GenerateSourceAnnotation.CopyMapping(annotation = mapping.rawAnnotation),
+                            CopyMappingSourceAnnotation(annotation = mapping.rawAnnotation),
                     )
 
                     if (mapping.canReverse) {
@@ -210,7 +209,7 @@ internal fun processCopyMapping(): List<KSAnnotated> =
                             target = mapping.sourceClass,
                             omitPackages = omitPackages,
                             generateSourceAnnotation =
-                                GenerateSourceAnnotation.CopyMapping(
+                                CopyMappingSourceAnnotation(
                                     annotation = mapping.rawAnnotation,
                                     reversed = true,
                                 ),

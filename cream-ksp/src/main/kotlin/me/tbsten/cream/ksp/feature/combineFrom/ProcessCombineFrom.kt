@@ -11,7 +11,7 @@ import me.tbsten.cream.CombineFrom
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.ProcessContext
 import me.tbsten.cream.ksp.core.combineFun.appendCombineToFunction
-import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
+import me.tbsten.cream.ksp.core.common.CombineFromSourceAnnotation
 import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.asDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.createNewKotlinFile
@@ -148,7 +148,7 @@ internal fun processCombineFrom(): List<KSAnnotated> =
                             otherSources = otherSources,
                             target = targetClass,
                             omitPackages = omitPackagesFor(primarySource.packageName),
-                            generateSourceAnnotation = GenerateSourceAnnotation.CombineFrom(annotation = occurrence.annotation),
+                            generateSourceAnnotation = CombineFromSourceAnnotation(annotation = occurrence.annotation),
                         )
                     }
                 }

@@ -8,6 +8,7 @@ import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CopyTo
 import me.tbsten.cream.ksp.ProcessContext
+import me.tbsten.cream.ksp.core.common.CopyToSourceAnnotation
 import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.asDeclarationOrReport
@@ -54,7 +55,7 @@ internal fun processCopyTo(): List<KSAnnotated> =
                 copyToAnnotations.firstOrNull() ?: return@forEach
 
             val generateSourceAnnotation =
-                GenerateSourceAnnotation.CopyTo(annotation = copyToAnnotation).also { gsa ->
+                CopyToSourceAnnotation(annotation = copyToAnnotation).also { gsa ->
                     gsa
                         .validateFunName(
                             generatesMultipleFunctions = targetClasses.size > 1 || targetClasses.any { it.isSealed() },

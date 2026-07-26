@@ -1,14 +1,19 @@
 package me.tbsten.cream.ksp.core.common
 
 import com.google.devtools.ksp.symbol.KSAnnotation
+import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
+import com.google.devtools.ksp.symbol.KSPropertyDeclaration
+import com.google.devtools.ksp.symbol.KSValueParameter
 import me.tbsten.cream.CopyVisibility
+import kotlin.reflect.KClass
 
 /**
- * Identifies the source annotation that triggered a generation and exposes the user-facing
- * metadata (KDoc / visibility / funName template) cream needs while emitting the function.
+ * Identifies the source annotation that triggered a generation and exposes everything cream needs
+ * while emitting the function: the user-facing metadata (KDoc / visibility / funName template) and
+ * the annotation-scoped generation rules (`.Map` resolution, `@Exclude` handling, `object` targets).
  *
- * Every value is derived from the raw [KSAnnotation] via the core/common extract helpers
+ * Every metadata value is derived from the raw [KSAnnotation] via the core/common extract helpers
  * ([extractKDoc] / [copyVisibilityArgument] / [funNameTemplate]). Reading from the raw annotation
  * — rather than a typed `getAnnotationsByType` proxy — is intentional:
  *  - the AA-backed KSP2 proxy throws `NoSuchElementException` for a field left at its default,
@@ -17,10 +22,18 @@ import me.tbsten.cream.CopyVisibility
  *  - it lets a feature processor hand each instance the *specific* occurrence it is generating for,
  *    which a single typed proxy cannot express for a `@Repeatable` annotation.
  *
- * `when` over the subtypes must enumerate all branches (no `else`) so a new annotation is caught
- * by the compiler.
+ * This interface is deliberately NOT sealed: the generation rules below are resolved by polymorphic
+ * dispatch rather than by an exhaustive `when`, so an implementation defined outside this package
+ * plugs into the same generators. Every rule has a "does nothing special" default, so an
+ * implementation only overrides the ones its annotation actually needs.
+ *
+ * cream's own eight implementations live next to this file: [CopyToSourceAnnotation] /
+ * [CopyFromSourceAnnotation] / [CopyToChildrenSourceAnnotation] / [SealedCopySourceAnnotation] in
+ * `CopySourceAnnotation.kt`, [CombineToSourceAnnotation] / [CombineFromSourceAnnotation] in
+ * `CombineSourceAnnotation.kt`, and [CopyMappingSourceAnnotation] /
+ * [CombineMappingSourceAnnotation] in `MappingSourceAnnotation.kt`.
  */
-internal sealed interface GenerateSourceAnnotation {
+internal interface GenerateSourceAnnotation {
     /** Raw annotation occurrence this generation was triggered by. */
     val annotation: KSAnnotation
 
@@ -51,83 +64,62 @@ internal sealed interface GenerateSourceAnnotation {
     /** Function-name template for the generated function; the derived default when absent. */
     val funNameTemplate: String get() = annotation.funNameTemplate()
 
-    data class CopyFrom(
-        override val annotation: KSAnnotation,
-    ) : GenerateSourceAnnotation
-
-    data class CopyTo(
-        override val annotation: KSAnnotation,
-    ) : GenerateSourceAnnotation
+    /**
+     * Resolve the SOURCE property that supplies [parameter]'s auto-copy default through this
+     * annotation's own `.Map` semantics, or `null` when it names no mapping for [parameter].
+     *
+     * Returning `null` is the normal case: [findMatchedProperty] then falls back to the shared
+     * plain name match, which every annotation gets for free. Only the explicit remapping is
+     * annotation-scoped, so a `.Map` belonging to one annotation never affects functions generated
+     * by another.
+     *
+     * [parameterName] is [parameter]'s name, already resolved by the caller (a parameter without
+     * one never reaches here).
+     */
+    fun findMappedSourceProperty(
+        parameter: KSValueParameter,
+        source: KSClassDeclaration,
+        parameterName: String,
+    ): KSPropertyDeclaration? = null
 
     /**
-     * `@CopyToChildren` exposes a `notCopyToObject` argument controlling whether object subtypes of
-     * the sealed hierarchy get a copy function. `null` means the user left it unset, so the caller
-     * falls back to the `cream.notCopyToObject` option.
+     * Whether the auto-copy default matched for [parameter] should be suppressed — this
+     * annotation's own `@Exclude` semantics.
+     *
+     * [matchedProperty] is the source property [findMatchedProperty] resolved (`null` when nothing
+     * matched) and [matchedSource] the class it came from. Keeping this annotation-scoped is what
+     * stops e.g. `@SealedCopy.Exclude` and `@CopyToChildren.Exclude` from suppressing each other's
+     * parameters when both annotations coexist on the same sealed parent.
      */
-    data class CopyToChildren(
-        override val annotation: KSAnnotation,
-    ) : GenerateSourceAnnotation {
-        val notCopyToObject: Boolean? get() = annotation.notCopyToObject()
-    }
-
-    data class SealedCopy(
-        override val annotation: KSAnnotation,
-    ) : GenerateSourceAnnotation
-
-    data class CombineTo(
-        override val annotation: KSAnnotation,
-    ) : GenerateSourceAnnotation
+    fun isExcluded(
+        parameter: KSValueParameter,
+        matchedProperty: KSPropertyDeclaration?,
+        matchedSource: KSClassDeclaration,
+    ): Boolean = false
 
     /**
-     * `@CombineFrom` is `@Repeatable`; each occurrence generates its own combine function, so KDoc /
-     * visibility / funName all derive from *that* occurrence's raw [annotation] (no cross-occurrence
-     * merge).
+     * The TARGET-side `@Exclude` annotation (placed on a constructor parameter) whose ineffective
+     * use this annotation reports via [warnIfTargetExcludeHasNoEffect]. `null` — the default —
+     * means no such warning is emitted for this annotation.
      */
-    data class CombineFrom(
-        override val annotation: KSAnnotation,
-    ) : GenerateSourceAnnotation
+    val warnedTargetExcludeAnnotation: KClass<out Annotation>? get() = null
 
     /**
-     * `@CopyMapping` property remappings. [reversed] swaps each `(source -> target)` pair for the
-     * `canReverse` reverse-direction function, which shares this same [annotation].
+     * The SOURCE-side `@Exclude` annotation (placed on a source property) whose ineffective use
+     * this annotation reports via [warnIfSourceExcludeHasNoEffect]. `null` — the default — means no
+     * such warning is emitted for this annotation, either because it is not source-side or because
+     * the warning is emitted elsewhere.
      */
-    data class CopyMapping(
-        override val annotation: KSAnnotation,
-        val reversed: Boolean = false,
-    ) : GenerateSourceAnnotation {
-        val propertyMappings: List<Pair<String, String>>
-            get() =
-                annotation.extractPropertyMappings().let { pairs ->
-                    if (reversed) pairs.map { (source, target) -> target to source } else pairs
-                }
+    val warnedSourceExcludeAnnotation: KClass<out Annotation>? get() = null
 
-        /**
-         * Generated (target-side) parameter names whose auto-copy default is dropped. For the
-         * [reversed] function each entry is translated through the property mappings: an entry
-         * naming the `target` of a `Map(source, target)` pair excludes the reverse function's
-         * source-side parameter; entries without a mapping (same-named shared properties) apply
-         * as-is.
-         */
-        val excludes: List<String>
-            get() {
-                val names = annotation.extractExcludes()
-                if (!reversed) return names
-                val mappings = annotation.extractPropertyMappings()
-                return names.map { name ->
-                    mappings.firstOrNull { (_, target) -> target == name }?.first ?: name
-                }
-            }
-    }
-
-    /** `@CombineMapping` property remappings. `@CombineMapping` has no reverse direction. */
-    data class CombineMapping(
-        override val annotation: KSAnnotation,
-    ) : GenerateSourceAnnotation {
-        val propertyMappings: List<Pair<String, String>>
-            get() = annotation.extractPropertyMappings()
-
-        /** Generated (target-side) parameter names whose auto-copy default is dropped. */
-        val excludes: List<String>
-            get() = annotation.extractExcludes()
-    }
+    /**
+     * Whether an `object` target is skipped instead of getting a copy function that returns the
+     * singleton. [notCopyToObjectOption] is the `cream.notCopyToObject` build option, offered so an
+     * annotation that exposes its own control can defer to it when the user leaves that control
+     * unset.
+     *
+     * Defaults to `false`: an annotation that names its (possibly `object`) target explicitly
+     * always generates.
+     */
+    fun skipsObjectTarget(notCopyToObjectOption: Boolean): Boolean = false
 }

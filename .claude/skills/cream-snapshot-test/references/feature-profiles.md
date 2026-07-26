@@ -16,8 +16,9 @@ and `cream-runtime/src/commonMain/kotlin/me/tbsten/cream/<Name>.kt`.
 | N→1 combine | CombineTo (✅ done), CombineFrom (✅ done) | **combineTo / combineFrom** (done) | `appendCombineToFunction` |
 | library mapping | CopyMapping (✅ done), CombineMapping (✅ done) | **copyMapping / combineMapping** (done) | `appendCopyFunction` / `appendCombineToFunction` |
 
-`GenerateSourceAnnotation` (8 sealed subtypes) per-subtype fields: `CopyToChildren.notCopyToObject: Boolean?`,
-`CombineFrom.funNameTemplate: String`, `CopyMapping.reversed: Boolean`. The rest carry no extra field.
+`GenerateSourceAnnotation` (8 implementations, not sealed) per-implementation fields:
+`CopyToChildrenSourceAnnotation.notCopyToObject: Boolean?`, `CombineFromSourceAnnotation.funNameTemplate: String`,
+`CopyMappingSourceAnnotation.reversed: Boolean`. The rest carry no extra field.
 
 ## Summary table
 

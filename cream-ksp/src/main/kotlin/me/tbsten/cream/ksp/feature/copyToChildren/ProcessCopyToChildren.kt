@@ -11,7 +11,7 @@ import com.google.devtools.ksp.validate
 import me.tbsten.cream.CopyToChildren
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.ProcessContext
-import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
+import me.tbsten.cream.ksp.core.common.CopyToChildrenSourceAnnotation
 import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.createNewKotlinFile
 import me.tbsten.cream.ksp.core.common.fullName
@@ -50,11 +50,11 @@ internal fun processCopyToChildren(): List<KSAnnotated> =
             val sourceSealedClass = copyToChildren
             val targetClasses = sourceSealedClass.getSealedSubclasses().toList()
 
-            // GSA holds the raw annotation; its notCopyToObject getter reads the @CopyToChildren
-            // argument (and appendCopyFunction falls back to the cream.notCopyToObject option when unset).
+            // GSA holds the raw annotation; its skipsObjectTarget() reads the @CopyToChildren
+            // notCopyToObject argument, falling back to the cream.notCopyToObject option when unset.
             // Its funNameTemplate getter reads the @CopyToChildren funName argument, resolved per leaf.
             val generateSourceAnnotation =
-                GenerateSourceAnnotation.CopyToChildren(
+                CopyToChildrenSourceAnnotation(
                     annotation = sourceSealedClass.annotationsOf(CopyToChildren::class).firstOrNull() ?: return@forEach,
                 )
 
@@ -66,7 +66,7 @@ internal fun processCopyToChildren(): List<KSAnnotated> =
             // single sealed child has just one concrete leaf, or whose surplus leaves are all
             // suppressed objects). drop(1).any() answers "are there at least two" by short-circuiting
             // at the second generated leaf instead of counting them all.
-            val notCopyToObject = generateSourceAnnotation.notCopyToObject ?: processContext.options.notCopyToObject
+            val notCopyToObject = generateSourceAnnotation.skipsObjectTarget(processContext.options.notCopyToObject)
             val generatesMultipleFunctions =
                 sourceSealedClass
                     .collectConcreteSubclasses()

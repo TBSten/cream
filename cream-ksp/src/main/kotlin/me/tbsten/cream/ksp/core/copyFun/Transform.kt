@@ -9,7 +9,6 @@ import me.tbsten.cream.ksp.core.common.concreteClassRejection
 import me.tbsten.cream.ksp.core.common.fullName
 import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.util.ksp.isSealed
-import me.tbsten.cream.ksp.util.safeCast
 
 /**
  * Report a target that cannot be a copy target.
@@ -37,14 +36,11 @@ internal fun Appendable.appendCopyFunction(
     omitPackages: List<String>,
     generateSourceAnnotation: GenerateSourceAnnotation,
 ) {
-    // Only @CopyToChildren carries a notCopyToObject control; for it, fall back to the
-    // cream.notCopyToObject option when the annotation leaves it unset. Every other source
-    // annotation names its (possibly object) target explicitly, so it always generates.
-    val notCopyToObject =
-        generateSourceAnnotation
-            .safeCast<GenerateSourceAnnotation.CopyToChildren>()
-            ?.let { it.notCopyToObject ?: options.notCopyToObject }
-            ?: false
+    // Each source annotation decides for itself whether an object target is skipped. Of cream's
+    // own annotations only @CopyToChildren carries a notCopyToObject control, and it falls back to
+    // the cream.notCopyToObject option when the user leaves that control unset; every other one
+    // names its (possibly object) target explicitly, so it always generates.
+    val notCopyToObject = generateSourceAnnotation.skipsObjectTarget(options.notCopyToObject)
 
     when (target.classKind) {
         ClassKind.CLASS,

@@ -11,7 +11,7 @@ paths:
 
 | サブ | 置くもの |
 |---|---|
-| `core/common/` | 全生成系で共有する部品: 型パラメータ(header/where 描画)・プロパティマッチング・KDoc 生成・命名（shared へのブリッジ）・identifier escape の呼び出し・target 検証・visibility・診断ヘルパ・`GenerateSourceAnnotation` |
+| `core/common/` | 全生成系で共有する部品: 型パラメータ(header/where 描画)・プロパティマッチング・KDoc 生成・命名（shared へのブリッジ）・identifier escape の呼び出し・target 検証・visibility・診断ヘルパ・`GenerateSourceAnnotation`（+ その 8 実装 `<Name>SourceAnnotation`。sealed ではなく overridable member で注釈ごとの差分を表す） |
 | `core/copyFun/` | copy 関数生成（class/object/sealed への dispatch、Class/Object/SealedClass 生成） |
 | `core/combineFun/` | combine 関数生成（N source → 1 target、CombineToClass、combine の KDoc 例） |
 | `core/sealedCopy/` | `@SealedCopy` 生成（`when(this)` 自己 copy、leaf 分類。肥大ファイルは責務単位で複数に分割） |
