@@ -1,9 +1,6 @@
 package me.tbsten.cream.ksp.core.common
 
 import com.google.devtools.ksp.symbol.KSAnnotation
-import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSPropertyDeclaration
-import com.google.devtools.ksp.symbol.KSValueParameter
 
 /**
  * [GenerateSourceAnnotation] for `@CopyMapping`.
@@ -44,17 +41,15 @@ internal data class CopyMappingSourceAnnotation(
             }
         }
 
-    override fun findMappedSourceProperty(
-        parameter: KSValueParameter,
-        source: KSClassDeclaration,
-        parameterName: String,
-    ): KSPropertyDeclaration? = parameter.findSourcePropertyWithPropertyMappings(source, parameterName, propertyMappings)
+    val findMappedSourceProperty: FindMappedSourceProperty =
+        { parameter, source, parameterName ->
+            parameter.findSourcePropertyWithPropertyMappings(source, parameterName, propertyMappings)
+        }
 
-    override fun isExcluded(
-        parameter: KSValueParameter,
-        matchedProperty: KSPropertyDeclaration?,
-        matchedSource: KSClassDeclaration,
-    ): Boolean = parameter.name?.asString() in excludes
+    val isExcluded: IsExcluded =
+        { parameter, _, _ ->
+            parameter.name?.asString() in excludes
+        }
 }
 
 /**
@@ -73,15 +68,20 @@ internal data class CombineMappingSourceAnnotation(
     val excludes: List<String>
         get() = annotation.extractExcludes()
 
-    override fun findMappedSourceProperty(
-        parameter: KSValueParameter,
-        source: KSClassDeclaration,
-        parameterName: String,
-    ): KSPropertyDeclaration? = parameter.findSourcePropertyWithPropertyMappings(source, parameterName, propertyMappings)
+    val findMappedSourceProperty: FindMappedSourceProperty =
+        { parameter, source, parameterName ->
+            parameter.findSourcePropertyWithPropertyMappings(source, parameterName, propertyMappings)
+        }
 
-    override fun isExcluded(
-        parameter: KSValueParameter,
-        matchedProperty: KSPropertyDeclaration?,
-        matchedSource: KSClassDeclaration,
-    ): Boolean = parameter.name?.asString() in excludes
+    val isExcluded: IsExcluded =
+        { parameter, _, _ ->
+            parameter.name?.asString() in excludes
+        }
+
+    /**
+     * The combine family has no per-annotation object control, so the `cream.notCopyToObject`
+     * option decides directly. (The copy family differs: only `@CopyToChildren` consults it, and
+     * every other copy annotation names its possibly-`object` target explicitly.)
+     */
+    override fun skipsObjectTarget(notCopyToObjectOption: Boolean): Boolean = notCopyToObjectOption
 }

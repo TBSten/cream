@@ -106,8 +106,11 @@ internal fun processCopyToChildren(): List<KSAnnotated> =
                         it.appendCopyFunction(
                             source = sourceSealedClass,
                             target = targetClass,
-                            omitPackages = omitPackagesFor(sourceSealedClass.packageName),
                             generateSourceAnnotation = generateSourceAnnotation,
+                            findMappedSourceProperty = generateSourceAnnotation.findMappedSourceProperty,
+                            isExcluded = generateSourceAnnotation.isExcluded,
+                            skipsObjectTarget = notCopyToObject,
+                            omitPackages = omitPackagesFor(sourceSealedClass.packageName),
                         )
                     }
                 }

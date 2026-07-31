@@ -72,8 +72,11 @@ internal fun processCopyFrom(): List<KSAnnotated> =
                         it.appendCopyFunction(
                             source = sourceClass,
                             target = targetClass,
-                            omitPackages = omitPackagesFor(targetClass.packageName),
                             generateSourceAnnotation = generateSourceAnnotation,
+                            findMappedSourceProperty = generateSourceAnnotation.findMappedSourceProperty,
+                            isExcluded = generateSourceAnnotation.isExcluded,
+                            skipsObjectTarget = generateSourceAnnotation.skipsObjectTarget(processContext.options.notCopyToObject),
+                            omitPackages = omitPackagesFor(targetClass.packageName),
                         )
                     }
                 }

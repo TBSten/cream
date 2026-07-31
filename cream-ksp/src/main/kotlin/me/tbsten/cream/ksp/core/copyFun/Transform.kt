@@ -4,7 +4,9 @@ import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import me.tbsten.cream.ksp.core.common.CopyTargetRejection
+import me.tbsten.cream.ksp.core.common.FindMappedSourceProperty
 import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
+import me.tbsten.cream.ksp.core.common.IsExcluded
 import me.tbsten.cream.ksp.core.common.concreteClassRejection
 import me.tbsten.cream.ksp.core.common.fullName
 import me.tbsten.cream.ksp.options.CreamOptions
@@ -29,19 +31,24 @@ private fun reportRejection(
     logger.error(exception.message.orEmpty(), target)
 }
 
+/**
+ * Emit the copy function(s) from [source] into [target], dispatching on the target's kind.
+ *
+ * [skipsObjectTarget] decides whether an `object` target is skipped instead of getting a function
+ * that returns the singleton; it is passed in rather than derived here so a caller that does not
+ * drive generation from a cream annotation can decide it directly. For cream's own annotations the
+ * feature computes it via [GenerateSourceAnnotation.skipsObjectTarget].
+ */
 context(options: CreamOptions, logger: KSPLogger)
 internal fun Appendable.appendCopyFunction(
     source: KSClassDeclaration,
     target: KSClassDeclaration,
-    omitPackages: List<String>,
     generateSourceAnnotation: GenerateSourceAnnotation,
+    findMappedSourceProperty: FindMappedSourceProperty,
+    isExcluded: IsExcluded,
+    skipsObjectTarget: Boolean,
+    omitPackages: List<String>,
 ) {
-    // Each source annotation decides for itself whether an object target is skipped. Of cream's
-    // own annotations only @CopyToChildren carries a notCopyToObject control, and it falls back to
-    // the cream.notCopyToObject option when the user leaves that control unset; every other one
-    // names its (possibly object) target explicitly, so it always generates.
-    val notCopyToObject = generateSourceAnnotation.skipsObjectTarget(options.notCopyToObject)
-
     when (target.classKind) {
         ClassKind.CLASS,
         ClassKind.ANNOTATION_CLASS,
@@ -53,8 +60,11 @@ internal fun Appendable.appendCopyFunction(
                 appendCopyToSealedClassFunction(
                     source,
                     target,
-                    omitPackages,
                     generateSourceAnnotation,
+                    findMappedSourceProperty,
+                    isExcluded,
+                    skipsObjectTarget,
+                    omitPackages,
                 )
             } else {
                 when (val rejection = target.concreteClassRejection()) {
@@ -63,6 +73,8 @@ internal fun Appendable.appendCopyFunction(
                             source,
                             target,
                             generateSourceAnnotation,
+                            findMappedSourceProperty,
+                            isExcluded,
                             omitPackages,
                         )
 
@@ -71,7 +83,7 @@ internal fun Appendable.appendCopyFunction(
             }
 
         ClassKind.OBJECT ->
-            if (!notCopyToObject) {
+            if (!skipsObjectTarget) {
                 appendCopyToObjectFunction(source, target, generateSourceAnnotation)
             }
 
@@ -82,8 +94,11 @@ internal fun Appendable.appendCopyFunction(
                 appendCopyToSealedClassFunction(
                     source,
                     target,
-                    omitPackages,
                     generateSourceAnnotation,
+                    findMappedSourceProperty,
+                    isExcluded,
+                    skipsObjectTarget,
+                    omitPackages,
                 )
             } else {
                 reportRejection(CopyTargetRejection.NON_SEALED_INTERFACE, target)

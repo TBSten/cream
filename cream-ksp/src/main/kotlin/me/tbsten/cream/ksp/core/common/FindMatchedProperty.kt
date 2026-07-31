@@ -42,13 +42,13 @@ import me.tbsten.cream.CopyToChildren
  */
 internal fun KSValueParameter.findMatchedProperty(
     source: KSClassDeclaration,
-    generateSourceAnnotation: GenerateSourceAnnotation,
+    findMappedSourceProperty: FindMappedSourceProperty,
 ): KSPropertyDeclaration? {
     val parameterName =
         this.name?.asString()
             ?: return null
 
-    return generateSourceAnnotation.findMappedSourceProperty(this, source, parameterName)
+    return findMappedSourceProperty(this, source, parameterName)
         ?: findSourcePropertyByName(source, parameterName)
 }
 

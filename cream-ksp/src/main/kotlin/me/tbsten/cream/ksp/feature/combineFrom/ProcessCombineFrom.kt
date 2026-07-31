@@ -143,12 +143,16 @@ internal fun processCombineFrom(): List<KSAnnotated> =
                         // Pass the raw per-occurrence annotation: @CombineFrom is @Repeatable and each
                         // occurrence is its own combine function, so GSA must read kdoc / visibility /
                         // funName from *this* occurrence rather than a cross-occurrence merge.
+                        val generateSourceAnnotation = CombineFromSourceAnnotation(annotation = occurrence.annotation)
                         it.appendCombineToFunction(
                             primarySource = primarySource,
                             otherSources = otherSources,
                             target = targetClass,
+                            generateSourceAnnotation = generateSourceAnnotation,
+                            findMappedSourceProperty = generateSourceAnnotation.findMappedSourceProperty,
+                            isExcluded = generateSourceAnnotation.isExcluded,
+                            skipsObjectTarget = generateSourceAnnotation.skipsObjectTarget(processContext.options.notCopyToObject),
                             omitPackages = omitPackagesFor(primarySource.packageName),
-                            generateSourceAnnotation = CombineFromSourceAnnotation(annotation = occurrence.annotation),
                         )
                     }
                 }

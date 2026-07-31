@@ -141,8 +141,9 @@ cream/
 
 **Annotation Tracking:**
 - `GenerateSourceAnnotation` (in `core/common/`) identifies which annotation triggered a generation and carries that annotation's generation rules
-- Exposes the generated function's metadata (KDoc / visibility / funName template) plus five overridable rules, each with a "does nothing special" default:
-  `findMappedSourceProperty` (`.Map` resolution), `isExcluded` (`@Exclude`), `warnedTargetExcludeAnnotation` / `warnedSourceExcludeAnnotation` (ineffective-`@Exclude` warnings), `skipsObjectTarget` (`object` targets)
+- Exposes the generated function's metadata (KDoc / visibility / funName template) plus three overridable rules decided once per generated function, each with a "does nothing special" default:
+  `warnedTargetExcludeAnnotation` / `warnedSourceExcludeAnnotation` (ineffective-`@Exclude` warnings) and `skipsObjectTarget` (`object` targets)
+- The two PER-PARAMETER rules are deliberately NOT on the interface: `FindMappedSourceProperty` (`.Map` resolution) and `IsExcluded` (`@Exclude`) are standalone function types in `core/common/` that the generators take as ordinary parameters, so a caller not driving generation from an annotation can pass plain lambdas. cream's implementations expose them as properties of the same names
 - Eight implementations, split by family: `CopySourceAnnotation.kt` (`CopyToSourceAnnotation` / `CopyFromSourceAnnotation` / `CopyToChildrenSourceAnnotation` / `SealedCopySourceAnnotation`), `CombineSourceAnnotation.kt` (`CombineToSourceAnnotation` / `CombineFromSourceAnnotation`), `MappingSourceAnnotation.kt` (`CopyMappingSourceAnnotation` / `CombineMappingSourceAnnotation`)
 - **Deliberately NOT sealed**: rules are resolved by polymorphic dispatch, never by an exhaustive `when` over the implementations, so an implementation defined outside the package plugs into the same generators
 
@@ -243,7 +244,7 @@ fun Project.setupKspForMultiplatformWorkaround() {
 See `.claude/rules/ksp-architecture.md` for the full architecture (feature/core/util boundaries, ProcessContext).
 
 1. Define annotation in `cream-runtime/src/commonMain/kotlin/me/tbsten/cream/`
-2. Add a `GenerateSourceAnnotation` implementation named `<Name>SourceAnnotation` in `core/common/` (package `me.tbsten.cream.ksp.core.common`), overriding only the generation rules the annotation needs — do NOT add a `when` over the implementations
+2. Add a `GenerateSourceAnnotation` implementation named `<Name>SourceAnnotation` in `core/common/` (package `me.tbsten.cream.ksp.core.common`), overriding only the rules the annotation needs and exposing `findMappedSourceProperty` / `isExcluded` properties when it has `.Map` / `@Exclude` semantics — do NOT add a `when` over the implementations
 3. Add `feature/<name>/Process<Name>.kt` with `context(ctx: ProcessContext) fun processXxx(): List<KSAnnotated>` (discover -> validate -> call core; no generation logic in feature)
 4. Reuse / extend generation logic under `core/` (`copyFun` / `combineFun` / `sealedCopy`, shared parts in `common`)
 5. Register the dispatch in `CreamSymbolProcessor.process()`

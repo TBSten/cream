@@ -58,11 +58,12 @@ feature ─▶ ProcessContext   （唯一の上向き依存。ProcessContext は
 - feature: ファイル `Process<Name>.kt`、関数 `processXxx`（top-level / lowerCamel）。
 - core 生成関数: `appendXxx`（`Appendable` 拡張、文字列 append ベース。KotlinPoet 不使用）。
 - `GenerateSourceAnnotation`（`core/common/GenerateSourceAnnotation.kt`, package `me.tbsten.cream.ksp.core.common`）: 生成元注釈を識別し、その注釈固有の生成ルールを持つ。実装は `<Name>SourceAnnotation`（`CopySourceAnnotation.kt` / `CombineSourceAnnotation.kt` / `MappingSourceAnnotation.kt` に family 別で 8 個）。
+- パラメータ単位の挙動は interface のメンバではなく独立した関数型 `FindMappedSourceProperty` / `IsExcluded`（`core/common/`）。core の `appendXxx` はこれらを**通常の引数**で受け取り、GSA からは読まない（注釈以外から生成を駆動できるようにするため）。
 
 ## Cross-cutting rules
 
 - **診断**: ユーザー誤用は `throw` せず `logger.error(message, ksNode)` で clean COMPILATION_ERROR。直後に `return` / `return@forEach` で部分生成を防ぐ。内部想定外のみ例外。
-- **`when` は `else` を使わず全分岐を列挙**（sealed/enum 網羅をコンパイラに守らせる）。ただし `GenerateSourceAnnotation` は api 公開のため意図的に sealed ではない — 注釈ごとの分岐は `when` ではなく interface の overridable member（安全な既定値つき）で表現する。**unsafe cast `as` を書かない／生成しない**。**`firstOrNull()` > `first()`**、**`mapOf` > `listOf(Pair)`**。
+- **`when` は `else` を使わず全分岐を列挙**（sealed/enum 網羅をコンパイラに守らせる）。ただし `GenerateSourceAnnotation` は api 公開のため意図的に sealed ではない — 注釈ごとの分岐は `when` ではなく interface の overridable member（安全な既定値つき）か、独立した関数型を引数で渡す形で表現する。**unsafe cast `as` を書かない／生成しない**。**`firstOrNull()` > `first()`**、**`mapOf` > `listOf(Pair)`**。
 - **SSoT**: 命名ロジックは shared、token const は runtime、options は shared に一元化。
 - **ファイル分量** 10〜300 行目安・最大 500（超過は責務分割）。
 - **生成**: 空ファイルを作らない（`createNewKotlinFile` の空 buffer スキップ）。`Dependencies(aggregating = true, ...)` を維持。識別子は `escapeKotlinIdentifier()` を通す。生成ファイルには `import me.tbsten.cream.*`。
@@ -70,7 +71,7 @@ feature ─▶ ProcessContext   （唯一の上向き依存。ProcessContext は
 ## Adding a new annotation
 
 1. `cream-runtime` に注釈を定義。
-2. `core/common/` に `<Name>SourceAnnotation`（`GenerateSourceAnnotation` 実装）を追加。必要な生成ルールだけ override する（`findMappedSourceProperty` / `isExcluded` / `warnedTargetExcludeAnnotation` / `warnedSourceExcludeAnnotation` / `skipsObjectTarget`）。`when` で分岐を足さない。
+2. `core/common/` に `<Name>SourceAnnotation`（`GenerateSourceAnnotation` 実装）を追加。必要な rule だけ override し（`warnedTargetExcludeAnnotation` / `warnedSourceExcludeAnnotation` / `skipsObjectTarget`）、`.Map` / `@Exclude` 相当があれば `findMappedSourceProperty` / `isExcluded` プロパティを生やす。`when` で分岐を足さない。
 3. `feature/<name>/Process<Name>.kt` に `context(ctx) fun processXxx()` を追加。
 4. 生成は core（copyFun/combineFun/sealedCopy）を再利用。足りなければ core 側に追加（feature に生成ロジックを置かない）。
 5. `CreamSymbolProcessor.process()` に dispatch を追加。

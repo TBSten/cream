@@ -19,11 +19,12 @@ and `cream-runtime/src/commonMain/kotlin/me/tbsten/cream/<Name>.kt`.
 `GenerateSourceAnnotation` (8 implementations, not sealed). All metadata (`annotation`,
 `kdocDescription`, `kdocExamples`, `visibility`, `funNameTemplate`) is defined on the interface, so
 every implementation has it; the only extra constructor field on any implementation is
-`CopyMappingSourceAnnotation.reversed: Boolean`. Annotation-specific behaviour is expressed by
-overriding the interface's rule members (`findMappedSourceProperty` / `isExcluded` /
-`warnedTargetExcludeAnnotation` / `warnedSourceExcludeAnnotation` / `skipsObjectTarget`) — e.g.
-`CopyToChildrenSourceAnnotation` overrides `skipsObjectTarget` to read
-`@CopyToChildren.notCopyToObject`.
+`CopyMappingSourceAnnotation.reversed: Boolean`. Per-generation behaviour is expressed by overriding
+the interface's rule members (`warnedTargetExcludeAnnotation` / `warnedSourceExcludeAnnotation` /
+`skipsObjectTarget`) — e.g. `CopyToChildrenSourceAnnotation` overrides `skipsObjectTarget` to read
+`@CopyToChildren.notCopyToObject`. Per-parameter behaviour lives OUTSIDE the interface as
+`findMappedSourceProperty: FindMappedSourceProperty` / `isExcluded: IsExcluded` properties, which
+the features hand to the `core` generators as ordinary arguments.
 
 ## Summary table
 

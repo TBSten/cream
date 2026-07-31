@@ -1,17 +1,21 @@
 package me.tbsten.cream.ksp.core.common
 
 import com.google.devtools.ksp.symbol.KSAnnotation
-import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
-import com.google.devtools.ksp.symbol.KSPropertyDeclaration
-import com.google.devtools.ksp.symbol.KSValueParameter
 import me.tbsten.cream.CopyVisibility
 import kotlin.reflect.KClass
 
 /**
- * Identifies the source annotation that triggered a generation and exposes everything cream needs
- * while emitting the function: the user-facing metadata (KDoc / visibility / funName template) and
- * the annotation-scoped generation rules (`.Map` resolution, `@Exclude` handling, `object` targets).
+ * Identifies the source annotation that triggered a generation and exposes the user-facing metadata
+ * cream needs while emitting the function (KDoc / visibility / funName template), plus the two
+ * annotation-scoped rules that are decided once per generated function rather than per parameter:
+ * which ineffective `@Exclude` to warn about, and whether an `object` target is skipped.
+ *
+ * The per-parameter rules — `.Map` resolution and `@Exclude` handling — are deliberately NOT on this
+ * interface. They travel as standalone [FindMappedSourceProperty] / [IsExcluded] values, which the
+ * `core` generators take as ordinary parameters, so a caller that does not drive generation from an
+ * annotation at all can supply its own behaviour without implementing this interface. cream's own
+ * implementations expose them as plain properties of the same names.
  *
  * Every metadata value is derived from the raw [KSAnnotation] via the core/common extract helpers
  * ([extractKDoc] / [copyVisibilityArgument] / [funNameTemplate]). Reading from the raw annotation
@@ -22,10 +26,10 @@ import kotlin.reflect.KClass
  *  - it lets a feature processor hand each instance the *specific* occurrence it is generating for,
  *    which a single typed proxy cannot express for a `@Repeatable` annotation.
  *
- * This interface is deliberately NOT sealed: the generation rules below are resolved by polymorphic
- * dispatch rather than by an exhaustive `when`, so an implementation defined outside this package
- * plugs into the same generators. Every rule has a "does nothing special" default, so an
- * implementation only overrides the ones its annotation actually needs.
+ * This interface is deliberately NOT sealed: the rules below are resolved by polymorphic dispatch
+ * rather than by an exhaustive `when`, so an implementation defined outside this package plugs into
+ * the same generators. Every rule has a "does nothing special" default, so an implementation only
+ * overrides the ones its annotation actually needs.
  *
  * cream's own eight implementations live next to this file: [CopyToSourceAnnotation] /
  * [CopyFromSourceAnnotation] / [CopyToChildrenSourceAnnotation] / [SealedCopySourceAnnotation] in
@@ -63,39 +67,6 @@ internal interface GenerateSourceAnnotation {
 
     /** Function-name template for the generated function; the derived default when absent. */
     val funNameTemplate: String get() = annotation.funNameTemplate()
-
-    /**
-     * Resolve the SOURCE property that supplies [parameter]'s auto-copy default through this
-     * annotation's own `.Map` semantics, or `null` when it names no mapping for [parameter].
-     *
-     * Returning `null` is the normal case: [findMatchedProperty] then falls back to the shared
-     * plain name match, which every annotation gets for free. Only the explicit remapping is
-     * annotation-scoped, so a `.Map` belonging to one annotation never affects functions generated
-     * by another.
-     *
-     * [parameterName] is [parameter]'s name, already resolved by the caller (a parameter without
-     * one never reaches here).
-     */
-    fun findMappedSourceProperty(
-        parameter: KSValueParameter,
-        source: KSClassDeclaration,
-        parameterName: String,
-    ): KSPropertyDeclaration? = null
-
-    /**
-     * Whether the auto-copy default matched for [parameter] should be suppressed — this
-     * annotation's own `@Exclude` semantics.
-     *
-     * [matchedProperty] is the source property [findMatchedProperty] resolved (`null` when nothing
-     * matched) and [matchedSource] the class it came from. Keeping this annotation-scoped is what
-     * stops e.g. `@SealedCopy.Exclude` and `@CopyToChildren.Exclude` from suppressing each other's
-     * parameters when both annotations coexist on the same sealed parent.
-     */
-    fun isExcluded(
-        parameter: KSValueParameter,
-        matchedProperty: KSPropertyDeclaration?,
-        matchedSource: KSClassDeclaration,
-    ): Boolean = false
 
     /**
      * The TARGET-side `@Exclude` annotation (placed on a constructor parameter) whose ineffective

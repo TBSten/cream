@@ -139,6 +139,7 @@ internal fun processCombineMapping(): List<KSAnnotated> =
                                 sources = mapping.sourceClasses,
                                 targetClass = mapping.targetClass,
                                 generateSourceAnnotation = generateSourceAnnotation,
+                                findMappedSourceProperty = generateSourceAnnotation.findMappedSourceProperty,
                                 excludeNames = generateSourceAnnotation.excludes,
                             ),
                         ),
@@ -168,13 +169,17 @@ internal fun processCombineMapping(): List<KSAnnotated> =
                     val primarySource = mapping.sourceClasses.firstOrNull() ?: return@forEach
                     val otherSources = mapping.sourceClasses.drop(1)
 
+                    val generateSourceAnnotation =
+                        CombineMappingSourceAnnotation(annotation = mapping.rawAnnotation)
                     it.appendCombineToFunction(
                         primarySource = primarySource,
                         otherSources = otherSources,
                         target = mapping.targetClass,
+                        generateSourceAnnotation = generateSourceAnnotation,
+                        findMappedSourceProperty = generateSourceAnnotation.findMappedSourceProperty,
+                        isExcluded = generateSourceAnnotation.isExcluded,
+                        skipsObjectTarget = generateSourceAnnotation.skipsObjectTarget(processContext.options.notCopyToObject),
                         omitPackages = omitPackages,
-                        generateSourceAnnotation =
-                            CombineMappingSourceAnnotation(annotation = mapping.rawAnnotation),
                     )
                 }
             }

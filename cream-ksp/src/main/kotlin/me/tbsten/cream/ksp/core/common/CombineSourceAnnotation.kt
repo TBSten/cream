@@ -1,9 +1,6 @@
 package me.tbsten.cream.ksp.core.common
 
 import com.google.devtools.ksp.symbol.KSAnnotation
-import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSPropertyDeclaration
-import com.google.devtools.ksp.symbol.KSValueParameter
 import me.tbsten.cream.CombineFrom
 import me.tbsten.cream.CombineTo
 import kotlin.reflect.KClass
@@ -18,20 +15,25 @@ import kotlin.reflect.KClass
 internal data class CombineToSourceAnnotation(
     override val annotation: KSAnnotation,
 ) : GenerateSourceAnnotation {
-    override fun findMappedSourceProperty(
-        parameter: KSValueParameter,
-        source: KSClassDeclaration,
-        parameterName: String,
-    ): KSPropertyDeclaration? = parameter.findSourcePropertyWithCombineToMapAnnotation(source, parameterName)
+    val findMappedSourceProperty: FindMappedSourceProperty =
+        { parameter, source, parameterName ->
+            parameter.findSourcePropertyWithCombineToMapAnnotation(source, parameterName)
+        }
 
-    override fun isExcluded(
-        parameter: KSValueParameter,
-        matchedProperty: KSPropertyDeclaration?,
-        matchedSource: KSClassDeclaration,
-    ): Boolean = matchedProperty?.isSourcePropertyExcluded(matchedSource, CombineTo.Exclude::class) == true
+    val isExcluded: IsExcluded =
+        { _, matchedProperty, matchedSource ->
+            matchedProperty?.isSourcePropertyExcluded(matchedSource, CombineTo.Exclude::class) == true
+        }
 
     override val warnedSourceExcludeAnnotation: KClass<out Annotation>
         get() = CombineTo.Exclude::class
+
+    /**
+     * The combine family has no per-annotation object control, so the `cream.notCopyToObject`
+     * option decides directly. (The copy family differs: only `@CopyToChildren` consults it, and
+     * every other copy annotation names its possibly-`object` target explicitly.)
+     */
+    override fun skipsObjectTarget(notCopyToObjectOption: Boolean): Boolean = notCopyToObjectOption
 }
 
 /**
@@ -48,20 +50,24 @@ internal data class CombineToSourceAnnotation(
 internal data class CombineFromSourceAnnotation(
     override val annotation: KSAnnotation,
 ) : GenerateSourceAnnotation {
-    override fun findMappedSourceProperty(
-        parameter: KSValueParameter,
-        source: KSClassDeclaration,
-        parameterName: String,
-    ): KSPropertyDeclaration? =
-        parameter.findSourcePropertyWithCombineFromMapAnnotationOnTarget(source)
-            ?: parameter.findSourcePropertyWithCombineFromMapAnnotationOnSource(source, parameterName)
+    val findMappedSourceProperty: FindMappedSourceProperty =
+        { parameter, source, parameterName ->
+            parameter.findSourcePropertyWithCombineFromMapAnnotationOnTarget(source)
+                ?: parameter.findSourcePropertyWithCombineFromMapAnnotationOnSource(source, parameterName)
+        }
 
-    override fun isExcluded(
-        parameter: KSValueParameter,
-        matchedProperty: KSPropertyDeclaration?,
-        matchedSource: KSClassDeclaration,
-    ): Boolean = parameter.annotationsOf(CombineFrom.Exclude::class).any()
+    val isExcluded: IsExcluded =
+        { parameter, _, _ ->
+            parameter.annotationsOf(CombineFrom.Exclude::class).any()
+        }
 
     override val warnedTargetExcludeAnnotation: KClass<out Annotation>
         get() = CombineFrom.Exclude::class
+
+    /**
+     * The combine family has no per-annotation object control, so the `cream.notCopyToObject`
+     * option decides directly. (The copy family differs: only `@CopyToChildren` consults it, and
+     * every other copy annotation names its possibly-`object` target explicitly.)
+     */
+    override fun skipsObjectTarget(notCopyToObjectOption: Boolean): Boolean = notCopyToObjectOption
 }

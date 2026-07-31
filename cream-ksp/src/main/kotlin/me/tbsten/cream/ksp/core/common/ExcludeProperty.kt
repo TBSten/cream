@@ -22,8 +22,8 @@ import kotlin.reflect.KClass
 internal fun KSValueParameter.isExcludedFromCopy(
     matchedProperty: KSPropertyDeclaration?,
     matchedSource: KSClassDeclaration,
-    generateSourceAnnotation: GenerateSourceAnnotation,
-): Boolean = generateSourceAnnotation.isExcluded(this, matchedProperty, matchedSource)
+    isExcluded: IsExcluded,
+): Boolean = isExcluded(this, matchedProperty, matchedSource)
 
 /**
  * Dual-lookup: checks both the property-site and the ctor-param-site for the Exclude
@@ -67,12 +67,14 @@ internal fun KSValueParameter.warnIfTargetExcludeHasNoEffect(
  * auto-copy default — i.e. none of the target parameters matched this source property.
  *
  * Only annotations that name a [GenerateSourceAnnotation.warnedSourceExcludeAnnotation] are
- * checked; target-side and sealed-side annotations are warned elsewhere.
+ * checked; target-side and sealed-side annotations are warned elsewhere. [findMappedSourceProperty]
+ * must be the same one the generator uses, so "matched" here means exactly what it means there.
  */
 internal fun KSPropertyDeclaration.warnIfSourceExcludeHasNoEffect(
     targetParameters: List<KSValueParameter>,
     source: KSClassDeclaration,
     generateSourceAnnotation: GenerateSourceAnnotation,
+    findMappedSourceProperty: FindMappedSourceProperty,
     logger: KSPLogger,
 ) {
     val excludeClass = generateSourceAnnotation.warnedSourceExcludeAnnotation ?: return
@@ -80,7 +82,7 @@ internal fun KSPropertyDeclaration.warnIfSourceExcludeHasNoEffect(
     val propName = simpleName.asString()
     val isMatched =
         targetParameters.any { param ->
-            param.findMatchedProperty(source, generateSourceAnnotation)?.simpleName?.asString() == propName
+            param.findMatchedProperty(source, findMappedSourceProperty)?.simpleName?.asString() == propName
         }
     if (!isMatched) {
         logger.warn("@Exclude on '$propName' has no effect: not a matched property", this)
@@ -89,14 +91,15 @@ internal fun KSPropertyDeclaration.warnIfSourceExcludeHasNoEffect(
 
 /**
  * One generated direction of a `@CopyMapping` / `@CombineMapping`: the function(s) from [sources]
- * into [targetClass], generated under [generateSourceAnnotation]. [excludeNames] holds this
- * direction's (possibly Map-translated) spelling of each user-written `excludes` entry,
- * index-aligned with the original `excludes` list.
+ * into [targetClass], generated under [generateSourceAnnotation] with [findMappedSourceProperty].
+ * [excludeNames] holds this direction's (possibly Map-translated) spelling of each user-written
+ * `excludes` entry, index-aligned with the original `excludes` list.
  */
 internal class MappingExcludesDirection(
     val sources: List<KSClassDeclaration>,
     val targetClass: KSClassDeclaration,
     val generateSourceAnnotation: GenerateSourceAnnotation,
+    val findMappedSourceProperty: FindMappedSourceProperty,
     val excludeNames: List<String>,
 )
 
@@ -130,7 +133,7 @@ internal fun warnIfMappingExcludesHaveNoEffect(
                         constructor.parameters.any { parameter ->
                             parameter.name?.asString() == localName &&
                                 direction.sources.any { source ->
-                                    parameter.findMatchedProperty(source, direction.generateSourceAnnotation) != null
+                                    parameter.findMatchedProperty(source, direction.findMappedSourceProperty) != null
                                 }
                         }
                     }

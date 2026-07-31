@@ -114,7 +114,13 @@ internal fun processCombineTo(): List<KSAnnotated> =
             // warning once per target and falsely warned for a property matched in a sibling target.
             val allTargetParams = targetClasses.flatMap { it.primaryConstructor?.parameters.orEmpty() }
             sourceClass.getAllProperties().forEach { prop ->
-                prop.warnIfSourceExcludeHasNoEffect(allTargetParams, sourceClass, generateSourceAnnotation, processContext.logger)
+                prop.warnIfSourceExcludeHasNoEffect(
+                    allTargetParams,
+                    sourceClass,
+                    generateSourceAnnotation,
+                    generateSourceAnnotation.findMappedSourceProperty,
+                    processContext.logger,
+                )
             }
 
             // Group source classes by target class
@@ -152,8 +158,11 @@ internal fun processCombineTo(): List<KSAnnotated> =
                             primarySource = sourceClass,
                             otherSources = otherSourceClasses,
                             target = targetClass,
-                            omitPackages = omitPackagesFor(sourceClass.packageName),
                             generateSourceAnnotation = generateSourceAnnotation,
+                            findMappedSourceProperty = generateSourceAnnotation.findMappedSourceProperty,
+                            isExcluded = generateSourceAnnotation.isExcluded,
+                            skipsObjectTarget = generateSourceAnnotation.skipsObjectTarget(processContext.options.notCopyToObject),
+                            omitPackages = omitPackagesFor(sourceClass.packageName),
                         )
                     }
             }

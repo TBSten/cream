@@ -1,9 +1,6 @@
 package me.tbsten.cream.ksp.core.common
 
 import com.google.devtools.ksp.symbol.KSAnnotation
-import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSPropertyDeclaration
-import com.google.devtools.ksp.symbol.KSValueParameter
 import me.tbsten.cream.CopyFrom
 import me.tbsten.cream.CopyTo
 import me.tbsten.cream.CopyToChildren
@@ -19,17 +16,15 @@ import kotlin.reflect.KClass
 internal data class CopyToSourceAnnotation(
     override val annotation: KSAnnotation,
 ) : GenerateSourceAnnotation {
-    override fun findMappedSourceProperty(
-        parameter: KSValueParameter,
-        source: KSClassDeclaration,
-        parameterName: String,
-    ): KSPropertyDeclaration? = parameter.findSourcePropertyWithCopyToMapAnnotation(source, parameterName)
+    val findMappedSourceProperty: FindMappedSourceProperty =
+        { parameter, source, parameterName ->
+            parameter.findSourcePropertyWithCopyToMapAnnotation(source, parameterName)
+        }
 
-    override fun isExcluded(
-        parameter: KSValueParameter,
-        matchedProperty: KSPropertyDeclaration?,
-        matchedSource: KSClassDeclaration,
-    ): Boolean = matchedProperty?.isSourcePropertyExcluded(matchedSource, CopyTo.Exclude::class) == true
+    val isExcluded: IsExcluded =
+        { _, matchedProperty, matchedSource ->
+            matchedProperty?.isSourcePropertyExcluded(matchedSource, CopyTo.Exclude::class) == true
+        }
 
     override val warnedSourceExcludeAnnotation: KClass<out Annotation>
         get() = CopyTo.Exclude::class
@@ -44,17 +39,15 @@ internal data class CopyToSourceAnnotation(
 internal data class CopyFromSourceAnnotation(
     override val annotation: KSAnnotation,
 ) : GenerateSourceAnnotation {
-    override fun findMappedSourceProperty(
-        parameter: KSValueParameter,
-        source: KSClassDeclaration,
-        parameterName: String,
-    ): KSPropertyDeclaration? = parameter.findSourcePropertyWithCopyFromMapAnnotation(source)
+    val findMappedSourceProperty: FindMappedSourceProperty =
+        { parameter, source, _ ->
+            parameter.findSourcePropertyWithCopyFromMapAnnotation(source)
+        }
 
-    override fun isExcluded(
-        parameter: KSValueParameter,
-        matchedProperty: KSPropertyDeclaration?,
-        matchedSource: KSClassDeclaration,
-    ): Boolean = parameter.annotationsOf(CopyFrom.Exclude::class).any()
+    val isExcluded: IsExcluded =
+        { parameter, _, _ ->
+            parameter.annotationsOf(CopyFrom.Exclude::class).any()
+        }
 
     override val warnedTargetExcludeAnnotation: KClass<out Annotation>
         get() = CopyFrom.Exclude::class
@@ -79,17 +72,15 @@ internal data class CopyToChildrenSourceAnnotation(
 ) : GenerateSourceAnnotation {
     private val notCopyToObject: Boolean? get() = annotation.notCopyToObject()
 
-    override fun findMappedSourceProperty(
-        parameter: KSValueParameter,
-        source: KSClassDeclaration,
-        parameterName: String,
-    ): KSPropertyDeclaration? = parameter.findSourcePropertyWithCopyToChildrenMapAnnotation(source, parameterName)
+    val findMappedSourceProperty: FindMappedSourceProperty =
+        { parameter, source, parameterName ->
+            parameter.findSourcePropertyWithCopyToChildrenMapAnnotation(source, parameterName)
+        }
 
-    override fun isExcluded(
-        parameter: KSValueParameter,
-        matchedProperty: KSPropertyDeclaration?,
-        matchedSource: KSClassDeclaration,
-    ): Boolean = matchedProperty?.annotationsOf(CopyToChildren.Exclude::class)?.any() == true
+    val isExcluded: IsExcluded =
+        { _, matchedProperty, _ ->
+            matchedProperty?.annotationsOf(CopyToChildren.Exclude::class)?.any() == true
+        }
 
     override fun skipsObjectTarget(notCopyToObjectOption: Boolean): Boolean = notCopyToObject ?: notCopyToObjectOption
 }
@@ -97,9 +88,10 @@ internal data class CopyToChildrenSourceAnnotation(
 /**
  * [GenerateSourceAnnotation] for `@SealedCopy`.
  *
- * Every generation rule keeps its default: `@SealedCopy` never resolves defaults through
- * [findMatchedProperty] (its `Map` has Via-parameter semantics handled in `core/sealedCopy`), and
- * its `@Exclude` is applied in `appendSealedCopyHeader` rather than through [isExcluded].
+ * Every generation rule keeps its default, and it supplies no [FindMappedSourceProperty] /
+ * [IsExcluded] at all: `@SealedCopy` never resolves defaults through [findMatchedProperty] (its
+ * `Map` has Via-parameter semantics handled in `core/sealedCopy`), and its `@Exclude` is applied in
+ * `appendSealedCopyHeader`.
  */
 internal data class SealedCopySourceAnnotation(
     override val annotation: KSAnnotation,
