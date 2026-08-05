@@ -8,6 +8,8 @@ import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CopyTo
 import me.tbsten.cream.ksp.ProcessContext
+import me.tbsten.cream.ksp.core.common.CopyToSourceAnnotation
+import me.tbsten.cream.ksp.core.common.FindMappedSourceProperty
 import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.asDeclarationOrReport
@@ -54,7 +56,7 @@ internal fun processCopyTo(): List<KSAnnotated> =
                 copyToAnnotations.firstOrNull() ?: return@forEach
 
             val generateSourceAnnotation =
-                GenerateSourceAnnotation.CopyTo(annotation = copyToAnnotation).also { gsa ->
+                CopyToSourceAnnotation(annotation = copyToAnnotation).also { gsa ->
                     gsa
                         .validateFunName(
                             generatesMultipleFunctions = targetClasses.size > 1 || targetClasses.any { it.isSealed() },
@@ -63,7 +65,12 @@ internal fun processCopyTo(): List<KSAnnotated> =
                         ).onInvalid { return@forEach }
                 }
 
-            warnIneffectiveCopyToExcludes(sourceClass, targetClasses, generateSourceAnnotation)
+            warnIneffectiveCopyToExcludes(
+                sourceClass,
+                targetClasses,
+                generateSourceAnnotation,
+                generateSourceAnnotation.findMappedSourceProperty,
+            )
 
             processContext.codeGenerator
                 .createNewKotlinFile(
@@ -76,8 +83,11 @@ internal fun processCopyTo(): List<KSAnnotated> =
                         it.appendCopyFunction(
                             source = sourceClass,
                             target = targetClass,
-                            omitPackages = omitPackagesFor(sourceClass.packageName),
                             generateSourceAnnotation = generateSourceAnnotation,
+                            findMappedSourceProperty = generateSourceAnnotation.findMappedSourceProperty,
+                            isExcluded = generateSourceAnnotation.isExcluded,
+                            skipsObjectTarget = generateSourceAnnotation.skipsObjectTarget(processContext.options.notCopyToObject),
+                            omitPackages = omitPackagesFor(sourceClass.packageName),
                         )
                     }
                 }
@@ -96,6 +106,7 @@ private fun warnIneffectiveCopyToExcludes(
     sourceClass: KSClassDeclaration,
     targetClasses: List<KSClassDeclaration>,
     generateSourceAnnotation: GenerateSourceAnnotation,
+    findMappedSourceProperty: FindMappedSourceProperty,
 ) {
     val allTargetParams: List<KSValueParameter> =
         targetClasses.flatMap { target ->
@@ -109,6 +120,12 @@ private fun warnIneffectiveCopyToExcludes(
             }
         }
     sourceClass.getAllProperties().forEach { prop ->
-        prop.warnIfSourceExcludeHasNoEffect(allTargetParams, sourceClass, generateSourceAnnotation, logger)
+        prop.warnIfSourceExcludeHasNoEffect(
+            allTargetParams,
+            sourceClass,
+            generateSourceAnnotation,
+            findMappedSourceProperty,
+            logger,
+        )
     }
 }

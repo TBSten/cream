@@ -5,7 +5,7 @@ import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CopyFrom
 import me.tbsten.cream.ksp.ProcessContext
-import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
+import me.tbsten.cream.ksp.core.common.CopyFromSourceAnnotation
 import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.asDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.createNewKotlinFile
@@ -52,7 +52,7 @@ internal fun processCopyFrom(): List<KSAnnotated> =
                     val copyFromAnnotation =
                         copyFromAnnotations.firstOrNull() ?: return@forEach
 
-                    GenerateSourceAnnotation.CopyFrom(annotation = copyFromAnnotation).also {
+                    CopyFromSourceAnnotation(annotation = copyFromAnnotation).also {
                         it
                             .validateFunName(
                                 generatesMultipleFunctions = sourceClasses.size > 1 || targetClass.isSealed(),
@@ -72,8 +72,11 @@ internal fun processCopyFrom(): List<KSAnnotated> =
                         it.appendCopyFunction(
                             source = sourceClass,
                             target = targetClass,
-                            omitPackages = omitPackagesFor(targetClass.packageName),
                             generateSourceAnnotation = generateSourceAnnotation,
+                            findMappedSourceProperty = generateSourceAnnotation.findMappedSourceProperty,
+                            isExcluded = generateSourceAnnotation.isExcluded,
+                            skipsObjectTarget = generateSourceAnnotation.skipsObjectTarget(processContext.options.notCopyToObject),
+                            omitPackages = omitPackagesFor(targetClass.packageName),
                         )
                     }
                 }

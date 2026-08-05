@@ -10,7 +10,7 @@ import com.google.devtools.ksp.validate
 import me.tbsten.cream.CopyMapping
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.ProcessContext
-import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
+import me.tbsten.cream.ksp.core.common.CopyMappingSourceAnnotation
 import me.tbsten.cream.ksp.core.common.MappingExcludesDirection
 import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.asClassDeclarationOrReport
@@ -127,8 +127,7 @@ internal fun processCopyMapping(): List<KSAnnotated> =
             // createNewKotlinFile so a rejected funName never leaves a partial generated file.
             val allFunNamesOk =
                 copyMappings.all { mapping ->
-                    GenerateSourceAnnotation
-                        .CopyMapping(annotation = mapping.rawAnnotation)
+                    CopyMappingSourceAnnotation(annotation = mapping.rawAnnotation)
                         .validateFunName(
                             generatesMultipleFunctions = mapping.canReverse || mapping.targetClass.isSealed(),
                             declarationFullName = annotatedDeclaration.fullName,
@@ -142,7 +141,7 @@ internal fun processCopyMapping(): List<KSAnnotated> =
             // sealed target's per-leaf fan-out must not duplicate it, and the message must name
             // the entry as the user wrote it, never its Map-translated reverse spelling.
             copyMappings.forEach { mapping ->
-                val forward = GenerateSourceAnnotation.CopyMapping(annotation = mapping.rawAnnotation)
+                val forward = CopyMappingSourceAnnotation(annotation = mapping.rawAnnotation)
                 val directions =
                     buildList {
                         add(
@@ -150,12 +149,13 @@ internal fun processCopyMapping(): List<KSAnnotated> =
                                 sources = listOf(mapping.sourceClass),
                                 targetClass = mapping.targetClass,
                                 generateSourceAnnotation = forward,
+                                findMappedSourceProperty = forward.findMappedSourceProperty,
                                 excludeNames = forward.excludes,
                             ),
                         )
                         if (mapping.canReverse) {
                             val reverse =
-                                GenerateSourceAnnotation.CopyMapping(
+                                CopyMappingSourceAnnotation(
                                     annotation = mapping.rawAnnotation,
                                     reversed = true,
                                 )
@@ -164,6 +164,7 @@ internal fun processCopyMapping(): List<KSAnnotated> =
                                     sources = listOf(mapping.targetClass),
                                     targetClass = mapping.sourceClass,
                                     generateSourceAnnotation = reverse,
+                                    findMappedSourceProperty = reverse.findMappedSourceProperty,
                                     excludeNames = reverse.excludes,
                                 ),
                             )
@@ -194,26 +195,33 @@ internal fun processCopyMapping(): List<KSAnnotated> =
                 fileName = "CopyMapping__${annotatedDeclaration.underPackageName}",
             ) {
                 copyMappings.forEach { mapping ->
+                    val forward = CopyMappingSourceAnnotation(annotation = mapping.rawAnnotation)
                     it.appendCopyFunction(
                         source = mapping.sourceClass,
                         target = mapping.targetClass,
+                        generateSourceAnnotation = forward,
+                        findMappedSourceProperty = forward.findMappedSourceProperty,
+                        isExcluded = forward.isExcluded,
+                        skipsObjectTarget = forward.skipsObjectTarget(processContext.options.notCopyToObject),
                         omitPackages = omitPackages,
-                        generateSourceAnnotation =
-                            GenerateSourceAnnotation.CopyMapping(annotation = mapping.rawAnnotation),
                     )
 
                     if (mapping.canReverse) {
                         // The reverse function shares the same annotation; `reversed` swaps
                         // each (source -> target) property mapping for this direction.
+                        val reverse =
+                            CopyMappingSourceAnnotation(
+                                annotation = mapping.rawAnnotation,
+                                reversed = true,
+                            )
                         it.appendCopyFunction(
                             source = mapping.targetClass,
                             target = mapping.sourceClass,
+                            generateSourceAnnotation = reverse,
+                            findMappedSourceProperty = reverse.findMappedSourceProperty,
+                            isExcluded = reverse.isExcluded,
+                            skipsObjectTarget = reverse.skipsObjectTarget(processContext.options.notCopyToObject),
                             omitPackages = omitPackages,
-                            generateSourceAnnotation =
-                                GenerateSourceAnnotation.CopyMapping(
-                                    annotation = mapping.rawAnnotation,
-                                    reversed = true,
-                                ),
                         )
                     }
                 }

@@ -6,7 +6,7 @@ import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import me.tbsten.cream.CopyVisibility
 import me.tbsten.cream.NonCopyableStrategy
 import me.tbsten.cream.SealedCopy
-import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
+import me.tbsten.cream.ksp.core.common.SealedCopySourceAnnotation
 import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.toModifierString
 import me.tbsten.cream.ksp.options.CreamOptions
@@ -34,7 +34,7 @@ internal fun Appendable.appendSealedCopyFunction(
     funName: String,
     nonCopyableStrategy: NonCopyableStrategy,
     omitPackages: List<String>,
-    generateSourceAnnotation: GenerateSourceAnnotation.SealedCopy,
+    generateSourceAnnotation: SealedCopySourceAnnotation,
 ) {
     val abstractProperties = sealedClass.collectAbstractProperties()
 

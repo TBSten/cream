@@ -11,7 +11,7 @@ import me.tbsten.cream.CombineFrom
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.ProcessContext
 import me.tbsten.cream.ksp.core.combineFun.appendCombineToFunction
-import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
+import me.tbsten.cream.ksp.core.common.CombineFromSourceAnnotation
 import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.asDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.createNewKotlinFile
@@ -143,12 +143,16 @@ internal fun processCombineFrom(): List<KSAnnotated> =
                         // Pass the raw per-occurrence annotation: @CombineFrom is @Repeatable and each
                         // occurrence is its own combine function, so GSA must read kdoc / visibility /
                         // funName from *this* occurrence rather than a cross-occurrence merge.
+                        val generateSourceAnnotation = CombineFromSourceAnnotation(annotation = occurrence.annotation)
                         it.appendCombineToFunction(
                             primarySource = primarySource,
                             otherSources = otherSources,
                             target = targetClass,
+                            generateSourceAnnotation = generateSourceAnnotation,
+                            findMappedSourceProperty = generateSourceAnnotation.findMappedSourceProperty,
+                            isExcluded = generateSourceAnnotation.isExcluded,
+                            skipsObjectTarget = generateSourceAnnotation.skipsObjectTarget(processContext.options.notCopyToObject),
                             omitPackages = omitPackagesFor(primarySource.packageName),
-                            generateSourceAnnotation = GenerateSourceAnnotation.CombineFrom(annotation = occurrence.annotation),
                         )
                     }
                 }

@@ -5,12 +5,6 @@ import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
-import me.tbsten.cream.CombineFrom
-import me.tbsten.cream.CombineTo
-import me.tbsten.cream.CopyFrom
-import me.tbsten.cream.CopyTo
-import me.tbsten.cream.CopyToChildren
-import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.util.ksp.collectConcreteSubclasses
 import me.tbsten.cream.ksp.util.ksp.isSealed
 import kotlin.reflect.KClass
@@ -18,37 +12,18 @@ import kotlin.reflect.KClass
 /**
  * Returns true if the matched auto-copy default should be suppressed for this parameter.
  *
- * annotation-scoped: determined by the [generateSourceAnnotation] type so that
- * @SealedCopy.Exclude and @CopyToChildren.Exclude do not accidentally suppress each
- * other's parameters when both annotations coexist on the same sealed parent.
+ * annotation-scoped: each [GenerateSourceAnnotation] answers for its own `@Exclude` semantics via
+ * [GenerateSourceAnnotation.isExcluded], so that e.g. @SealedCopy.Exclude and
+ * @CopyToChildren.Exclude do not accidentally suppress each other's parameters when both
+ * annotations coexist on the same sealed parent.
  *
  * @SealedCopy is handled separately in appendSealedCopyHeader (not via this function).
  */
 internal fun KSValueParameter.isExcludedFromCopy(
     matchedProperty: KSPropertyDeclaration?,
     matchedSource: KSClassDeclaration,
-    generateSourceAnnotation: GenerateSourceAnnotation,
-): Boolean =
-    when (generateSourceAnnotation) {
-        is GenerateSourceAnnotation.CopyTo ->
-            matchedProperty?.isSourcePropertyExcluded(matchedSource, CopyTo.Exclude::class) == true
-        is GenerateSourceAnnotation.CopyFrom ->
-            annotationsOf(CopyFrom.Exclude::class).any()
-        is GenerateSourceAnnotation.CombineTo ->
-            matchedProperty?.isSourcePropertyExcluded(matchedSource, CombineTo.Exclude::class) == true
-        is GenerateSourceAnnotation.CombineFrom ->
-            annotationsOf(CombineFrom.Exclude::class).any()
-        is GenerateSourceAnnotation.CopyToChildren ->
-            matchedProperty?.annotationsOf(CopyToChildren.Exclude::class)?.any() == true
-        // CopyMapping / CombineMapping: library-to-library, so there is no property to annotate;
-        // the annotation-level `excludes` names the generated (target-side) parameter instead.
-        is GenerateSourceAnnotation.CopyMapping ->
-            name?.asString() in generateSourceAnnotation.excludes
-        is GenerateSourceAnnotation.CombineMapping ->
-            name?.asString() in generateSourceAnnotation.excludes
-        // SealedCopy is handled separately in appendSealedCopyHeader (not via this function).
-        is GenerateSourceAnnotation.SealedCopy -> false
-    }
+    isExcluded: IsExcluded,
+): Boolean = isExcluded(this, matchedProperty, matchedSource)
 
 /**
  * Dual-lookup: checks both the property-site and the ctor-param-site for the Exclude
@@ -70,6 +45,9 @@ internal fun KSPropertyDeclaration.isSourcePropertyExcluded(
  * Warns when a target-side @Exclude (on a VALUE_PARAMETER) annotates a parameter that
  * has no matched source property — i.e. the Exclude is a no-op because the parameter
  * already had no auto-copy default.
+ *
+ * Only annotations that name a [GenerateSourceAnnotation.warnedTargetExcludeAnnotation] are
+ * checked; source-side and sealed-side annotations are warned elsewhere.
  */
 internal fun KSValueParameter.warnIfTargetExcludeHasNoEffect(
     matchedProperty: KSPropertyDeclaration?,
@@ -78,20 +56,8 @@ internal fun KSValueParameter.warnIfTargetExcludeHasNoEffect(
 ) {
     if (matchedProperty != null) return
     val paramName = name?.asString() ?: return
-    val hasExclude =
-        when (generateSourceAnnotation) {
-            is GenerateSourceAnnotation.CopyFrom -> annotationsOf(CopyFrom.Exclude::class).any()
-            is GenerateSourceAnnotation.CombineFrom -> annotationsOf(CombineFrom.Exclude::class).any()
-            // Source-side and sealed-side annotations are warned elsewhere.
-            is GenerateSourceAnnotation.CopyTo,
-            is GenerateSourceAnnotation.CombineTo,
-            is GenerateSourceAnnotation.CopyToChildren,
-            is GenerateSourceAnnotation.SealedCopy,
-            is GenerateSourceAnnotation.CopyMapping,
-            is GenerateSourceAnnotation.CombineMapping,
-            -> false
-        }
-    if (hasExclude) {
+    val excludeClass = generateSourceAnnotation.warnedTargetExcludeAnnotation ?: return
+    if (annotationsOf(excludeClass).any()) {
         logger.warn("@Exclude on '$paramName' has no effect: not a matched property", this)
     }
 }
@@ -99,31 +65,24 @@ internal fun KSValueParameter.warnIfTargetExcludeHasNoEffect(
 /**
  * Warns when a source-side @Exclude (on a source property) never suppresses any
  * auto-copy default — i.e. none of the target parameters matched this source property.
+ *
+ * Only annotations that name a [GenerateSourceAnnotation.warnedSourceExcludeAnnotation] are
+ * checked; target-side and sealed-side annotations are warned elsewhere. [findMappedSourceProperty]
+ * must be the same one the generator uses, so "matched" here means exactly what it means there.
  */
 internal fun KSPropertyDeclaration.warnIfSourceExcludeHasNoEffect(
     targetParameters: List<KSValueParameter>,
     source: KSClassDeclaration,
     generateSourceAnnotation: GenerateSourceAnnotation,
+    findMappedSourceProperty: FindMappedSourceProperty,
     logger: KSPLogger,
 ) {
-    val excludeClass =
-        when (generateSourceAnnotation) {
-            is GenerateSourceAnnotation.CopyTo -> CopyTo.Exclude::class
-            is GenerateSourceAnnotation.CombineTo -> CombineTo.Exclude::class
-            // Target-side and sealed-side annotations are warned elsewhere.
-            is GenerateSourceAnnotation.CopyFrom,
-            is GenerateSourceAnnotation.CombineFrom,
-            is GenerateSourceAnnotation.CopyToChildren,
-            is GenerateSourceAnnotation.SealedCopy,
-            is GenerateSourceAnnotation.CopyMapping,
-            is GenerateSourceAnnotation.CombineMapping,
-            -> return
-        }
+    val excludeClass = generateSourceAnnotation.warnedSourceExcludeAnnotation ?: return
     if (!isSourcePropertyExcluded(source, excludeClass)) return
     val propName = simpleName.asString()
     val isMatched =
         targetParameters.any { param ->
-            param.findMatchedProperty(source, generateSourceAnnotation)?.simpleName?.asString() == propName
+            param.findMatchedProperty(source, findMappedSourceProperty)?.simpleName?.asString() == propName
         }
     if (!isMatched) {
         logger.warn("@Exclude on '$propName' has no effect: not a matched property", this)
@@ -132,14 +91,15 @@ internal fun KSPropertyDeclaration.warnIfSourceExcludeHasNoEffect(
 
 /**
  * One generated direction of a `@CopyMapping` / `@CombineMapping`: the function(s) from [sources]
- * into [targetClass], generated under [generateSourceAnnotation]. [excludeNames] holds this
- * direction's (possibly Map-translated) spelling of each user-written `excludes` entry,
- * index-aligned with the original `excludes` list.
+ * into [targetClass], generated under [generateSourceAnnotation] with [findMappedSourceProperty].
+ * [excludeNames] holds this direction's (possibly Map-translated) spelling of each user-written
+ * `excludes` entry, index-aligned with the original `excludes` list.
  */
 internal class MappingExcludesDirection(
     val sources: List<KSClassDeclaration>,
     val targetClass: KSClassDeclaration,
     val generateSourceAnnotation: GenerateSourceAnnotation,
+    val findMappedSourceProperty: FindMappedSourceProperty,
     val excludeNames: List<String>,
 )
 
@@ -173,7 +133,7 @@ internal fun warnIfMappingExcludesHaveNoEffect(
                         constructor.parameters.any { parameter ->
                             parameter.name?.asString() == localName &&
                                 direction.sources.any { source ->
-                                    parameter.findMatchedProperty(source, direction.generateSourceAnnotation) != null
+                                    parameter.findMatchedProperty(source, direction.findMappedSourceProperty) != null
                                 }
                         }
                     }

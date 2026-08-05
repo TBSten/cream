@@ -4,17 +4,30 @@ import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import me.tbsten.cream.ksp.InvalidCreamUsageException
+import me.tbsten.cream.ksp.core.common.FindMappedSourceProperty
 import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
+import me.tbsten.cream.ksp.core.common.IsExcluded
 import me.tbsten.cream.ksp.core.common.fullName
 import me.tbsten.cream.ksp.options.CreamOptions
 
+/**
+ * Emit the combine function(s) from [primarySource] + [otherSources] into [target], dispatching on
+ * the target's kind.
+ *
+ * [skipsObjectTarget] decides whether an `object` target is skipped instead of getting a function
+ * that returns the singleton; it is passed in rather than read from the options here so a caller
+ * that does not drive generation from a cream annotation can decide it directly.
+ */
 context(options: CreamOptions, logger: KSPLogger)
 internal fun Appendable.appendCombineToFunction(
     primarySource: KSClassDeclaration,
     otherSources: List<KSClassDeclaration>,
     target: KSClassDeclaration,
-    omitPackages: List<String>,
     generateSourceAnnotation: GenerateSourceAnnotation,
+    findMappedSourceProperty: FindMappedSourceProperty,
+    isExcluded: IsExcluded,
+    skipsObjectTarget: Boolean,
+    omitPackages: List<String>,
 ) {
     when (target.classKind) {
         ClassKind.CLASS,
@@ -25,11 +38,13 @@ internal fun Appendable.appendCombineToFunction(
                 otherSources,
                 target,
                 generateSourceAnnotation,
+                findMappedSourceProperty,
+                isExcluded,
                 omitPackages,
             )
 
         ClassKind.OBJECT ->
-            if (!options.notCopyToObject) {
+            if (!skipsObjectTarget) {
                 appendCombineToObjectFunction(
                     primarySource,
                     otherSources,

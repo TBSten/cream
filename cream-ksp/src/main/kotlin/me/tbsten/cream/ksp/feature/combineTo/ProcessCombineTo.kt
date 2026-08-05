@@ -10,7 +10,7 @@ import me.tbsten.cream.CombineTo
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.ProcessContext
 import me.tbsten.cream.ksp.core.combineFun.appendCombineToFunction
-import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
+import me.tbsten.cream.ksp.core.common.CombineToSourceAnnotation
 import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.asDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.createNewKotlinFile
@@ -99,7 +99,7 @@ internal fun processCombineTo(): List<KSAnnotated> =
             val combineToAnnotation =
                 combineToAnnotations.firstOrNull() ?: return@forEach
             val generateSourceAnnotation =
-                GenerateSourceAnnotation.CombineTo(annotation = combineToAnnotation).also { gsa ->
+                CombineToSourceAnnotation(annotation = combineToAnnotation).also { gsa ->
                     gsa
                         .validateFunName(
                             generatesMultipleFunctions = targetClasses.size > 1,
@@ -114,7 +114,13 @@ internal fun processCombineTo(): List<KSAnnotated> =
             // warning once per target and falsely warned for a property matched in a sibling target.
             val allTargetParams = targetClasses.flatMap { it.primaryConstructor?.parameters.orEmpty() }
             sourceClass.getAllProperties().forEach { prop ->
-                prop.warnIfSourceExcludeHasNoEffect(allTargetParams, sourceClass, generateSourceAnnotation, processContext.logger)
+                prop.warnIfSourceExcludeHasNoEffect(
+                    allTargetParams,
+                    sourceClass,
+                    generateSourceAnnotation,
+                    generateSourceAnnotation.findMappedSourceProperty,
+                    processContext.logger,
+                )
             }
 
             // Group source classes by target class
@@ -139,7 +145,7 @@ internal fun processCombineTo(): List<KSAnnotated> =
                         .filter { it.sourceDeclaration != sourceDeclaration }
                         .map { it.sourceDeclaration.resolveToClassDeclaration()!! }
 
-                val generateSourceAnnotation = GenerateSourceAnnotation.CombineTo(annotation = sourceEntry.annotation)
+                val generateSourceAnnotation = CombineToSourceAnnotation(annotation = sourceEntry.annotation)
 
                 processContext.codeGenerator
                     .createNewKotlinFile(
@@ -152,8 +158,11 @@ internal fun processCombineTo(): List<KSAnnotated> =
                             primarySource = sourceClass,
                             otherSources = otherSourceClasses,
                             target = targetClass,
-                            omitPackages = omitPackagesFor(sourceClass.packageName),
                             generateSourceAnnotation = generateSourceAnnotation,
+                            findMappedSourceProperty = generateSourceAnnotation.findMappedSourceProperty,
+                            isExcluded = generateSourceAnnotation.isExcluded,
+                            skipsObjectTarget = generateSourceAnnotation.skipsObjectTarget(processContext.options.notCopyToObject),
+                            omitPackages = omitPackagesFor(sourceClass.packageName),
                         )
                     }
             }

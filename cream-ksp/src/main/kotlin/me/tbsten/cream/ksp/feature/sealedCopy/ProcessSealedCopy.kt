@@ -11,7 +11,7 @@ import me.tbsten.cream.NonCopyableStrategy
 import me.tbsten.cream.SealedCopy
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.ProcessContext
-import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
+import me.tbsten.cream.ksp.core.common.SealedCopySourceAnnotation
 import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.createNewKotlinFile
 import me.tbsten.cream.ksp.core.common.fullName
@@ -146,7 +146,7 @@ internal fun processSealedCopy(): List<KSAnnotated> =
                             funName = funName,
                             nonCopyableStrategy = nonCopyableStrategy,
                             omitPackages = omitPackagesFor(annotated.packageName),
-                            generateSourceAnnotation = GenerateSourceAnnotation.SealedCopy(annotation = sealedAnnotation),
+                            generateSourceAnnotation = SealedCopySourceAnnotation(annotation = sealedAnnotation),
                         )
                     }
                 }
