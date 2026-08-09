@@ -1,11 +1,14 @@
 [← README](../README.md) | [日本語](./parent-optional.ja.md)
 
-# @ParentOptional
+# @ParentOptional / @ChildOptionals
 
 `@ParentOptional` exposes a property of a sealed child class on the sealed parent type as a
 **nullable extension property**. The generated accessor returns the property's value when the
 receiver is the annotated child, or `null` otherwise — replacing the
 `(state as? Success)?.data` boilerplate that piles up around UI state (MVI / UiState) code.
+
+`@ChildOptionals` is the blanket counterpart: annotate the sealed parent once, and every
+eligible property of every transitive concrete leaf gets such an accessor.
 
 ```mermaid
 flowchart LR
@@ -88,6 +91,93 @@ public val MyState.errorCode: Int?
 
 </details>
 
+## @ChildOptionals
+
+Annotating the sealed **parent** with `@ChildOptionals` applies the same generation to every
+eligible property of every transitive concrete leaf at once — no per-property annotation needed.
+
+```kt
+import me.tbsten.cream.ChildOptionals
+
+@ChildOptionals
+sealed interface DownloadState {
+    // properties already visible on the parent (overrides included) get NO accessor
+    val id: String
+
+    data class Downloading(
+        override val id: String,
+        val progress: Int,
+    ) : DownloadState
+
+    data class Done(
+        override val id: String,
+        val resultPath: String,
+    ) : DownloadState {
+        // body-declared properties are picked up too
+        val fileName: String get() = resultPath.substringAfterLast('/')
+    }
+
+    data object Idle : DownloadState {
+        override val id: String = ""
+    }
+}
+
+// usage
+val state: DownloadState = DownloadState.Downloading(id = "1", progress = 40)
+state.progress   // 40 — null when state is Done or Idle
+state.resultPath // null — the String value when state is Done
+state.id         // plain member access — no accessor is generated for `id`
+```
+
+<details>
+<summary>Generated code</summary>
+
+```kt
+// auto generate
+public val DownloadState.progress: Int?
+    get() = when (this) {
+        is DownloadState.Downloading -> progress
+        else -> null
+    }
+
+public val DownloadState.resultPath: String?
+    get() = when (this) {
+        is DownloadState.Done -> resultPath
+        else -> null
+    }
+
+public val DownloadState.fileName: String?
+    get() = when (this) {
+        is DownloadState.Done -> fileName
+        else -> null
+    }
+```
+
+</details>
+
+Which properties are picked up:
+
+- For each transitive concrete leaf (recursing through intermediate sealed types, like
+  [@CopyToChildren](./copy-to-children.md)), the properties **declared by that leaf itself**
+  (constructor + body) are eligible.
+- `@ParentOptional`-annotated properties declared by an **intermediate sealed type** below the
+  annotated parent are picked up too — a single `is Intermediate` branch covers every leaf
+  below it.
+- Properties already visible on the annotated sealed type (overrides included) are skipped —
+  a member always wins over an extension, so the accessor would be dead code. An explicit
+  `@ParentOptional(propertyName = ...)` bypasses this filter: the renamed accessor is
+  generated (a name that still collides with a visible member is reported as an error).
+- `private` properties (and leaves the generated accessor cannot reference) are skipped
+  **silently**. (With `@ParentOptional`, annotating them is an error instead — see
+  [Errors](#errors).)
+- **Extension properties** (`val String.suffix get() = ...`) are skipped silently — the
+  accessor cannot supply their extension receiver. (With `@ParentOptional`, annotating one is
+  an error instead.)
+- Properties whose type references a type parameter the annotated parent does **not pin**
+  (e.g. `Tagged<M> : Parent` with `val meta: M`) are skipped **with a warning** — their type
+  cannot be expressed on the parent receiver. (With `@ParentOptional`, annotating one is an
+  error instead — see [Generic parents](#generic-parents).)
+
 ## Details
 
 ### Same-name properties of multiple children are merged into one accessor
@@ -124,6 +214,80 @@ sealed interface Shape {
 // val Shape.corners: Int?           (in ParentOptional__Shape.kt)
 // val Shape.Polygon.corners: Int?   (in ParentOptional__Shape.Polygon.kt)
 ```
+
+### Using @ParentOptional and @ChildOptionals together
+
+Generation ownership is decided per (property, sealed ancestor) pair so that the two
+annotations never emit conflicting duplicate accessors:
+
+- If the sealed ancestor is annotated with `@ChildOptionals`, that annotation generates the
+  accessors for it. A `@ParentOptional` on a property underneath is still honoured, and its
+  arguments **layer over** the sweep's, most specific first: for each of `propertyName` /
+  `kdoc` / `visibility`, the property's own value wins when it is set, otherwise
+  `@ChildOptionals`'s applies, otherwise cream's default. An argument left at its default (the
+  `DefaultAccessorPropertyName` token, `CopyVisibility.INHERIT`, an empty `KDoc`) counts as
+  unset — so adding `@ParentOptional` purely to rename one property does not silently drop the
+  sweep's `kdoc` / `visibility`.
+- Otherwise, `@ParentOptional` generates the accessors for that ancestor (annotated
+  properties only). A `propertyName` template set on `@ChildOptionals` applies to the accessors
+  **that annotation** generates, so a sealed ancestor that is not itself annotated names its own
+  accessors independently.
+
+```kt
+@ChildOptionals
+sealed interface AuthState {
+    data class LoggedIn(
+        // swept by @ChildOptionals, but generated as `userNameOrNull` (propertyName respected)
+        @ParentOptional(propertyName = "userNameOrNull") val userName: String,
+    ) : AuthState
+
+    data object LoggedOut : AuthState
+}
+```
+
+### Excluding a property from the sweep
+
+`@ChildOptionals` has no per-property opt-in the way `@ParentOptional` does, so
+`@ChildOptionals.Exclude` is how you carve a single property out of an otherwise blanket
+application. Annotate a **child-class property** with it and cream generates **no accessor** from
+that contributor.
+
+```kt
+@ChildOptionals
+sealed interface UploadState {
+    data class Uploading(
+        val progress: Int,
+        @ChildOptionals.Exclude val tempToken: String,  // opted out — no accessor generated
+    ) : UploadState
+
+    data object Idle : UploadState
+}
+
+val state: UploadState = UploadState.Uploading(progress = 40, tempToken = "…")
+state.progress   // 40 — accessor generated
+// state.tempToken does not exist — the property was excluded from the sweep
+```
+
+Every `.Exclude` in cream means the same thing — *opt this property out of the annotation's
+automatic behaviour* — but the automatic behaviour differs per annotation. For the copy
+annotations ([@CopyTo](./copy.md) etc.) it is the `= this.<property>` auto-copy default, so
+excluding a property keeps its parameter but makes it **required**. For `@ChildOptionals` it is the
+generated accessor, so excluding a property means **no accessor at all**.
+
+- **Merging.** When several children share a generated accessor name, an excluded contributor drops
+  out of the merge (its `is <Child>` branch is omitted) while the others still contribute. If
+  **every** contributor to a name is excluded, no accessor is generated for that name.
+- **`@ParentOptional` wins.** `@ChildOptionals.Exclude` only affects sweep-discovered properties. A
+  property you explicitly annotate with `@ParentOptional` is opted in by hand, and that opt-in beats
+  the sweep opt-out: its accessor is still generated even if it also carries
+  `@ChildOptionals.Exclude`.
+- **No effect → warning.** Excluding a property the sweep would never have picked up anyway — its
+  enclosing class is not part of a `@ChildOptionals` hierarchy, or it is already skipped for being
+  `private` / an extension property / already visible on the parent / carrying an unpinned type
+  parameter — has no effect and emits a KSP warning.
+
+`@ParentOptional` needs no exclude concept — it is opt-in, so simply do not annotate a property you
+do not want lifted.
 
 ### Generic parents
 
@@ -190,13 +354,14 @@ The following usages are reported as compile errors (with a suggested solution):
 
 - `@ParentOptional` on a property whose enclosing class has **no sealed supertype**.
 - `@ParentOptional` on a **private** property (the generated top-level accessor could not
-  reference it).
+  reference it). Note: `@ChildOptionals` silently skips private properties instead.
 - `@ParentOptional` on a property declared by a class the generated accessor **cannot
   reference** (`private` / `protected` anywhere in its enclosing chain — the generated `is`
-  check would not compile).
+  check would not compile). Note: `@ChildOptionals` silently skips such leaves instead.
 - **Type mismatch** among properties merged into one accessor.
 - The sealed parent **already has a member with the generated name** (visible members always
   win over extensions, so the accessor would be dead code).
+- `@ChildOptionals` on a **non-sealed** class/interface.
 - A property type referencing a type parameter **not pinned directly** by the sealed parent
   (see [Generic parents](#generic-parents)).
 - `@ParentOptional` on an **extension property** (the accessor cannot supply the extension
@@ -210,8 +375,9 @@ The following usages are reported as compile errors (with a suggested solution):
 ### Known limitations
 
 - The fallback value is always `null` — a non-null fallback cannot be configured.
-- No **module-wide** naming template: `propertyName` reaches one property, and there is no
-  `cream.*` option applying to every accessor in the module.
+- No **module-wide** naming template: `propertyName` reaches one property (`@ParentOptional`) or
+  one swept hierarchy (`@ChildOptionals`), and there is no `cream.*` option applying to every
+  accessor in the module.
 - Type-mismatched merges are not unified to a common supertype (no LUB resolution); this
   includes `T` vs `T?` and a typealias vs its expansion.
 - Properties whose type uses a child-specific (unpinned) type parameter are not supported —
@@ -224,8 +390,8 @@ The following usages are reported as compile errors (with a suggested solution):
 - `expect`/`actual` sealed hierarchies are untested: KSP processes each compilation
   independently, so behavior follows whatever declarations the processed compilation sees.
 - KSP multi-round processing: symbols deferred across rounds that re-aggregate into an
-  already-written `ParentOptional__<Parent>` file could collide; not observed in practice,
-  unverified.
+  already-written `ParentOptional__<Parent>` / `ChildOptionals__<Parent>` file could collide;
+  not observed in practice, unverified.
 
 ### Other customizations
 
@@ -237,8 +403,8 @@ The following usages are reported as compile errors (with a suggested solution):
   visibility among the sealed parent, the child, and the property.
 - The **name** is customized per property via `@ParentOptional(propertyName = ...)` — see
   [Naming the accessor](#naming-the-accessor). The function-naming options (`funName`,
-  `cream.copyFunNamePrefix`, ...) do not apply here, since this annotation generates an
-  extension property, not a function.
+  `cream.copyFunNamePrefix`, ...) do not apply here, since these annotations generate extension
+  properties, not functions.
 
 ### Naming the accessor
 
@@ -266,6 +432,18 @@ sealed interface Fetch {
 Because the token is a `const val`, both `"${DefaultAccessorPropertyName}OrNull"` and
 `DefaultAccessorPropertyName + "OrNull"` work and stay compile-time constants.
 
+`@ChildOptionals` takes the same argument, applying the template to every accessor its sweep
+generates — the way to suffix a whole hierarchy at once:
+
+```kt
+@ChildOptionals(propertyName = "${DefaultAccessorPropertyName}OrNull")
+sealed interface MyState { /* every accessor becomes `<property>OrNull` */ }
+```
+
+A property's own `@ParentOptional(propertyName = ...)` overrides it; see
+[Using @ParentOptional and @ChildOptionals together](#using-parentoptional-and-childoptionals-together)
+for how the two layer.
+
 The resolved name decides which contributions **merge**: two children whose accessors resolve
 to the same name become one accessor, and two whose base property names differ stay separate
 even when both use the same template.
@@ -273,8 +451,8 @@ even when both use the same template.
 ## See also
 
 - [@CopyToChildren](./copy-to-children.md) — the copy-function counterpart on sealed parents:
-  it generates `Parent.copyToChild(...)` functions, whereas this annotation generates a
-  read-only nullable accessor on the parent.
+  it generates `Parent.copyToChild(...)` functions, whereas these annotations generate
+  read-only nullable accessors on the parent.
 - [@SealedCopy](./sealed-copy.md) — `copy()` on the sealed parent that preserves the subtype.
 - [KDoc](./customization/kdoc.md) — the `kdoc = KDoc(...)` argument for generated declarations.
 - [Visibility](./customization/visibility.md) — the `visibility` argument and `cream.defaultVisibility`.

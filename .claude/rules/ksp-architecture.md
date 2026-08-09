@@ -57,7 +57,7 @@ feature ─▶ ProcessContext   （唯一の上向き依存。ProcessContext は
 
 - feature: ファイル `Process<Name>.kt`、関数 `processXxx`（top-level / lowerCamel）。
 - core 生成関数: `appendXxx`（`Appendable` 拡張、文字列 append ベース。KotlinPoet 不使用）。
-- `GenerateSourceAnnotation`（`core/common/GenerateSourceAnnotation.kt`, package `me.tbsten.cream.ksp.core.common`）: 生成元注釈を識別し、その注釈固有の生成ルールを持つ。実装は `<Name>SourceAnnotation`（`CopySourceAnnotation.kt` / `CombineSourceAnnotation.kt` / `MappingSourceAnnotation.kt` / `ParentOptionalSourceAnnotation.kt` に family 別で 9 個）。
+- `GenerateSourceAnnotation`（`core/common/GenerateSourceAnnotation.kt`, package `me.tbsten.cream.ksp.core.common`）: 生成元注釈を識別し、その注釈固有の生成ルールを持つ。実装は `<Name>SourceAnnotation`（`CopySourceAnnotation.kt` / `CombineSourceAnnotation.kt` / `MappingSourceAnnotation.kt` / `ParentOptionalSourceAnnotation.kt` に family 別で 10 個）。
 - パラメータ単位の挙動は interface のメンバではなく独立した関数型 `FindMappedSourceProperty` / `IsExcluded`（`core/common/`）。core の `appendXxx` はこれらを**通常の引数**で受け取り、GSA からは読まない（注釈以外から生成を駆動できるようにするため）。
 
 ## Cross-cutting rules

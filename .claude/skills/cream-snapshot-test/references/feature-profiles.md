@@ -15,9 +15,9 @@ and `cream-runtime/src/commonMain/kotlin/me/tbsten/cream/<Name>.kt`.
 | sealed self-copy | SealedCopy (✅ done) | **sealedCopy** (done) | `appendSealedCopyFunction` |
 | N→1 combine | CombineTo (✅ done), CombineFrom (✅ done) | **combineTo / combineFrom** (done) | `appendCombineToFunction` |
 | library mapping | CopyMapping (✅ done), CombineMapping (✅ done) | **copyMapping / combineMapping** (done) | `appendCopyFunction` / `appendCombineToFunction` |
-| sealed-parent accessor (child prop → parent) | ParentOptional (✅ done) | **parentOptional** (done) | `appendParentOptionalAccessor` |
+| sealed-parent accessor (child prop → parent) | ParentOptional (✅ done), ChildOptionals (✅ done) | **parentOptional / childOptionals** (done) | `appendParentOptionalAccessor` |
 
-`GenerateSourceAnnotation` (9 implementations, not sealed). All metadata (`annotation`,
+`GenerateSourceAnnotation` (10 implementations, not sealed). All metadata (`annotation`,
 `kdocDescription`, `kdocExamples`, `visibility`, `funNameTemplate`) is defined on the interface, so
 every implementation has it; the only extra constructor fields on any implementation are
 `CopyMappingSourceAnnotation.reversed: Boolean` and `ParentOptionalSourceAnnotation`'s pinned
@@ -28,8 +28,9 @@ overriding the interface's rule members (`warnedTargetExcludeAnnotation` /
 overrides `skipsObjectTarget` to read `@CopyToChildren.notCopyToObject`. Per-parameter behaviour
 lives OUTSIDE the interface as `findMappedSourceProperty: FindMappedSourceProperty` /
 `isExcluded: IsExcluded` properties, which the features hand to the `core` generators as ordinary
-arguments; the accessor-generating `ParentOptionalSourceAnnotation` supplies neither (no property
-matching, and no `@Exclude` concept — it is opt-in one property at a time).
+arguments; the accessor-generating `ParentOptionalSourceAnnotation` / `ChildOptionalsSourceAnnotation`
+supply neither (no property matching, no `@Exclude` concept — `@ChildOptionals.Exclude` is a sweep
+opt-out resolved in the feature).
 
 ## Summary table
 
@@ -203,7 +204,7 @@ Suite built: `feature/combineMapping/scenario/` (13 files / 38 scenarios / 114 g
 
 Suite built: `feature/parentOptional/scenario/` (10 files / 39 scenarios / 78 goldens). NOT a copy/combine
 archetype: no referenced target, no constructor call, no property matching — its own `core/parentOptional/`
-generator (`appendParentOptionalAccessor`).
+generator (`appendParentOptionalAccessor`), shared with `@ChildOptionals`.
 
 - Annotated: a **child property** (`AnnotationTarget.PROPERTY`; for a primary-constructor `val` KSP may
   surface the annotation on the value parameter — `parentOptionalAnnotationOrNull()` handles both).
@@ -212,6 +213,8 @@ generator (`appendParentOptionalAccessor`).
   sealed types get their own file `ParentOptional__<Parent>`). Same-named props of multiple children merge
   into one accessor (one `is` branch each). Not `@Repeatable`; args: `propertyName` / `visibility` / `kdoc`
   (no funName / Map / Exclude).
+- **Ownership rule**: an ancestor annotated `@ChildOptionals` is skipped here (that feature generates it,
+  respecting the property's `@ParentOptional` args) — pinned from the ChildOptionals side.
 - **Generics v1 limit**: child→parent type-param mapping uses the DIRECT supertype reference only
   (`Filled<E> : Source<E>` → `val <T> Source<T>.item: T?`); a chain (`Leaf<X> : Middle<X> : Root<X>`)
   generates on Middle but rejects on Root (`chainedTypeParamRejected` error-as-golden).
@@ -231,9 +234,36 @@ generator (`appendParentOptionalAccessor`).
   `ParentOptionalInvalidUsageTest` goldens (13: incl. extension property, nullable-vs-non-null &
   alias-vs-expansion merges, forced-public exposure ×3).
 - Option sets: only `defaultVisibility` affects output — the naming options compose *function* names and
-  never reach an accessor, so the suite runs `validCreamOptions(namingOptionsApply = false)` (2 sets:
-  `Default` + `notCopyToObject=true, defaultVisibility=INTERNAL`) instead of the full matrix.
+  never reach an accessor, so both accessor suites run `validCreamOptions(namingOptionsApply = false)`
+  (2 sets: `Default` + `notCopyToObject=true, defaultVisibility=INTERNAL`) instead of the full matrix.
   `<T : Any?>` rendering is the shared renderer behavior (== copyTo/sealedCopy), not a quirk.
 - **Input trap (recurring)**: an `internal` child nested in a sealed *interface* is illegal Kotlin —
   top-level sibling instead (hit again here; same lesson as copyToChildren).
 - Existing test data: `test/src/commonTest/.../parentOptional/` + `ParentOptionalBasicUsageTest`.
+
+## ChildOptionals — sealed parent sweeps leaf properties  ✅ DONE — live reference (blanket accessor sweep)
+
+Suite built: `feature/childOptionals/scenario/` (9 files / 28 scenarios / 56 goldens). Same core generator
+as `@ParentOptional` (`appendParentOptionalAccessor`); one file `ChildOptionals__<Parent>` per annotated parent.
+
+- Annotated: the **sealed parent**; sweeps every transitive concrete leaf's OWN declared public/internal
+  properties (constructor + body). Skips parent-visible props (overrides — member always beats extension)
+  and SILENTLY skips private props (unlike explicit `@ParentOptional`, which errors). Args: `visibility` /
+  `kdoc` only. Not `@Repeatable`.
+- **Interop (ownership)**: a swept prop carrying `@ParentOptional` keeps its `propertyName`/`kdoc`/
+  `visibility` and its KDoc attribution; with an intermediate sealed type the parent's accessor comes from
+  ChildOptionals and the intermediate's from ParentOptional (two files, no redeclaration) —
+  `ownershipSplitAcrossAncestors`.
+- **Families used (8)**: sealedParentKind, hierarchyShape (sweep / transitive nested leaves / same-name
+  merge), **propertyFiltering** (parent-visible skip / private silent skip / body props included /
+  extension props silent skip / unpinned-generic prop skip WITH warning (Console-pinned) —
+  feature-defining), **parentOptionalInterop** (rename respected / ownership split / a bare
+  `@ParentOptional` inheriting the sweep's arguments), kdoc, visibility
+  (per-accessor narrowest: internal child's accessor internal while sibling's stays public + override),
+  **exclude** (`@ChildOptionals.Exclude` sweep opt-out: single-prop skip / one contributor dropped from a
+  merge / all-contributors-excluded → no accessor / no-effect warning (Console-pinned) / `@ParentOptional`
+  overrides the exclude — feature-unique), **propertyName** (sweep-wide template / per-property override /
+  rename away from a parent-visible member). Dropped: generics (byte-equivalent shared core, pinned by
+  ParentOptionalSnapshotTest), funName / map / repeatable / targetKind / nesting / constructor / matching
+  (annotation & archetype lack them); misuse diagnostics live in `ChildOptionalsInvalidUsageTest` goldens.
+- Existing test data: `test/src/commonTest/.../childOptionals/` + `ChildOptionalsBasicUsageTest`.

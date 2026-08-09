@@ -11,11 +11,11 @@ paths:
 
 | サブ | 置くもの |
 |---|---|
-| `core/common/` | 全生成系で共有する部品: 型パラメータ(header/where 描画)・sealed 型レンダリング（receiver / `is` 分岐型、`SealedTypeRendering.kt`。sealedCopy / parentOptional が共有）・プロパティマッチング・KDoc 生成・命名（shared へのブリッジ）・identifier escape の呼び出し・target 検証・visibility・診断ヘルパ・`GenerateSourceAnnotation`（+ その 9 実装 `<Name>SourceAnnotation`。sealed ではなく overridable member で注釈ごとの差分を表す）・`FindMappedSourceProperty` / `IsExcluded`（生成側が引数で受け取るパラメータ単位の挙動） |
+| `core/common/` | 全生成系で共有する部品: 型パラメータ(header/where 描画)・sealed 型レンダリング（receiver / `is` 分岐型、`SealedTypeRendering.kt`。sealedCopy / parentOptional が共有）・プロパティマッチング・KDoc 生成・命名（shared へのブリッジ）・identifier escape の呼び出し・target 検証・visibility・診断ヘルパ・`GenerateSourceAnnotation`（+ その 10 実装 `<Name>SourceAnnotation`。sealed ではなく overridable member で注釈ごとの差分を表す）・`FindMappedSourceProperty` / `IsExcluded`（生成側が引数で受け取るパラメータ単位の挙動） |
 | `core/copyFun/` | copy 関数生成（class/object/sealed への dispatch、Class/Object/SealedClass 生成） |
 | `core/combineFun/` | combine 関数生成（N source → 1 target、CombineToClass、combine の KDoc 例） |
 | `core/sealedCopy/` | `@SealedCopy` 生成（`when(this)` 自己 copy、leaf 分類。肥大ファイルは責務単位で複数に分割） |
-| `core/parentOptional/` | `@ParentOptional` 生成（sealed 親への nullable 拡張プロパティ accessor） |
+| `core/parentOptional/` | `@ParentOptional` / `@ChildOptionals` 生成（sealed 親への nullable 拡張プロパティ accessor。両 feature が共有） |
 
 ✅ core がやること: cream 固有の生成ロジック。共有部品を `common` に括り出し、`copyFun`/`combineFun`/`sealedCopy`/`parentOptional` が組み合わせる（過度な汎用化はしない）。
 

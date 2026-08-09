@@ -80,23 +80,24 @@ cream/
 │       ├── CopyFrom.kt         # Target-side annotation
 │       ├── CopyToChildren.kt   # Sealed class annotation
 │       ├── CopyMapping.kt      # Library-to-library mapping
-│       └── ParentOptional.kt   # Nullable accessor on sealed parent (per property)
+│       ├── ParentOptional.kt   # Nullable accessor on sealed parent (per property)
+│       └── ChildOptionals.kt   # Nullable accessors on sealed parent (blanket)
 ├── cream-ksp/              # KSP processor (JVM only)
 │   ├── src/main/kotlin/me/tbsten/cream/ksp/
 │   │   ├── CreamSymbolProcessor.kt         # Composition root: dispatch all features
 │   │   ├── CreamSymbolProcessorProvider.kt # KSP provider
 │   │   ├── ProcessContext.kt               # {resolver, options, codeGenerator, logger}
-│   │   ├── feature/                        # Per-annotation entry points (9 = one dir per annotation)
+│   │   ├── feature/                        # Per-annotation entry points (10 = one dir per annotation)
 │   │   │   ├── copyTo/ copyFrom/ copyToChildren/ sealedCopy/
 │   │   │   ├── combineTo/ combineFrom/ copyMapping/ combineMapping/
-│   │   │   └── parentOptional/
+│   │   │   └── parentOptional/ childOptionals/
 │   │   │       # each: Process<Name>.kt with `context(ctx) fun processXxx()`
 │   │   ├── core/                           # cream-specific code generation
-│   │   │   ├── common/    # GenerateSourceAnnotation + its 9 impls, type params, where, sealed type rendering, property match, KDoc, naming, target validation, diagnostics
+│   │   │   ├── common/    # GenerateSourceAnnotation + its 10 impls, type params, where, sealed type rendering, property match, KDoc, naming, target validation, diagnostics
 │   │   │   ├── copyFun/   # copy generation (class/object/sealed dispatch)
 │   │   │   ├── combineFun/ # combine generation (N source -> 1 target)
 │   │   │   ├── sealedCopy/ # @SealedCopy generation
-│   │   │   └── parentOptional/ # @ParentOptional accessor generation
+│   │   │   └── parentOptional/ # @ParentOptional / @ChildOptionals accessor generation
 │   │   └── util/                           # Generic helpers only (no cream-specific types)
 │   └── shared/             # Shared logic (Multiplatform, KSP-independent)
 │       └── src/commonMain/kotlin/me/tbsten/cream/ksp/
@@ -107,7 +108,8 @@ cream/
 │   │   ├── copyTo/         # @CopyTo test data
 │   │   ├── copyFrom/       # @CopyFrom test data
 │   │   ├── copyToChildren/ # @CopyToChildren test data
-│   │   └── parentOptional/ # @ParentOptional test data
+│   │   ├── parentOptional/ # @ParentOptional test data
+│   │   └── childOptionals/ # @ChildOptionals test data
 │   └── src/commonTest/kotlin/me/tbsten/cream/test/
 └── optionBuilder/          # Configuration UI tool
 ```
@@ -126,7 +128,7 @@ cream/
 **Code Generation Strategy:**
 - `core/copyFun/` dispatches to specialized generators based on target type (regular class / object / sealed interface)
 - `core/combineFun/` generates combine functions (N source -> 1 target); `core/sealedCopy/` generates `@SealedCopy` self-copy
-- `core/parentOptional/` generates nullable extension-property accessors on sealed parents (`@ParentOptional`)
+- `core/parentOptional/` generates nullable extension-property accessors on sealed parents (`@ParentOptional` / `@ChildOptionals`)
 - Shared building blocks (type params, `where`, property matching, KDoc, naming) live in `core/common/` and are composed by `copyFun`/`combineFun`/`sealedCopy`/`parentOptional`
 - Naming strategy is applied via `core/common/` (bridging to `cream-ksp/shared`)
 
@@ -149,7 +151,7 @@ cream/
 - Exposes the generated function's metadata (KDoc / visibility / funName template) plus three overridable rules decided once per generated function, each with a "does nothing special" default:
   `warnedTargetExcludeAnnotation` / `warnedSourceExcludeAnnotation` (ineffective-`@Exclude` warnings) and `skipsObjectTarget` (`object` targets)
 - The two PER-PARAMETER rules are deliberately NOT on the interface: `FindMappedSourceProperty` (`.Map` resolution) and `IsExcluded` (`@Exclude`) are standalone function types in `core/common/` that the generators take as ordinary parameters, so a caller not driving generation from an annotation can pass plain lambdas. cream's implementations expose them as properties of the same names
-- Nine implementations, split by family: `CopySourceAnnotation.kt` (`CopyToSourceAnnotation` / `CopyFromSourceAnnotation` / `CopyToChildrenSourceAnnotation` / `SealedCopySourceAnnotation`), `CombineSourceAnnotation.kt` (`CombineToSourceAnnotation` / `CombineFromSourceAnnotation`), `MappingSourceAnnotation.kt` (`CopyMappingSourceAnnotation` / `CombineMappingSourceAnnotation`), `ParentOptionalSourceAnnotation.kt` (`ParentOptionalSourceAnnotation` — accessor generation: every rule keeps its default and neither `findMappedSourceProperty` nor `isExcluded` is supplied)
+- Ten implementations, split by family: `CopySourceAnnotation.kt` (`CopyToSourceAnnotation` / `CopyFromSourceAnnotation` / `CopyToChildrenSourceAnnotation` / `SealedCopySourceAnnotation`), `CombineSourceAnnotation.kt` (`CombineToSourceAnnotation` / `CombineFromSourceAnnotation`), `MappingSourceAnnotation.kt` (`CopyMappingSourceAnnotation` / `CombineMappingSourceAnnotation`), `ParentOptionalSourceAnnotation.kt` (`ParentOptionalSourceAnnotation` / `ChildOptionalsSourceAnnotation` — accessor generation: every rule keeps its default and neither `findMappedSourceProperty` nor `isExcluded` is supplied)
 - **Deliberately NOT sealed**: rules are resolved by polymorphic dispatch, never by an exhaustive `when` over the implementations, so an implementation defined outside the package plugs into the same generators
 
 **Property Mapping:**
@@ -272,7 +274,7 @@ Generation logic lives under `core/` (see `.claude/rules/ksp-core-top-level.md` 
 - **Copy generation (class/object/sealed):** `core/copyFun/`
 - **Combine generation:** `core/combineFun/`
 - **`@SealedCopy` generation:** `core/sealedCopy/`
-- **`@ParentOptional` accessor generation:** `core/parentOptional/`
+- **`@ParentOptional` / `@ChildOptionals` accessor generation:** `core/parentOptional/`
 - **Type parameters / KDoc:** `core/common/`
 
 ## Key Files to Know
