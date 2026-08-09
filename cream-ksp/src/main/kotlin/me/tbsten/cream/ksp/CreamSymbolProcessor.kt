@@ -12,6 +12,7 @@ import me.tbsten.cream.ksp.feature.copyFrom.processCopyFrom
 import me.tbsten.cream.ksp.feature.copyMapping.processCopyMapping
 import me.tbsten.cream.ksp.feature.copyTo.processCopyTo
 import me.tbsten.cream.ksp.feature.copyToChildren.processCopyToChildren
+import me.tbsten.cream.ksp.feature.parentOptional.processParentOptional
 import me.tbsten.cream.ksp.feature.sealedCopy.processSealedCopy
 import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.options.toCreamOptions
@@ -54,6 +55,7 @@ internal class CreamSymbolProcessor(
                 addAll(processCombineFrom())
                 addAll(processCopyMapping())
                 addAll(processCombineMapping())
+                addAll(processParentOptional())
             }
         }
     }

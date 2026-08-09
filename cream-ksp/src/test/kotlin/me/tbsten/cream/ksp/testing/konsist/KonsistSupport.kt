@@ -58,6 +58,7 @@ internal val CORE_SUBPACKAGES =
         "$CORE_PACKAGE.copyFun",
         "$CORE_PACKAGE.combineFun",
         "$CORE_PACKAGE.sealedCopy",
+        "$CORE_PACKAGE.parentOptional",
     )
 
 /** The only files allowed directly in the root `me.tbsten.cream.ksp` package (the composition root). */
