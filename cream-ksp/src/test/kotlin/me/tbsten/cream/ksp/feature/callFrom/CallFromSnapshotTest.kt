@@ -75,7 +75,9 @@ internal class CallFromSnapshotTest :
                         "funName" case funNameScenarios()
                     }
                 },
-                Generator.validCreamOptions(),
+                // @CallFrom's funName expands DefaultCopyFunctionName to the annotated function's own
+                // name; it has no target class, so the project naming options never reach it.
+                Generator.validCreamOptions(namingOptionsApply = false),
                 label = { scenarioLabel, optionsLabel -> "option=$optionsLabel/$scenarioLabel" },
             ).representativeValues()
                 .forEach { (testCaseName, value) ->
