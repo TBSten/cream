@@ -31,11 +31,12 @@ import kotlin.reflect.KClass
  * the same generators. Every rule has a "does nothing special" default, so an implementation only
  * overrides the ones its annotation actually needs.
  *
- * cream's own eight implementations live next to this file: [CopyToSourceAnnotation] /
+ * cream's own nine implementations live next to this file: [CopyToSourceAnnotation] /
  * [CopyFromSourceAnnotation] / [CopyToChildrenSourceAnnotation] / [SealedCopySourceAnnotation] in
  * `CopySourceAnnotation.kt`, [CombineToSourceAnnotation] / [CombineFromSourceAnnotation] in
- * `CombineSourceAnnotation.kt`, and [CopyMappingSourceAnnotation] /
- * [CombineMappingSourceAnnotation] in `MappingSourceAnnotation.kt`.
+ * `CombineSourceAnnotation.kt`, [CopyMappingSourceAnnotation] /
+ * [CombineMappingSourceAnnotation] in `MappingSourceAnnotation.kt`, and
+ * [CallFromSourceAnnotation] in `CallFromSourceAnnotation.kt`.
  */
 internal interface GenerateSourceAnnotation {
     /** Raw annotation occurrence this generation was triggered by. */

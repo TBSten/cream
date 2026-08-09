@@ -5,6 +5,7 @@ import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.symbol.KSAnnotated
+import me.tbsten.cream.ksp.feature.callFrom.processCallFrom
 import me.tbsten.cream.ksp.feature.combineFrom.processCombineFrom
 import me.tbsten.cream.ksp.feature.combineMapping.processCombineMapping
 import me.tbsten.cream.ksp.feature.combineTo.processCombineTo
@@ -54,6 +55,7 @@ internal class CreamSymbolProcessor(
                 addAll(processCombineFrom())
                 addAll(processCopyMapping())
                 addAll(processCombineMapping())
+                addAll(processCallFrom())
             }
         }
     }

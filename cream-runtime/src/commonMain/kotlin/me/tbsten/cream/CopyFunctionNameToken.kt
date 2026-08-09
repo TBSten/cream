@@ -39,11 +39,16 @@ package me.tbsten.cream
  */
 
 /**
- * The full name cream would generate for the function by default — prefix
- * (`cream.copyFunNamePrefix`) + the target name rendered by `cream.copyFunNamingStrategy`
- * and `cream.escapeDot`. This is the default value of every `funName`, so omitting
- * `funName` keeps cream's existing behaviour. Embed it to keep the derived name and only
- * add a prefix/suffix, e.g. `funName = DefaultCopyFunctionName + "OrNull"`.
+ * The name cream would generate for the function by default. This is the default value of every
+ * `funName`, so omitting `funName` keeps cream's existing behaviour. Embed it to keep that name
+ * and only add a prefix/suffix, e.g. `funName = DefaultCopyFunctionName + "OrNull"`.
+ *
+ * What it expands to is decided per annotation, because "the default name" is:
+ * - **copy / combine annotations** — prefix (`cream.copyFunNamePrefix`) + the target name
+ *   rendered by `cream.copyFunNamingStrategy` and `cream.escapeDot`.
+ * - **[SealedCopy]** — `copy` (the sealed self-copy), independent of those options.
+ * - **[CallFrom]** — the annotated function's own name (the bridge is an overload of it),
+ *   independent of those options.
  */
 public const val DefaultCopyFunctionName: String = "{{cream:DefaultCopyFunctionName}}"
 
