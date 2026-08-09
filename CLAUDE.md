@@ -79,21 +79,24 @@ cream/
 │       ├── CopyTo.kt           # Source-side annotation
 │       ├── CopyFrom.kt         # Target-side annotation
 │       ├── CopyToChildren.kt   # Sealed class annotation
-│       └── CopyMapping.kt      # Library-to-library mapping
+│       ├── CopyMapping.kt      # Library-to-library mapping
+│       └── ParentOptional.kt   # Nullable accessor on sealed parent (per property)
 ├── cream-ksp/              # KSP processor (JVM only)
 │   ├── src/main/kotlin/me/tbsten/cream/ksp/
 │   │   ├── CreamSymbolProcessor.kt         # Composition root: dispatch all features
 │   │   ├── CreamSymbolProcessorProvider.kt # KSP provider
 │   │   ├── ProcessContext.kt               # {resolver, options, codeGenerator, logger}
-│   │   ├── feature/                        # Per-annotation entry points (8 = one dir per annotation)
+│   │   ├── feature/                        # Per-annotation entry points (9 = one dir per annotation)
 │   │   │   ├── copyTo/ copyFrom/ copyToChildren/ sealedCopy/
-│   │   │   └── combineTo/ combineFrom/ copyMapping/ combineMapping/
+│   │   │   ├── combineTo/ combineFrom/ copyMapping/ combineMapping/
+│   │   │   └── parentOptional/
 │   │   │       # each: Process<Name>.kt with `context(ctx) fun processXxx()`
 │   │   ├── core/                           # cream-specific code generation
-│   │   │   ├── common/    # GenerateSourceAnnotation + its 8 impls, type params, where, property match, KDoc, naming, target validation, diagnostics
+│   │   │   ├── common/    # GenerateSourceAnnotation + its 9 impls, type params, where, sealed type rendering, property match, KDoc, naming, target validation, diagnostics
 │   │   │   ├── copyFun/   # copy generation (class/object/sealed dispatch)
 │   │   │   ├── combineFun/ # combine generation (N source -> 1 target)
-│   │   │   └── sealedCopy/ # @SealedCopy generation
+│   │   │   ├── sealedCopy/ # @SealedCopy generation
+│   │   │   └── parentOptional/ # @ParentOptional accessor generation
 │   │   └── util/                           # Generic helpers only (no cream-specific types)
 │   └── shared/             # Shared logic (Multiplatform, KSP-independent)
 │       └── src/commonMain/kotlin/me/tbsten/cream/ksp/
@@ -103,7 +106,8 @@ cream/
 │   ├── src/commonMain/kotlin/me/tbsten/cream/test/
 │   │   ├── copyTo/         # @CopyTo test data
 │   │   ├── copyFrom/       # @CopyFrom test data
-│   │   └── copyToChildren/ # @CopyToChildren test data
+│   │   ├── copyToChildren/ # @CopyToChildren test data
+│   │   └── parentOptional/ # @ParentOptional test data
 │   └── src/commonTest/kotlin/me/tbsten/cream/test/
 └── optionBuilder/          # Configuration UI tool
 ```
@@ -122,7 +126,8 @@ cream/
 **Code Generation Strategy:**
 - `core/copyFun/` dispatches to specialized generators based on target type (regular class / object / sealed interface)
 - `core/combineFun/` generates combine functions (N source -> 1 target); `core/sealedCopy/` generates `@SealedCopy` self-copy
-- Shared building blocks (type params, `where`, property matching, KDoc, naming) live in `core/common/` and are composed by `copyFun`/`combineFun`/`sealedCopy`
+- `core/parentOptional/` generates nullable extension-property accessors on sealed parents (`@ParentOptional`)
+- Shared building blocks (type params, `where`, property matching, KDoc, naming) live in `core/common/` and are composed by `copyFun`/`combineFun`/`sealedCopy`/`parentOptional`
 - Naming strategy is applied via `core/common/` (bridging to `cream-ksp/shared`)
 
 **Configuration System:**
@@ -144,7 +149,7 @@ cream/
 - Exposes the generated function's metadata (KDoc / visibility / funName template) plus three overridable rules decided once per generated function, each with a "does nothing special" default:
   `warnedTargetExcludeAnnotation` / `warnedSourceExcludeAnnotation` (ineffective-`@Exclude` warnings) and `skipsObjectTarget` (`object` targets)
 - The two PER-PARAMETER rules are deliberately NOT on the interface: `FindMappedSourceProperty` (`.Map` resolution) and `IsExcluded` (`@Exclude`) are standalone function types in `core/common/` that the generators take as ordinary parameters, so a caller not driving generation from an annotation can pass plain lambdas. cream's implementations expose them as properties of the same names
-- Eight implementations, split by family: `CopySourceAnnotation.kt` (`CopyToSourceAnnotation` / `CopyFromSourceAnnotation` / `CopyToChildrenSourceAnnotation` / `SealedCopySourceAnnotation`), `CombineSourceAnnotation.kt` (`CombineToSourceAnnotation` / `CombineFromSourceAnnotation`), `MappingSourceAnnotation.kt` (`CopyMappingSourceAnnotation` / `CombineMappingSourceAnnotation`)
+- Nine implementations, split by family: `CopySourceAnnotation.kt` (`CopyToSourceAnnotation` / `CopyFromSourceAnnotation` / `CopyToChildrenSourceAnnotation` / `SealedCopySourceAnnotation`), `CombineSourceAnnotation.kt` (`CombineToSourceAnnotation` / `CombineFromSourceAnnotation`), `MappingSourceAnnotation.kt` (`CopyMappingSourceAnnotation` / `CombineMappingSourceAnnotation`), `ParentOptionalSourceAnnotation.kt` (`ParentOptionalSourceAnnotation` — accessor generation: every rule keeps its default and neither `findMappedSourceProperty` nor `isExcluded` is supplied)
 - **Deliberately NOT sealed**: rules are resolved by polymorphic dispatch, never by an exhaustive `when` over the implementations, so an implementation defined outside the package plugs into the same generators
 
 **Property Mapping:**
@@ -246,7 +251,7 @@ See `.claude/rules/ksp-architecture.md` for the full architecture (feature/core/
 1. Define annotation in `cream-runtime/src/commonMain/kotlin/me/tbsten/cream/`
 2. Add a `GenerateSourceAnnotation` implementation named `<Name>SourceAnnotation` in `core/common/` (package `me.tbsten.cream.ksp.core.common`), overriding only the rules the annotation needs and exposing `findMappedSourceProperty` / `isExcluded` properties when it has `.Map` / `@Exclude` semantics — do NOT add a `when` over the implementations
 3. Add `feature/<name>/Process<Name>.kt` with `context(ctx: ProcessContext) fun processXxx(): List<KSAnnotated>` (discover -> validate -> call core; no generation logic in feature)
-4. Reuse / extend generation logic under `core/` (`copyFun` / `combineFun` / `sealedCopy`, shared parts in `common`)
+4. Reuse / extend generation logic under `core/` (`copyFun` / `combineFun` / `sealedCopy` / `parentOptional`, shared parts in `common`)
 5. Register the dispatch in `CreamSymbolProcessor.process()`
 6. Add test data in `test/src/commonMain/kotlin/me/tbsten/cream/test/newAnnotation/` and test cases in `test/src/commonTest/...`, plus snapshot/diagnostic tests in `cream-ksp` (see `.claude/rules/ksp-test.md`)
 
@@ -267,6 +272,7 @@ Generation logic lives under `core/` (see `.claude/rules/ksp-core-top-level.md` 
 - **Copy generation (class/object/sealed):** `core/copyFun/`
 - **Combine generation:** `core/combineFun/`
 - **`@SealedCopy` generation:** `core/sealedCopy/`
+- **`@ParentOptional` accessor generation:** `core/parentOptional/`
 - **Type parameters / KDoc:** `core/common/`
 
 ## Key Files to Know
@@ -276,7 +282,7 @@ Generation logic lives under `core/` (see `.claude/rules/ksp-core-top-level.md` 
 | KSP entry point & orchestration (`CreamSymbolProcessor`) | cream-ksp/src/main/kotlin/me/tbsten/cream/ksp/ |
 | Process context (`{resolver, options, codeGenerator, logger}`) | cream-ksp/src/main/kotlin/me/tbsten/cream/ksp/ProcessContext.kt |
 | Per-annotation entry points (`processXxx`) | cream-ksp/src/main/kotlin/me/tbsten/cream/ksp/feature/<name>/ |
-| Copy / combine / sealed-copy generation | cream-ksp/src/main/kotlin/me/tbsten/cream/ksp/core/{copyFun,combineFun,sealedCopy}/ |
+| Copy / combine / sealed-copy / parent-accessor generation | cream-ksp/src/main/kotlin/me/tbsten/cream/ksp/core/{copyFun,combineFun,sealedCopy,parentOptional}/ |
 | Shared generation parts (naming, property matching, type params, KDoc) | cream-ksp/src/main/kotlin/me/tbsten/cream/ksp/core/common/ |
 | Generic helpers (no cream-specific types) | cream-ksp/src/main/kotlin/me/tbsten/cream/ksp/util/ |
 | Configuration parsing (`CreamOptions`) | cream-ksp/shared/src/commonMain/kotlin/me/tbsten/cream/ksp/options/CreamOptions.kt |
