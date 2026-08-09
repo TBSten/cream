@@ -186,6 +186,7 @@ class ItemRepositoryImpl : ItemRepository {
 | `@CombineTo(Target::class)` | 各コピー元クラス | **複数**のコピー元 → 1 つのターゲットへの combine 関数 | [docs](doc/combine.ja.md#combineto) |
 | `@CombineFrom(SourceA::class, SourceB::class, ...)` | ターゲットクラス | `@CombineTo` と同じ（アノテーションをターゲット側に置く） | [docs](doc/combine.ja.md#combinefrom) |
 | `@CombineMapping(...)` | 自モジュール内の宣言 | 変更できないクラス同士の combine 関数 | [docs](doc/combine.ja.md#combinemapping) |
+| `@CallFrom(Args::class)` | 関数（トップレベル / メンバー / 拡張関数） | 引数ホルダークラスから関数を呼び出すブリッジオーバーロード | [docs](doc/call-from.ja.md) |
 
 ## カスタマイズ
 

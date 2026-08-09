@@ -6,7 +6,7 @@ paths:
 # cream-ksp core 直下 (`ksp/core/*.kt`)
 
 ❌ **`core/` 直下に `.kt` を置かない**。必ず次のサブディレクトリへ
-（`core/ArchTest`（Konsist）で強制: core ファイルは下表 4 サブパッケージのみ）。
+（`core/ArchTest`（Konsist）で強制: core ファイルは下表 5 サブパッケージのみ）。
 全体アーキテクチャは `ksp-architecture.md` を参照。
 
 | サブ | 置くもの |
@@ -15,8 +15,9 @@ paths:
 | `core/copyFun/` | copy 関数生成（class/object/sealed への dispatch、Class/Object/SealedClass 生成） |
 | `core/combineFun/` | combine 関数生成（N source → 1 target、CombineToClass、combine の KDoc 例） |
 | `core/sealedCopy/` | `@SealedCopy` 生成（`when(this)` 自己 copy、leaf 分類。肥大ファイルは責務単位で複数に分割） |
+| `core/callFrom/` | `@CallFrom` ブリッジ生成（引数ホルダー → 関数呼び出しの同名オーバーロード） |
 
-✅ core がやること: cream 固有の生成ロジック。共有部品を `common` に括り出し、`copyFun`/`combineFun`/`sealedCopy` が組み合わせる（過度な汎用化はしない）。
+✅ core がやること: cream 固有の生成ロジック。共有部品を `common` に括り出し、`copyFun`/`combineFun`/`sealedCopy`/`callFrom` が組み合わせる（過度な汎用化はしない）。
 
 ❌ core がやってはいけないこと:
 - `feature` を import する。

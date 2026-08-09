@@ -3,9 +3,9 @@
 # Property mapping (.Map)
 
 You can use `@CopyTo.Map`, `@CopyFrom.Map`, `@CopyToChildren.Map`, `@SealedCopy.Map`,
-`@CombineTo.Map`, and `@CombineFrom.Map` to map differently-named properties onto each other.
-This is useful when the two sides of a generated copy function — a source and a target class,
-or a sealed parent and its children — name the same value differently.
+`@CombineTo.Map`, `@CombineFrom.Map`, and `@CallFrom.Map` to map differently-named properties
+onto each other. This is useful when the two sides of a generated copy function — a source and a
+target class, or a sealed parent and its children — name the same value differently.
 
 > [!NOTE]
 > `.Map` is not [`@CopyMapping`](../copy.md#copymapping), which generates a copy function *between two classes*

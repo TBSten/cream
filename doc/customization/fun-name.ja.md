@@ -41,7 +41,7 @@ fun Loading.copyToSuccess(): UiState.Success = ...
 
 | トークン | 展開結果（遷移先が `com.example.UiState.Success` の場合） |
 |---|---|
-| `DefaultCopyFunctionName` | cream が導出したデフォルト名（`copyToUiStateSuccess`。`@SealedCopy` では `copy`） |
+| `DefaultCopyFunctionName` | その注釈での cream の既定名（`copyToUiStateSuccess`、`@SealedCopy` は `copy`、`@CallFrom` は注釈を付けた関数自身の名前） |
 | `CopyTargetSimpleName` / `copy_target_simple_name` | `Success` / `success` |
 | `CopyTargetUnderPackage` / `copy_target_under_package` | `UiStateSuccess` / `uistate_success` |
 | `CopyTargetInnerName` / `copy_target_inner_name` | `Success` / `success` |

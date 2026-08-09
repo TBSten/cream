@@ -43,7 +43,7 @@ or string templates keeps the whole expression a compile-time constant):
 
 | Token | Expands to (target `com.example.UiState.Success`) |
 |---|---|
-| `DefaultCopyFunctionName` | cream's derived default name (`copyToUiStateSuccess`; `copy` for `@SealedCopy`) |
+| `DefaultCopyFunctionName` | cream's default name for that annotation (`copyToUiStateSuccess`; `copy` for `@SealedCopy`; the annotated function's own name for `@CallFrom`) |
 | `CopyTargetSimpleName` / `copy_target_simple_name` | `Success` / `success` |
 | `CopyTargetUnderPackage` / `copy_target_under_package` | `UiStateSuccess` / `uistate_success` |
 | `CopyTargetInnerName` / `copy_target_inner_name` | `Success` / `success` |
@@ -52,6 +52,11 @@ or string templates keeps the whole expression a compile-time constant):
 When one annotation generates more than one function (multiple targets, a sealed target, …), a
 literal-only `funName` would give every function the same name and is rejected at build time.
 Include a token so each function gets a distinct name.
+
+`@CallFrom` supports only `DefaultCopyFunctionName` (which expands to the annotated function's own
+name); the `CopyTarget*` tokens render a target *class*, which it does not have, so embedding one is
+a positioned compile error. The project-wide options below do not affect `@CallFrom` or
+`@SealedCopy`.
 
 ## Configuring module-wide naming rules via KSP options
 

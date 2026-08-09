@@ -190,6 +190,7 @@ See the docs below for the details of each feature.
 | `@CombineTo(Target::class)` | Each source class | Combine function from **multiple** sources to one target | [docs](doc/combine.md#combineto) |
 | `@CombineFrom(SourceA::class, SourceB::class, ...)` | Target class | Same as `@CombineTo`, annotation placed on the target side | [docs](doc/combine.md#combinefrom) |
 | `@CombineMapping(...)` | A declaration in your module | Combine function between classes you cannot modify | [docs](doc/combine.md#combinemapping) |
+| `@CallFrom(Args::class)` | Function (top-level / member / extension) | Bridge overload that calls the function from an argument-holder class | [docs](doc/call-from.md) |
 
 ## Customization
 

@@ -21,7 +21,7 @@ paths:
 
 機能 (feature) ごとにディレクトリを分け、各 feature は同じ **5 種類** のテストを持つ。
 **現状 (#127)**: テスト基盤 (`testing/`、generator / poet 含む) / Konsist / `MultipleDiagnosticsTest` /
-全 8 feature の `<Feat>SnapshotTest`（`scenario/` 付き）は実装済み。`<Feat>BasicUsageTest` /
+全 9 feature の `<Feat>SnapshotTest`（`scenario/` 付き）は実装済み。`<Feat>BasicUsageTest` /
 `<Feat>InvalidUsageTest` / `<Feat>EdgeUsageTest` / `<Feat>PropertyTest` は一部を除きまだ `xtest` の
 空スタブ（`// TODO(#127): reimplement ...`）で、順次実装し直す。
 
@@ -32,7 +32,7 @@ cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/
 ├── OptionsDiagnosticTest.kt / DefaultVisibilityOptionTest.kt / options/  # option 系
 ├── feature/
 │   ├── ArchTest.kt             # feature 層レイヤリング Konsist
-│   └── <copyTo|copyFrom|copyToChildren|sealedCopy|combineTo|combineFrom|copyMapping|combineMapping>/
+│   └── <copyTo|copyFrom|copyToChildren|sealedCopy|combineTo|combineFrom|copyMapping|combineMapping|callFrom>/
 │       ├── <Feat>BasicUsageTest.kt    # 正常系 (example-based) ※多くは stub
 │       ├── <Feat>InvalidUsageTest.kt  # 不正利用 → エラー (diagnostic) ※多くは stub
 │       ├── <Feat>EdgeUsageTest.kt     # レアケース ＋ @Map/@Exclude 等の意味的ケース ※多くは stub
@@ -55,7 +55,7 @@ cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/
 - **feature 5 種**: 各 feature は上記 5 ファイルを持つ（正常系 / 不正系 / エッジ / PBT / snapshot）。
 - **generator × snapshot**: `<Feat>SnapshotTest` は `scenario/` の curated case（family ごとの
   `Generator.snapshotScenarios(...)`）を `union` でまとめ、`Generator.validCreamOptions()` と
-  `cartesian` で掛け合わせて `runCompileSnapshotTest` で golden 比較する（全 8 feature 実装済み。
+  `cartesian` で掛け合わせて `runCompileSnapshotTest` で golden 比較する（全 9 feature 実装済み。
   横展開の手順は `.claude/skills/cream-snapshot-test`）。snapshot は決定的に保つこと。
 - **UseCase snapshot cases**: `<Feat>SnapshotTest` には family × options の `"All patterns"` に加え、
   `doc/use-case/` の利用例を固定する `"UseCase" - { "<題材>" { ... } }` グループを置く
@@ -178,7 +178,7 @@ stack frame は Gradle / JUnit / KSP / cream 自身の line 変更や `... NN mo
 - 共有ヘルパーが必要になったら `testing/`（基盤）/ `testing/generator/`（case 生成）/
   `testing/konsist/`（Konsist 共有）に追加し、本ドキュメントの「レイアウト」を更新する。
 
-> #127 進捗: 基盤 (`testing/`)・generator・smoke・Konsist (3 つの ArchTest)・全 8 feature の
+> #127 進捗: 基盤 (`testing/`)・generator・smoke・Konsist (3 つの ArchTest)・全 9 feature の
 > `<Feat>SnapshotTest`・`MultipleDiagnosticsTest`・`core/common` は実装済みで green。残る
 > `<Feat>BasicUsageTest` / `InvalidUsageTest` / `EdgeUsageTest` / `PropertyTest` は一部を除き
 > `xtest` スタブなので、ここから順次実装し直す。
