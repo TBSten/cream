@@ -49,6 +49,9 @@ internal fun Generator.Companion.validCreamOptions(
             escapeDot = escape,
             notCopyToObject = notCopyObject,
             defaultVisibility = visibility,
+            // Pinned to the default: varying it here would multiply every snapshot family's
+            // compile count, so the option gets a targeted test of its own instead.
+            autoValueClassMapping = CreamOptions.default.autoValueClassMapping,
         )
     }.withRepresentativeValues {
         listOf(
@@ -161,6 +164,7 @@ private fun creamOptionsLabel(options: CreamOptions): String {
             if (options.escapeDot != default.escapeDot) add("escapeDot=${options.escapeDot.name}")
             if (options.notCopyToObject != default.notCopyToObject) add("notCopyToObject=${options.notCopyToObject}")
             if (options.defaultVisibility != default.defaultVisibility) add("defaultVisibility=${options.defaultVisibility.name}")
+            if (options.autoValueClassMapping != default.autoValueClassMapping) add("autoValueClassMapping=${options.autoValueClassMapping}")
         }
     return if (parts.isEmpty()) "Default" else parts.joinToString(separator = ", ", prefix = "(", postfix = ")")
 }
