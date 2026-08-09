@@ -76,7 +76,9 @@ internal class SealedCopySnapshotTest :
                         "repeatable" case repeatableScenarios()
                     }
                 },
-                Generator.validCreamOptions(),
+                // @SealedCopy's default name is the literal `copy`, not cream's derived name, so the
+                // project naming options never reach it — see resolveSealedCopyFunName.
+                Generator.validCreamOptions(namingOptionsApply = false),
                 label = { scenarioLabel, optionsLabel -> "option=$optionsLabel/$scenarioLabel" },
             ).representativeValues()
                 .forEach { (testCaseName, value) ->

@@ -23,6 +23,10 @@ import me.tbsten.cream.ksp.testing.generator.util.withRepresentativeValues
  * [withRepresentativeValues]) centered on [CreamOptions.default] — the full 2×3×2×2×2 = 48 product is
  * too many for snapshot / example use. Each axis defaults to its per-axis factory below, and any axis
  * can be overridden by passing a custom [Generator] (e.g. to pin or widen a single option).
+ *
+ * Pass `namingOptionsApply = false` for a feature whose generated name ignores the project naming
+ * options — `@SealedCopy`'s `copy`, which is a fixed default name rather than a derived one. Its
+ * representative sets then collapse to the ones that can actually change its output.
  */
 internal fun Generator.Companion.validCreamOptions(
     copyFunNamePrefix: Generator<String> = copyFunNamePrefix(),
@@ -30,6 +34,7 @@ internal fun Generator.Companion.validCreamOptions(
     escapeDot: Generator<EscapeDot> = escapeDot(),
     notCopyToObject: Generator<Boolean> = notCopyToObject(),
     defaultVisibility: Generator<CopyVisibility> = defaultVisibility(),
+    namingOptionsApply: Boolean = true,
 ): Generator<CreamOptions> =
     combine(
         copyFunNamePrefix.mapLabel { "copyFunNamePrefix=$it" },
@@ -58,8 +63,25 @@ internal fun Generator.Companion.validCreamOptions(
                 copyFunNamingStrategy = CopyFunNamingStrategy.`inner-name`,
                 defaultVisibility = CopyVisibility.INTERNAL,
             ),
-        ).forEach { options -> creamOptionsLabel(options) case options }
+        ).map { options -> if (namingOptionsApply) options else options.withDefaultNamingOptions() }
+            .distinct()
+            .forEach { options -> creamOptionsLabel(options) case options }
     }
+
+/**
+ * Reset the naming axes (`copyFunNamePrefix` / `copyFunNamingStrategy` / `escapeDot`) to their
+ * defaults, for a feature whose generated name ignores them.
+ *
+ * Their representative values would otherwise multiply the golden matrix without changing a byte
+ * of generated code, and the surviving sets' labels would advertise options that had no effect.
+ * After the reset, sets that differ only in those axes collapse into one.
+ */
+private fun CreamOptions.withDefaultNamingOptions(): CreamOptions =
+    copy(
+        copyFunNamePrefix = CreamOptions.default.copyFunNamePrefix,
+        copyFunNamingStrategy = CreamOptions.default.copyFunNamingStrategy,
+        escapeDot = CreamOptions.default.escapeDot,
+    )
 
 /**
  * `copyFunNamePrefix` の軸 generator。代表は default の "copyTo" と短い "to"。arb は「Kotlin 識別子に
