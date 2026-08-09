@@ -1,0 +1,38 @@
+package me.tbsten.cream.test.callFrom
+
+import me.tbsten.cream.CallFrom
+import me.tbsten.cream.DefaultCopyFunctionName
+
+data class BuildConfigArgs(
+    val name: String,
+    val size: Int,
+)
+
+// A custom `funName` renames the bridge to `createBuildConfig` (not an overload of `buildConfig`).
+// The generated bridge still delegates to the original `buildConfig`, so it is not self-recursive.
+@CallFrom(BuildConfigArgs::class, funName = "createBuildConfig")
+fun buildConfig(
+    name: String,
+    size: Int,
+): String = "$name:$size"
+
+data class ParseArgs(
+    val raw: String,
+)
+
+// DefaultCopyFunctionName expands to `parse`, so the bridge is named `parseFromArgs`.
+@CallFrom(ParseArgs::class, funName = DefaultCopyFunctionName + "FromArgs")
+fun parse(raw: String): Int = raw.length
+
+data class ScaleArgs(
+    val factor: Int,
+)
+
+class Renderer(
+    private val base: Int,
+) {
+    // A custom `funName` on a member function: the bridge is the extension `Renderer.scaledBy`,
+    // whose body delegates to the original member `scale` through the receiver.
+    @CallFrom(ScaleArgs::class, funName = "scaledBy")
+    fun scale(factor: Int): Int = base * factor
+}
