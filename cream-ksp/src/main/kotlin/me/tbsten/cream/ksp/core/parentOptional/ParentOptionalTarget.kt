@@ -5,6 +5,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import me.tbsten.cream.ksp.InvalidCreamUsageException
+import me.tbsten.cream.ksp.core.common.ChildOptionalsSourceAnnotation
 import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.core.common.ParentOptionalSourceAnnotation
 import me.tbsten.cream.ksp.core.common.fullName
@@ -14,8 +15,10 @@ import me.tbsten.cream.ksp.util.ksp.asString
 /**
  * One `(child property -> sealed parent)` contribution to a generated accessor.
  *
- * [sourceAnnotation] is the annotation occurrence that opted this property in. It drives the
- * generated KDoc attribution and the visibility resolution.
+ * [sourceAnnotation] is the annotation occurrence that opted this property in —
+ * [ParentOptionalSourceAnnotation] for an explicitly annotated property, or
+ * [ChildOptionalsSourceAnnotation] when the property was swept up by the parent-side
+ * blanket annotation. It drives the generated KDoc attribution and the visibility resolution.
  */
 internal data class ParentOptionalEntry(
     val child: KSClassDeclaration,
@@ -195,7 +198,7 @@ private fun childTypeParamToParentName(
 /**
  * The names of type parameters referenced by this property's type that the sealed [parent] does
  * NOT pin (see [childTypeParamToParentName]); empty when the type is fully expressible on the
- * parent receiver. A blanket sweep can use this pre-check to *skip* such
+ * parent receiver. The `@ChildOptionals` blanket sweep uses this pre-check to *skip* such
  * properties with a warning, where an explicit `@ParentOptional` reports an error instead
  * (via [validatedPropertyTypeTextOrNull]) — both walk the type the same way, so they always
  * agree on what is expressible.

@@ -30,6 +30,9 @@ import me.tbsten.cream.ksp.testing.generator.util.union
  * - No targetKind / nesting / constructor / matching families — there is no referenced target class,
  *   no constructor call, and no property matching (the accessor reads a single property); receiver
  *   FQ-name rendering is exercised by the nested hierarchy cases.
+ * - `@ChildOptionals`-annotated ancestors (ownership rule) — snapshot-pinned from the other side in
+ *   `ChildOptionalsSnapshotTest`'s `parentOptionalInterop` family; the suppression itself is
+ *   example-tested in `ParentOptionalBasicUsageTest`.
  * - Options other than `defaultVisibility` (prefix / strategy / escapeDot / notCopyToObject) do not
  *   affect accessor generation — the representative option variants pin that invariance byte-identically.
  */

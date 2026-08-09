@@ -55,7 +55,8 @@ internal fun KSPropertyDeclaration.isExtensionProperty(): Boolean = extensionRec
 /**
  * Report the extension-property misuse (see [isExtensionProperty]) as a positioned
  * `COMPILATION_ERROR`. The `@ParentOptional` feature reports it for every annotated extension
- * property, so nothing slips through.
+ * property (before the `@ChildOptionals` ownership filter, so nothing slips through); the
+ * `@ChildOptionals` sweep skips extension properties silently to avoid duplicating that report.
  */
 context(logger: KSPLogger)
 internal fun reportParentOptionalExtensionProperty(property: KSPropertyDeclaration) {

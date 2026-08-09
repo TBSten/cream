@@ -13,7 +13,7 @@ import me.tbsten.cream.ksp.testing.snapshot.assertMatchesSnapshot
  * Diagnostics for invalid `@ParentOptional` usage (issue #135). Every misuse must surface as a
  * positioned `COMPILATION_ERROR` with an actionable solution — never as silently skipped or
  * mis-generated code. Covers the property-side checks (no sealed parent / inaccessible property /
- * extension property) and the accessor-merge checks (type mismatch —
+ * extension property) and the accessor-merge checks shared with `@ChildOptionals` (type mismatch —
  * incl. nullable-vs-non-null and alias-vs-expansion — / parent member collision / duplicate
  * contributions from one child / type parameters the parent does not pin / forced-public
  * signatures exposing internal symbols).

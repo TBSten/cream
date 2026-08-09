@@ -10,6 +10,7 @@ import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.validate
+import me.tbsten.cream.ChildOptionals
 import me.tbsten.cream.ParentOptional
 import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.ProcessContext
@@ -98,6 +99,9 @@ internal fun processParentOptional(): List<KSAnnotated> =
 
             val accessorName = generateSourceAnnotation.accessorName
             sealedAncestors
+                // Ownership rule: an ancestor annotated with @ChildOptionals generates (and merges)
+                // its own accessors, so the @ParentOptional feature must not emit a duplicate.
+                .filterNot { ancestor -> ancestor.annotationsOf(ChildOptionals::class).any() }
                 .forEach { parent ->
                     groups
                         .getOrPut(parent.fullName) { ParentAccessorGroup(parent) }

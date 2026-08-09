@@ -132,4 +132,28 @@ internal class ParentOptionalBasicUsageTest :
                 generated shouldNotContain "String??"
             }
         }
+
+        "childOptionalsOwnedParentGeneratesOnlyOnce" {
+            // Ownership rule: when the sealed parent itself carries @ChildOptionals, the
+            // @ParentOptional feature must NOT emit a second (conflicting) accessor for it.
+            val source =
+                """
+                package basic.po.own
+
+                import me.tbsten.cream.ChildOptionals
+                import me.tbsten.cream.ParentOptional
+
+                @ChildOptionals
+                sealed interface MyState {
+                    data class Success(@ParentOptional val data: String) : MyState
+                    data object Loading : MyState
+                }
+                """.trimIndent()
+            val result = compileWithCream(source)
+
+            withClue(result.messages) {
+                result.exitCode shouldBe KotlinCompilation.ExitCode.OK
+                result.generatedSourceText() shouldContainOnlyOnce "val basic.po.own.MyState.data: String?"
+            }
+        }
     })

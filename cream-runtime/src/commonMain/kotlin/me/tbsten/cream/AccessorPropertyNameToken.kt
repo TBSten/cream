@@ -5,9 +5,10 @@ package me.tbsten.cream
 /**
  * The name cream gives a generated accessor by default — the annotated property's own name.
  *
- * [ParentOptional.propertyName] is a **template string**, the way `funName` is for the copy/combine
- * annotations, and this token is its default value. Embed it to derive a name instead of spelling
- * one out; because it is a `const val`, interpolation and `+` both stay compile-time constants:
+ * [ParentOptional.propertyName] and [ChildOptionals.propertyName] are **template strings**, the
+ * way `funName` is for the copy/combine annotations, and this token is their default value. Embed
+ * it to derive a name instead of spelling one out; because it is a `const val`, interpolation and
+ * `+` both stay compile-time constants:
  *
  * ```kt
  * import me.tbsten.cream.*
