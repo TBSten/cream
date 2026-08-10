@@ -12,9 +12,11 @@ import me.tbsten.cream.ksp.feature.combineTo.scenario.multiSourceScenarios
 import me.tbsten.cream.ksp.feature.combineTo.scenario.propertyShapeScenarios
 import me.tbsten.cream.ksp.feature.combineTo.scenario.sourceKindScenarios
 import me.tbsten.cream.ksp.feature.combineTo.scenario.targetKindScenarios
+import me.tbsten.cream.ksp.feature.combineTo.scenario.valueClassMappingScenarios
 import me.tbsten.cream.ksp.feature.combineTo.scenario.visibilityScenarios
 import me.tbsten.cream.ksp.testing.compile.runCompileSnapshotTest
 import me.tbsten.cream.ksp.testing.generator.Generator
+import me.tbsten.cream.ksp.testing.generator.cream.defaultCreamOptionsOnly
 import me.tbsten.cream.ksp.testing.generator.cream.validCreamOptions
 import me.tbsten.cream.ksp.testing.generator.util.cartesian
 import me.tbsten.cream.ksp.testing.generator.util.union
@@ -64,7 +66,17 @@ internal class CombineToSnapshotTest :
                 Generator.validCreamOptions(),
                 label = { scenarioLabel, optionsLabel -> "option=$optionsLabel/$scenarioLabel" },
             ).representativeValues()
-                .forEach { (testCaseName, value) ->
+                .plus(
+                    // valueClassMapping runs under Default alone: no project option can move a
+                    // conversion default, so the other sets' goldens would differ in nothing but the
+                    // echoed options, the generated name and its visibility modifier — each already
+                    // pinned by this suite's own funName / visibility family.
+                    cartesian(
+                        union { "12--valueClassMapping" case valueClassMappingScenarios() },
+                        Generator.defaultCreamOptionsOnly(),
+                        label = { scenarioLabel, optionsLabel -> "option=$optionsLabel/$scenarioLabel" },
+                    ).representativeValues(),
+                ).forEach { (testCaseName, value) ->
                     val (scenario, creamOptions) = value
 
                     testCaseName!! {

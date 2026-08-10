@@ -51,6 +51,22 @@ internal fun inputFileSpec(
     vararg declarations: TypeSpec,
 ): FileSpec = inputFileSpec(packageName, declarations.toList())
 
+/**
+ * [this] の各 file に [declarations] を top-level 宣言として追加したコピーを返す。既存のファクトリ
+ * (`copyMapping(...)` / `combinedInto(...)` 等) が組んだ scenario に sibling 宣言（value class など）を
+ * 後付けする用。単一ファイル（単一パッケージ）scenario 向け — 複数ファイル scenario では全ファイルに
+ * 追加されてしまうので使わないこと。
+ */
+internal fun SnapshotScenario.plusDeclarations(vararg declarations: TypeSpec): SnapshotScenario =
+    SnapshotScenario(
+        files.map { file ->
+            file
+                .toBuilder()
+                .apply { declarations.forEach { addType(it) } }
+                .build()
+        },
+    )
+
 /** curated な (label -> scenario) 群を [Generator] に。arb は representative からの一様抽選。 */
 internal fun Generator.Companion.snapshotScenarios(vararg cases: Pair<String, SnapshotScenario>): Generator<SnapshotScenario> =
     generator {

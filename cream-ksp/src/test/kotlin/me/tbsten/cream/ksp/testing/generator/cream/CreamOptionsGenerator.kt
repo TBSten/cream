@@ -49,8 +49,8 @@ internal fun Generator.Companion.validCreamOptions(
             escapeDot = escape,
             notCopyToObject = notCopyObject,
             defaultVisibility = visibility,
-            // Pinned to the default: varying it here would multiply every snapshot family's
-            // compile count, so the option gets a targeted test of its own instead.
+            // Pinned to the default (true): varying it here would multiply every snapshot family's
+            // compile count. The option is covered by the targeted ValueClassMappingOptionTest.
             autoValueClassMapping = CreamOptions.default.autoValueClassMapping,
         )
     }.withRepresentativeValues {
@@ -69,6 +69,20 @@ internal fun Generator.Companion.validCreamOptions(
         ).map { options -> if (namingOptionsApply) options else options.withDefaultNamingOptions() }
             .distinct()
             .forEach { options -> creamOptionsLabel(options) case options }
+    }
+
+/**
+ * The single `Default` representative, for a snapshot **family** no project option can move.
+ *
+ * [validCreamOptions]`(namingOptionsApply = false)` narrows a whole suite to the option sets that can
+ * still change its output; this narrows one family inside a suite that legitimately needs the full
+ * matrix elsewhere. Reach for it only when the extra sets would re-prove what the suite's `funName` /
+ * `visibility` families already pin — i.e. the family's goldens would differ from `Default` in
+ * nothing but the echoed options, the generated function's name and its visibility modifier.
+ */
+internal fun Generator.Companion.defaultCreamOptionsOnly(): Generator<CreamOptions> =
+    validCreamOptions().withRepresentativeValues {
+        creamOptionsLabel(CreamOptions.default) case CreamOptions.default
     }
 
 /**
