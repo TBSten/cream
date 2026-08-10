@@ -21,10 +21,17 @@ import com.google.devtools.ksp.symbol.KSValueParameter
  *  - `parameter` — the target constructor parameter being resolved,
  *  - `source` — the source class to look the property up in,
  *  - `parameterName` — `parameter`'s name, already resolved by the caller (a parameter without one
- *    never reaches here).
+ *    never reaches here),
+ *  - `accepts` — the acceptance test a candidate property must pass before the remapping commits
+ *    to it. [findMatchedProperty] instantiates it with type compatibility (the normal auto-copy
+ *    default resolution); the automatic value-class conversion
+ *    ([findValueClassConversionOutcome]) instantiates it with value-class convertibility, which
+ *    is what makes `.Map`-renamed properties wrap/unwrap exactly like plain name matches
+ *    (issue #21). A rejected candidate falls through to the plain name match.
  */
 internal typealias FindMappedSourceProperty = (
     parameter: KSValueParameter,
     source: KSClassDeclaration,
     parameterName: String,
+    accepts: (KSPropertyDeclaration) -> Boolean,
 ) -> KSPropertyDeclaration?
