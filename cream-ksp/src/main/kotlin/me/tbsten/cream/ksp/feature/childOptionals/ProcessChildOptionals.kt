@@ -44,8 +44,8 @@ internal fun processChildOptionals(): List<KSAnnotated> =
                     annotationName = ChildOptionals::class.fullName,
                 ).partition { it.validate() }
 
-        // Qualified names of properties whose @ChildOptionals.Exclude actually dropped a swept
-        // accessor contribution — so the no-effect pass at the end stays quiet for them.
+        // Properties whose @ChildOptionals.Exclude actually dropped a contribution, so the
+        // no-effect pass at the end stays quiet for them.
         val excludeTookEffect = mutableSetOf<String>()
 
         childOptionalsTargets.forEach { annotated ->
@@ -59,8 +59,7 @@ internal fun processChildOptionals(): List<KSAnnotated> =
             }
             val parent = annotated
 
-            // Read the raw KSAnnotation (not a getAnnotationsByType proxy): see the
-            // GenerateSourceAnnotation docs for why KSP2's typed proxy is avoided.
+            // Raw KSAnnotation, not a getAnnotationsByType proxy — see GenerateSourceAnnotation.
             val childOptionalsAnnotation =
                 parent.annotationsOf(ChildOptionals::class).firstOrNull() ?: return@forEach
             val parentSourceAnnotation = ChildOptionalsSourceAnnotation(childOptionalsAnnotation)
@@ -73,32 +72,23 @@ internal fun processChildOptionals(): List<KSAnnotated> =
 
             val entriesByAccessorName = LinkedHashMap<String, MutableList<ParentOptionalEntry>>()
             parent.collectConcreteSubclasses().forEach leaf@{ leaf ->
-                // Blanket application skips leaves the generated `is` branch could not reference
-                // (private / protected anywhere in the enclosing chain) silently — the same
-                // asymmetry as inaccessible properties (explicit @ParentOptional errors instead).
+                // The sweep skips what it cannot usefully lift rather than failing the whole
+                // hierarchy; the same shape carrying an explicit @ParentOptional is an error,
+                // reported by that feature.
                 if (!leaf.isAccessibleFromGeneratedAccessor()) return@leaf
                 leaf.getDeclaredProperties().forEach property@{ property ->
-                    // Blanket application skips inaccessible properties silently (unlike an
-                    // explicit @ParentOptional, which reports an error).
                     if (!property.isAccessibleFromGeneratedAccessor()) return@property
 
-                    // The ownership rule routes generation here, so an explicit @ParentOptional
-                    // layers its arguments over this annotation's (ParentOptionalSourceAnnotation).
+                    // Ownership routes generation here, so an explicit @ParentOptional layers its
+                    // arguments over this annotation's.
                     val parentOptionalAnnotation = property.parentOptionalAnnotationOrNull()
 
-                    // Extension properties cannot be read by the accessor (see
-                    // isExtensionProperty). Blanket application skips them silently — they are
-                    // computed views, not state of the leaf. An explicit @ParentOptional on one
-                    // is a misuse, but the @ParentOptional feature already reports it (it sees
-                    // every annotated property before applying the ownership filter), so skipping
-                    // here too avoids a duplicate diagnostic.
+                    // The @ParentOptional feature sees every annotated property before the
+                    // ownership filter, so skipping here avoids a duplicate diagnostic.
                     if (property.isExtensionProperty()) return@property
 
-                    // A property type referencing a type parameter the annotated parent does not
-                    // pin is not expressible on the parent receiver. The blanket sweep skips it
-                    // with a warning (the hierarchy is otherwise fine); an explicitly
-                    // @ParentOptional-annotated property flows on and gets the positioned error
-                    // from the shared accessor validation instead.
+                    // Not expressible on the parent receiver. Warned rather than silent because the
+                    // property otherwise looks liftable; an annotated one gets a positioned error.
                     if (parentOptionalAnnotation == null) {
                         val unpinnedNames = property.typeParameterNamesUnpinnedBy(leaf, parent)
                         if (unpinnedNames.isNotEmpty()) {
@@ -120,20 +110,13 @@ internal fun processChildOptionals(): List<KSAnnotated> =
                             parentSourceAnnotation.accessorNameFor(property) to parentSourceAnnotation
                         }
 
-                    // Already visible on the parent (overrides included): the member always wins
-                    // over an extension, so an accessor would be dead code. Compared against the
-                    // RESOLVED name, so a template that renames it away from the member keeps it.
-                    // An explicit @ParentOptional bypasses the filter — a name still colliding
-                    // with a member is reported by the shared validation instead of dropped.
+                    // A member always beats an extension, so the accessor would be dead code.
+                    // Compared against the RESOLVED name, so a renaming template keeps the property.
                     if (parentOptionalAnnotation == null && accessorName in parentVisiblePropertyNames) return@property
 
-                    // Sweep opt-out: @ChildOptionals.Exclude drops a swept property from generation
-                    // entirely (no accessor from this contributor). Checked last, so it only fires
-                    // for a property the sweep would OTHERWISE have picked up — an exclude on a
-                    // property already skipped above is a no-op reported by the pass at the end.
-                    // An explicit @ParentOptional (parentOptionalAnnotation != null) is opted in by
-                    // hand and wins: its accessor is still generated, so the exclude is honoured
-                    // only for sweep-discovered properties.
+                    // Checked last, so it only fires for a property the sweep would otherwise
+                    // have picked up; an exclude on one already skipped above is the no-op warned
+                    // at the end. An explicit @ParentOptional is a hand opt-in and beats it.
                     if (parentOptionalAnnotation == null && property.hasChildOptionalsExclude()) {
                         property.qualifiedName?.asString()?.let(excludeTookEffect::add)
                         return@property
@@ -147,17 +130,14 @@ internal fun processChildOptionals(): List<KSAnnotated> =
                         )
                 }
             }
-            // A transitive *intermediate* sealed type's own @ParentOptional properties are not
-            // visible on [parent] and are declared by no leaf, so the leaf sweep above misses
-            // them — while the @ParentOptional feature cedes this ancestor's accessor to this
-            // feature (ownership rule). Collect them here: a single `is Intermediate` branch
-            // covers every leaf below it.
+            // An intermediate sealed type's own @ParentOptional properties are declared by no
+            // leaf, so the sweep above misses them, while ownership cedes this ancestor to this
+            // feature. One `is Intermediate` branch covers every leaf below it.
             parent.collectIntermediateSealedSubclasses().forEach intermediate@{ intermediate ->
                 if (!intermediate.isAccessibleFromGeneratedAccessor()) return@intermediate
                 intermediate.getDeclaredProperties().forEach property@{ property ->
                     val parentOptionalAnnotation = property.parentOptionalAnnotationOrNull() ?: return@property
                     if (!property.isAccessibleFromGeneratedAccessor()) return@property
-                    // Misuse already reported by the @ParentOptional feature (see the leaf sweep).
                     if (property.isExtensionProperty()) return@property
 
                     val propertyGsa =
@@ -199,12 +179,9 @@ internal fun processChildOptionals(): List<KSAnnotated> =
             }
         }
 
-        // No-effect warning: an @ChildOptionals.Exclude that never removed a swept accessor — the
-        // enclosing class is not under a @ChildOptionals parent, or the property would not have been
-        // swept anyway (private / extension / already visible on the parent / unpinned type param).
-        // Mirrors cream's other unmatched-@Exclude warnings. A property that is ALSO @ParentOptional
-        // is generated regardless (explicit opt-in wins over the sweep opt-out), so its exclude is
-        // deliberately ignored rather than a mistake — no warning there.
+        // An @ChildOptionals.Exclude that never removed a contribution: not under a
+        // @ChildOptionals parent, or on a property the sweep would have skipped anyway. One that is
+        // ALSO @ParentOptional is generated regardless, so its exclude is ignored by design.
         processContext.resolver
             .getSymbolsWithAnnotation(ChildOptionals.Exclude::class.fullName)
             .mapNotNull { it.asChildOptionalsExcludedPropertyOrNull() }
@@ -224,10 +201,8 @@ private fun KSPropertyDeclaration.hasChildOptionalsExclude(): Boolean =
         correspondingConstructorParameter()?.annotationsOf(ChildOptionals.Exclude::class)?.any() == true
 
 /**
- * Resolve an `@ChildOptionals.Exclude`-annotated symbol to the property it opts out. The annotation
- * targets `PROPERTY`, so KSP2 normally hands us the [KSPropertyDeclaration]; the [KSValueParameter]
- * branch covers a backend that surfaces a primary-constructor `val`'s syntactic site instead
- * (mirroring `@ParentOptional`'s resolution).
+ * The property an `@ChildOptionals.Exclude` opts out. The [KSValueParameter] branch covers a backend
+ * that surfaces a primary-constructor `val`'s syntactic site, as `@ParentOptional` resolution does.
  */
 private fun KSAnnotated.asChildOptionalsExcludedPropertyOrNull(): KSPropertyDeclaration? =
     when (this) {
