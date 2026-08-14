@@ -42,8 +42,8 @@ internal data class CopyMappingSourceAnnotation(
         }
 
     val findMappedSourceProperty: FindMappedSourceProperty =
-        { parameter, source, parameterName ->
-            parameter.findSourcePropertyWithPropertyMappings(source, parameterName, propertyMappings)
+        { parameter, source, parameterName, accepts ->
+            parameter.findSourcePropertyWithPropertyMappings(source, parameterName, propertyMappings, accepts)
         }
 
     val isExcluded: IsExcluded =
@@ -69,8 +69,8 @@ internal data class CombineMappingSourceAnnotation(
         get() = annotation.extractExcludes()
 
     val findMappedSourceProperty: FindMappedSourceProperty =
-        { parameter, source, parameterName ->
-            parameter.findSourcePropertyWithPropertyMappings(source, parameterName, propertyMappings)
+        { parameter, source, parameterName, accepts ->
+            parameter.findSourcePropertyWithPropertyMappings(source, parameterName, propertyMappings, accepts)
         }
 
     val isExcluded: IsExcluded =

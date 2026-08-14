@@ -5,6 +5,7 @@ import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
+import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.util.ksp.collectConcreteSubclasses
 import me.tbsten.cream.ksp.util.ksp.isSealed
 import kotlin.reflect.KClass
@@ -42,19 +43,21 @@ internal fun KSPropertyDeclaration.isSourcePropertyExcluded(
 }
 
 /**
- * Warns when a target-side @Exclude (on a VALUE_PARAMETER) annotates a parameter that
- * has no matched source property — i.e. the Exclude is a no-op because the parameter
- * already had no auto-copy default.
+ * Warns when a target-side @Exclude (on a VALUE_PARAMETER) annotates a parameter that has no
+ * candidate auto-copy default — i.e. the Exclude is a no-op because the parameter was required
+ * anyway. [hasCandidateDefault] must be `true` when the parameter matched a source property OR
+ * resolved a value-class conversion ([findValueClassConversion]): an Exclude that suppresses a
+ * conversion default IS effective and must not be warned about.
  *
  * Only annotations that name a [GenerateSourceAnnotation.warnedTargetExcludeAnnotation] are
  * checked; source-side and sealed-side annotations are warned elsewhere.
  */
 internal fun KSValueParameter.warnIfTargetExcludeHasNoEffect(
-    matchedProperty: KSPropertyDeclaration?,
+    hasCandidateDefault: Boolean,
     generateSourceAnnotation: GenerateSourceAnnotation,
     logger: KSPLogger,
 ) {
-    if (matchedProperty != null) return
+    if (hasCandidateDefault) return
     val paramName = name?.asString() ?: return
     val excludeClass = generateSourceAnnotation.warnedTargetExcludeAnnotation ?: return
     if (annotationsOf(excludeClass).any()) {
@@ -63,13 +66,16 @@ internal fun KSValueParameter.warnIfTargetExcludeHasNoEffect(
 }
 
 /**
- * Warns when a source-side @Exclude (on a source property) never suppresses any
- * auto-copy default — i.e. none of the target parameters matched this source property.
+ * Warns when a source-side @Exclude (on a source property) never suppresses any auto-copy
+ * default — i.e. none of the target parameters matched this source property, neither as a
+ * type-compatible match nor as a value-class conversion ([findValueClassConversion], whose
+ * default the Exclude also suppresses).
  *
  * Only annotations that name a [GenerateSourceAnnotation.warnedSourceExcludeAnnotation] are
  * checked; target-side and sealed-side annotations are warned elsewhere. [findMappedSourceProperty]
  * must be the same one the generator uses, so "matched" here means exactly what it means there.
  */
+context(options: CreamOptions)
 internal fun KSPropertyDeclaration.warnIfSourceExcludeHasNoEffect(
     targetParameters: List<KSValueParameter>,
     source: KSClassDeclaration,
@@ -82,7 +88,18 @@ internal fun KSPropertyDeclaration.warnIfSourceExcludeHasNoEffect(
     val propName = simpleName.asString()
     val isMatched =
         targetParameters.any { param ->
-            param.findMatchedProperty(source, findMappedSourceProperty)?.simpleName?.asString() == propName
+            // Mirrors the emission logic: the conversion only supplies a default when the
+            // parameter has NO type-compatible match, so it only makes an Exclude effective then.
+            val matched = param.findMatchedProperty(source, findMappedSourceProperty)
+            when {
+                matched != null -> matched.simpleName.asString() == propName
+                else ->
+                    param
+                        .findValueClassConversion(source, findMappedSourceProperty)
+                        ?.sourceProperty
+                        ?.simpleName
+                        ?.asString() == propName
+            }
         }
     if (!isMatched) {
         logger.warn("@Exclude on '$propName' has no effect: not a matched property", this)

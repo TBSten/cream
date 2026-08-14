@@ -17,8 +17,8 @@ internal data class CopyToSourceAnnotation(
     override val annotation: KSAnnotation,
 ) : GenerateSourceAnnotation {
     val findMappedSourceProperty: FindMappedSourceProperty =
-        { parameter, source, parameterName ->
-            parameter.findSourcePropertyWithCopyToMapAnnotation(source, parameterName)
+        { parameter, source, parameterName, accepts ->
+            parameter.findSourcePropertyWithCopyToMapAnnotation(source, parameterName, accepts)
         }
 
     val isExcluded: IsExcluded =
@@ -40,8 +40,8 @@ internal data class CopyFromSourceAnnotation(
     override val annotation: KSAnnotation,
 ) : GenerateSourceAnnotation {
     val findMappedSourceProperty: FindMappedSourceProperty =
-        { parameter, source, _ ->
-            parameter.findSourcePropertyWithCopyFromMapAnnotation(source)
+        { parameter, source, _, accepts ->
+            parameter.findSourcePropertyWithCopyFromMapAnnotation(source, accepts)
         }
 
     val isExcluded: IsExcluded =
@@ -73,8 +73,8 @@ internal data class CopyToChildrenSourceAnnotation(
     private val notCopyToObject: Boolean? get() = annotation.notCopyToObject()
 
     val findMappedSourceProperty: FindMappedSourceProperty =
-        { parameter, source, parameterName ->
-            parameter.findSourcePropertyWithCopyToChildrenMapAnnotation(source, parameterName)
+        { parameter, source, parameterName, accepts ->
+            parameter.findSourcePropertyWithCopyToChildrenMapAnnotation(source, parameterName, accepts)
         }
 
     val isExcluded: IsExcluded =

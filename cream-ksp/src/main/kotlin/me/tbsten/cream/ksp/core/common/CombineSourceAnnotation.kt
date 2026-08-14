@@ -16,8 +16,8 @@ internal data class CombineToSourceAnnotation(
     override val annotation: KSAnnotation,
 ) : GenerateSourceAnnotation {
     val findMappedSourceProperty: FindMappedSourceProperty =
-        { parameter, source, parameterName ->
-            parameter.findSourcePropertyWithCombineToMapAnnotation(source, parameterName)
+        { parameter, source, parameterName, accepts ->
+            parameter.findSourcePropertyWithCombineToMapAnnotation(source, parameterName, accepts)
         }
 
     val isExcluded: IsExcluded =
@@ -51,9 +51,9 @@ internal data class CombineFromSourceAnnotation(
     override val annotation: KSAnnotation,
 ) : GenerateSourceAnnotation {
     val findMappedSourceProperty: FindMappedSourceProperty =
-        { parameter, source, parameterName ->
-            parameter.findSourcePropertyWithCombineFromMapAnnotationOnTarget(source)
-                ?: parameter.findSourcePropertyWithCombineFromMapAnnotationOnSource(source, parameterName)
+        { parameter, source, parameterName, accepts ->
+            parameter.findSourcePropertyWithCombineFromMapAnnotationOnTarget(source, accepts)
+                ?: parameter.findSourcePropertyWithCombineFromMapAnnotationOnSource(source, parameterName, accepts)
         }
 
     val isExcluded: IsExcluded =

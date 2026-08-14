@@ -270,6 +270,9 @@ fun LibAModel.copyToLibCModel(
 - `.Exclude`（`@CombineTo.Exclude` / `@CombineFrom.Exclude`）で **プロパティをデフォルト値の設定から
   除外** できます — [Exclude](./customization/exclude.ja.md) を参照。`@CombineMapping` は `.Exclude` に
   対応していません（ソース/ターゲットクラスが自分のコードではないため）。
+- 型が **`value class` のラップ 1 枚だけ違う** プロパティ（例: `id: String` ↔ `id: DomainId`）は
+  正しい遷移元 qualifier 付きで自動コピーされます（例: `= DomainId(sourceB.id)`）—
+  [Value class mapping](./customization/value-class-mapping.ja.md) を参照（デフォルトで有効）。
 - 生成される関数の **KDoc** は `kdoc = KDoc(...)` で拡張できます —
   [KDoc](./customization/kdoc.ja.md) を参照。
 - 生成される関数の **可視性** は `visibility` 引数で制御できます —
@@ -283,6 +286,7 @@ fun LibAModel.copyToLibCModel(
   （`@CopyMapping` は `@CombineMapping` の 1 対 1 版）
 - [Property mapping — .Map](./customization/property-mapping.ja.md)
 - [Exclude — .Exclude](./customization/exclude.ja.md)
+- [Value class mapping（自動）](./customization/value-class-mapping.ja.md)
 - [KDoc](./customization/kdoc.ja.md)
 - [Visibility](./customization/visibility.ja.md)
 - [Function name — funName](./customization/fun-name.ja.md)

@@ -56,4 +56,17 @@ internal class CreamOptionsParsingTest :
             // unrelated options keep their defaults
             options.copyFunNamePrefix shouldBe CreamOptions.default.copyFunNamePrefix
         }
+
+        "autoValueClassMapping defaults to true when the option is absent" {
+            emptyMap<String, String>().toCreamOptions().autoValueClassMapping shouldBe true
+            CreamOptions.default.autoValueClassMapping shouldBe true
+        }
+
+        "autoValueClassMapping is disabled only by an explicit false (case-insensitive)" {
+            mapOf("cream.autoValueClassMapping" to "false").toCreamOptions().autoValueClassMapping shouldBe false
+            mapOf("cream.autoValueClassMapping" to "FALSE").toCreamOptions().autoValueClassMapping shouldBe false
+            mapOf("cream.autoValueClassMapping" to "true").toCreamOptions().autoValueClassMapping shouldBe true
+            // lenient boolean parsing, mirroring notCopyToObject: any non-"false" value keeps it on
+            mapOf("cream.autoValueClassMapping" to "yes").toCreamOptions().autoValueClassMapping shouldBe true
+        }
     })

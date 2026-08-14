@@ -81,6 +81,7 @@ internal class FunctionNameTemplateTest :
                     escapeDot = EscapeDot.`replace-to-underscore`,
                     notCopyToObject = false,
                     defaultVisibility = CreamOptions.default.defaultVisibility,
+                    autoValueClassMapping = CreamOptions.default.autoValueClassMapping,
                 )
             // fixed rendering, unaffected by options
             resolve(CopyTargetUnderPackage, nonDefault) shouldBe "UiStateSuccess"
