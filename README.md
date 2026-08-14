@@ -187,6 +187,8 @@ See the docs below for the details of each feature.
 | `@CopyMapping(Source::class, Target::class)` | A declaration in your module | Copy function between two classes you cannot modify (e.g. library classes) | [docs](doc/copy.md#copymapping) |
 | `@CopyToChildren` | Sealed class/interface | Copy functions from the sealed parent to **all** concrete leaves | [docs](doc/copy-to-children.md) |
 | `@SealedCopy` | Sealed class/interface | `copy()` on the sealed parent that preserves the subtype | [docs](doc/sealed-copy.md) |
+| `@ParentOptional` | Property of a sealed child class | Nullable accessor exposing the property on the sealed parent (`val Parent.prop: T?`) | [docs](doc/parent-optional.md) |
+| `@ChildOptionals` | Sealed class/interface | Nullable accessors on the sealed parent for **all** leaf-declared properties | [docs](doc/parent-optional.md#childoptionals) |
 | `@CombineTo(Target::class)` | Each source class | Combine function from **multiple** sources to one target | [docs](doc/combine.md#combineto) |
 | `@CombineFrom(SourceA::class, SourceB::class, ...)` | Target class | Same as `@CombineTo`, annotation placed on the target side | [docs](doc/combine.md#combinefrom) |
 | `@CombineMapping(...)` | A declaration in your module | Combine function between classes you cannot modify | [docs](doc/combine.md#combinemapping) |

@@ -183,6 +183,8 @@ class ItemRepositoryImpl : ItemRepository {
 | `@CopyMapping(Source::class, Target::class)` | 自モジュール内の宣言 | 変更できないクラス同士（ライブラリのクラスなど）のコピー関数 | [docs](doc/copy.ja.md#copymapping) |
 | `@CopyToChildren` | sealed class/interface | sealed 親から**全ての**子クラスへのコピー関数 | [docs](doc/copy-to-children.ja.md) |
 | `@SealedCopy` | sealed class/interface | 子 type を維持する、sealed 親の `copy()` | [docs](doc/sealed-copy.ja.md) |
+| `@ParentOptional` | sealed 子クラスのプロパティ | そのプロパティを sealed 親に公開する nullable アクセサ (`val Parent.prop: T?`) | [docs](doc/parent-optional.ja.md) |
+| `@ChildOptionals` | sealed class/interface | 子クラスが宣言する**全ての**プロパティの nullable アクセサを sealed 親に生成 | [docs](doc/parent-optional.ja.md#childoptionals) |
 | `@CombineTo(Target::class)` | 各コピー元クラス | **複数**のコピー元 → 1 つのターゲットへの combine 関数 | [docs](doc/combine.ja.md#combineto) |
 | `@CombineFrom(SourceA::class, SourceB::class, ...)` | ターゲットクラス | `@CombineTo` と同じ（アノテーションをターゲット側に置く） | [docs](doc/combine.ja.md#combinefrom) |
 | `@CombineMapping(...)` | 自モジュール内の宣言 | 変更できないクラス同士の combine 関数 | [docs](doc/combine.ja.md#combinemapping) |
