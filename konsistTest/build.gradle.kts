@@ -23,12 +23,15 @@ dependencies {
  * keeps reporting this task as UP-TO-DATE, so architecture violations would slip through.
  */
 val repositorySources =
-    rootProject
-        .fileTree(rootProject.layout.projectDirectory) {
-            include("*/src/**/*.kt", "*/*/src/**/*.kt")
-            // Mirrors the runtime exclusions in ProjectScope.kt.
-            exclude("buildLogic/**", "**/build/**")
-        }
+    fileTree(rootDir) {
+        // One and two directory levels cover every module in settings.gradle.kts
+        // (`cream-ksp`, `cream-ksp/shared`, `optionBuilder/webApp`, …).
+        include("*/src/**/*.kt", "*/*/src/**/*.kt")
+        // Mirrors the runtime exclusions in ProjectScope.kt. `.local/` is git-ignored scratch space
+        // that happens to hold Gradle projects with real src/ layouts; without excluding it here,
+        // unrelated experiments would invalidate this task.
+        exclude("buildLogic/**", ".local/**", "**/build/**")
+    }
 
 tasks.named<Test>("test") {
     useJUnitPlatform()
