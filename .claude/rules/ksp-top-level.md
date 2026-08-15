@@ -20,4 +20,6 @@ paths:
 - 生成ロジックを書く（→ `core/`）
 - 注釈ごとの処理を書く（→ `feature/<name>/`）
 - 汎用ヘルパを書く（→ `util/`）
+- 例外を書く（→ `core/error/`。`CreamException` 階層はそこにある）
+- KSP オプションのモデル・パースを書く（→ `options/`）
 - `ProcessContext.kt` から feature/core を import する

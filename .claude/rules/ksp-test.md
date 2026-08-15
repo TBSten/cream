@@ -73,7 +73,7 @@ cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/
   import ベースで強制。3 ファイルに分割: `AllKotlinFilesTest`（モジュール横断）/ `feature/ArchTest` /
   `core/ArchTest`。共有 scope・ヘルパは `testing/konsist/KonsistSupport.kt`。scope は
   `Konsist.scopeFromProduction(moduleName = "cream-ksp", sourceSetName = "main")` で main のみ
-  (test source set と nested `:cream-ksp:shared` を除外)。正本は
+  (test source set を除外)。正本は
   `.claude/rules/ksp-architecture.md` の依存方向テーブル。Konsist 0.17.x は Kotlin 2.2 の
   `context(...)` パラメータ付き宣言も問題なくパースできることを確認済み。
 

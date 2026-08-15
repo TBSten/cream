@@ -12,7 +12,6 @@ cream.kt は Kotlin Multiplatform (KMP) を前提に設計されています。�
 |---|---|---|
 | `me.tbsten.cream:cream-runtime` | コードに書くアノテーション | すべての Kotlin プラットフォーム |
 | `me.tbsten.cream:cream-ksp` | KSP プロセッサ | JVM のみ |
-| `me.tbsten.cream:cream-ksp-shared` | プロセッサ内部で使う共有ロジック | JVM / JS / WasmJs（直接依存することはありません） |
 
 生成される copy 関数は **通常の Kotlin ソースファイル** です。処理対象のソースセットに追加され、 手書きのコードとまったく同様にモジュールの全ターゲット向けにコンパイルされます。
 

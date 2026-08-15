@@ -14,7 +14,8 @@ paths:
 |---|---|---|
 | top-level (root) | `ksp/*.kt` | KSP エントリ + 横断 infra（`CreamSymbolProcessor` / `Provider` / `ProcessContext`）。詳細は `ksp-top-level.md` |
 | feature | `ksp/feature/<name>/` | 注釈ごとの入口「発見 → 引数抽出 → 検証 → core 呼び出し」。生成ロジックは持たない。詳細は `ksp-feature-top-level.md` |
-| core | `ksp/core/<sub>/` | cream 固有の生成ロジック（`common` / `copyFun` / `combineFun` / `sealedCopy` / `parentOptional`）。詳細は `ksp-core-top-level.md` |
+| core | `ksp/core/<sub>/` | cream 固有の生成ロジック（`common` / `copyFun` / `combineFun` / `sealedCopy` / `parentOptional`）と例外階層（`error`）。詳細は `ksp-core-top-level.md` |
+| options | `ksp/options/` | KSP オプションのモデルとパース（`CreamOptions` / `EscapeDot` / `CopyFunNamingStrategy` / `ClassDeclarationInfo`）。全層から参照される横断モデル |
 | util | `ksp/util/` | 他プロジェクトでも使える汎用ヘルパのみ（cream 固有型を含まない） |
 
 ## Dependency direction (one-way)
@@ -30,18 +31,22 @@ feature ─▶ ProcessContext   （唯一の上向き依存。ProcessContext は
 |---|---|---|
 | `util/`（直下） | Kotlin stdlib のみ | core, feature, top-level, **cream-runtime**, **KSP API**（KSP 依存ヘルパは `util/ksp/` へ）, cream 固有型（`CreamOptions` / `CreamException` / `CopyVisibility` / `GenerateSourceAnnotation` / `TargetValidation` 等） |
 | `util/ksp/` | Kotlin stdlib / KSP API（汎用範囲） | core, feature, top-level, **cream-runtime**, cream 固有型（同上） |
-| `core/` | util, `cream-ksp:shared`, `cream-runtime`, KSP API | **feature**, `CreamSymbolProcessor` / `Provider`, **`ProcessContext`** |
-| `feature/<name>/` | core, util, shared, runtime, KSP API, **`ProcessContext`** | **他の `feature/<name>`（feature 間依存禁止）**, `CreamSymbolProcessor` / `Provider` |
-| root (`CreamSymbolProcessor` / `Provider`) | feature, core, util, shared, runtime, KSP API, ProcessContext | 生成ロジック・注釈個別処理 |
-| `ProcessContext`（leaf） | KSP API, shared（`CreamOptions`） | feature, core, util, `CreamSymbolProcessor` |
+| `core/`（`error` 以外） | util, options, `core/error`, `cream-runtime`, KSP API | **feature**, `CreamSymbolProcessor` / `Provider`, **`ProcessContext`** |
+| `core/error/` | util のみ | core の他サブ, options, feature, top-level, KSP API |
+| `options/` | util, `core/error`（パース失敗の送出）, `cream-runtime` | core の他サブ, feature, top-level, KSP API |
+| `feature/<name>/` | core, options, util, runtime, KSP API, **`ProcessContext`** | **他の `feature/<name>`（feature 間依存禁止）**, `CreamSymbolProcessor` / `Provider` |
+| root (`CreamSymbolProcessor` / `Provider`) | feature, core, options, util, runtime, KSP API, ProcessContext | 生成ロジック・注釈個別処理 |
+| `ProcessContext`（leaf） | KSP API, options（`CreamOptions`） | feature, core, util, `CreamSymbolProcessor` |
 
 - **唯一の上向き依存は `feature → ProcessContext` のみ**。`core` は `ProcessContext` に依存しない（層別 context を使う）。
-- **root パッケージ (`me.tbsten.cream.ksp` 直下) には `CreamSymbolProcessor` / `CreamSymbolProcessorProvider` / `ProcessContext` の 3 ファイルのみ**。生成ロジック・ヘルパ・例外等を直下に置かない（`CreamException` 階層は `:cream-ksp:shared` 側）。
+- **root パッケージ (`me.tbsten.cream.ksp` 直下) には `CreamSymbolProcessor` / `CreamSymbolProcessorProvider` / `ProcessContext` の 3 ファイルのみ**。生成ロジック・ヘルパ・例外等を直下に置かない（`CreamException` 階層は `core/error/`）。
+- `options/` は `core/error` の例外を送出し、`core`/`feature`/root は `options` を参照する。この 1 箇所だけ
+  パッケージ間で相互参照になるが、`core/error` は util 以外に依存しない葉なので循環はしない。
 - 境界は [Konsist](https://github.com/LemonAppDev/konsist) の architecture test (issue #130) で自動強制している。
   #127 で feature 単位に分割し、3 ファイル + 共有ヘルパに再配置した:
   `cream-ksp/src/test/.../AllKotlinFilesTest.kt`（root=3 ファイル / 1 ファイル原則 ≤ 300 行・`FILE_LINE_LIMIT_OVERRIDES` のみ上限 500）、
   `feature/ArchTest.kt`（`feature`=`feature.<name>` のみ・feature 間依存禁止・entry-point 署名）、
-  `core/ArchTest.kt`（`core`=`common`/`copyFun`/`combineFun`/`sealedCopy`/`parentOptional` のみ・`feature`/root infra 非依存、`util` 直下は KSP 非依存・cream 固有型非参照）。
+  `core/ArchTest.kt`（`core`=`common`/`copyFun`/`combineFun`/`sealedCopy`/`parentOptional`/`error` のみ・`feature`/root infra 非依存、`util` 直下は KSP 非依存・cream 固有型非参照）。
   共有 scope・ヘルパは `testing/konsist/KonsistSupport.kt`。
   強制内容は上記の依存方向テーブルどおり。この表や上記ルールを変えたら同テストを更新すること。
 
@@ -64,7 +69,7 @@ feature ─▶ ProcessContext   （唯一の上向き依存。ProcessContext は
 
 - **診断**: ユーザー誤用は `throw` せず `logger.error(message, ksNode)` で clean COMPILATION_ERROR。直後に `return` / `return@forEach` で部分生成を防ぐ。内部想定外のみ例外。
 - **`when` は `else` を使わず全分岐を列挙**（sealed/enum 網羅をコンパイラに守らせる）。ただし `GenerateSourceAnnotation` は api 公開のため意図的に sealed ではない — 注釈ごとの分岐は `when` ではなく interface の overridable member（安全な既定値つき）か、独立した関数型を引数で渡す形で表現する。**unsafe cast `as` を書かない／生成しない**。**`firstOrNull()` > `first()`**、**`mapOf` > `listOf(Pair)`**。
-- **SSoT**: 命名ロジックは shared、token const は runtime、options は shared に一元化。
+- **SSoT**: 命名ロジックは `core/common`、token const は runtime、options は `options/` に一元化。
 - **ファイル分量** 10〜300 行目安・最大 500（超過は責務分割）。
 - **生成**: 空ファイルを作らない（`createNewKotlinFile` の空 buffer スキップ）。`Dependencies(aggregating = true, ...)` を維持。識別子は `escapeKotlinIdentifier()` を通す。生成ファイルには `import me.tbsten.cream.*`。
 
@@ -77,4 +82,4 @@ feature ─▶ ProcessContext   （唯一の上向き依存。ProcessContext は
 5. `CreamSymbolProcessor.process()` に dispatch を追加。
 6. `test/`（test data + commonTest）と `cream-ksp` の snapshot/diagnostic test を追加（`ksp-test.md` 準拠）。
 
-> 規約の正本（SSoT）はプロジェクトルートの `CLAUDE.md` と、リファクタ作業中は `.local/brushup/rules.md`。本ファイルは path-scoped な誘導役で、重複定義はしない。`cream-ksp:shared` は別モジュールで本リファクタ対象外（KSP 非依存・`ClassDeclarationInfo` 境界を維持）。
+> 規約の正本（SSoT）はプロジェクトルートの `CLAUDE.md` と、リファクタ作業中は `.local/brushup/rules.md`。本ファイルは path-scoped な誘導役で、重複定義はしない。

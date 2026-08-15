@@ -12,7 +12,6 @@ platforms each published artifact supports, the one KSP limitation you should kn
 |---|---|---|
 | `me.tbsten.cream:cream-runtime` | The annotations you write in your code | All Kotlin platforms |
 | `me.tbsten.cream:cream-ksp` | The KSP processor | JVM only |
-| `me.tbsten.cream:cream-ksp-shared` | Shared logic used internally by the processor | JVM / JS / WasmJs (you never depend on this directly) |
 
 The generated copy functions are **plain Kotlin source files**. They are added to the processed
 source set and compiled for every target of your module exactly like hand-written code.
