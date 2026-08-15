@@ -1,6 +1,5 @@
 package me.tbsten.cream.ksp.options
 
-import kotlinx.serialization.Serializable
 import me.tbsten.cream.CopyVisibility
 import me.tbsten.cream.InternalCreamApi
 import me.tbsten.cream.ksp.InvalidCreamOptionException
@@ -8,7 +7,6 @@ import me.tbsten.cream.ksp.util.lines
 import kotlin.reflect.KProperty1
 
 @InternalCreamApi
-@Serializable
 public data class CreamOptions(
     val copyFunNamePrefix: String,
     val copyFunNamingStrategy: CopyFunNamingStrategy,
