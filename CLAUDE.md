@@ -228,12 +228,13 @@ feature/core/util layering documented in `.claude/rules/ksp-architecture.md`.
 ### Repository-wide Architecture Tests (`konsistTest/`)
 
 `konsistTest/` is a JVM, test-only module (no `src/main`) whose Konsist scope covers **every**
-module and source set of the build — including KMP `commonMain` / `jvmMain` / `commonTest`. It is
-the home for guardrails that span modules; the three `cream-ksp`-local Konsist specs stay in
-`cream-ksp/src/test/`. The shared scope lives in `support/ProjectScope.kt` and derives the module
-allow-list from `settings.gradle.kts`, so generated code (`**/build/**`), the `buildLogic` included
-build, and stray Kotlin files outside the build (e.g. scratch projects under `.local/`) never enter
-it. See [.claude/rules/ksp-test.md](.claude/rules/ksp-test.md) for details.
+module and source set of the build — the KMP modules' `commonMain` / `commonTest` as well as the
+JVM modules' plain `main` / `test`. It is the home for guardrails that span modules; the three
+`cream-ksp`-local Konsist specs stay in `cream-ksp/src/test/`. The shared scope lives in
+`support/ProjectScope.kt` and derives the module allow-list from `settings.gradle.kts`, so generated
+code (`**/build/**`), the `buildLogic` included build, and stray Kotlin files outside the build
+(e.g. scratch projects under `.local/`) never enter it. See
+[.claude/rules/ksp-test.md](.claude/rules/ksp-test.md) for details.
 
 ## Multiplatform Considerations
 

@@ -24,8 +24,8 @@ dependencies {
  */
 val repositorySources =
     fileTree(rootDir) {
-        // One and two directory levels cover every module in settings.gradle.kts
-        // (`cream-ksp`, `cream-ksp/shared`, `optionBuilder/webApp`, …).
+        // Every module in settings.gradle.kts is top-level today (`cream-ksp/src/…`); the second
+        // pattern keeps a nested module (`a/b/src/…`) covered without another edit here.
         include("*/src/**/*.kt", "*/*/src/**/*.kt")
         // Mirrors the runtime exclusions in ProjectScope.kt. `.local/` is git-ignored scratch space
         // that happens to hold Gradle projects with real src/ layouts; without excluding it here,

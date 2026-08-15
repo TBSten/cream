@@ -177,8 +177,10 @@ konsistTest/
 
 - **scope**: `Konsist.scopeFromProject()` は「`gradlew` を持つ最も近い祖先ディレクトリ」を
   project root として **リポジトリ全体** を走査するので、テストがどのモジュールで走っても
-  全モジュール・全 source set（`main` / `test` / `commonMain` / `commonTest` / `jvmMain` /
-  `jsMain` …）が 1 つの scope に入る。
+  全モジュール・全 source set が 1 つの scope に入る。現状の 4 モジュールでは
+  KMP 側の `commonMain` / `commonTest`（`:cream-runtime` / `:test`）と JVM 側の
+  `main` / `test`（`:cream-ksp` / `:konsistTest`）の両方が見えており、
+  `ProjectScopeSmokeTest` がこの module → source set の対応を固定している。
 - **除外**（`ProjectScope.projectFiles`）:
   - `build` ディレクトリ（root / 各モジュール）と root の `.gradle` は **Konsist が常に除外** する。
     `test` モジュールが `build/generated/ksp/metadata/commonMain/kotlin` を `commonMain` の

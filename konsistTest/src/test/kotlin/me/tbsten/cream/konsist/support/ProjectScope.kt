@@ -9,9 +9,10 @@ import java.io.File
  *
  * [Konsist.scopeFromProject] walks the whole project root (the nearest ancestor directory of the
  * test's working directory that holds `gradlew`) rather than the module the test runs in, so one
- * scope already sees every Gradle module and every KMP source set — `commonMain`, `jvmMain`,
- * `jsMain`, `commonTest`, plain `main`/`test`, … [projectFiles] narrows that raw scope down to the
- * repository's own modules; see its doc for what is dropped and why.
+ * scope already sees every Gradle module and every source set, whatever its name — the KMP modules'
+ * `commonMain` / `commonTest` as well as the JVM modules' plain `main` / `test`. [projectFiles]
+ * narrows that raw scope down to the repository's own modules; see its doc for what is dropped and
+ * why.
  *
  * The three existing `cream-ksp` architecture specs keep their own narrower
  * `Konsist.scopeFromProduction(moduleName = "cream-ksp", sourceSetName = "main")` scope and are not
@@ -21,9 +22,9 @@ import java.io.File
  */
 internal object ProjectScope {
     /**
-     * Gradle project paths (`:cream-ksp:shared` style) read straight out of `settings.gradle.kts`,
-     * so the scope's definition of "our modules" has a single source of truth and cannot drift when
-     * a module is added or removed.
+     * Gradle project paths (`:cream-ksp`, or `:a:b` for a nested module) read straight out of
+     * `settings.gradle.kts`, so the scope's definition of "our modules" has a single source of
+     * truth and cannot drift when a module is added or removed.
      *
      * `includeBuild("./buildLogic")` deliberately does not match [INCLUDE_REGEX]: that included
      * build is build configuration rather than product code, and Konsist cannot skip it on its own
@@ -70,10 +71,10 @@ internal object ProjectScope {
         get() = projectFiles.filter { it.isInTestSourceSet }
 
     /**
-     * Konsist names a nested module by its directory path relative to the project root
-     * (`cream-ksp/shared`), not by its Gradle project path. This converts back to the
-     * `:cream-ksp:shared` form used in `settings.gradle.kts`, so rules can be written against the
-     * names contributors actually know.
+     * Konsist names a module by its directory path relative to the project root, not by its Gradle
+     * project path: the two forms only coincide while every module is top-level, and a nested
+     * module `:a:b` would arrive as `a/b`. This converts back to the `:`-separated form used in
+     * `settings.gradle.kts`, so rules can be written against the names contributors actually know.
      */
     val KoFileDeclaration.gradleProjectPath: String
         get() = ":" + moduleName.replace(File.separatorChar, ':')
@@ -87,9 +88,9 @@ internal object ProjectScope {
     val KoFileDeclaration.isInTestSourceSet: Boolean
         get() = sourceSetName.lowercase().contains("test")
 
-    /** `:cream-ksp:shared` -> `cream-ksp/shared` (Konsist's [KoFileDeclaration.moduleName] form). */
+    /** `:cream-ksp` -> `cream-ksp`, `:a:b` -> `a/b` (Konsist's [KoFileDeclaration.moduleName] form). */
     private fun String.toKonsistModuleName(): String = removePrefix(":").replace(':', File.separatorChar)
 
-    /** Matches `include(":cream-ksp:shared")` but not `includeBuild("./buildLogic")`. */
+    /** Matches `include(":cream-ksp")` but not `includeBuild("./buildLogic")`. */
     private val INCLUDE_REGEX = Regex("""^\s*include\(\s*"(:[^"]+)"\s*\)""")
 }

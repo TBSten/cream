@@ -1,7 +1,6 @@
 package me.tbsten.cream.konsist
 
 import io.kotest.core.spec.style.FreeSpec
-import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.shouldBe
 import me.tbsten.cream.konsist.support.ProjectScope
 import me.tbsten.cream.konsist.support.ProjectScope.gradleProjectPath
@@ -33,16 +32,26 @@ internal class ProjectScopeSmokeTest :
                     modulesWithoutFiles shouldBe emptyList()
                 }
 
-                "JVM の main / test も KMP の commonMain / commonTest / jvmMain / jsMain も含まれる" {
-                    // KSP does not support intermediate source sets, but Konsist reads the file
-                    // system directly, so `commonMain` and friends are ordinary source sets to it.
-                    val sourceSets =
+                "JVM モジュールの main / test も KMP モジュールの commonMain / commonTest も含まれる" {
+                    // A repository-wide rule is only trustworthy if it reaches both flavours of
+                    // source-set layout the build uses. Pinned per module rather than as one flat
+                    // set, so a name that stops appearing points at the module that lost it.
+                    val sourceSetsByModule =
                         ProjectScope.projectFiles
-                            .map { it.sourceSetName }
-                            .toSet()
+                            .groupBy({ it.gradleProjectPath }, { it.sourceSetName })
+                            .mapValues { (_, sourceSetNames) -> sourceSetNames.toSet() }
 
-                    sourceSets shouldContainAll
-                        setOf("main", "test", "commonMain", "commonTest", "jvmMain", "jsMain")
+                    sourceSetsByModule shouldBe
+                        mapOf(
+                            // KSP cannot process intermediate source sets, but Konsist reads the
+                            // file system directly, so `commonMain` / `commonTest` are ordinary
+                            // source sets to it — the whole reason this scope can see KMP code.
+                            ":cream-runtime" to setOf("commonMain"),
+                            ":test" to setOf("commonMain", "commonTest"),
+                            // Plain JVM modules keep the flat `main` / `test` names.
+                            ":cream-ksp" to setOf("main", "test"),
+                            ":konsistTest" to setOf("test"),
+                        )
                 }
 
                 "production / test の両方の source set が含まれる" {
