@@ -2,6 +2,7 @@
 paths:
   - cream-ksp/src/test/**
   - cream-ksp/src/test/resources/snapshots/**
+  - konsistTest/**
 ---
 
 # KSP Compilation Tests (kctfork)
@@ -76,6 +77,8 @@ cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/
   (test source set を除外)。正本は
   `.claude/rules/ksp-architecture.md` の依存方向テーブル。Konsist 0.17.x は Kotlin 2.2 の
   `context(...)` パラメータ付き宣言も問題なくパースできることを確認済み。
+  **リポジトリ全体を対象にする Konsist ルールは `cream-ksp` ではなく `:konsistTest` モジュールに置く**
+  （下記「Repository-wide Konsist (`konsistTest/`)」）。
 
 ### Snapshot file format
 
@@ -157,6 +160,44 @@ stack frame は Gradle / JUnit / KSP / cream 自身の line 変更や `... NN mo
 で簡単にずれるため、diagnostic snapshot で固定化しているのは「error message 本文」だけ。
 特定 frame の存在を assert したいなら、snapshot とは別に `result.messages shouldContain "..."` を併用する。
 
+## Repository-wide Konsist (`konsistTest/`)
+
+`cream-ksp` の 3 つの ArchTest は `cream-ksp/src/main` しか見ない。**モジュールを跨ぐルール**
+（AI agent 向けガードレール: 編集してよいファイルの whitelist / 特定ファイルに書いてよい
+トップレベル宣言の形 など）は、production source を持たない JVM 専用モジュール
+`:konsistTest` に置く。
+
+```
+konsistTest/
+├── build.gradle.kts                    # kotlinJvm + buildLogic.lint / konsist + kotest(JUnit5)
+└── src/test/kotlin/me/tbsten/cream/konsist/
+    ├── ProjectScopeSmokeTest.kt        # scope が何を見て何を見ないかを固定する smoke test
+    └── support/ProjectScope.kt         # 全モジュール・全 source set の共有 scope
+```
+
+- **scope**: `Konsist.scopeFromProject()` は「`gradlew` を持つ最も近い祖先ディレクトリ」を
+  project root として **リポジトリ全体** を走査するので、テストがどのモジュールで走っても
+  全モジュール・全 source set（`main` / `test` / `commonMain` / `commonTest` / `jvmMain` /
+  `jsMain` …）が 1 つの scope に入る。
+- **除外**（`ProjectScope.projectFiles`）:
+  - `build` ディレクトリ（root / 各モジュール）と root の `.gradle` は **Konsist が常に除外** する。
+    `test` モジュールが `build/generated/ksp/metadata/commonMain/kotlin` を `commonMain` の
+    srcDir に足していても、KSP 生成コードは scope に入らない（確認済み）。
+  - `buildLogic`（`includeBuild`）は Konsist の `ignoreBuildConfig` では落ちない（`buildSrc`
+    という名前しか見ない）ため、明示的に除外する。
+  - **allow-list 方式**: `settings.gradle.kts` の `include(":…")` 行から module 一覧を読み、
+    その配下のファイルだけを残す。deny-list ではなく allow-list なのは、`.local/` などに
+    `src/<sourceSet>/` レイアウトを持つ別プロジェクト（リリース検証用 consumer、KSP 検証用
+    サンドボックス、clone したリポジトリ）が置かれており、パス形状では区別できないため。
+- **Gradle input**: Konsist はテスト実行時にディスクを読むので Gradle は入力変化を検知できない。
+  `konsistTest/build.gradle.kts` で `inputs.files(<repo の *.kt>)` を宣言し、他モジュールを
+  編集したのに UP-TO-DATE で素通りする事故を防いでいる。ルールを増やすときもこの宣言を壊さない。
+- **CI**: ルート `./gradlew test` に `:konsistTest:test` が含まれるので、
+  `.github/workflows/gradle.yml` の `test` matrix でそのまま実行される（追加設定不要）。
+  ktlint も `buildLogic.lint` 適用済みで `ktlintCheck` の対象。
+- **注意**: KDoc / コメント内に `**/` を書くとブロックコメントが途中で閉じてコンパイルエラーになる。
+  glob を書きたいときは文章で表現する。
+
 ## 運用
 
 ### スナップショット更新
@@ -177,6 +218,8 @@ stack frame は Gradle / JUnit / KSP / cream 自身の line 変更や `... NN mo
 - KSP 型に依存しない core の純ロジックは `core/<sub>/` 配下のテストに置く（コンパイル不要）。
 - 共有ヘルパーが必要になったら `testing/`（基盤）/ `testing/generator/`（case 生成）/
   `testing/konsist/`（Konsist 共有）に追加し、本ドキュメントの「レイアウト」を更新する。
+- **モジュールを跨ぐ Konsist ルール**は `cream-ksp` ではなく `konsistTest/src/test/` に spec を
+  足し、scope は `ProjectScope` を使う（上記「Repository-wide Konsist」）。
 
 > #127 進捗: 基盤 (`testing/`)・generator・smoke・Konsist (3 つの ArchTest)・全 8 feature の
 > `<Feat>SnapshotTest`・`MultipleDiagnosticsTest`・`core/common` は実装済みで green。残る

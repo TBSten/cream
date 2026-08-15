@@ -25,6 +25,9 @@ cream.kt is a Kotlin Symbol Processing (KSP) plugin that automatically generates
 # Run tests for specific module
 ./gradlew :test:test
 ./gradlew :cream-ksp:test
+
+# Run the repository-wide Konsist architecture tests
+./gradlew :konsistTest:test
 ```
 
 ### Building
@@ -100,14 +103,18 @@ cream/
 │       │   └── error/     # CreamException hierarchy (leaf: depends on util only)
 │       ├── options/                        # KSP option model + parsing (CreamOptions, EscapeDot, ...)
 │       └── util/                           # Generic helpers only (no cream-specific types)
-└── test/                   # Integration tests (Multiplatform)
-    ├── src/commonMain/kotlin/me/tbsten/cream/test/
-    │   ├── copyTo/         # @CopyTo test data
-    │   ├── copyFrom/       # @CopyFrom test data
-    │   ├── copyToChildren/ # @CopyToChildren test data
-    │   ├── parentOptional/ # @ParentOptional test data
-    │   └── childOptionals/ # @ChildOptionals test data
-    └── src/commonTest/kotlin/me/tbsten/cream/test/
+├── test/                   # Integration tests (Multiplatform)
+│   ├── src/commonMain/kotlin/me/tbsten/cream/test/
+│   │   ├── copyTo/         # @CopyTo test data
+│   │   ├── copyFrom/       # @CopyFrom test data
+│   │   ├── copyToChildren/ # @CopyToChildren test data
+│   │   ├── parentOptional/ # @ParentOptional test data
+│   │   └── childOptionals/ # @ChildOptionals test data
+│   └── src/commonTest/kotlin/me/tbsten/cream/test/
+└── konsistTest/            # Repository-wide Konsist tests (JVM, test source set only)
+    └── src/test/kotlin/me/tbsten/cream/konsist/
+        ├── ProjectScopeSmokeTest.kt  # pins what the whole-project scope sees
+        └── support/ProjectScope.kt   # shared scope over every module / source set
 ```
 
 ### Key Components
@@ -217,6 +224,16 @@ JVM-only end-to-end tests built on kctfork live under
 regeneration command, and how to add new tests. The `architecture/` tests use
 [Konsist](https://github.com/LemonAppDev/konsist) (not kctfork) to enforce the
 feature/core/util layering documented in `.claude/rules/ksp-architecture.md`.
+
+### Repository-wide Architecture Tests (`konsistTest/`)
+
+`konsistTest/` is a JVM, test-only module (no `src/main`) whose Konsist scope covers **every**
+module and source set of the build — including KMP `commonMain` / `jvmMain` / `commonTest`. It is
+the home for guardrails that span modules; the three `cream-ksp`-local Konsist specs stay in
+`cream-ksp/src/test/`. The shared scope lives in `support/ProjectScope.kt` and derives the module
+allow-list from `settings.gradle.kts`, so generated code (`**/build/**`), the `buildLogic` included
+build, and stray Kotlin files outside the build (e.g. scratch projects under `.local/`) never enter
+it. See [.claude/rules/ksp-test.md](.claude/rules/ksp-test.md) for details.
 
 ## Multiplatform Considerations
 
