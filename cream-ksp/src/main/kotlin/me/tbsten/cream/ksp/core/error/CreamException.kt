@@ -46,7 +46,8 @@ internal class UnknownCreamException(
     solution: String? = null,
     cause: Throwable? = null,
 ) : CreamException(
-        message = ("Unexpected error" + message?.let { ": $it" }),
+        // `+ null` would render as the literal "null", so the suffix defaults to "" instead.
+        message = "Unexpected error" + (message?.let { ": $it" } ?: ""),
         solution = solution ?: reportToGithub(),
         cause = cause,
     )
