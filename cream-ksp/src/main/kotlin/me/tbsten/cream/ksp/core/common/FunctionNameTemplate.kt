@@ -5,7 +5,6 @@ import me.tbsten.cream.CopyTargetInnerName
 import me.tbsten.cream.CopyTargetSimpleName
 import me.tbsten.cream.CopyTargetUnderPackage
 import me.tbsten.cream.DefaultCopyFunctionName
-import me.tbsten.cream.InternalCreamApi
 import me.tbsten.cream.copy_target_full_name
 import me.tbsten.cream.copy_target_inner_name
 import me.tbsten.cream.copy_target_simple_name
@@ -28,8 +27,7 @@ import me.tbsten.cream.ksp.options.CreamOptions
  * (a keyword, illegal characters, …) simply fails to compile at the use site, and encoding
  * Kotlin's identifier rules here would only become a maintenance burden as they change.
  */
-@InternalCreamApi
-public fun resolveFunNameTemplate(
+internal fun resolveFunNameTemplate(
     template: String,
     source: ClassDeclarationInfo,
     target: ClassDeclarationInfo,
@@ -53,8 +51,7 @@ public fun resolveFunNameTemplate(
  * plain-literal `funName` on an annotation that generates more than one function (which
  * would emit duplicate names).
  */
-@InternalCreamApi
-public fun containsAnyCopyFunNameToken(template: String): Boolean =
+internal fun containsAnyCopyFunNameToken(template: String): Boolean =
     template.contains(DefaultCopyFunctionName) ||
         copyTargetTokenExpanders.any { (placeholder, _) -> template.contains(placeholder) }
 

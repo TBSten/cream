@@ -9,7 +9,6 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CopyToChildren
-import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.ProcessContext
 import me.tbsten.cream.ksp.core.common.CopyToChildrenSourceAnnotation
 import me.tbsten.cream.ksp.core.common.annotationsOf
@@ -21,6 +20,7 @@ import me.tbsten.cream.ksp.core.common.reportCreamError
 import me.tbsten.cream.ksp.core.common.underPackageName
 import me.tbsten.cream.ksp.core.common.validateFunName
 import me.tbsten.cream.ksp.core.copyFun.appendCopyFunction
+import me.tbsten.cream.ksp.core.error.InvalidCreamUsageException
 import me.tbsten.cream.ksp.util.ksp.collectConcreteSubclasses
 import me.tbsten.cream.ksp.util.ksp.isSealed
 import me.tbsten.cream.ksp.util.with

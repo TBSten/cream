@@ -2,7 +2,7 @@ package me.tbsten.cream.ksp.core.common
 
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSNode
-import me.tbsten.cream.ksp.InvalidCreamUsageException
+import me.tbsten.cream.ksp.core.error.InvalidCreamUsageException
 import me.tbsten.cream.ksp.util.lines
 
 /**

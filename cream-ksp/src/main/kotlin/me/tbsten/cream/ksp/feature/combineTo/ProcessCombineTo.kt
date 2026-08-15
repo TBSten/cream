@@ -7,7 +7,6 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CombineTo
-import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.ProcessContext
 import me.tbsten.cream.ksp.core.combineFun.appendCombineToFunction
 import me.tbsten.cream.ksp.core.common.CombineToSourceAnnotation
@@ -25,6 +24,7 @@ import me.tbsten.cream.ksp.core.common.resolveToClassDeclaration
 import me.tbsten.cream.ksp.core.common.underPackageName
 import me.tbsten.cream.ksp.core.common.validateFunName
 import me.tbsten.cream.ksp.core.common.warnIfSourceExcludeHasNoEffect
+import me.tbsten.cream.ksp.core.error.InvalidCreamUsageException
 import me.tbsten.cream.ksp.util.with
 
 private val annotationName = CombineTo::class.simpleName!!

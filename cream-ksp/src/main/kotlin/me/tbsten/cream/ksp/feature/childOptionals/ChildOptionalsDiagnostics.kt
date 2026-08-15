@@ -5,8 +5,8 @@ import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import me.tbsten.cream.ChildOptionals
-import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.core.common.reportCreamError
+import me.tbsten.cream.ksp.core.error.InvalidCreamUsageException
 
 private val annotationName = ChildOptionals::class.simpleName!!
 

@@ -4,7 +4,7 @@ import me.tbsten.cream.ksp.options.CreamOptions
 import me.tbsten.cream.ksp.testing.kotlincodelikestring.buildKotlinCodeLikeString
 import me.tbsten.cream.ksp.testing.kotlincodelikestring.withPrefixEachLines
 
-fun CreamOptions.toKspConfigString() =
+internal fun CreamOptions.toKspConfigString() =
     """
     ksp {
 ${

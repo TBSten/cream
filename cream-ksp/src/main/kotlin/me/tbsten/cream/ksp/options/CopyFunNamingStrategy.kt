@@ -1,10 +1,9 @@
 package me.tbsten.cream.ksp.options
 
-import me.tbsten.cream.InternalCreamApi
-
 @Suppress("EnumEntryName", "RemoveRedundantBackticks")
-@InternalCreamApi
-public enum class CopyFunNamingStrategy(public val funName: (source: ClassDeclarationInfo, target: ClassDeclarationInfo) -> String) {
+internal enum class CopyFunNamingStrategy(
+    val funName: (source: ClassDeclarationInfo, target: ClassDeclarationInfo) -> String,
+) {
     `under-package`({ _, target ->
         target.fullName.replace(target.packageName + ".", "")
     }),
@@ -22,13 +21,13 @@ public enum class CopyFunNamingStrategy(public val funName: (source: ClassDeclar
 
             // second だけにある差分
             targetName.substring(i)
-        }
+        },
     ),
     `simple-name`(
-        { _, target -> target.simpleName }
+        { _, target -> target.simpleName },
     ),
     `full-name`(
-        { _, target -> target.fullName }
+        { _, target -> target.fullName },
     ),
     `inner-name`(
         { _, target ->
@@ -40,22 +39,20 @@ public enum class CopyFunNamingStrategy(public val funName: (source: ClassDeclar
                     } else {
                         it.subList(minOf(it.size, 1), it.size)
                     }
-                }
-                .joinToString(".")
-        }
-    )
+                }.joinToString(".")
+        },
+    ),
     ;
 
-    public companion object {
-        public val default: CopyFunNamingStrategy = `under-package`
+    companion object {
+        val default: CopyFunNamingStrategy = `under-package`
     }
 }
 
-@InternalCreamApi
-public interface ClassDeclarationInfo {
-    public val packageName: String
-    public val underPackageName: String
-    public val simpleName: String
+internal interface ClassDeclarationInfo {
+    val packageName: String
+    val underPackageName: String
+    val simpleName: String
 
-    public val fullName: String
+    val fullName: String
 }

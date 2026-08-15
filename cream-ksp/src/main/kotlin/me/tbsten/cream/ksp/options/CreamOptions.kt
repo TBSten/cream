@@ -1,13 +1,11 @@
 package me.tbsten.cream.ksp.options
 
 import me.tbsten.cream.CopyVisibility
-import me.tbsten.cream.InternalCreamApi
-import me.tbsten.cream.ksp.InvalidCreamOptionException
+import me.tbsten.cream.ksp.core.error.InvalidCreamOptionException
 import me.tbsten.cream.ksp.util.lines
 import kotlin.reflect.KProperty1
 
-@InternalCreamApi
-public data class CreamOptions(
+internal data class CreamOptions(
     val copyFunNamePrefix: String,
     val copyFunNamingStrategy: CopyFunNamingStrategy,
     val escapeDot: EscapeDot,
@@ -15,8 +13,8 @@ public data class CreamOptions(
     val defaultVisibility: CopyVisibility,
     val autoValueClassMapping: Boolean,
 ) {
-    public companion object {
-        public val default: CreamOptions =
+    companion object {
+        val default: CreamOptions =
             CreamOptions(
                 copyFunNamePrefix = "copyTo",
                 copyFunNamingStrategy = CopyFunNamingStrategy.default,
@@ -26,7 +24,7 @@ public data class CreamOptions(
                 autoValueClassMapping = true,
             )
 
-        public val properties: List<KProperty1<CreamOptions, *>> =
+        val properties: List<KProperty1<CreamOptions, *>> =
             listOf(
                 CreamOptions::copyFunNamePrefix,
                 CreamOptions::copyFunNamingStrategy,
@@ -38,8 +36,7 @@ public data class CreamOptions(
     }
 }
 
-@InternalCreamApi
-public fun Map<String, String>.toCreamOptions(): CreamOptions =
+internal fun Map<String, String>.toCreamOptions(): CreamOptions =
     CreamOptions(
         copyFunNamePrefix =
             this["cream.copyFunNamePrefix"] ?: CreamOptions.default.copyFunNamePrefix,
@@ -86,7 +83,6 @@ public fun Map<String, String>.toCreamOptions(): CreamOptions =
             this["cream.autoValueClassMapping"]?.lowercase() != "false",
     )
 
-@OptIn(InternalCreamApi::class)
 @Suppress("NOTHING_TO_INLINE")
 private inline fun invalidCopyFunNamingStrategyError(
     actualValue: String?,
@@ -111,7 +107,6 @@ private inline fun invalidCopyFunNamingStrategyError(
     )
 
 @Suppress("NOTHING_TO_INLINE")
-@OptIn(InternalCreamApi::class)
 private inline fun invalidEscapeDotError(
     actualValue: String?,
     cause: IllegalArgumentException,
@@ -131,7 +126,6 @@ private inline fun invalidEscapeDotError(
     )
 
 @Suppress("NOTHING_TO_INLINE")
-@OptIn(InternalCreamApi::class)
 private inline fun invalidDefaultVisibilityError(
     actualValue: String?,
     cause: IllegalArgumentException,

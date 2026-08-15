@@ -5,7 +5,7 @@ import com.google.devtools.ksp.isAbstract
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 import com.google.devtools.ksp.symbol.Visibility
-import me.tbsten.cream.ksp.InvalidCreamUsageException
+import me.tbsten.cream.ksp.core.error.InvalidCreamUsageException
 
 /**
  * Why a class declaration cannot be used as the *target* of a generated copy / combine function.

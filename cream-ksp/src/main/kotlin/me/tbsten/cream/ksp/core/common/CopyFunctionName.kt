@@ -1,11 +1,9 @@
 package me.tbsten.cream.ksp.core.common
 
-import me.tbsten.cream.InternalCreamApi
 import me.tbsten.cream.ksp.options.ClassDeclarationInfo
 import me.tbsten.cream.ksp.options.CreamOptions
 
-@InternalCreamApi
-public fun copyFunctionName(
+internal fun copyFunctionName(
     source: ClassDeclarationInfo,
     target: ClassDeclarationInfo,
     options: CreamOptions,
@@ -23,7 +21,7 @@ public fun copyFunctionName(
     )
 }
 
-public data class CopyFunctionName(
+internal data class CopyFunctionName(
     val prefix: String,
     val targetName: String,
 ) {

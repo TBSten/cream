@@ -5,7 +5,7 @@ import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
 import me.tbsten.cream.CopyVisibility
-import me.tbsten.cream.ksp.InvalidCreamOptionException
+import me.tbsten.cream.ksp.core.error.InvalidCreamOptionException
 
 /**
  * Pure parsing unit tests for [toCreamOptions] focused on the `cream.defaultVisibility` option

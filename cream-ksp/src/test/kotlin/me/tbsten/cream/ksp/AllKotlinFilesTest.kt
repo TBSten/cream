@@ -28,7 +28,7 @@ internal class AllKotlinFilesTest :
             "root レイヤ（composition root）" - {
                 "直下には承認済みファイル（CreamSymbolProcessor / Provider / ProcessContext）以外を置かない" {
                     // The root package is the composition root only. Generation logic, helpers, exceptions
-                    // (which live in :cream-ksp:shared), etc. must NOT be added here.
+                    // (which live in core/error), etc. must NOT be added here.
                     creamKspMain
                         .filter { it.packagee?.name == KSP_ROOT }
                         .assertTrue { file -> file.nameWithExtension in ROOT_ALLOWED_FILES }

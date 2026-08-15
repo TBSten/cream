@@ -23,5 +23,4 @@ rootProject.name = "cream"
 includeBuild("./buildLogic")
 include(":cream-runtime")
 include(":cream-ksp")
-include(":cream-ksp:shared")
 include(":test")

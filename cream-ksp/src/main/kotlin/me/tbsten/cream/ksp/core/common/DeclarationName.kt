@@ -1,7 +1,7 @@
 package me.tbsten.cream.ksp.core.common
 
 import com.google.devtools.ksp.symbol.KSDeclaration
-import me.tbsten.cream.ksp.UnknownCreamException
+import me.tbsten.cream.ksp.core.error.UnknownCreamException
 import kotlin.reflect.KClass
 
 internal val KSDeclaration.fullName: String

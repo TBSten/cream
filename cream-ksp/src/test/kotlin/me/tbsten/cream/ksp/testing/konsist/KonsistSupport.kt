@@ -59,6 +59,7 @@ internal val CORE_SUBPACKAGES =
         "$CORE_PACKAGE.combineFun",
         "$CORE_PACKAGE.sealedCopy",
         "$CORE_PACKAGE.parentOptional",
+        "$CORE_PACKAGE.error",
     )
 
 /** The only files allowed directly in the root `me.tbsten.cream.ksp` package (the composition root). */
@@ -70,8 +71,8 @@ internal val ROOT_ALLOWED_FILES =
     )
 
 /**
- * cream-ksp's production (`main`) source set only — excludes the test source set and the nested
- * `:cream-ksp:shared` module. Parsed once, lazily, and reused across the architecture specs.
+ * cream-ksp's production (`main`) source set only — excludes the test source set. Parsed once,
+ * lazily, and reused across the architecture specs.
  */
 internal val creamKspMain: List<KoFileDeclaration> by lazy {
     Konsist.scopeFromProduction(moduleName = "cream-ksp", sourceSetName = "main").files
