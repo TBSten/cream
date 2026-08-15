@@ -4,16 +4,12 @@ import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 import me.tbsten.cream.konsist.support.ProjectScope
 import me.tbsten.cream.konsist.support.ProjectScope.gradleProjectPath
-import me.tbsten.cream.konsist.support.ProjectScope.isInTestSourceSet
 import java.io.File
 
 /**
- * Smoke test for [ProjectScope]: it pins *what the scope sees*, not any architecture rule.
- *
- * Repository-wide guardrails (which files an agent may edit, what shape a given file's top-level
- * declarations must have, …) are only worth writing once the scope is trustworthy, so this spec
- * fixes both halves of that: every module of the build is reachable, and nothing that merely looks
- * like source code (generated output, build configuration, scratch projects) leaks in.
+ * Smoke test for [ProjectScope]: it pins *what the scope sees*, not any architecture rule — every
+ * module of the build is reachable, and nothing that merely looks like source code (generated
+ * output, build configuration, scratch projects) leaks in.
  *
  * TODO: real rules go in sibling specs of this module. The three `cream-ksp`-local architecture
  *  specs (`AllKotlinFilesTest`, `feature/ArchTest`, `core/ArchTest`) stay where they are for now.
@@ -33,9 +29,8 @@ internal class ProjectScopeSmokeTest :
                 }
 
                 "JVM モジュールの main / test も KMP モジュールの commonMain / commonTest も含まれる" {
-                    // A repository-wide rule is only trustworthy if it reaches both flavours of
-                    // source-set layout the build uses. Pinned per module rather than as one flat
-                    // set, so a name that stops appearing points at the module that lost it.
+                    // Pinned per module rather than as one flat set, so a name that stops appearing
+                    // points at the module that lost it.
                     val sourceSetsByModule =
                         ProjectScope.projectFiles
                             .groupBy({ it.gradleProjectPath }, { it.sourceSetName })
@@ -43,29 +38,29 @@ internal class ProjectScopeSmokeTest :
 
                     sourceSetsByModule shouldBe
                         mapOf(
-                            // KSP cannot process intermediate source sets, but Konsist reads the
-                            // file system directly, so `commonMain` / `commonTest` are ordinary
-                            // source sets to it — the whole reason this scope can see KMP code.
+                            // Konsist reads the file system directly, so KMP's intermediate source
+                            // sets are visible to it even though KSP cannot process them.
                             ":cream-runtime" to setOf("commonMain"),
                             ":test" to setOf("commonMain", "commonTest"),
-                            // Plain JVM modules keep the flat `main` / `test` names.
                             ":cream-ksp" to setOf("main", "test"),
                             ":konsistTest" to setOf("test"),
                         )
                 }
 
                 "production / test の両方の source set が含まれる" {
-                    ProjectScope.productionFiles.isNotEmpty() shouldBe true
-                    ProjectScope.testFiles.isNotEmpty() shouldBe true
-                    ProjectScope.productionFiles.none { it.isInTestSourceSet } shouldBe true
+                    // What can break is the substring heuristic's verdict on our real source-set
+                    // names (see ProjectScope.isInTestSourceSet), so that verdict is what is pinned.
+                    ProjectScope.productionFiles.map { it.sourceSetName }.toSet() shouldBe
+                        setOf("commonMain", "main")
+                    ProjectScope.testFiles.map { it.sourceSetName }.toSet() shouldBe
+                        setOf("commonTest", "test")
                 }
             }
 
             "scope から外れるもの" - {
                 "build 配下（KSP が生成したコード）は含まれない" {
-                    // Konsist skips build directories unconditionally. This matters most for the
-                    // `test` module, which wires build/generated/ksp/metadata/commonMain/kotlin into
-                    // `commonMain` as an extra source dir: rules must never fire on generated code.
+                    // The `test` module wires build/generated/ksp/… into `commonMain` as an extra
+                    // source dir: rules must never fire on generated code.
                     val underBuildDir =
                         ProjectScope.projectFiles
                             .map { it.projectPath }
@@ -87,9 +82,8 @@ internal class ProjectScopeSmokeTest :
                 }
 
                 "include されていないディレクトリのファイルは含まれない" {
-                    // The raw project scope contains every Kotlin file in the working tree, including
-                    // the git-ignored `.local/` scratch Gradle projects that have real
-                    // `src/<sourceSet>/` layouts. Only paths under an included module survive.
+                    // Guards the allow-list against `.local/` scratch projects with real
+                    // `src/<sourceSet>/` layouts (see ProjectScope.projectFiles).
                     val allowedPrefixes =
                         ProjectScope.includedProjectPaths.map { projectPath ->
                             File.separator + projectPath.removePrefix(":").replace(':', File.separatorChar) + File.separator

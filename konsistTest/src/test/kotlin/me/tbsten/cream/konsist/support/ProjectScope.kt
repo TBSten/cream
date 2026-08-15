@@ -7,52 +7,37 @@ import java.io.File
 /**
  * The repository-wide Konsist scope shared by every spec in this module.
  *
- * [Konsist.scopeFromProject] walks the whole project root (the nearest ancestor directory of the
- * test's working directory that holds `gradlew`) rather than the module the test runs in, so one
- * scope already sees every Gradle module and every source set, whatever its name — the KMP modules'
- * `commonMain` / `commonTest` as well as the JVM modules' plain `main` / `test`. [projectFiles]
- * narrows that raw scope down to the repository's own modules; see its doc for what is dropped and
- * why.
+ * [Konsist.scopeFromProject] walks the whole repository, so one scope sees every Gradle module and
+ * every source set — KMP `commonMain` / `commonTest` as well as plain JVM `main` / `test`.
+ * [projectFiles] narrows that raw scope down to the repository's own modules.
  *
- * The three existing `cream-ksp` architecture specs keep their own narrower
- * `Konsist.scopeFromProduction(moduleName = "cream-ksp", sourceSetName = "main")` scope and are not
- * affected by this module.
- * TODO: once repository-wide rules land here, decide whether those three specs should move into
- *  this module (they would then filter [projectFiles] down to `:cream-ksp` / `main`).
+ * TODO: once repository-wide rules land here, decide whether the three `cream-ksp`-local
+ *  architecture specs should move into this module (they would then filter [projectFiles] down to
+ *  `:cream-ksp` / `main`).
  */
 internal object ProjectScope {
     /**
      * Gradle project paths (`:cream-ksp`, or `:a:b` for a nested module) read straight out of
      * `settings.gradle.kts`, so the scope's definition of "our modules" has a single source of
-     * truth and cannot drift when a module is added or removed.
-     *
-     * `includeBuild("./buildLogic")` deliberately does not match [INCLUDE_REGEX]: that included
-     * build is build configuration rather than product code, and Konsist cannot skip it on its own
-     * (its `ignoreBuildConfig` flag only knows the conventional `buildSrc` directory name).
+     * truth. The parse takes every quoted path on an `include(…)` line — `include(":a", ":b")` is
+     * equally valid Gradle, and dropping `:b` would silently shrink the scope instead of failing.
      */
     val includedProjectPaths: List<String> by lazy {
         File(Konsist.projectRootPath, "settings.gradle.kts")
             .readLines()
-            .mapNotNull { line -> INCLUDE_REGEX.find(line)?.groupValues?.get(1) }
+            .filter { line -> INCLUDE_CALL_REGEX.containsMatchIn(line) }
+            .flatMap { line -> PROJECT_PATH_REGEX.findAll(line).map { it.groupValues[1] } }
             .also { check(it.isNotEmpty()) { "No include(\":…\") found in settings.gradle.kts" } }
     }
 
     /**
      * Every Kotlin source file of the repository's own modules, across all of their source sets.
      *
-     * Konsist's raw project scope is wider than "our source", so it is narrowed to files whose
-     * module is one of [includedProjectPaths]. An allow-list is used rather than a deny-list
-     * because the raw scope contains anything Kotlin-shaped that happens to sit in the working
-     * tree: this repository's git-ignored `.local/` holds whole scratch Gradle projects with real
-     * `src/<sourceSet>/` layouts (release verification consumers, KSP probes, cloned repositories),
-     * which are indistinguishable from first-party modules by path shape alone.
-     *
-     * Generated code needs no filter: Konsist unconditionally skips `build` (and Maven `target`)
-     * directories at the project root and inside any module, plus the root `.gradle` directory.
-     * That already covers KSP output such as the `test` module's
-     * `build/generated/ksp/metadata/commonMain/kotlin` — a directory wired into `commonMain` as an
-     * extra source dir, whose files nonetheless resolve under `build` and are therefore never
-     * parsed.
+     * An allow-list over [includedProjectPaths] rather than a deny-list: the raw scope contains
+     * anything Kotlin-shaped in the working tree, and the git-ignored `.local/` holds whole scratch
+     * Gradle projects with real `src/<sourceSet>/` layouts that path shape alone cannot tell apart
+     * from first-party modules. Generated code needs no filter — Konsist unconditionally skips
+     * `build` directories.
      */
     val projectFiles: List<KoFileDeclaration> by lazy {
         val moduleNames = includedProjectPaths.map { it.toKonsistModuleName() }.toSet()
@@ -71,19 +56,16 @@ internal object ProjectScope {
         get() = projectFiles.filter { it.isInTestSourceSet }
 
     /**
-     * Konsist names a module by its directory path relative to the project root, not by its Gradle
-     * project path: the two forms only coincide while every module is top-level, and a nested
-     * module `:a:b` would arrive as `a/b`. This converts back to the `:`-separated form used in
-     * `settings.gradle.kts`, so rules can be written against the names contributors actually know.
+     * Konsist's [KoFileDeclaration.moduleName] is a directory path (`a/b`), not a Gradle project
+     * path; this converts back to the `:`-separated form used in `settings.gradle.kts`.
      */
     val KoFileDeclaration.gradleProjectPath: String
         get() = ":" + moduleName.replace(File.separatorChar, ':')
 
     /**
-     * Konsist's own production/test split (the one behind `scopeFromProduction` /`scopeFromTest`)
-     * keys off the source-set name containing `test`, case-insensitively: `main` / `commonMain` /
-     * `jvmMain` are production, `test` / `commonTest` / `androidUnitTest` are not. Reproduced here
-     * so both halves derive from the single [projectFiles] parse instead of building a second scope.
+     * Konsist's own production/test split (behind `scopeFromProduction` / `scopeFromTest`): the
+     * source-set name contains `test`, case-insensitively. Reproduced here so both halves derive
+     * from the single [projectFiles] parse instead of building a second scope.
      */
     val KoFileDeclaration.isInTestSourceSet: Boolean
         get() = sourceSetName.lowercase().contains("test")
@@ -91,6 +73,9 @@ internal object ProjectScope {
     /** `:cream-ksp` -> `cream-ksp`, `:a:b` -> `a/b` (Konsist's [KoFileDeclaration.moduleName] form). */
     private fun String.toKonsistModuleName(): String = removePrefix(":").replace(':', File.separatorChar)
 
-    /** Matches `include(":cream-ksp")` but not `includeBuild("./buildLogic")`. */
-    private val INCLUDE_REGEX = Regex("""^\s*include\(\s*"(:[^"]+)"\s*\)""")
+    /** Opens an `include(…)` call — `includeBuild(…)` cannot match, as `(` must follow `include`. */
+    private val INCLUDE_CALL_REGEX = Regex("""^\s*include\s*\(""")
+
+    /** One `":cream-ksp"` argument of such a call; repeats for every path on the line. */
+    private val PROJECT_PATH_REGEX = Regex("\"(:[^\"]+)\"")
 }
