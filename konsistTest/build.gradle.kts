@@ -24,9 +24,10 @@ dependencies {
  */
 val repositorySources =
     fileTree(rootDir) {
-        // Every module in settings.gradle.kts is top-level today (`cream-ksp/src/…`); the second
-        // pattern keeps a nested module (`a/b/src/…`) covered without another edit here.
-        include("*/src/**/*.kt", "*/*/src/**/*.kt")
+        // Depth-agnostic on purpose: ProjectScope's allow-list follows settings.gradle.kts to any
+        // nesting level, so pinning a module depth here would silently stop invalidating this task
+        // for a module the runtime filter still scans — exactly the UP-TO-DATE hole being closed.
+        include("**/src/**/*.kt")
         // Mirrors the runtime exclusions in ProjectScope.kt. `.local/` is git-ignored scratch space
         // that happens to hold Gradle projects with real src/ layouts; without excluding it here,
         // unrelated experiments would invalidate this task.
