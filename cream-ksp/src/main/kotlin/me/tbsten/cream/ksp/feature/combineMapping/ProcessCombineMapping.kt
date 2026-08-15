@@ -9,7 +9,6 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CombineMapping
-import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.ProcessContext
 import me.tbsten.cream.ksp.core.combineFun.appendCombineToFunction
 import me.tbsten.cream.ksp.core.common.CombineMappingSourceAnnotation
@@ -24,6 +23,7 @@ import me.tbsten.cream.ksp.core.common.resolveClassDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.resolveToClassDeclaration
 import me.tbsten.cream.ksp.core.common.underPackageName
 import me.tbsten.cream.ksp.core.common.warnIfMappingExcludesHaveNoEffect
+import me.tbsten.cream.ksp.core.error.InvalidCreamUsageException
 import me.tbsten.cream.ksp.util.ksp.getArgument
 import me.tbsten.cream.ksp.util.with
 

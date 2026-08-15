@@ -5,8 +5,8 @@ import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSNode
-import me.tbsten.cream.ksp.CreamException
-import me.tbsten.cream.ksp.InvalidCreamUsageException
+import me.tbsten.cream.ksp.core.error.CreamException
+import me.tbsten.cream.ksp.core.error.InvalidCreamUsageException
 
 /**
  * Report a user-misuse [CreamException] (invalid annotation usage / invalid option) as a clean,

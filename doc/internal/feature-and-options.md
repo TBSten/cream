@@ -1,6 +1,6 @@
 # 機能とオプションの対応
 
-> v0.9.0-alpha01 時点の情報 + #135 の @ParentOptional / @ChildOptionals。出典は `cream-runtime` の注釈定義と `CreamOptions`（`cream-ksp/shared`）。
+> v0.9.0-alpha01 時点の情報 + #135 の @ParentOptional / @ChildOptionals。出典は `cream-runtime` の注釈定義と `CreamOptions`（`cream-ksp` の `ksp/options/`）。
 
 凡例: **✓** = その単位で指定可 ／ **✕** = 該当引数なし ／ **適用** = 引数は無いがプロジェクト設定が効く ／ **✱** = 別オプションが担当
 

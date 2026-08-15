@@ -10,7 +10,6 @@ kotlin {
 
     compilerOptions.optIn.addAll(
         "com.google.devtools.ksp.KspExperimental",
-        "me.tbsten.cream.InternalCreamApi",
     )
     compilerOptions.freeCompilerArgs.add("-Xcontext-parameters")
     sourceSets.named("test") {
@@ -20,7 +19,6 @@ kotlin {
 
 dependencies {
     implementation(project(":cream-runtime"))
-    implementation(project(":cream-ksp:shared"))
     implementation(libs.kspApi)
     implementation(kotlin("reflect"))
     testImplementation(libs.kotest)

@@ -8,7 +8,6 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CombineFrom
-import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.ProcessContext
 import me.tbsten.cream.ksp.core.combineFun.appendCombineToFunction
 import me.tbsten.cream.ksp.core.common.CombineFromSourceAnnotation
@@ -23,6 +22,7 @@ import me.tbsten.cream.ksp.core.common.resolveClassDeclarationOrReport
 import me.tbsten.cream.ksp.core.common.resolveClassListOrReport
 import me.tbsten.cream.ksp.core.common.resolveFunName
 import me.tbsten.cream.ksp.core.common.underPackageName
+import me.tbsten.cream.ksp.core.error.InvalidCreamUsageException
 import me.tbsten.cream.ksp.util.lines
 import me.tbsten.cream.ksp.util.with
 

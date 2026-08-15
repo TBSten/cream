@@ -9,7 +9,6 @@ import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.NonCopyableStrategy
 import me.tbsten.cream.SealedCopy
-import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.ProcessContext
 import me.tbsten.cream.ksp.core.common.SealedCopySourceAnnotation
 import me.tbsten.cream.ksp.core.common.annotationsOf
@@ -20,6 +19,7 @@ import me.tbsten.cream.ksp.core.common.omitPackagesFor
 import me.tbsten.cream.ksp.core.common.reportCreamError
 import me.tbsten.cream.ksp.core.common.resolveSealedCopyFunName
 import me.tbsten.cream.ksp.core.common.underPackageName
+import me.tbsten.cream.ksp.core.error.InvalidCreamUsageException
 import me.tbsten.cream.ksp.core.sealedCopy.appendSealedCopyFunction
 import me.tbsten.cream.ksp.core.sealedCopy.collectAbstractProperties
 import me.tbsten.cream.ksp.core.sealedCopy.collectSealedCopyViaErrors

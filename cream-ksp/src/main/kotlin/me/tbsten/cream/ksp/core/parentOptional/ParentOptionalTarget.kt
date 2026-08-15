@@ -4,12 +4,12 @@ import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSTypeParameter
-import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.core.common.ChildOptionalsSourceAnnotation
 import me.tbsten.cream.ksp.core.common.GenerateSourceAnnotation
 import me.tbsten.cream.ksp.core.common.ParentOptionalSourceAnnotation
 import me.tbsten.cream.ksp.core.common.fullName
 import me.tbsten.cream.ksp.core.common.reportCreamError
+import me.tbsten.cream.ksp.core.error.InvalidCreamUsageException
 import me.tbsten.cream.ksp.util.ksp.asString
 
 /**

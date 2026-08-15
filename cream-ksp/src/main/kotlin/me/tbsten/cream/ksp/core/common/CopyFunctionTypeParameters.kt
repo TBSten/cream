@@ -7,7 +7,7 @@ import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.google.devtools.ksp.symbol.KSTypeReference
 import me.tbsten.cream.CopyFrom
 import me.tbsten.cream.CopyTo
-import me.tbsten.cream.ksp.UnknownCreamException
+import me.tbsten.cream.ksp.core.error.UnknownCreamException
 import me.tbsten.cream.ksp.util.ksp.asString
 
 internal fun getCopyFunctionTypeParameters(

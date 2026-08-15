@@ -2,8 +2,8 @@ package me.tbsten.cream.ksp.core.sealedCopy
 
 import com.google.devtools.ksp.symbol.ClassKind
 import com.google.devtools.ksp.symbol.KSClassDeclaration
-import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.core.common.underPackageName
+import me.tbsten.cream.ksp.core.error.InvalidCreamUsageException
 
 internal fun nonCopyableErrorException(
     sealedClass: KSClassDeclaration,

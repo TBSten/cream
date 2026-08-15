@@ -9,9 +9,9 @@ import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSValueParameter
 import com.google.devtools.ksp.symbol.Visibility
 import me.tbsten.cream.ParentOptional
-import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.core.common.annotationsOf
 import me.tbsten.cream.ksp.core.common.reportCreamError
+import me.tbsten.cream.ksp.core.error.InvalidCreamUsageException
 
 /**
  * Find the `@ParentOptional` occurrence for this property, whether KSP surfaced it on the

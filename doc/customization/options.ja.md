@@ -19,8 +19,6 @@ ksp {
 }
 ```
 
-各オプションの動作を確認するためには [Option Builder](https://tbsten.github.io/cream/option-builder) が便利です。
-
 ## オプション索引
 
 各オプションの詳細は、それぞれのトピックページに記載しています:

@@ -5,7 +5,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSNode
 import com.google.devtools.ksp.symbol.KSTypeAlias
-import me.tbsten.cream.ksp.InvalidCreamUsageException
+import me.tbsten.cream.ksp.core.error.InvalidCreamUsageException
 
 /**
  * Resolves a type alias to its underlying class declaration.

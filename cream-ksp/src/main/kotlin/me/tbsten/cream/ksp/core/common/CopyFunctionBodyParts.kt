@@ -3,8 +3,8 @@ package me.tbsten.cream.ksp.core.common
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSTypeParameter
-import me.tbsten.cream.ksp.UnknownCreamException
-import me.tbsten.cream.ksp.reportToGithub
+import me.tbsten.cream.ksp.core.error.UnknownCreamException
+import me.tbsten.cream.ksp.core.error.reportToGithub
 import me.tbsten.cream.ksp.util.escapeKotlinIdentifier
 import me.tbsten.cream.ksp.util.isCountMoreThan
 import me.tbsten.cream.ksp.util.ksp.asString

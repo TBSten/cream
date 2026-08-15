@@ -8,7 +8,6 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.validate
 import me.tbsten.cream.CopyMapping
-import me.tbsten.cream.ksp.InvalidCreamUsageException
 import me.tbsten.cream.ksp.ProcessContext
 import me.tbsten.cream.ksp.core.common.CopyMappingSourceAnnotation
 import me.tbsten.cream.ksp.core.common.MappingExcludesDirection
@@ -24,6 +23,7 @@ import me.tbsten.cream.ksp.core.common.underPackageName
 import me.tbsten.cream.ksp.core.common.validateFunName
 import me.tbsten.cream.ksp.core.common.warnIfMappingExcludesHaveNoEffect
 import me.tbsten.cream.ksp.core.copyFun.appendCopyFunction
+import me.tbsten.cream.ksp.core.error.InvalidCreamUsageException
 import me.tbsten.cream.ksp.util.ksp.getArgument
 import me.tbsten.cream.ksp.util.ksp.isSealed
 import me.tbsten.cream.ksp.util.with

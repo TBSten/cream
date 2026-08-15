@@ -9,7 +9,6 @@ cream.kt is a Kotlin Symbol Processing (KSP) plugin that automatically generates
 **Published Artifacts:**
 - `me.tbsten.cream:cream-runtime` - Runtime annotations (Multiplatform)
 - `me.tbsten.cream:cream-ksp` - KSP processor (JVM)
-- `me.tbsten.cream:cream-ksp-shared` - Shared utilities (Multiplatform)
 
 ## Development Commands
 
@@ -83,35 +82,32 @@ cream/
 │       ├── ParentOptional.kt   # Nullable accessor on sealed parent (per property)
 │       └── ChildOptionals.kt   # Nullable accessors on sealed parent (blanket)
 ├── cream-ksp/              # KSP processor (JVM only)
-│   ├── src/main/kotlin/me/tbsten/cream/ksp/
-│   │   ├── CreamSymbolProcessor.kt         # Composition root: dispatch all features
-│   │   ├── CreamSymbolProcessorProvider.kt # KSP provider
-│   │   ├── ProcessContext.kt               # {resolver, options, codeGenerator, logger}
-│   │   ├── feature/                        # Per-annotation entry points (10 = one dir per annotation)
-│   │   │   ├── copyTo/ copyFrom/ copyToChildren/ sealedCopy/
-│   │   │   ├── combineTo/ combineFrom/ copyMapping/ combineMapping/
-│   │   │   └── parentOptional/ childOptionals/
-│   │   │       # each: Process<Name>.kt with `context(ctx) fun processXxx()`
-│   │   ├── core/                           # cream-specific code generation
-│   │   │   ├── common/    # GenerateSourceAnnotation + its 10 impls, type params, where, sealed type rendering, property match, KDoc, naming, target validation, diagnostics
-│   │   │   ├── copyFun/   # copy generation (class/object/sealed dispatch)
-│   │   │   ├── combineFun/ # combine generation (N source -> 1 target)
-│   │   │   ├── sealedCopy/ # @SealedCopy generation
-│   │   │   └── parentOptional/ # @ParentOptional / @ChildOptionals accessor generation
-│   │   └── util/                           # Generic helpers only (no cream-specific types)
-│   └── shared/             # Shared logic (Multiplatform, KSP-independent)
-│       └── src/commonMain/kotlin/me/tbsten/cream/ksp/
-│           ├── options/                    # Configuration
-│           └── transform/CopyFunctionName.kt
-├── test/                   # Integration tests (Multiplatform)
-│   ├── src/commonMain/kotlin/me/tbsten/cream/test/
-│   │   ├── copyTo/         # @CopyTo test data
-│   │   ├── copyFrom/       # @CopyFrom test data
-│   │   ├── copyToChildren/ # @CopyToChildren test data
-│   │   ├── parentOptional/ # @ParentOptional test data
-│   │   └── childOptionals/ # @ChildOptionals test data
-│   └── src/commonTest/kotlin/me/tbsten/cream/test/
-└── optionBuilder/          # Configuration UI tool
+│   └── src/main/kotlin/me/tbsten/cream/ksp/
+│       ├── CreamSymbolProcessor.kt         # Composition root: dispatch all features
+│       ├── CreamSymbolProcessorProvider.kt # KSP provider
+│       ├── ProcessContext.kt               # {resolver, options, codeGenerator, logger}
+│       ├── feature/                        # Per-annotation entry points (10 = one dir per annotation)
+│       │   ├── copyTo/ copyFrom/ copyToChildren/ sealedCopy/
+│       │   ├── combineTo/ combineFrom/ copyMapping/ combineMapping/
+│       │   └── parentOptional/ childOptionals/
+│       │       # each: Process<Name>.kt with `context(ctx) fun processXxx()`
+│       ├── core/                           # cream-specific code generation
+│       │   ├── common/    # GenerateSourceAnnotation + its 10 impls, type params, where, sealed type rendering, property match, KDoc, naming, target validation, diagnostics
+│       │   ├── copyFun/   # copy generation (class/object/sealed dispatch)
+│       │   ├── combineFun/ # combine generation (N source -> 1 target)
+│       │   ├── sealedCopy/ # @SealedCopy generation
+│       │   ├── parentOptional/ # @ParentOptional / @ChildOptionals accessor generation
+│       │   └── error/     # CreamException hierarchy (leaf: depends on util only)
+│       ├── options/                        # KSP option model + parsing (CreamOptions, EscapeDot, ...)
+│       └── util/                           # Generic helpers only (no cream-specific types)
+└── test/                   # Integration tests (Multiplatform)
+    ├── src/commonMain/kotlin/me/tbsten/cream/test/
+    │   ├── copyTo/         # @CopyTo test data
+    │   ├── copyFrom/       # @CopyFrom test data
+    │   ├── copyToChildren/ # @CopyToChildren test data
+    │   ├── parentOptional/ # @ParentOptional test data
+    │   └── childOptionals/ # @ChildOptionals test data
+    └── src/commonTest/kotlin/me/tbsten/cream/test/
 ```
 
 ### Key Components
@@ -130,10 +126,10 @@ cream/
 - `core/combineFun/` generates combine functions (N source -> 1 target); `core/sealedCopy/` generates `@SealedCopy` self-copy
 - `core/parentOptional/` generates nullable extension-property accessors on sealed parents (`@ParentOptional` / `@ChildOptionals`)
 - Shared building blocks (type params, `where`, property matching, KDoc, naming) live in `core/common/` and are composed by `copyFun`/`combineFun`/`sealedCopy`/`parentOptional`
-- Naming strategy is applied via `core/common/` (bridging to `cream-ksp/shared`)
+- Naming strategy lives in `core/common/` (`CopyFunctionName.kt` / `FunctionNameTemplate.kt`)
 
 **Configuration System:**
-- `CreamOptions` data class in `cream-ksp/shared` defines all options
+- `CreamOptions` data class in `cream-ksp/src/main/kotlin/me/tbsten/cream/ksp/options/` defines all options
 - Parsed from KSP build arguments in `build.gradle.kts`:
   ```kotlin
   ksp {
@@ -242,7 +238,6 @@ fun Project.setupKspForMultiplatformWorkaround() {
 **Supported Platforms:**
 - `cream-runtime`: All Kotlin platforms (iOS, JVM, Android, JS, WASM, Linux, macOS, watchOS, tvOS)
 - `cream-ksp`: JVM only (KSP limitation)
-- `cream-ksp/shared`: JVM + JS + WASM
 
 ## Adding New Features
 
@@ -259,7 +254,7 @@ See `.claude/rules/ksp-architecture.md` for the full architecture (feature/core/
 
 ### Adding Configuration Options
 
-1. Add property to `CreamOptions` in `cream-ksp/shared/src/commonMain/kotlin/me/tbsten/cream/ksp/options/`
+1. Add property to `CreamOptions` in `cream-ksp/src/main/kotlin/me/tbsten/cream/ksp/options/`
 2. Update parsing logic in `CreamOptions.kt` to read from KSP arguments
 3. Use option in code generation logic (under `core/`; surfaced via the layered `context(options, ...)`)
 4. Document in README.md under "Options" section
@@ -268,8 +263,8 @@ See `.claude/rules/ksp-architecture.md` for the full architecture (feature/core/
 
 Generation logic lives under `core/` (see `.claude/rules/ksp-core-top-level.md` for the sub-directory layout):
 
-- **Function naming:** `core/common/` (bridging to `CopyFunctionName.kt` in cream-ksp/shared)
-- **Per-declaration `funName` templates/tokens:** `FunctionNameTemplate.kt` (cream-ksp/shared) and the public token consts in `CopyFunctionNameToken.kt` (cream-runtime)
+- **Function naming:** `core/common/CopyFunctionName.kt`
+- **Per-declaration `funName` templates/tokens:** `core/common/FunctionNameTemplate.kt` and the public token consts in `CopyFunctionNameToken.kt` (cream-runtime)
 - **Property matching:** `core/common/`
 - **Copy generation (class/object/sealed):** `core/copyFun/`
 - **Combine generation:** `core/combineFun/`
@@ -287,7 +282,8 @@ Generation logic lives under `core/` (see `.claude/rules/ksp-core-top-level.md` 
 | Copy / combine / sealed-copy / parent-accessor generation | cream-ksp/src/main/kotlin/me/tbsten/cream/ksp/core/{copyFun,combineFun,sealedCopy,parentOptional}/ |
 | Shared generation parts (naming, property matching, type params, KDoc) | cream-ksp/src/main/kotlin/me/tbsten/cream/ksp/core/common/ |
 | Generic helpers (no cream-specific types) | cream-ksp/src/main/kotlin/me/tbsten/cream/ksp/util/ |
-| Configuration parsing (`CreamOptions`) | cream-ksp/shared/src/commonMain/kotlin/me/tbsten/cream/ksp/options/CreamOptions.kt |
+| Configuration parsing (`CreamOptions`) | cream-ksp/src/main/kotlin/me/tbsten/cream/ksp/options/CreamOptions.kt |
+| Exception hierarchy (`CreamException`) | cream-ksp/src/main/kotlin/me/tbsten/cream/ksp/core/error/CreamException.kt |
 
 ## Common Pitfalls
 

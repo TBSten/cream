@@ -23,8 +23,4 @@ rootProject.name = "cream"
 includeBuild("./buildLogic")
 include(":cream-runtime")
 include(":cream-ksp")
-include(":cream-ksp:shared")
-include(":optionBuilder:sharedUI")
-include(":optionBuilder:desktopApp")
-include(":optionBuilder:webApp")
 include(":test")
