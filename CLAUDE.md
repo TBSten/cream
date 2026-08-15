@@ -103,15 +103,14 @@ cream/
 │       └── src/commonMain/kotlin/me/tbsten/cream/ksp/
 │           ├── options/                    # Configuration
 │           └── transform/CopyFunctionName.kt
-├── test/                   # Integration tests (Multiplatform)
-│   ├── src/commonMain/kotlin/me/tbsten/cream/test/
-│   │   ├── copyTo/         # @CopyTo test data
-│   │   ├── copyFrom/       # @CopyFrom test data
-│   │   ├── copyToChildren/ # @CopyToChildren test data
-│   │   ├── parentOptional/ # @ParentOptional test data
-│   │   └── childOptionals/ # @ChildOptionals test data
-│   └── src/commonTest/kotlin/me/tbsten/cream/test/
-└── optionBuilder/          # Configuration UI tool
+└── test/                   # Integration tests (Multiplatform)
+    ├── src/commonMain/kotlin/me/tbsten/cream/test/
+    │   ├── copyTo/         # @CopyTo test data
+    │   ├── copyFrom/       # @CopyFrom test data
+    │   ├── copyToChildren/ # @CopyToChildren test data
+    │   ├── parentOptional/ # @ParentOptional test data
+    │   └── childOptionals/ # @ChildOptionals test data
+    └── src/commonTest/kotlin/me/tbsten/cream/test/
 ```
 
 ### Key Components

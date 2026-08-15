@@ -19,9 +19,6 @@ ksp {
 }
 ```
 
-[Option Builder](https://tbsten.github.io/cream/option-builder) is useful for verifying the
-behavior of each option.
-
 ## Option index
 
 Each option is documented in detail on its topic page:
