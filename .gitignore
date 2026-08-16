@@ -16,3 +16,4 @@ xcuserdata
 .claude/**/*.local.json
 .claude/worktrees/
 .local/
+.playwright-mcp/
