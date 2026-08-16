@@ -4,8 +4,10 @@ import me.tbsten.cream.konsist.dsl.KtFileBuilder
 import me.tbsten.cream.konsist.dsl.ManifestDirBuilder
 import me.tbsten.cream.konsist.dsl.TopLevelVisibility.Internal
 import me.tbsten.cream.konsist.dsl.TopLevelVisibility.Private
-
-private const val KSP_CORE_PACKAGE = "${ManifestConstants.KSP_BASE_PACKAGE}.core"
+import me.tbsten.cream.konsist.dsl.importCreamKsp
+import me.tbsten.cream.konsist.dsl.importCreamRuntime
+import me.tbsten.cream.konsist.dsl.importKotlinLibrary
+import me.tbsten.cream.konsist.dsl.importKspApi
 
 /**
  * core の規約は「feature（と root）に依存しない」ことだけで、直下パッケージ
@@ -29,14 +31,12 @@ internal fun ManifestDirBuilder.core() {
 
 private fun KtFileBuilder.coreFileContent() {
     imports {
-        packageTree("kotlin") // 標準ライブラリ
-        packageTree(ManifestConstants.KSP_API_PACKAGE)
-        // runtime の注釈・token const。packageTree にすると ksp 配下（feature / root）まで
-        // 開いてしまうので直下メンバーだけ許可する
-        packageEquals(ManifestConstants.RUNTIME_BASE_PACKAGE)
-        packageTree(KSP_CORE_PACKAGE) // core 内の相互参照
-        packageTree(KSP_OPTIONS_FULL_PACKAGE)
-        packageTree(KSP_UTIL_PACKAGE)
+        importKotlinLibrary()
+        importKspApi()
+        importCreamRuntime()
+        importCreamKsp.core()
+        importCreamKsp.options()
+        importCreamKsp.util()
     }
     topLevels(Internal, Private)
 }

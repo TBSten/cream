@@ -5,6 +5,9 @@ import me.tbsten.cream.konsist.dsl.KtFileBuilder
 import me.tbsten.cream.konsist.dsl.ManifestDirBuilder
 import me.tbsten.cream.konsist.dsl.TopLevelVisibility.Internal
 import me.tbsten.cream.konsist.dsl.TopLevelVisibility.Private
+import me.tbsten.cream.konsist.dsl.importCreamKsp
+import me.tbsten.cream.konsist.dsl.importCreamRuntime
+import me.tbsten.cream.konsist.dsl.importKspApi
 
 private val FEATURES =
     listOf(
@@ -21,14 +24,12 @@ private val FEATURES =
     )
 
 private val featureImports: ImportsBuilder.() -> Unit = {
-    packageTree(ManifestConstants.KSP_API_PACKAGE)
-    packageEquals(ManifestConstants.RUNTIME_BASE_PACKAGE) // 注釈（@CopyTo 等）と NonCopyableStrategy
-    packageTree("${ManifestConstants.KSP_BASE_PACKAGE}.core")
-    packageTree(KSP_OPTIONS_FULL_PACKAGE)
-    packageTree(KSP_UTIL_PACKAGE)
-    // feature が上向きに依存してよい唯一の root 型。packageEquals(ksp 直下) にすると
-    // CreamSymbolProcessor / Provider まで開いてしまうので 1 型だけ許可する
-    fqName("${ManifestConstants.KSP_BASE_PACKAGE}.ProcessContext")
+    importKspApi()
+    importCreamRuntime() // 注釈（@CopyTo 等）と NonCopyableStrategy
+    importCreamKsp.core()
+    importCreamKsp.options()
+    importCreamKsp.util()
+    importCreamKsp.processContext()
 }
 
 internal fun ManifestDirBuilder.feature() {
