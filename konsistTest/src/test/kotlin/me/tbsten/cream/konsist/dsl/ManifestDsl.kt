@@ -12,20 +12,21 @@ import com.lemonappdev.konsist.api.declaration.KoFileDeclaration
  *   （[Manifest.assert] の finalize が確定させる）
  * - **具体名のエントリはパターン（`ktFile("*.kt")`）より常に優先される**（書き順に依存しない）。
  *   パターン同士が重なる場合だけ宣言順で最初のものが勝つ
- * - `ktFile` は「あってよい」、`requiredKtFile` は「なければ違反」（存在検査は [Manifest.requiredPaths]
- *   経由で spec が集合レベルで行う — 存在しないファイルは per-file の rule に現れないため）
- * - `ktFile` / `requiredKtFile` の block がそのままそのファイルの目録: トップレベル宣言の grant と
+ * - `ktFile` は既定で「あってよい」、`ktFile(required = true)` は「なければ違反」（存在検査は
+ *   [Manifest.requiredPaths] 経由で spec が集合レベルで行う — 存在しないファイルは per-file の
+ *   rule に現れないため）
+ * - `ktFile` の block がそのままそのファイルの目録: トップレベル宣言の grant と
  *   [KtFileBuilder.imports] を列挙する。**空 block = トップレベル宣言ゼロ・import ゼロのみ許可**
  * - `dir` は block 必須。**空 block = 配下に `.kt` を置けない**。配置フリー（中身も自由）は
  *   [ManifestEntriesBuilder.anyFiles] の**明示**でのみ許可される
  * - **import は deny by default**: 許可は各 `ktFile` の block（[KtFileBuilder.imports]）にだけ書ける
  *   （dir / sourceSet 階層には書けない — ktFile の block だけでそのファイルの許可全量が分かる）。
  *   宣言が無ければ import ゼロのみ許可
- * - **[ManifestEntriesBuilder.maxLines] は同じ block 内のエントリ（dir / ktFile / requiredKtFile /
- *   anyFiles）より前に宣言する**（後置は構築時に例外 — rule は宣言時点の文脈で作られるため、
- *   後から書いた宣言が黙って効かない事故を防ぐ）
+ * - **[ManifestEntriesBuilder.maxLines] は同じ block 内のエントリ（dir / ktFile / anyFiles）より前に
+ *   宣言する**（後置は構築時に例外 — rule は宣言時点の文脈で作られるため、後から書いた宣言が
+ *   黙って効かない事故を防ぐ）
  * - パスは完全一致。例外として **`ktFile` のファイル名部分にだけ `*` を書ける**
- *   （ディレクトリ部分と `requiredKtFile` は常に完全一致）。対象は `.kt` のみ
+ *   （ディレクトリ部分と `required = true` は常に完全一致）。対象は `.kt` のみ
  *
  * Konsist の `assertTrue` / `assertFalse` / `assertNotEmpty` は `@Suppress("konsist.…")` を
  * 尊重して宣言を検査から除外してしまうため、この DSL の検証では使わない（OPEN-QUESTIONS Q22）。
@@ -38,7 +39,7 @@ internal const val DEFAULT_MAX_LINES = 300
 internal class Manifest private constructor(
     /** manifest 全体を 1 本に合成した rule（唯一の公開面）。 */
     val assertionRule: ManifestAssertionRule,
-    /** requiredKtFile の project root からのパス。存在検査は spec が集合レベルで行う。 */
+    /** `ktFile(required = true)` の project root からのパス。存在検査は spec が集合レベルで行う。 */
     val requiredPaths: List<String>,
     private val rootPrefixes: List<String>,
 ) {
@@ -160,20 +161,18 @@ internal open class ManifestEntriesBuilder internal constructor(
         ManifestDirBuilder(sink, "$levelPrefix$path/", effectiveMaxLines).apply(block)
     }
 
-    /** あってもよいファイル。ファイル名部分にだけ `*` を書ける。 */
+    /**
+     * ファイル 1 つ（または `*` パターンに一致するファイル群）の目録。
+     * [required] `= false`（既定）は「あってもよい」、`= true` は「なければ違反」。
+     * `*` はファイル名部分にだけ書ける（[required] `= true` との併用は不可 —
+     * 「何が必須か」は具体名で指す）。
+     */
     fun ktFile(
         path: String,
+        required: Boolean = false,
         block: KtFileBuilder.() -> Unit,
     ) {
-        addFileEntry(path, required = false, allowPattern = true, block)
-    }
-
-    /** 必須ファイル。パターン不可（「何が必須か」は具体名で指す）。 */
-    fun requiredKtFile(
-        path: String,
-        block: KtFileBuilder.() -> Unit,
-    ) {
-        addFileEntry(path, required = true, allowPattern = false, block)
+        addFileEntry(path, required = required, block = block)
     }
 
     /**
@@ -195,10 +194,9 @@ internal open class ManifestEntriesBuilder internal constructor(
     private fun addFileEntry(
         path: String,
         required: Boolean,
-        allowPattern: Boolean,
         block: KtFileBuilder.() -> Unit,
     ) {
-        validateFilePath(path, allowPattern)
+        validateFilePath(path, allowPattern = !required)
         entriesStarted = true
         val overlapping = dirPaths.firstOrNull { path.startsWith("$it/") }
         require(overlapping == null) {
@@ -242,13 +240,13 @@ internal open class ManifestEntriesBuilder internal constructor(
     ) {
         validatePath(path)
         require(path.endsWith(".kt")) {
-            "ktFile / requiredKtFile のパスは .kt で終わる必要がある（manifest の対象は .kt のみ）: \"$path\""
+            "ktFile のパスは .kt で終わる必要がある（manifest の対象は .kt のみ）: \"$path\""
         }
         require(path.substringBeforeLast('/', "").none { it == '*' }) {
             "パターン `*` はファイル名部分にだけ書ける（ディレクトリは具体名で列挙する）: \"$path\""
         }
         require(allowPattern || '*' !in path) {
-            "requiredKtFile にパターン `*` は使えない（必須の対象は具体的なファイル名で指す）: \"$path\""
+            "ktFile(required = true) にパターン `*` は使えない（必須の対象は具体的なファイル名で指す）: \"$path\""
         }
     }
 }

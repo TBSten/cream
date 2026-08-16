@@ -181,7 +181,7 @@ private val KoFunctionDeclaration.contextParameterTypeNames: Set<String>
     }
 
 /**
- * `ktFile` / `requiredKtFile` の block。1 ファイルの目録をここで完結して宣言する:
+ * `ktFile` の block。1 ファイルの目録をここで完結して宣言する:
  * トップレベル宣言の許可（grant の列挙 = only 意味論）・[imports]・[maxLines]。
  * 全体の意味論は [manifest] を参照。
  *
@@ -285,7 +285,7 @@ internal class KtFileBuilder internal constructor() {
     fun topLevelFunctions(
         nameStartsWith: String? = null,
         nameEndsWith: String? = null,
-        visibility: TopLevelVisibility? = null,
+        visibilities: Set<TopLevelVisibility>? = null,
         required: Boolean = false,
         count: Int? = null,
         receiver: String? = null,
@@ -295,7 +295,7 @@ internal class KtFileBuilder internal constructor() {
         TopLevelKind.Function,
         nameStartsWith,
         nameEndsWith,
-        visibility,
+        visibilities,
         required,
         count,
         receiver = receiver,
@@ -310,30 +310,27 @@ internal class KtFileBuilder internal constructor() {
     fun topLevelClasses(
         nameStartsWith: String? = null,
         nameEndsWith: String? = null,
-        visibility: TopLevelVisibility? = null,
+        visibilities: Set<TopLevelVisibility>? = null,
         required: Boolean = false,
         count: Int? = null,
         extends: String? = null,
-    ) = pattern(TopLevelKind.Class, nameStartsWith, nameEndsWith, visibility, required, count, extends = extends)
+    ) = pattern(TopLevelKind.Class, nameStartsWith, nameEndsWith, visibilities, required, count, extends = extends)
 
     // --- 明示的な緩和（使う場所には理由コメントを書くこと） ---
 
-    fun topLevels(visibility: TopLevelVisibility = TopLevelVisibility.Private) {
-        topLevels(setOf(visibility))
-    }
-
     /** 指定した可視性のトップレベル宣言を種類・名前を問わず任意個許可する。 */
-    fun topLevels(visibilities: Set<TopLevelVisibility>) {
-        require(visibilities.isNotEmpty()) { "visibilities は空にできない" }
-        require(visibilities != TopLevelVisibility.entries.toSet()) {
+    fun topLevels(vararg visibilities: TopLevelVisibility) {
+        val allowed = visibilities.toSet()
+        require(allowed.isNotEmpty()) { "topLevels は可視性を最低 1 つ指定する" }
+        require(allowed != TopLevelVisibility.entries.toSet()) {
             "全可視性を許可するなら anyTopLevel() を明示的に使うこと（暗黙の全緩和を避ける）"
         }
         grants +=
             TopLevelGrant(
-                description = "topLevels(visibilities = ${visibilities.joinToString("/") { it.name }})",
+                description = "topLevels(${allowed.joinToString("/") { it.name }})",
                 required = false,
                 count = null,
-                matcher = visibilityIn(visibilities),
+                matcher = visibilityIn(allowed),
             )
     }
 
@@ -390,7 +387,7 @@ internal class KtFileBuilder internal constructor() {
         kind: TopLevelKind,
         nameStartsWith: String?,
         nameEndsWith: String?,
-        visibility: TopLevelVisibility?,
+        visibilities: Set<TopLevelVisibility>?,
         required: Boolean,
         count: Int?,
         receiver: String? = null,
@@ -399,11 +396,12 @@ internal class KtFileBuilder internal constructor() {
         extends: String? = null,
     ) {
         require(count == null || count > 0) { "count は正の値で指定する: $count" }
+        require(visibilities == null || visibilities.isNotEmpty()) { "visibilities は空にできない" }
         require(
-            nameStartsWith != null || nameEndsWith != null || visibility != null ||
+            nameStartsWith != null || nameEndsWith != null || visibilities != null ||
                 receiver != null || contextParameters != null || returns != null || extends != null,
         ) {
-            "パターン grant は一致範囲を絞る軸（nameStartsWith / nameEndsWith / visibility / receiver / " +
+            "パターン grant は一致範囲を絞る軸（nameStartsWith / nameEndsWith / visibilities / receiver / " +
                 "contextParameters / returns / extends）を最低 1 つ指定する — " +
                 "すべての${kind.keyword}を許可したい場合は anyTopLevel() を明示的に使うこと"
         }
@@ -411,7 +409,7 @@ internal class KtFileBuilder internal constructor() {
             listOfNotNull(
                 nameStartsWith?.let { "nameStartsWith = \"$it\"" },
                 nameEndsWith?.let { "nameEndsWith = \"$it\"" },
-                visibility?.let { "visibility = ${it.name}" },
+                visibilities?.let { "visibilities = ${it.joinToString("/") { visibility -> visibility.name }}" },
                 receiver?.let { "receiver = $it" },
                 contextParameters?.let { "context(${it.joinToString()})" },
                 returns?.let { "returns = $it" },
@@ -429,7 +427,7 @@ internal class KtFileBuilder internal constructor() {
                         kindIs(kind),
                         nameStartsWith?.let(::namePrefixed),
                         nameEndsWith?.let(::nameSuffixed),
-                        visibility?.let { visibilityIn(setOf(it)) },
+                        visibilities?.let(::visibilityIn),
                         receiver?.let(::receiverIs),
                         contextParameters?.let(::contextParametersAre),
                         returns?.let(::returnsType),

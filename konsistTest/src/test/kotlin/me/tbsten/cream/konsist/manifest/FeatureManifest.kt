@@ -34,19 +34,8 @@ private val featureImports: ImportsBuilder.() -> Unit = {
 internal fun ManifestDirBuilder.feature() {
     dir("feature") {
         FEATURES.forEach { feature ->
-            requiredKtFile("$feature/Process${feature.upperCamel()}.kt") { processFeatureFileContent() }
-        }
-        // 診断ヘルパの分割ファイル。実在するのは childOptionals のみで、実態に厳密に列挙する。
-        // 旧 manifest は他 feature にも同名パターンで事前許可していたが、中身の grant を
-        // 書けない架空ファイルの事前許可は deny by default と矛盾するため廃止した。
-        // TODO: 他 feature に Diagnostics 分割ファイルが必要になったら、人間がその実態を列挙して足すこと。
-        ktFile("childOptionals/ChildOptionalsDiagnostics.kt") {
-            imports(featureImports)
-            topLevelProperty("annotationName", visibility = Private)
-            topLevelFunction("warnChildOptionalsUnpinnedTypeParameters")
-            topLevelFunction("warnChildOptionalsExcludeHasNoEffect")
-            topLevelFunction("reportChildOptionalsNotADeclaration")
-            topLevelFunction("reportChildOptionalsNotSealed")
+            ktFile("$feature/Process${feature.upperCamel()}.kt", required = true) { processFeatureFileContent() }
+            ktFile("$feature/Diagnostics.kt") { diagnosticsFeatureFileContent() }
         }
     }
 }
@@ -57,9 +46,23 @@ private fun KtFileBuilder.processFeatureFileContent() {
     imports(featureImports)
     topLevelFunctions(
         nameStartsWith = "process",
-        visibility = Internal,
+        visibilities = setOf(Internal),
         required = true,
     )
     // private の補助宣言（annotationName / 診断ヘルパ / 集計用クラス）は DSL 化まで個数を固定しない
+    topLevels(Private)
+}
+
+private fun KtFileBuilder.diagnosticsFeatureFileContent() {
+    imports(featureImports)
+    topLevelFunctions(
+        nameStartsWith = "warn",
+        visibilities = setOf(Internal, Private),
+    )
+    topLevelFunctions(
+        nameStartsWith = "report",
+        visibilities = setOf(Internal, Private),
+    )
+    // annotationName など、診断メッセージ組み立て用の private 補助宣言
     topLevels(Private)
 }

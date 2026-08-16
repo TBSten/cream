@@ -14,7 +14,7 @@ import com.lemonappdev.konsist.api.declaration.KoTypeAliasDeclaration
 // このファイル: DSL の各語彙が emit する rule のファクトリ。
 // 大筋は manifest（DSL 意味論）/ ManifestAssertionRule（rule の代数）を参照。
 
-/** ktFile / requiredKtFile エントリ 1 つ分の標準 rule（存在の承認 + 中身・import・行数の検査）。 */
+/** ktFile エントリ 1 つ分の標準 rule（存在の承認 + 中身・import・行数の検査）。 */
 internal fun fileEntryRule(
     levelPrefix: String,
     matcher: FileMatcher,

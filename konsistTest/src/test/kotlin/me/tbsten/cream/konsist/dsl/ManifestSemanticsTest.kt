@@ -42,10 +42,10 @@ internal class ManifestSemanticsTest :
         }
 
         "構築時ガード（不完全な manifest はテスト実行前に落ちる）" - {
-            "requiredKtFile にパターンは書けない" {
+            "required = true にパターンは書けない" {
                 shouldThrow<IllegalArgumentException> {
                     manifest {
-                        module(":cream-ksp").sourceSet("main").requiredKtFile("*.kt") { }
+                        module(":cream-ksp").sourceSet("main").ktFile("*.kt", required = true) { }
                     }
                 }
             }
@@ -106,7 +106,7 @@ internal class ManifestSemanticsTest :
                 shouldThrow<IllegalArgumentException> {
                     manifest {
                         module(":cream-ksp").sourceSet("main").ktFile("A.kt") {
-                            topLevels(TopLevelVisibility.entries.toSet())
+                            topLevels(*TopLevelVisibility.entries.toTypedArray())
                         }
                     }
                 }
@@ -237,11 +237,11 @@ internal class ManifestSemanticsTest :
                 compiled.assert(fileOf("util/String.kt")).shouldBeInstanceOf<AssertResult.Failure>()
             }
 
-            "requiredKtFile は requiredPaths に集約される（存在検査は spec の集合レベル）" {
+            "required = true は requiredPaths に集約される（存在検査は spec の集合レベル）" {
                 val compiled =
                     manifestOf {
                         dir("util") {
-                            requiredKtFile("String.kt") { anyTopLevel() }
+                            ktFile("String.kt", required = true) { anyTopLevel() }
                         }
                     }
                 compiled.requiredPaths shouldContain "cream-ksp/src/main/$kspDir/util/String.kt"

@@ -23,7 +23,7 @@ private fun KtFileBuilder.utilFileContent() {
         packageTree(KSP_UTIL_PACKAGE)
     }
     // private: EscapeIdentifier.kt の keyword 表・regex などの補助宣言。
-    topLevels(visibilities = setOf(TopLevelVisibility.Internal, TopLevelVisibility.Private))
+    topLevels(TopLevelVisibility.Internal, TopLevelVisibility.Private)
 }
 
 private fun KtFileBuilder.utilKspFileContent() {
@@ -34,5 +34,5 @@ private fun KtFileBuilder.utilKspFileContent() {
         packageEquals("kotlin.reflect")
         packageTree("com.google.devtools.ksp")
     }
-    topLevels(visibilities = setOf(TopLevelVisibility.Internal, TopLevelVisibility.Private))
+    topLevels(TopLevelVisibility.Internal, TopLevelVisibility.Private)
 }

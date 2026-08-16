@@ -5,7 +5,7 @@ import me.tbsten.cream.konsist.dsl.TopLevelVisibility.Internal
 import me.tbsten.cream.konsist.dsl.TopLevelVisibility.Public
 
 internal fun ManifestDirBuilder.kspEntryPoint() {
-    requiredKtFile("CreamSymbolProcessor.kt") {
+    ktFile("CreamSymbolProcessor.kt", required = true) {
         imports {
             packageTree(ManifestConstants.KSP_API_PACKAGE)
             packageTree("${ManifestConstants.KSP_BASE_PACKAGE}.core")
@@ -14,14 +14,14 @@ internal fun ManifestDirBuilder.kspEntryPoint() {
         }
         topLevelClass("CreamSymbolProcessor", visibility = Internal)
     }
-    requiredKtFile("CreamSymbolProcessorProvider.kt") {
+    ktFile("CreamSymbolProcessorProvider.kt", required = true) {
         imports {
             packageTree(ManifestConstants.KSP_API_PACKAGE)
         }
         // cream-ksp/main で唯一の public（KSP のエントリポイント）
         topLevelClass("CreamSymbolProcessorProvider", visibility = Public)
     }
-    requiredKtFile("ProcessContext.kt") {
+    ktFile("ProcessContext.kt", required = true) {
         imports {
             packageTree(ManifestConstants.KSP_API_PACKAGE)
             packageTree(KSP_OPTIONS_FULL_PACKAGE)

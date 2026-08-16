@@ -73,7 +73,7 @@ internal fun ManifestDirBuilder.core() {
                 imports(combineFunImports)
                 topLevelFunction("appendCombineAutoDescription", receiver = "KDocAppender")
                 topLevelFunction("combineExampleBody", returns = "String")
-                topLevels(visibility = Private)
+                topLevels(Private)
             }
         }
 
@@ -305,7 +305,7 @@ private fun ManifestDirBuilder.error() {
             topLevelClass("CreamException")
             // 例外階層はこのファイルに集約する: CreamException を（間接も含めて）継承した
             // *Exception だけを許可（無関係な例外クラスの持ち込みは deny）。
-            topLevelClasses(nameEndsWith = "Exception", visibility = Internal, extends = "CreamException")
+            topLevelClasses(nameEndsWith = "Exception", visibilities = setOf(Internal), extends = "CreamException")
             topLevelFunction("reportToGithub", returns = "String")
         }
     }
@@ -319,7 +319,7 @@ private fun ManifestDirBuilder.appendFunctions(
     block: ManifestDirBuilder.() -> Unit = {},
 ) {
     dir(path) {
-        requiredKtFile(entryPointFile) {
+        ktFile(entryPointFile, required = true) {
             imports(zoneImports)
             topLevelFunction(
                 entryPointFunction,
@@ -334,7 +334,7 @@ private fun ManifestDirBuilder.appendFunctions(
 
         ktFile("*.kt") {
             imports(zoneImports)
-            topLevelFunctions(nameStartsWith = "append", visibility = Internal, receiver = "Appendable")
+            topLevelFunctions(nameStartsWith = "append", visibilities = setOf(Internal), receiver = "Appendable")
             topLevels(Private)
         }
     }
