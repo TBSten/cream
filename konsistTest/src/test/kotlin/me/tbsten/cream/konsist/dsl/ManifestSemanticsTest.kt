@@ -182,6 +182,15 @@ internal class ManifestSemanticsTest :
                 }
             }
 
+            "ファイルアノテーション（@file:）はトップレベル宣言として数えない" {
+                // cream-ksp/test の実在ファイル（@file:OptIn 付き・トップレベルは data class 1 つ）を題材にする
+                val file =
+                    ProjectScope.projectFiles.first {
+                        it.normalizedProjectPath == "cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/testing/compile/CreamCompilationResult.kt"
+                    }
+                fileContentManifest { topLevelClass("CreamCompilationResult") }.findViolations(file).shouldBeEmpty()
+            }
+
             "anyTopLevel() はすべての宣言を許可する明示的な全緩和" {
                 fileContentManifest { anyTopLevel() }
                     .findViolations(fileOf("dsl/FileContentManifest.kt"))

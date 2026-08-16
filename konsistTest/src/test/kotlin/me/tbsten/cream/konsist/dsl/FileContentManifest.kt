@@ -1,5 +1,6 @@
 package me.tbsten.cream.konsist.dsl
 
+import com.lemonappdev.konsist.api.declaration.KoAnnotationDeclaration
 import com.lemonappdev.konsist.api.declaration.KoBaseDeclaration
 import com.lemonappdev.konsist.api.declaration.KoClassDeclaration
 import com.lemonappdev.konsist.api.declaration.KoFileDeclaration
@@ -268,12 +269,12 @@ internal class FileContentManifestBuilder internal constructor() {
 }
 
 /**
- * トップレベル宣言のみを返す。Konsist の `declarations()` は package 宣言と import 宣言も
- * 「宣言」として含むため、それらを除外する。
+ * トップレベル宣言のみを返す。Konsist の `declarations()` は package 宣言・import 宣言に加え、
+ * ファイルアノテーション（`@file:OptIn` 等）も「宣言」として含むため、それらを除外する。
  */
 internal fun KoFileDeclaration.topLevelDeclarations(): List<KoBaseDeclaration> =
     declarations(includeNested = false, includeLocal = false)
-        .filterNot { it is KoPackageDeclaration || it is KoImportDeclaration }
+        .filterNot { it is KoPackageDeclaration || it is KoImportDeclaration || it is KoAnnotationDeclaration }
 
 /** 違反メッセージ用に宣言を `internal fun name` の形で描画する。 */
 internal fun KoBaseDeclaration.render(): String {
