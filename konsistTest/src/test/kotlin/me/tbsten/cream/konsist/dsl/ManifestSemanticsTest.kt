@@ -128,10 +128,17 @@ internal class ManifestSemanticsTest :
 
             fun manifestOf(block: ManifestDirBuilder.() -> Unit) = manifest { module(":cream-ksp").sourceSet("main").dir(kspDir, block) }
 
+            // 題材は実ファイルなので、fixture が移動・改名・削除されるとこの spec は落ちる。
+            // 素の first {} だと NoSuchElementException になって理由が読めないため、直し方を明示する。
             fun fileOf(relative: String) =
-                ProjectScope.projectFiles.first {
+                ProjectScope.projectFiles.firstOrNull {
                     it.normalizedProjectPath == "cream-ksp/src/main/$kspDir/$relative"
-                }
+                } ?: error(
+                    "fixture が見つからない: cream-ksp/src/main/$kspDir/$relative\n" +
+                        "この spec は cream-ksp の実ファイルを題材にしている。ファイルを移動・改名・削除したなら、" +
+                        "ManifestSemanticsTest の fileOf(...) が指す fixture を同じ性質（import ゼロ / KSP import あり / 300 行超 など）を" +
+                        "持つ別のファイルへ張り替えること。manifest 側の違反ではない。",
+                )
 
             "配置: manifest に列挙されていないファイルは Failure（deny by default）" {
                 val compiled = manifestOf { dir("util") { anyFiles() } }

@@ -51,13 +51,35 @@ internal fun anyFilesRule(
         if (siblingMatchers.any { it.matches(relative) }) return@ManifestAssertionRule AssertResult.NoEffect
         if (siblingDirPaths.any { relative.startsWith("$it/") }) return@ManifestAssertionRule AssertResult.NoEffect
 
-        val actualLines = file.text.lines().size
+        val actualLines = file.lineCount
         if (actualLines > maxLines) {
             AssertResult.Failure(listOf("$actualLines 行 > 上限 $maxLines 行"))
         } else {
             AssertResult.Ok
         }
     }
+
+/**
+ * `wc -l` と同じ行数。`lines()` は末尾改行の後ろの空文字列も 1 要素で返すため、
+ * そのまま使うと全ファイルが 1 行多く数えられて実効上限が 1 行少なくなる。
+ */
+private val KoFileDeclaration.lineCount: Int
+    get() = text.lines().let { if (it.last().isEmpty()) it.size - 1 else it.size }
+
+/**
+ * package 宣言の名前。BOM 付き UTF-8 だと Konsist が package を解決できず空になるため、
+ * その場合だけ本文から読み直す（BOM のせいで package 不一致と誤判定されるのを防ぐ）。
+ */
+private val KoFileDeclaration.packageName: String
+    get() =
+        packagee?.name?.takeIf { it.isNotEmpty() }
+            ?: text
+                .lineSequence()
+                .map { it.trimStart('\uFEFF').trim() }
+                .firstOrNull { it.startsWith("package ") }
+                ?.removePrefix("package ")
+                ?.trim()
+                .orEmpty()
 
 /** package↔ディレクトリ一致の制約 rule（満足時は NoEffect — 存在の承認はしない）。 */
 internal fun packageMatchesDirectoryRule(sourceRoot: String): ManifestAssertionRule =
@@ -69,7 +91,7 @@ internal fun packageMatchesDirectoryRule(sourceRoot: String): ManifestAssertionR
                 .removePrefix(sourceRoot)
                 .substringBeforeLast('/', missingDelimiterValue = "")
                 .replace('/', '.')
-        val actual = file.packagee?.name.orEmpty()
+        val actual = file.packageName
         if (actual == expected) {
             AssertResult.NoEffect
         } else {
@@ -138,7 +160,7 @@ private fun checkFile(
             }
         }
 
-        val actualLines = file.text.lines().size
+        val actualLines = file.lineCount
         if (actualLines > maxLines) {
             add(
                 "$actualLines 行 > 上限 $maxLines 行 — 責務を分割するか、" +
