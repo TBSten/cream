@@ -14,6 +14,7 @@ internal fun ManifestDirBuilder.kspEntryPoint() {
         }
         topLevelClass("CreamSymbolProcessor", visibility = Internal)
     }
+
     ktFile("CreamSymbolProcessorProvider.kt", required = true) {
         imports {
             packageTree(ManifestConstants.KSP_API_PACKAGE)
@@ -21,6 +22,7 @@ internal fun ManifestDirBuilder.kspEntryPoint() {
         // cream-ksp/main で唯一の public（KSP のエントリポイント）
         topLevelClass("CreamSymbolProcessorProvider", visibility = Public)
     }
+
     ktFile("ProcessContext.kt", required = true) {
         imports {
             packageTree(ManifestConstants.KSP_API_PACKAGE)

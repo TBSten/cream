@@ -8,6 +8,8 @@ import me.tbsten.cream.konsist.dsl.manifest
 /**
  * :cream-ksp module の main sourceSet 内に配置することのできるファイル・ディレクトリに構造。
  * ここに設定されていないファイルは配置してはいけない。
+ *
+ * @see me.tbsten.cream.konsist.CreamKspManifestTest
  */
 internal val creamKspManifest: Manifest =
     manifest {

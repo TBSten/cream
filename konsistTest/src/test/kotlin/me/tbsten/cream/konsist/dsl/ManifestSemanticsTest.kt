@@ -50,10 +50,10 @@ internal class ManifestSemanticsTest :
                 }
             }
 
-            "パターンはファイル名部分にだけ書ける" {
+            "required = true にパターンはディレクトリ部分でも書けない" {
                 shouldThrow<IllegalArgumentException> {
                     manifest {
-                        module(":cream-ksp").sourceSet("main").ktFile("*/A.kt") { }
+                        module(":cream-ksp").sourceSet("main").ktFile("*/A.kt", required = true) { }
                     }
                 }
             }
@@ -139,6 +139,22 @@ internal class ManifestSemanticsTest :
                 rogue.shouldBeInstanceOf<AssertResult.Failure>()
                 withClue(rogue.because.joinToString()) {
                     rogue.because.any { "配置" in it }.shouldBeTrue()
+                }
+            }
+
+            "配置: パターンの `*` は `/` を跨がない（直下パッケージだけを指せる）" {
+                val compiled = manifestOf { dir("util") { ktFile("*/*.kt") { anyTopLevel() } } }
+                // util/ksp/… は直下パッケージなのでエントリの対象（違反理由は import であって配置ではない）
+                val nested = compiled.assert(fileOf("util/ksp/KSAnnotationArgument.kt"))
+                nested.shouldBeInstanceOf<AssertResult.Failure>()
+                withClue(nested.because.joinToString()) {
+                    nested.because.none { "配置" in it }.shouldBeTrue()
+                }
+                // util 直下は `*/*.kt` に一致しない = 配置違反
+                val outside = compiled.assert(fileOf("util/String.kt"))
+                outside.shouldBeInstanceOf<AssertResult.Failure>()
+                withClue(outside.because.joinToString()) {
+                    outside.because.any { "配置" in it }.shouldBeTrue()
                 }
             }
 

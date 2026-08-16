@@ -25,8 +25,8 @@ import com.lemonappdev.konsist.api.declaration.KoFileDeclaration
  * - **[ManifestEntriesBuilder.maxLines] は同じ block 内のエントリ（dir / ktFile / anyFiles）より前に
  *   宣言する**（後置は構築時に例外 — rule は宣言時点の文脈で作られるため、後から書いた宣言が
  *   黙って効かない事故を防ぐ）
- * - パスは完全一致。例外として **`ktFile` のファイル名部分にだけ `*` を書ける**
- *   （ディレクトリ部分と `required = true` は常に完全一致）。対象は `.kt` のみ
+ * - パスは完全一致。例外として **`ktFile` には `*`（`/` を跨がない任意文字列）を書ける**
+ *   （`required = true` は常に完全一致）。対象は `.kt` のみ
  *
  * Konsist の `assertTrue` / `assertFalse` / `assertNotEmpty` は `@Suppress("konsist.…")` を
  * 尊重して宣言を検査から除外してしまうため、この DSL の検証では使わない（OPEN-QUESTIONS Q22）。
@@ -164,8 +164,8 @@ internal open class ManifestEntriesBuilder internal constructor(
     /**
      * ファイル 1 つ（または `*` パターンに一致するファイル群）の目録。
      * [required] `= false`（既定）は「あってもよい」、`= true` は「なければ違反」。
-     * `*` はファイル名部分にだけ書ける（[required] `= true` との併用は不可 —
-     * 「何が必須か」は具体名で指す）。
+     * `*` は任意文字列に一致するが `/` を跨がないので、`"*&#47;*.kt"` は「直下パッケージの .kt」を指す
+     * （[required] `= true` との併用は不可 — 「何が必須か」は具体名で指す）。
      */
     fun ktFile(
         path: String,
@@ -242,9 +242,6 @@ internal open class ManifestEntriesBuilder internal constructor(
         require(path.endsWith(".kt")) {
             "ktFile のパスは .kt で終わる必要がある（manifest の対象は .kt のみ）: \"$path\""
         }
-        require(path.substringBeforeLast('/', "").none { it == '*' }) {
-            "パターン `*` はファイル名部分にだけ書ける（ディレクトリは具体名で列挙する）: \"$path\""
-        }
         require(allowPattern || '*' !in path) {
             "ktFile(required = true) にパターン `*` は使えない（必須の対象は具体的なファイル名で指す）: \"$path\""
         }
@@ -266,27 +263,18 @@ internal class SourceSetManifestBuilder internal constructor(
     rootPrefix: String,
 ) : ManifestEntriesBuilder(sink, rootPrefix, DEFAULT_MAX_LINES)
 
-/** ktFile エントリのパス一致（`*` はファイル名部分の任意文字列、`/` を跨がない）。 */
+/** ktFile エントリのパス一致。`*` は任意文字列だが **`/` を跨がない**（1 階層分だけ）。 */
 internal class FileMatcher(
     internal val path: String,
 ) {
-    private val dirPart: String = path.substringBeforeLast('/', "")
-    private val fileNamePattern: Regex? =
-        path.substringAfterLast('/').let { name ->
-            if ('*' in name) {
-                name.split('*').joinToString(separator = "[^/]*") { Regex.escape(it) }.toRegex()
-            } else {
-                null
-            }
+    private val pathPattern: Regex? =
+        if ('*' in path) {
+            path.split('*').joinToString(separator = "[^/]*") { Regex.escape(it) }.toRegex()
+        } else {
+            null
         }
 
-    internal val isPattern: Boolean get() = fileNamePattern != null
+    internal val isPattern: Boolean get() = pathPattern != null
 
-    internal fun matches(relative: String): Boolean {
-        if (fileNamePattern == null) return relative == path
-        val slash = relative.lastIndexOf('/')
-        val dir = if (slash >= 0) relative.substring(0, slash) else ""
-        val fileName = relative.substring(slash + 1)
-        return dir == dirPart && fileNamePattern.matches(fileName)
-    }
+    internal fun matches(relative: String): Boolean = pathPattern?.matches(relative) ?: (relative == path)
 }

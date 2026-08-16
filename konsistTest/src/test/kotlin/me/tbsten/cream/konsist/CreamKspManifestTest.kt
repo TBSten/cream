@@ -70,4 +70,3 @@ private val MANIFEST_GUIDANCE =
      | 自分で manifest を書き換えるのではなく、人間に manifest の更新を依頼すること。
      +---
     """.trimIndent()
-        .let { "\n" + it }
