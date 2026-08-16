@@ -39,6 +39,11 @@ tasks.named<Test>("test") {
     // Konsist parses every Kotlin file in the repository into a PSI tree; the default 512m worker
     // heap is tight for that.
     maxHeapSize = "1g"
+    // Konsist は構文解析しかしないので、パースできないファイルは宣言が丸ごと黙って消える。
+    // 未閉鎖の `{` を 1 つ置くだけでその後ろの宣言・import を検査から隠せてしまうため
+    // (.local/konsist-manifest-main/debug DEBUG-0201 ほか)、コンパイルを前提条件にして塞ぐ。
+    // 管轄区域が他モジュールへ広がったら、その compile タスクもここに足すこと。
+    dependsOn(":cream-ksp:compileKotlin")
     inputs
         .files(repositorySources)
         .withPropertyName("repositorySources")

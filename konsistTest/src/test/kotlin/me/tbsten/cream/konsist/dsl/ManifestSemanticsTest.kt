@@ -1,5 +1,6 @@
 package me.tbsten.cream.konsist.dsl
 
+import com.lemonappdev.konsist.api.declaration.KoFileDeclaration
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.assertions.withClue
 import io.kotest.core.spec.style.FreeSpec
@@ -128,21 +129,57 @@ internal class ManifestSemanticsTest :
 
             fun manifestOf(block: ManifestDirBuilder.() -> Unit) = manifest { module(":cream-ksp").sourceSet("main").dir(kspDir, block) }
 
-            // 題材は実ファイルなので、fixture が移動・改名・削除されるとこの spec は落ちる。
-            // 素の first {} だと NoSuchElementException になって理由が読めないため、直し方を明示する。
-            fun fileOf(relative: String) =
-                ProjectScope.projectFiles.firstOrNull {
-                    it.normalizedProjectPath == "cream-ksp/src/main/$kspDir/$relative"
-                } ?: error(
-                    "fixture が見つからない: cream-ksp/src/main/$kspDir/$relative\n" +
-                        "この spec は cream-ksp の実ファイルを題材にしている。ファイルを移動・改名・削除したなら、" +
-                        "ManifestSemanticsTest の fileOf(...) が指す fixture を同じ性質（import ゼロ / KSP import あり / 300 行超 など）を" +
-                        "持つ別のファイルへ張り替えること。manifest 側の違反ではない。",
-                )
+            // 題材は実ファイルだが、**パスではなく性質で選ぶ**。特定のパスに結び付けると、
+            // 規約上は自由なはずのリネーム・移動・行数変更でこの spec が落ちてしまう。
+            val scopeRoot = "cream-ksp/src/main/$kspDir/"
+            val scopeFiles =
+                ProjectScope.projectFiles
+                    .filter { it.normalizedProjectPath.startsWith(scopeRoot) }
+                    .sortedBy { it.normalizedProjectPath }
+
+            fun relativeOf(file: KoFileDeclaration) = file.normalizedProjectPath.removePrefix(scopeRoot)
+
+            fun fixtures(
+                description: String,
+                count: Int,
+                predicate: (KoFileDeclaration) -> Boolean,
+            ) = scopeFiles.filter(predicate).also {
+                check(it.size >= count) {
+                    "題材にできるファイルが $count 個必要だが ${it.size} 個しかない: $description — " +
+                        "manifest 側の違反ではない。ManifestSemanticsTest の題材の取り方を見直すこと。"
+                }
+            }
+
+            fun fixture(
+                description: String,
+                predicate: (KoFileDeclaration) -> Boolean,
+            ) = fixtures(description, count = 1, predicate).first()
+
+            val utilPlain =
+                fixtures("util 直下・import ゼロ・$DEFAULT_MAX_LINES 行以内", count = 2) { file ->
+                    val relative = relativeOf(file)
+                    relative.startsWith("util/") &&
+                        relative.count { it == '/' } == 1 &&
+                        file.imports.isEmpty() &&
+                        file.text.lines().size <= DEFAULT_MAX_LINES
+                }
+            val utilA = utilPlain[0]
+            val utilB = utilPlain[1]
+            val utilKspFile =
+                fixture("util/ksp 配下・KSP API と kotlin.reflect を import") { file ->
+                    relativeOf(file).startsWith("util/ksp/") &&
+                        file.imports.any { it.name.startsWith("com.google.devtools.ksp") } &&
+                        file.imports.any { it.name.startsWith("kotlin.reflect.") }
+                }
+            val outsideUtil = fixture("util 配下でないファイル") { !relativeOf(it).startsWith("util/") }
+            val overLimit =
+                fixture("core/common 配下・$DEFAULT_MAX_LINES 行超") {
+                    relativeOf(it).startsWith("core/common/") && it.text.lines().size > DEFAULT_MAX_LINES + 1
+                }
 
             "配置: manifest に列挙されていないファイルは Failure（deny by default）" {
                 val compiled = manifestOf { dir("util") { anyFiles() } }
-                val rogue = compiled.assert(fileOf("options/CreamOptions.kt"))
+                val rogue = compiled.assert(outsideUtil)
                 rogue.shouldBeInstanceOf<AssertResult.Failure>()
                 withClue(rogue.because.joinToString()) {
                     rogue.because.any { "配置" in it }.shouldBeTrue()
@@ -152,13 +189,13 @@ internal class ManifestSemanticsTest :
             "配置: パターンの `*` は `/` を跨がない（直下パッケージだけを指せる）" {
                 val compiled = manifestOf { dir("util") { ktFile("*/*.kt") { anyTopLevel() } } }
                 // util/ksp/… は直下パッケージなのでエントリの対象（違反理由は import であって配置ではない）
-                val nested = compiled.assert(fileOf("util/ksp/KSAnnotationArgument.kt"))
+                val nested = compiled.assert(utilKspFile)
                 nested.shouldBeInstanceOf<AssertResult.Failure>()
                 withClue(nested.because.joinToString()) {
                     nested.because.none { "配置" in it }.shouldBeTrue()
                 }
                 // util 直下は `*/*.kt` に一致しない = 配置違反
-                val outside = compiled.assert(fileOf("util/String.kt"))
+                val outside = compiled.assert(utilA)
                 outside.shouldBeInstanceOf<AssertResult.Failure>()
                 withClue(outside.because.joinToString()) {
                     outside.because.any { "配置" in it }.shouldBeTrue()
@@ -172,11 +209,11 @@ internal class ManifestSemanticsTest :
                     manifestOf {
                         dir("util") {
                             ktFile("*.kt") { anyTopLevel() }
-                            ktFile("String.kt") { topLevelClass("存在しないクラス") }
+                            ktFile(utilA.nameWithExtension) { topLevelClass("存在しないクラス") }
                         }
                     }
-                compiled.assert(fileOf("util/String.kt")).shouldBeInstanceOf<AssertResult.Failure>()
-                compiled.assert(fileOf("util/With.kt")) shouldBe AssertResult.Ok
+                compiled.assert(utilA).shouldBeInstanceOf<AssertResult.Failure>()
+                compiled.assert(utilB) shouldBe AssertResult.Ok
             }
 
             "import: ktFile に imports が無ければ import ゼロのみ許可" {
@@ -191,8 +228,8 @@ internal class ManifestSemanticsTest :
                         }
                     }
                 // util 直下は import ゼロの実態なので通る
-                compiled.assert(fileOf("util/String.kt")) shouldBe AssertResult.Ok
-                val denied = compiled.assert(fileOf("util/ksp/KSAnnotationArgument.kt"))
+                compiled.assert(utilA) shouldBe AssertResult.Ok
+                val denied = compiled.assert(utilKspFile)
                 denied.shouldBeInstanceOf<AssertResult.Failure>()
                 withClue(denied.because.joinToString()) {
                     denied.because.any { "import" in it }.shouldBeTrue()
@@ -216,12 +253,12 @@ internal class ManifestSemanticsTest :
                     }
                 // KSAnnotationArgument.kt = KSP API + kotlin.reflect の両方を import
                 // → 列挙した許可の union に収まって初めて通る
-                compiled.assert(fileOf("util/ksp/KSAnnotationArgument.kt")) shouldBe AssertResult.Ok
+                compiled.assert(utilKspFile) shouldBe AssertResult.Ok
             }
 
             "maxLines: 既定 ${DEFAULT_MAX_LINES} 行を超えると Failure、entry の maxLines で緩和できる" {
                 val strict = manifestOf { dir("core") { dir("common") { ktFile("*.kt") { anyTopLevel() } } } }
-                val over = strict.assert(fileOf("core/common/FindMatchedProperty.kt"))
+                val over = strict.assert(overLimit)
                 over.shouldBeInstanceOf<AssertResult.Failure>()
                 withClue(over.because.joinToString()) {
                     over.because.any { "行" in it }.shouldBeTrue()
@@ -231,8 +268,9 @@ internal class ManifestSemanticsTest :
                     manifestOf {
                         dir("core") {
                             dir("common") {
-                                ktFile("FindMatchedProperty.kt") {
-                                    maxLines(500)
+                                ktFile(overLimit.nameWithExtension) {
+                                    // 実ファイルの行数に依存しないよう、題材より必ず大きい上限を使う
+                                    maxLines(overLimit.text.lines().size + 1)
                                     // fixture の関心は maxLines だけなので import は広めに許可する
                                     imports {
                                         packageTree("me.tbsten.cream")
@@ -244,7 +282,7 @@ internal class ManifestSemanticsTest :
                             }
                         }
                     }
-                relaxed.assert(fileOf("core/common/FindMatchedProperty.kt")) shouldBe AssertResult.Ok
+                relaxed.assert(overLimit) shouldBe AssertResult.Ok
             }
 
             "grant: 列挙されていないトップレベル宣言は Failure（only 意味論）" {
@@ -252,22 +290,22 @@ internal class ManifestSemanticsTest :
                     manifestOf {
                         dir("util") {
                             // String.kt の実態は internal fun 群。あえて別名だけ grant する
-                            ktFile("String.kt") { topLevelClass("Nothing") }
+                            ktFile(utilA.nameWithExtension) { topLevelClass("Nothing") }
                             ktFile("*.kt") { anyTopLevel() }
                             dir("ksp") { anyFiles() }
                         }
                     }
-                compiled.assert(fileOf("util/String.kt")).shouldBeInstanceOf<AssertResult.Failure>()
+                compiled.assert(utilA).shouldBeInstanceOf<AssertResult.Failure>()
             }
 
             "required = true は requiredPaths に集約される（存在検査は spec の集合レベル）" {
                 val compiled =
                     manifestOf {
                         dir("util") {
-                            ktFile("String.kt", required = true) { anyTopLevel() }
+                            ktFile(utilA.nameWithExtension, required = true) { anyTopLevel() }
                         }
                     }
-                compiled.requiredPaths shouldContain "cream-ksp/src/main/$kspDir/util/String.kt"
+                compiled.requiredPaths shouldContain utilA.normalizedProjectPath
             }
         }
     })
