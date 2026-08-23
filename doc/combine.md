@@ -272,9 +272,10 @@ repeatable, so one declaration can hold several mappings.
   the matching parameter — see [Exclude](./customization/exclude.md). `@CombineMapping` does not
   support `.Exclude` (the source/target classes are not your own code).
 - **Properties that differ only by a `value class` wrapper** (e.g. `id: String` ↔ `id: DomainId`)
-  receive auto-copy defaults automatically, with the right source qualifier
+  can receive default values automatically, with the right source qualifier
   (e.g. `= DomainId(sourceB.id)`) — see
-  [Value class mapping](./customization/value-class-mapping.md) (always on).
+  [Value class mapping](./customization/value-class-mapping.md) (opt in with
+  `cream.autoValueClassMapping=true`).
 - The **KDoc** of the generated function can be augmented with `kdoc = KDoc(...)` —
   see [KDoc](./customization/kdoc.md).
 - The **visibility** of the generated function can be controlled with the `visibility`

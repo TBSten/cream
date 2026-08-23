@@ -72,17 +72,24 @@ internal fun Generator.Companion.validCreamOptions(
     }
 
 /**
- * The single `Default` representative, for a snapshot **family** no project option can move.
+ * The single `autoValueClassMapping = true` representative, for the `valueClassMapping` families.
  *
  * [validCreamOptions]`(namingOptionsApply = false)` narrows a whole suite to the option sets that can
  * still change its output; this narrows one family inside a suite that legitimately needs the full
- * matrix elsewhere. Reach for it only when the extra sets would re-prove what the suite's `funName` /
- * `visibility` families already pin — i.e. the family's goldens would differ from `Default` in
- * nothing but the echoed options, the generated function's name and its visibility modifier.
+ * matrix elsewhere. One set is enough here because no other project option can move a conversion
+ * default: the further sets' goldens would differ from this one in nothing but the echoed options,
+ * the generated function's name and its visibility modifier, each already pinned by the suite's own
+ * `funName` / `visibility` family.
+ *
+ * The set has to be spelled out rather than taken from [CreamOptions.default] because the conversion
+ * is opt-in (`default.autoValueClassMapping` is `false`) — under the defaults every scenario in these
+ * families would collapse into "the parameter stays required" and stop covering the conversion at
+ * all. That collapse is itself pinned, by [me.tbsten.cream.ksp.ValueClassMappingOptionTest].
  */
-internal fun Generator.Companion.defaultCreamOptionsOnly(): Generator<CreamOptions> =
+internal fun Generator.Companion.valueClassMappingEnabledOnly(): Generator<CreamOptions> =
     validCreamOptions().withRepresentativeValues {
-        creamOptionsLabel(CreamOptions.default) case CreamOptions.default
+        val options = CreamOptions.default.copy(autoValueClassMapping = true)
+        creamOptionsLabel(options) case options
     }
 
 /**

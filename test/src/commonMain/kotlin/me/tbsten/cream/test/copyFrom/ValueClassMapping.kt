@@ -8,7 +8,7 @@ value class AutoMappedId(
     val value: String,
 )
 
-// Wrap (always on): source `id: String` -> target `id: AutoMappedId` gets `= AutoMappedId(this.id)`.
+// Wrap (this module sets cream.autoValueClassMapping=true): source `id: String` -> target `id: AutoMappedId` gets `= AutoMappedId(this.id)`.
 data class ValueClassWrapSource(
     val id: String,
     val name: String,
@@ -20,7 +20,7 @@ data class ValueClassWrapTarget(
     val name: String,
 )
 
-// Unwrap (always on): source `id: AutoMappedId` -> target `id: String` gets `= this.id.value`.
+// Unwrap (this module sets cream.autoValueClassMapping=true): source `id: AutoMappedId` -> target `id: String` gets `= this.id.value`.
 data class ValueClassUnwrapSource(
     val id: AutoMappedId,
     val name: String,

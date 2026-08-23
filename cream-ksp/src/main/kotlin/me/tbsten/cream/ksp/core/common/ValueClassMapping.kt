@@ -102,8 +102,8 @@ internal fun KSValueParameter.findValueClassConversion(
  * instead of type compatibility. The first sound conversion wins; otherwise the first near miss is
  * reported so the emission site can warn.
  *
- * `cream.autoValueClassMapping = false` short-circuits here, the single choke point every
- * generation path goes through.
+ * The conversion is opt-in: without `cream.autoValueClassMapping = true` this short-circuits here,
+ * the single choke point every generation path goes through.
  *
  * Both directions can apply at once only when the source is a value class whose underlying IS the
  * target's value class and that value class's own underlying is a supertype of the source. Unwrap

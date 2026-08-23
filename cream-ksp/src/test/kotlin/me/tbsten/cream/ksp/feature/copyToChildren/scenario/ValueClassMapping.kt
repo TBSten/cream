@@ -45,7 +45,7 @@ private fun childWithRawParam(
         ).build()
 
 /**
- * Automatic value class mapping (issue #21, always on) through the `@CopyToChildren`
+ * Automatic value class mapping (issue #21, opt-in via `cream.autoValueClassMapping`) through the `@CopyToChildren`
  * fan-out: the sealed parent is the copy source, so a child ctor param whose type differs from the
  * parent's same-named property only by a `value class` wrapper gets a wrap / unwrap default.
  */

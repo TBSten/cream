@@ -18,7 +18,7 @@ private fun combineToMapAnno(vararg targetPropertyNames: String): AnnotationSpec
 private val COMBINE_TO_EXCLUDE = AnnotationSpec.builder(CombineTo.Exclude::class).build()
 
 /**
- * Automatic value class mapping (issue #21, always on) in the N→1 combine path: the wrap /
+ * Automatic value class mapping (issue #21, opt-in via `cream.autoValueClassMapping`) in the N→1 combine path: the wrap /
  * unwrap default must pick the right source qualifier (`this.` for the receiver source,
  * `sourceB.` for a secondary source), plus the `@CombineTo`-specific `.Map` / `.Exclude`
  * (source-property side) interactions. The full core semantics matrix is pinned once in

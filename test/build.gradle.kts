@@ -71,6 +71,14 @@ dependencies {
     ).forEach { it(project(":cream-ksp")) }
 }
 
+ksp {
+    // The automatic value class mapping is opt-in (issue #21), so the module has to ask for it
+    // before the copyTo / copyFrom / combineTo / copyMapping ValueClassMapping* sources can exercise
+    // the generated wrap/unwrap defaults. Every other option stays at its default: this module is
+    // the behavioural reference for cream out of the box.
+    arg("cream.autoValueClassMapping", "true")
+}
+
 // ksp {
 //    arg("cream.copyFunNamePrefix", "transitionTo")
 //    arg("cream.copyFunNamingStrategy", "full-name")

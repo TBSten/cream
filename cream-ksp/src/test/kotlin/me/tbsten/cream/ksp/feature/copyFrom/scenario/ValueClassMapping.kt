@@ -17,7 +17,7 @@ private fun copyFromMapAnno(vararg sourcePropertyNames: String): AnnotationSpec 
 private val COPY_FROM_EXCLUDE = AnnotationSpec.builder(CopyFrom.Exclude::class).build()
 
 /**
- * Automatic value class mapping (issue #21, always on) through `@CopyFrom`: wrap / unwrap
+ * Automatic value class mapping (issue #21, opt-in via `cream.autoValueClassMapping`) through `@CopyFrom`: wrap / unwrap
  * defaults for a name-matched property whose type differs only by a `value class` wrapper, the
  * type-mismatch case that pins when NO conversion happens (the parameter stays required), plus
  * the `@CopyFrom`-specific `.Map` (target-parameter side) and `.Exclude` (target-parameter side)

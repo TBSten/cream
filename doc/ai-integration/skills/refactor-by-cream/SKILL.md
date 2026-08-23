@@ -123,17 +123,16 @@ This is by design, not a bug. cream only generates a default for a property whos
 both match. A mismatched type gets no default, so the compiler forces you to supply the conversion.
 Pass it explicitly; that line is the one worth reviewing.
 
-On the latest release (0.9.0) a `value class` wrapper counts as a mismatch too, so `String` ->
-`ItemId` stays required. Automatic value class mapping, which would generate the wrap for you, is
-on `main` but unreleased — see the version note in
+With the default options a `value class` wrapper counts as a mismatch too, so `String` -> `ItemId`
+stays required. Automatic value class mapping, which generates the wrap for you, is opt-in from
+0.10.0 (`cream.autoValueClassMapping=true`) — see the note in
 [./model-mapping.md](./model-mapping.md#the-generated-name-and-whether-you-still-need-a-wrapper).
 
 **A property is silently wrapped or unwrapped through a `value class`**
 
-This cannot happen on the latest release (0.9.0). Once automatic value class mapping ships it is on
-by default and can be disabled module-wide with `cream.autoValueClassMapping=false`. See
-[Value class mapping](https://github.com/TBSten/cream/blob/main/doc/customization/value-class-mapping.md)
-— that page documents the unreleased behaviour.
+This only happens when the module opted in with `cream.autoValueClassMapping=true` (available from
+0.10.0); remove that option to get the parameter back as required. See
+[Value class mapping](https://github.com/TBSten/cream/blob/main/doc/customization/value-class-mapping.md).
 
 **`@CopyToChildren` generated a copy function to an `object` you did not want**
 

@@ -10,7 +10,7 @@ import me.tbsten.cream.ksp.testing.poet.snapshotScenarios
 import me.tbsten.cream.ksp.testing.poet.valueClass
 
 /**
- * Automatic value class mapping (issue #21, always on) via `@CopyMapping` holders:
+ * Automatic value class mapping (issue #21, opt-in via `cream.autoValueClassMapping`) via `@CopyMapping` holders:
  * library-to-library copies wrap / unwrap too, including the `canReverse` reverse-direction
  * function (forward wraps, reverse unwraps — same annotation, both directions in one golden).
  */

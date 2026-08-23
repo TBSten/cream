@@ -3,11 +3,13 @@
 # 自動 value class マッピング
 
 cream は、名前が一致するプロパティの型が遷移先コンストラクタ引数の型と
-**`value class` のラップだけ** 違う場合、自動でマッピングします
+**`value class` のラップだけ** 違う場合、自動でマッピングできます
 （[issue #21](https://github.com/TBSten/cream/issues/21)）。これは
-**デフォルトで有効** で、すべての copy / combine アノテーション — `@CopyTo`・`@CopyFrom`・
-`@CopyToChildren`・`@CombineTo`・`@CombineFrom`・`@CopyMapping`（`canReverse` の逆方向関数を含む）・
-`@CombineMapping` — に、アノテーション側の引数なしで適用されます:
+**オプトイン** です。`cream.autoValueClassMapping=true` で有効化すると
+（[オプトイン](#オプトイン-creamautovalueclassmapping) を参照）、すべての copy / combine
+アノテーション — `@CopyTo`・`@CopyFrom`・`@CopyToChildren`・`@CombineTo`・`@CombineFrom`・
+`@CopyMapping`（`canReverse` の逆方向関数を含む）・`@CombineMapping` — に、アノテーション側の
+引数なしで適用されます:
 
 - **Wrap（ラップ）** — 遷移先の引数の型が value class `V(val u: U)` で、遷移元プロパティが `U`
   → デフォルト値として `V(this.<property>)` を生成
@@ -215,21 +217,21 @@ underlying が遷移元の supertype（例: `Wrapper(val raw: Any)`）の場合�
 **決定的にアンラップが優先** されます: `Holder` の中にすでに入っている `Wrapper` そのものを
 取り出します（`this.x.wrapper`）。ラップを選ぶと `Holder` ごと `Any` に箱詰めしてしまいます。
 
-## オプトアウト: `cream.autoValueClassMapping`
+## オプトイン: `cream.autoValueClassMapping`
 
-アノテーション単位のスイッチはありませんが、モジュール全体の KSP オプション
-[`cream.autoValueClassMapping`](./options.ja.md)（デフォルト `true`）で変換を（警告も含めて）
-完全に無効化できます。対象の引数はこの機能が入る前と同じく必須引数のままになります:
+アノテーション単位のスイッチはありません。モジュール全体の KSP オプション
+[`cream.autoValueClassMapping`](./options.ja.md)（デフォルト `false`）で有効化しない限り、
+変換は行われません。指定しない場合、対象の引数は必須引数のままで、変換に関する警告も出ません:
 
 ```kts
 // module/build.gradle.kts
 ksp {
-    arg("cream.autoValueClassMapping", "false")
+    arg("cream.autoValueClassMapping", "true")
 }
 ```
 
-`cream.notCopyToObject` と同様、このオプションは寛容にパースされます: リテラル `"false"`
-（大文字小文字を区別しない）だけが無効化し、それ以外の値はデフォルトのままです。
+`cream.notCopyToObject` と同様、このオプションは寛容にパースされます: リテラル `"true"`
+（大文字小文字を区別しない）だけが有効化し、それ以外の値はデフォルトのままです。
 
 ## 制限
 
@@ -257,7 +259,7 @@ ksp {
 
 ## See also
 
-- [KSP Options](./options.ja.md) — `cream.autoValueClassMapping`（モジュール全体のオプトアウト）
+- [KSP Options](./options.ja.md) — `cream.autoValueClassMapping`（モジュール全体のオプトイン）
 - [Property mapping (.Map)](./property-mapping.ja.md) — 名前が違うプロパティへのマッピング
 - [自動コピー除外 (.Exclude)](./exclude.ja.md) — 引数の自動コピーデフォルト値を除去
 - [Copy — @CopyTo / @CopyFrom / @CopyMapping](../copy.ja.md)

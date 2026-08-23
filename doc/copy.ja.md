@@ -194,9 +194,9 @@ fun LibXModel.copyToLibYModel(
   詳細は [Property mapping](./customization/property-mapping.ja.md) を参照。
 - `.Exclude` で **プロパティをデフォルト値の設定から除外** できます —
   [Exclude](./customization/exclude.ja.md) を参照。
-- 型が **`value class` のラップ 1 枚だけ違う** プロパティ（例: `id: String` ↔ `id: DomainId`）は
-  自動でコピーされます（デフォルトで有効。`cream.autoValueClassMapping=false` で
-  モジュール全体で無効化できます）— [Value class mapping](./customization/value-class-mapping.ja.md) を参照。
+- 型が **`value class` のラップ 1 枚だけ違う** プロパティ（例: `id: String` ↔ `id: DomainId`）にも
+  自動でデフォルト値を付けられます（`cream.autoValueClassMapping=true` でモジュール全体で
+  オプトイン）— [Value class mapping](./customization/value-class-mapping.ja.md) を参照。
 - 生成される関数の **KDoc** は `kdoc = KDoc(...)` で拡張できます —
   [KDoc](./customization/kdoc.ja.md) を参照。
 - 生成される関数の **可視性** は `visibility` 引数で制御できます —

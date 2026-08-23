@@ -270,9 +270,10 @@ fun LibAModel.copyToLibCModel(
 - `.Exclude`（`@CombineTo.Exclude` / `@CombineFrom.Exclude`）で **プロパティをデフォルト値の設定から
   除外** できます — [Exclude](./customization/exclude.ja.md) を参照。`@CombineMapping` は `.Exclude` に
   対応していません（ソース/ターゲットクラスが自分のコードではないため）。
-- 型が **`value class` のラップ 1 枚だけ違う** プロパティ（例: `id: String` ↔ `id: DomainId`）は
-  正しい遷移元 qualifier 付きで自動コピーされます（例: `= DomainId(sourceB.id)`）—
-  [Value class mapping](./customization/value-class-mapping.ja.md) を参照（デフォルトで有効）。
+- 型が **`value class` のラップ 1 枚だけ違う** プロパティ（例: `id: String` ↔ `id: DomainId`）にも
+  正しい遷移元 qualifier 付きで自動でデフォルト値を付けられます（例: `= DomainId(sourceB.id)`）—
+  [Value class mapping](./customization/value-class-mapping.ja.md) を参照
+  （`cream.autoValueClassMapping=true` でオプトイン）。
 - 生成される関数の **KDoc** は `kdoc = KDoc(...)` で拡張できます —
   [KDoc](./customization/kdoc.ja.md) を参照。
 - 生成される関数の **可視性** は `visibility` 引数で制御できます —
