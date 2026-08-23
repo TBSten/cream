@@ -15,7 +15,7 @@ private fun combineFromMapAnno(vararg sourcePropertyNames: String): AnnotationSp
     AnnotationSpec.builder(CombineFrom.Map::class).apply { sourcePropertyNames.forEach { addMember("%S", it) } }.build()
 
 /**
- * Automatic value class mapping (issue #21, always on) through `@CombineFrom` (target-annotated
+ * Automatic value class mapping (issue #21, opt-in via `cream.autoValueClassMapping`) through `@CombineFrom` (target-annotated
  * N→1 combine): the same combine emission path as `@CombineTo`, so this family only pins the
  * annotation-specific bits — the plain wrap and the `@CombineFrom.Map` (target-parameter side)
  * renamed conversion. The full core semantics matrix is pinned once in CopyToSnapshotTest's

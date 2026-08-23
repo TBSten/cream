@@ -24,7 +24,7 @@ ksp {
     arg("escapeDot", "replace-to-underscore")
     arg("notCopyToObject", "false" /* default */)
     arg("defaultVisibility", "INHERIT" /* default */)
-    arg("autoValueClassMapping", "true" /* default */)
+    arg("autoValueClassMapping", "false" /* default */)
 }
 ```
 

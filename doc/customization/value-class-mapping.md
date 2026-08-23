@@ -2,11 +2,13 @@
 
 # Automatic value class mapping
 
-cream automatically maps a name-matched property whose type differs from the target constructor
+cream can automatically map a name-matched property whose type differs from the target constructor
 parameter **only by `value class` wrappers** ([issue #21](https://github.com/TBSten/cream/issues/21)).
-This is **enabled by default** for every copy / combine annotation — `@CopyTo`, `@CopyFrom`,
-`@CopyToChildren`, `@CombineTo`, `@CombineFrom`, `@CopyMapping` (including `canReverse` reverse
-functions), and `@CombineMapping` — with no per-annotation argument:
+This is **opt-in**: turn it on with `cream.autoValueClassMapping=true` (see
+[Opting in](#opting-in-creamautovalueclassmapping)) and it applies to every copy / combine
+annotation — `@CopyTo`, `@CopyFrom`, `@CopyToChildren`, `@CombineTo`, `@CombineFrom`, `@CopyMapping`
+(including `canReverse` reverse functions), and `@CombineMapping` — with no per-annotation
+argument:
 
 - **Wrap** — the target parameter type is a value class `V(val u: U)` and the source property is
   a `U` → the generated default is `V(this.<property>)`
@@ -215,22 +217,21 @@ the target's own underlying is a supertype of the source (e.g. `Wrapper(val raw:
 **Unwrap wins, deterministically**: it extracts the exact `Wrapper` already inside `Holder`
 (`this.x.wrapper`), whereas the wrap would box the whole `Holder` into `Any`.
 
-## Opting out: `cream.autoValueClassMapping`
+## Opting in: `cream.autoValueClassMapping`
 
-There is no per-annotation switch, but the module-wide KSP option
-[`cream.autoValueClassMapping`](./options.md) (default `true`) disables the conversion entirely
-(including its warnings). Affected parameters then stay required, as they were before this
-feature:
+There is no per-annotation switch. The conversion is off unless the module-wide KSP option
+[`cream.autoValueClassMapping`](./options.md) (default `false`) turns it on. Without it, affected
+parameters stay required and no conversion warning is reported:
 
 ```kts
 // module/build.gradle.kts
 ksp {
-    arg("cream.autoValueClassMapping", "false")
+    arg("cream.autoValueClassMapping", "true")
 }
 ```
 
-Like `cream.notCopyToObject`, the option is parsed leniently: only the literal `"false"`
-(case-insensitive) disables it; any other value keeps the default.
+Like `cream.notCopyToObject`, the option is parsed leniently: only the literal `"true"`
+(case-insensitive) enables it; any other value keeps the default.
 
 ## Limitations
 
@@ -257,7 +258,7 @@ is ever generated:
 
 ## See also
 
-- [KSP Options](./options.md) — `cream.autoValueClassMapping` (module-wide opt-out)
+- [KSP Options](./options.md) — `cream.autoValueClassMapping` (module-wide opt-in)
 - [Property mapping (.Map)](./property-mapping.md) — map a parameter to a differently-named property
 - [Excluding auto-copy defaults (.Exclude)](./exclude.md) — remove a parameter's auto-copy default
 - [Copy — @CopyTo / @CopyFrom / @CopyMapping](../copy.md)

@@ -27,7 +27,7 @@ private fun copyToMapAnno(vararg targetPropertyNames: String): AnnotationSpec =
 private val COPY_TO_EXCLUDE = AnnotationSpec.builder(CopyTo.Exclude::class).build()
 
 /**
- * Automatic value class mapping (issue #21, always on) through `@CopyTo`. This family carries the
+ * Automatic value class mapping (issue #21, opt-in via `cream.autoValueClassMapping`) through `@CopyTo`. This family carries the
  * full core semantics matrix once — the conversion logic is shared by every annotation, so the
  * sibling families only pin their annotation-specific resolution (`.Map` flavor, `.Exclude`
  * flavor, source qualifiers):

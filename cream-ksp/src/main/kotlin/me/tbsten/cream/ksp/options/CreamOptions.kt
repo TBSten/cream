@@ -21,7 +21,7 @@ internal data class CreamOptions(
                 escapeDot = EscapeDot.default,
                 notCopyToObject = false,
                 defaultVisibility = CopyVisibility.INHERIT,
-                autoValueClassMapping = true,
+                autoValueClassMapping = false,
             )
 
         val properties: List<KProperty1<CreamOptions, *>> =
@@ -77,10 +77,11 @@ internal fun Map<String, String>.toCreamOptions(): CreamOptions =
                     )
                 }
             } ?: CreamOptions.default.defaultVisibility,
-        // Default true (issue #21): only an explicit "false" disables the automatic value class
-        // mapping, mirroring notCopyToObject's lenient boolean parsing (no invalid-value error).
+        // Default false (issue #21): the automatic value class mapping is opt-in, so only an
+        // explicit "true" enables it, mirroring notCopyToObject's lenient boolean parsing (no
+        // invalid-value error).
         autoValueClassMapping =
-            this["cream.autoValueClassMapping"]?.lowercase() != "false",
+            this["cream.autoValueClassMapping"]?.lowercase() == "true",
     )
 
 @Suppress("NOTHING_TO_INLINE")

@@ -55,7 +55,7 @@ ksp {
     arg("escapeDot", "lower-camel-case" /* default */)
     arg("notCopyToObject", "false" /* default */)
     arg("defaultVisibility", "INHERIT" /* default */)
-    arg("autoValueClassMapping", "true" /* default */)
+    arg("autoValueClassMapping", "false" /* default */)
 }
 ```
 
@@ -88,14 +88,14 @@ import me.tbsten.cream.*
  * 
  * ```kt
  * val source = Item(...)
- * val target = source.copyToItem(updatedAt = updatedAt)
+ * val target = source.copyToItem(itemId = itemId, updatedAt = updatedAt)
  * ```
  * 
  * # Example: Override property values
  * 
  * ```kt
  * val source = Item(...)
- * val target = source.copyToItem(updatedAt = updatedAt, property = value)
+ * val target = source.copyToItem(itemId = itemId, updatedAt = updatedAt, property = value)
  * ```
  * 
  * 
@@ -103,7 +103,7 @@ import me.tbsten.cream.*
  * @see Item
  */
 public fun  me.tbsten.cream.generated.GetItemApiResponse.Item.copyToItem(
-    itemId: ItemId = ItemId(this.itemId),
+    itemId: ItemId,
     name: String = this.name,
     price: Int? = this.price,
     description: String = this.description,

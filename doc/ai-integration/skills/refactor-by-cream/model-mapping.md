@@ -92,15 +92,15 @@ fun ItemResponse.toDomain(): Item = copyToItem(
 Before block, with its body replaced. cream neither generates it nor has any say over its name;
 `cream.copyFunNamePrefix` and friends only ever name the generated `copyToItem`.
 
-> **Version note — automatic `value class` mapping.**
-> The signature above is what the **latest released** cream produces (0.9.0): a `value class`
-> wrapper counts as a type difference, so `itemId` stays required.
+> **Note — automatic `value class` mapping.**
+> The signature above is what cream produces with the default options: a `value class` wrapper
+> counts as a type difference, so `itemId` stays required.
 > [Automatic value class mapping](https://github.com/TBSten/cream/blob/main/doc/customization/value-class-mapping.md)
-> — which would generate `itemId: ItemId = ItemId(this.itemId)` instead — is implemented on `main`
-> but is **not in any release yet**. That doc describes the unreleased behaviour. When it ships,
-> value-class-only differences move from the last group into the auto-mapped group and the
-> `itemId` argument disappears from `toDomain()`.
-> Read the generated file for the version actually on the classpath; never assume either way.
+> — which generates `itemId: ItemId = ItemId(this.itemId)` instead — is **opt-in**, enabled with
+> `ksp { arg("cream.autoValueClassMapping", "true") }`. When a module opts in, value-class-only
+> differences move from the last group into the auto-mapped group and the `itemId` argument
+> disappears from `toDomain()`. It is also unavailable before 0.10.0.
+> Read the generated file for the version and options actually in use; never assume either way.
 
 The compiler now enforces the important half: add a property with mismatched types later and the
 call site fails to compile until the conversion is written.
@@ -242,11 +242,11 @@ Do not quietly run them anyway.
 - **Nullability differences.** `String?` -> `String` is a type mismatch, so no default is
   generated and the compiler asks for an explicit value. That is the correct outcome — supply the
   fallback deliberately rather than annotating your way around it.
-- **`value class` conversions depend on the version.** On 0.9.0 they are plain type differences and
-  stay explicit arguments. Once automatic value class mapping ships, a conversion you were about to
-  write by hand is already generated — except where it would be unsound (`U?` -> `V` keeps the
-  parameter required and cream emits a warning), and it can be turned off module-wide with
-  `cream.autoValueClassMapping=false`. Read the generated signature rather than assuming either way.
+- **`value class` conversions depend on the module's options.** By default they are plain type
+  differences and stay explicit arguments. When a module opts in with
+  `cream.autoValueClassMapping=true` (available from 0.10.0), a conversion you were about to write
+  by hand is already generated — except where it would be unsound (`U?` -> `V` keeps the parameter
+  required and cream emits a warning). Read the generated signature rather than assuming either way.
 - **A same-named property that must NOT be copied.** Use `excludes` on the mapping annotation (or
   `.Exclude` on the property) so callers are forced to pass a value, instead of silently inheriting
   the source's.

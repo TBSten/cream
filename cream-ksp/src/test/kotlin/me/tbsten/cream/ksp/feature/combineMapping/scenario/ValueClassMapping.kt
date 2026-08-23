@@ -10,7 +10,7 @@ import me.tbsten.cream.ksp.testing.poet.snapshotScenarios
 import me.tbsten.cream.ksp.testing.poet.valueClass
 
 /**
- * Automatic value class mapping (issue #21, always on) via `@CombineMapping` holders:
+ * Automatic value class mapping (issue #21, opt-in via `cream.autoValueClassMapping`) via `@CombineMapping` holders:
  * the N→1 combine wrap / unwrap picks the right source qualifier (`this.` for the primary source,
  * `sourceB.` for a secondary source).
  */
