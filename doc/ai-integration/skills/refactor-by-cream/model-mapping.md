@@ -88,6 +88,10 @@ fun ItemResponse.toDomain(): Item = copyToItem(
 )
 ```
 
+`toDomain()` here is still the project's **own hand-written function** — the same one from the
+Before block, with its body replaced. cream neither generates it nor has any say over its name;
+`cream.copyFunNamePrefix` and friends only ever name the generated `copyToItem`.
+
 > **Version note — automatic `value class` mapping.**
 > The signature above is what the **latest released** cream produces (0.9.0): a `value class`
 > wrapper counts as a type difference, so `itemId` stays required.
@@ -119,8 +123,13 @@ mapper's name and deleting the wrapper leaves every call site compiling untouche
 you are doing it rather than doing it silently: it is a rename, and a literal-only `funName` is
 rejected at build time when one annotation generates more than one function (with
 `canReverse = true`, build distinct names from the `CopyTargetSimpleName` /
-`CopyTargetUnderPackage` tokens). See
-[Function name](https://github.com/TBSten/cream/blob/main/doc/customization/fun-name.md).
+`CopyTargetUnderPackage` tokens).
+
+`funName` **replaces the whole name**; the prefix is not prepended to it. `funName = "toDomain"`
+generates `fun ItemResponse.toDomain(...)`, not `copyToDomain`. (That is why the example in
+[Function name](https://github.com/TBSten/cream/blob/main/doc/customization/fun-name.md) spells out
+`funName = "copyToSuccess"` in full.) `cream.copyFunNamePrefix` only feeds the derived default name
+used when `funName` is absent.
 
 ## Choosing the annotation
 
@@ -145,12 +154,16 @@ source, `@CopyFrom.Map("dataId") val domainId: String` on the target. See
 
 ```shell
 # conventional mapper function names
-grep -rnE "fun .*\.(toDomain|toEntity|toModel|toDto|toResponse|toData|asDomain|asEntity)\(" --include=*.kt
+grep -rnE --include='*.kt' --exclude-dir=build "fun .*\.(toDomain|toEntity|toModel|toDto|toResponse|toData|asDomain|asEntity)\(" .
 # mapper types
-grep -rn "class .*Mapper\|object .*Mapper" --include=*.kt
+grep -rnE --include='*.kt' --exclude-dir=build "(class|object) .*Mapper" .
 # mapping files
-find . -name '*Mapper*.kt' -o -name '*Mapping*.kt'
+find . -name '*Mapper*.kt' -o -name '*Mapping*.kt' | grep -v '/build/'
 ```
+
+Two details these commands depend on: **quote the `--include` glob** (zsh expands `--include=*.kt`
+and refuses to run the command at all), and **exclude `build/`** — once cream has generated
+anything, the same patterns match the generated sources and the `build/kspCaches/` backups of them.
 
 A function is a strong candidate when most of its arguments are plain `this.x` / `it.x` reads and
 only a few apply a conversion.
@@ -229,10 +242,11 @@ Do not quietly run them anyway.
 - **Nullability differences.** `String?` -> `String` is a type mismatch, so no default is
   generated and the compiler asks for an explicit value. That is the correct outcome — supply the
   fallback deliberately rather than annotating your way around it.
-- **`value class` wrapping happens automatically** — so a conversion you were about to write by
-  hand may already be generated. It is skipped only when it would be unsound: `U?` -> `V` keeps the
-  parameter required and cream emits a warning. Read the generated signature rather than assuming
-  either way. Disable module-wide with `cream.autoValueClassMapping=false`.
+- **`value class` conversions depend on the version.** On 0.9.0 they are plain type differences and
+  stay explicit arguments. Once automatic value class mapping ships, a conversion you were about to
+  write by hand is already generated — except where it would be unsound (`U?` -> `V` keeps the
+  parameter required and cream emits a warning), and it can be turned off module-wide with
+  `cream.autoValueClassMapping=false`. Read the generated signature rather than assuming either way.
 - **A same-named property that must NOT be copied.** Use `excludes` on the mapping annotation (or
   `.Exclude` on the property) so callers are forced to pass a value, instead of silently inheriting
   the source's.
