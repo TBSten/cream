@@ -1,10 +1,12 @@
 ---
 paths:
-    - "**/*.md"
+  - "**/*.md"
 ---
 
-markdown 付近の対応する .md ファイルも合わせて更新する。
-例えば README.md を更新したら README.ja.md も必ず更新する。
+# Markdown → katachi
 
-ただし `skills/` 配下は AI Agent 向けなので英語 1 本とし、`.ja.md` は作らない。
-SKILL.md と、そこから参照される .md が対象。
+ドキュメントの規約（英語ページと `*.ja.md` を対で更新する / `skills/` 配下は英語 1 本）の SSoT は katachi の定義。
+読むもの: [`doc/internal/architecture/documentation/README.md`](../../doc/internal/architecture/documentation/README.md)。
+`./gradlew :architecture-test:test` が対訳の有無と skills の英語 1 本を検査する。
+
+`doc/internal/architecture/` は `katachiDocs` の生成物なので手で書かない。
