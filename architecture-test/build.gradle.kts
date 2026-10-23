@@ -21,6 +21,13 @@ katachi {
     // The fully qualified name of the top-level val holding architecture { }. Update it
     // if you rename the val or move it to another package.
     architecture = "me.tbsten.cream.test.architecture.projectArchitecture"
+    processors {
+        docs {
+            // Committed, so that the architecture pages are readable without a build. CI runs
+            // `katachiDocs --arg mode=check`, which fails when they no longer match the definition.
+            outputDir = rootProject.layout.projectDirectory.dir("doc/internal/architecture")
+        }
+    }
 }
 
 tasks.test {

@@ -11,8 +11,14 @@ that checks the repository against it. Docs: <https://tbsten.github.io/katachi/l
 
 ```bash
 ./gradlew :architecture-test:test          # the check (never UP-TO-DATE: it walks the whole repository)
-./gradlew :architecture-test:katachiDocs   # per-role Markdown into architecture-test/build/katachi/docs/
+./gradlew :architecture-test:katachiDocs   # regenerate doc/internal/architecture/ (committed)
+./gradlew :architecture-test:katachiDocs --arg mode=check   # what CI runs: fails if the pages are stale
 ```
+
+This definition is the **single source of truth** for cream's architecture rules: where each kind of file lives,
+cream-ksp's dependency table, naming, file-size budgets, test style and documentation rules. The rule files in
+`.claude/rules/` only point at the generated pages. When a rule changes, change the Role / group (its constraint
+and its `description`), then regenerate the pages in the same commit.
 
 ## Layout of the definition
 
@@ -24,7 +30,7 @@ src/test/kotlin/me/tbsten/cream/test/architecture/
 ├── <group>/<role>/<Role>.kt    # `internal fun DeclarationContainerScope.<role>() = "<Role>" { ... }`
 └── support/
     ├── Paths.kt                # source-root constants (KSP_MAIN_DIR, ...)
-    └── Constraints.kt          # constraints several roles share (packageFollowsDirectory(), isInternalFreeSpec(), ...)
+    └── Constraints.kt          # constraints several roles share (dependsOnlyOn(), staysWithinLineBudget(), ...)
 ```
 
 - Each file holds exactly one group or one Role; a group file only calls the functions of what is under it.

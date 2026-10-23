@@ -7,7 +7,7 @@ import me.tbsten.katachi.dsl.kotlin.ktFile
 
 internal fun DeclarationContainerScope.snapshotAssertion() =
     "SnapshotAssertion" {
-        summary = "The golden comparison: `assertMatchesSnapshot` and its facets"
+        summary = "golden 比較（`assertMatchesSnapshot` / facet）"
         example("SnapshotAssertion")
         layout {
             KSP_TEST_DIR / "testing/snapshot" / "*".ktFile()

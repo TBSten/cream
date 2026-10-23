@@ -9,7 +9,7 @@ import me.tbsten.katachi.dsl.kotlin.ktFile
 
 internal fun DeclarationContainerScope.basicUsageTest() =
     "BasicUsageTest" {
-        summary = "Normal usage, example based"
+        summary = "正常系 (example-based)"
         example("CopyToBasicUsageTest")
         layout {
             KSP_TEST_DIR / "feature" / "*" / "*BasicUsageTest".ktFile()

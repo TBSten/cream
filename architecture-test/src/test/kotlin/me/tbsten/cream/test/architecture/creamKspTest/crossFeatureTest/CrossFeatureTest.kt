@@ -9,7 +9,7 @@ import me.tbsten.katachi.dsl.kotlin.ktFile
 internal fun DeclarationContainerScope.crossFeatureTest() =
     "CrossFeatureTest" {
         title = "Cross-feature test"
-        summary = "Scenarios spanning several annotations at once: combined usage, several errors in one compilation"
+        summary = "フィーチャー横断（複数アノテ併用 / 複数エラー同時）"
         example("MultipleDiagnosticsTest")
         layout {
             KSP_TEST_DIR / "MultipleDiagnosticsTest".ktFile()

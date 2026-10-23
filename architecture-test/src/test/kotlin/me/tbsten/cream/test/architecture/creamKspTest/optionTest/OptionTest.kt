@@ -9,7 +9,7 @@ import me.tbsten.katachi.dsl.kotlin.ktFile
 internal fun DeclarationContainerScope.optionTest() =
     "OptionTest" {
         title = "Option test"
-        summary = "Tests of the KSP options: parsing, diagnostics and the behaviour each option switches"
+        summary = "option 系: パース・不正 option の診断・各 option が切り替える挙動"
         example("DefaultVisibilityOptionTest")
         layout {
             KSP_TEST_DIR {

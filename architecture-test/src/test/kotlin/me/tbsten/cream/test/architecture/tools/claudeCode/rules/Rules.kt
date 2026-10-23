@@ -4,7 +4,7 @@ import me.tbsten.katachi.dsl.DeclarationContainerScope
 
 internal fun DeclarationContainerScope.rules() =
     "Rules" {
-        summary = "A path-scoped rule (`paths:` front matter) under `.claude/rules`"
+        summary = "A path-scoped rule (`paths:` front matter) under `.claude/rules`: a pointer to the generated architecture page of that area"
         example("ksp-architecture.md")
         layout {
             ".claude/rules" / "*.md".file()

@@ -9,7 +9,7 @@ import me.tbsten.katachi.dsl.kotlin.ktFile
 
 internal fun DeclarationContainerScope.edgeUsageTest() =
     "EdgeUsageTest" {
-        summary = "Rare cases, and semantic cases such as `@Map` / `@Exclude`"
+        summary = "レアケース ＋ `@Map` / `@Exclude` 等の意味的ケース"
         example("CopyToEdgeUsageTest")
         layout {
             KSP_TEST_DIR / "feature" / "*" / "*EdgeUsageTest".ktFile()

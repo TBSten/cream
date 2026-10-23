@@ -7,7 +7,7 @@ import me.tbsten.katachi.dsl.kotlin.ktFile
 
 internal fun DeclarationContainerScope.compileHarness() =
     "CompileHarness" {
-        summary = "`compileWithCream` (KotlinCompilation + KSP2), `runCompileSnapshotTest` and the result wrappers"
+        summary = "`compileWithCream`（KotlinCompilation + `useKsp2`）/ `runCompileSnapshotTest` / 結果ラッパー"
         example("CreamCompilation")
         layout {
             KSP_TEST_DIR / "testing/compile" / "*".ktFile()

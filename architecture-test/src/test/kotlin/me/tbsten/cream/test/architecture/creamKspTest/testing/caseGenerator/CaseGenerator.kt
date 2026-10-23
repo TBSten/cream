@@ -7,7 +7,7 @@ import me.tbsten.katachi.dsl.kotlin.ktFile
 
 internal fun DeclarationContainerScope.caseGenerator() =
     "CaseGenerator" {
-        summary = "The generated-case infrastructure (`Generator` / `union` / `cartesian` / `validCreamOptions`)"
+        summary = "generated case 基盤（`Generator` / `union` / `cartesian` / `validCreamOptions`）"
         example("Generator")
         layout {
             KSP_TEST_DIR / "testing/generator" / "**" / "*".ktFile()

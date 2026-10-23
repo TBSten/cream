@@ -7,7 +7,7 @@ import me.tbsten.katachi.dsl.kotlin.ktFile
 
 internal fun DeclarationContainerScope.scenario() =
     "Scenario" {
-        summary = "Curated snapshot cases: one `*Scenarios()` family per file, plus `UseCases.kt` mirroring `doc/use-case/`"
+        summary = "curated case（family ごとの `*Scenarios()` + `UseCases.kt`）"
         example("UseCases")
         layout {
             KSP_TEST_DIR / "feature" / "*" / "scenario" / "*".ktFile()

@@ -9,7 +9,7 @@ import me.tbsten.katachi.dsl.kotlin.ktFile
 internal fun DeclarationContainerScope.coreUnitTest() =
     "CoreUnitTest" {
         title = "core unit test"
-        summary = "A pure-logic test of core that needs no compilation"
+        summary = "KSP 型に依存しない core の純ロジックのテスト（コンパイル不要）"
         example("CopyFunctionNameTest")
         layout {
             KSP_TEST_DIR / "core" / "*" / "*Test".ktFile()

@@ -7,7 +7,7 @@ import me.tbsten.katachi.dsl.kotlin.ktFile
 
 internal fun DeclarationContainerScope.inputBuilder() =
     "InputBuilder" {
-        summary = "Builders of compilation inputs (`Prop` / `clazz` / `sealedInterface` / `SnapshotScenario` ...)"
+        summary = "入力ビルダー（`Prop` / `clazz` / `sealedInterface` / `SnapshotScenario` …)"
         example("ClassBuilders")
         layout {
             KSP_TEST_DIR /

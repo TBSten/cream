@@ -8,7 +8,7 @@ import me.tbsten.katachi.dsl.kotlin.ktFile
 
 internal fun DeclarationContainerScope.smokeTest() =
     "SmokeTest" {
-        summary = "A minimal check that a piece of the infrastructure works at all"
+        summary = "基盤が動くことの最小確認"
         example("CreamCompilationSmokeTest")
         layout {
             KSP_TEST_DIR / "testing/smoke" / "*SmokeTest".ktFile()

@@ -7,7 +7,12 @@ import me.tbsten.katachi.dsl.DeclarationContainerScope
 internal fun DeclarationContainerScope.util() =
     "util".group {
         title = "util layer"
-        summary = "Generic helpers that hold nothing cream-specific"
+        summary = "他プロジェクトでも使える汎用ヘルパのみ（cream 固有型を含まない）"
+        description =
+            """
+            `util/` も `util/ksp/` も core / feature / options / cream-runtime / cream 固有型（`CreamOptions` / `CreamException` /
+            `CopyVisibility` / `GenerateSourceAnnotation` / `TargetValidation` 等）を参照しない。KSP 依存のヘルパは `util/ksp/` へ。
+            """.trimIndent()
 
         genericUtil()
         kspUtil()

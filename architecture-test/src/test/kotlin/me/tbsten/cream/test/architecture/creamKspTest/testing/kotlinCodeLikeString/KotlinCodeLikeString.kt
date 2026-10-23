@@ -7,7 +7,7 @@ import me.tbsten.katachi.dsl.kotlin.ktFile
 
 internal fun DeclarationContainerScope.kotlinCodeLikeString() =
     "KotlinCodeLikeString" {
-        summary = "Renders values such as `CreamOptions` as Kotlin-code-like strings, for test names and golden files"
+        summary = "`CreamOptions` → ksp config 文字列などの表示ヘルパ"
         example("BuildKotlinCodeLikeString")
         layout {
             KSP_TEST_DIR / "testing/kotlincodelikestring" / "**" / "*".ktFile()

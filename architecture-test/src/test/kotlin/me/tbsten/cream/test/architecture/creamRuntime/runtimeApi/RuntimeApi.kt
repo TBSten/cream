@@ -14,6 +14,7 @@ internal fun DeclarationContainerScope.runtimeApi() =
             """
             cream-runtime is annotation-only: it ships no logic, so a file holds annotation classes,
             enum classes, or `const val` tokens such as the ones in `CopyFunctionNameToken.kt`.
+            Token constants are the single source of truth for `funName` / accessor-name tokens; cream-ksp reads them from here.
             """.trimIndent()
         example("CopyTo", "`@CopyTo(Target::class)` written on the source class")
         example("CopyFunctionNameToken", "Placeholders usable in `funName` templates")

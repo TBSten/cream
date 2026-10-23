@@ -56,8 +56,9 @@ anything, read the closest reference for your feature's annotation site:
   `cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/feature/copyMapping/scenario/` + `copyMapping/CopyMappingSnapshotTest.kt`
   — the live reference for `@CombineMapping` and the closest one for any holder/library-mapping feature.
 
-Also skim the project rules: `.claude/rules/ksp-test.md` (test layout, snapshot format, update
-command) and `.claude/rules/ksp-architecture.md` (layering).
+Also skim the architecture pages generated from the katachi definition:
+`doc/internal/architecture/creamKspTest/` (test layout, snapshot format, update command) and
+`doc/internal/architecture/creamKsp/` (layering).
 
 ## Process
 
@@ -224,9 +225,9 @@ Save command logs under `.local/tmp/<time>-<cmd>.log` (project convention). From
 ./gradlew :cream-ksp:test --tests '*.<Feat>SnapshotTest' -Dcream.snapshot.update=true
 # verify deterministic / output-preserving (NO update flag → must pass)
 ./gradlew :cream-ksp:test --tests '*.<Feat>SnapshotTest'
-# lint + module-wide Konsist (line limits, layering)
+# lint + architecture (placement, naming, line limits, layering)
 ./gradlew :cream-ksp:ktlintTestSourceSetFormat :cream-ksp:ktlintTestSourceSetCheck \
-          :cream-ksp:test --tests '*.AllKotlinFilesTest'
+          :architecture-test:test
 ```
 
 Budget ≈ a few dozen scenarios × 3 option variants ≈ ~100–120 compiles ≈ ~40s per feature (KSP2 in
@@ -296,7 +297,7 @@ report done with an unresolved FAIL. Run the listed command where one is given.
 - [ ] **Output-preserving**: `./gradlew :cream-ksp:test --tests '*.<Feat>SnapshotTest'` (NO update
   flag) is BUILD SUCCESSFUL — goldens are deterministic.
 - [ ] **Lint + arch + full suite green**: `:cream-ksp:ktlintTestSourceSetCheck`, the
-  `AllKotlinFilesTest` Konsist test, and the whole `:cream-ksp:test` all pass.
+  `:architecture-test:test` katachi check, and the whole `:cream-ksp:test` all pass.
 - [ ] **Goldens spot-checked**: a generate case, a reject case (→ `COMPILATION_ERROR`), and the
   `@Map`/`@Exclude`/sealed cases were opened and are correct — `@Map` wires `= this.<src>` in the
   direction the processor matches; `@Exclude` drops the default; `excludeNoEffect` shows the
@@ -348,9 +349,10 @@ the snapshots surfaced (with an issue link if you filed one); and the **Step 7 c
 
 - **zsh doesn't word-split unquoted `$var`** — a `for f in $FILES` over multiline output feeds one
   giant blob. Use `find … | while IFS= read -r f; do …; done` for per-file loops.
-- **Konsist `AllKotlinFilesTest`** enforces per-file line limits; keep scenario files small (the
-  reference files are 18–103 lines). It only scopes `main` for layering, but checks all files for
-  line count.
+- **katachi (`:architecture-test:test`)** checks that every new file sits where a Role allows it
+  (`feature/<name>/scenario/*.kt`, `<Feat>SnapshotTest.kt` named after its feature directory, goldens
+  under `snapshots/<TestName>/`). The per-file line budget only applies to `cream-ksp/src/main`, but keep
+  scenario files small anyway (the reference files are 18–103 lines).
 - **Don't double-snapshot**: `runCompileSnapshotTest` already emits all facets; don't also call
   `assertMatchesSnapshot` in the same test.
 - **`COMPILATION_ERROR` provenance — cream's rejection or kotlinc's?** Error-as-golden is correct

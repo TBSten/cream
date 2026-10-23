@@ -1,5 +1,6 @@
 package me.tbsten.cream.test.architecture.documentation.distributedSkill
 
+import me.tbsten.cream.test.architecture.support.hasNoJapaneseTranslation
 import me.tbsten.katachi.dsl.DeclarationContainerScope
 
 internal fun DeclarationContainerScope.distributedSkill() =
@@ -9,4 +10,5 @@ internal fun DeclarationContainerScope.distributedSkill() =
         layout {
             "doc/ai-integration/skills" / "*" / "*.md".file()
         }
+        hasNoJapaneseTranslation()
     }

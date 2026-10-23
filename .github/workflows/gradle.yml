@@ -69,6 +69,10 @@ jobs:
         uses: gradle/gradle-build-action@ce999babab2de1c4b649dc15f0ee67e6246c994f
         with:
           arguments: :architecture-test:test
+      - name: Check that doc/internal/architecture matches the definition
+        uses: gradle/gradle-build-action@ce999babab2de1c4b649dc15f0ee67e6246c994f
+        with:
+          arguments: :architecture-test:katachiDocs --arg mode=check
 
   ktlint:
     runs-on: ubuntu-latest

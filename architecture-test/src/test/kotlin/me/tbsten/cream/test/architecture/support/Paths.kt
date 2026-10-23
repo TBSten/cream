@@ -20,3 +20,6 @@ internal const val ARCHITECTURE_TEST_DIR = "architecture-test/src/test/kotlin/me
 
 /** Sources of the `buildLogic` included build's convention plugins. */
 internal const val CONVENTION_SOURCE_DIR = "buildLogic/convention/src/main/kotlin"
+
+/** Where `katachiDocs` writes the pages generated from this definition (committed, checked by CI). */
+internal const val ARCHITECTURE_DOCS_DIR = "doc/internal/architecture"

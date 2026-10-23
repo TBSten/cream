@@ -9,7 +9,7 @@ import me.tbsten.katachi.dsl.kotlin.ktFile
 
 internal fun DeclarationContainerScope.propertyTest() =
     "PropertyTest" {
-        summary = "Property-based tests over generated inputs"
+        summary = "PBT（可視性 / エスケープ / オプションは generator 次元で網羅）"
         example("CopyToPropertyTest")
         layout {
             KSP_TEST_DIR / "feature" / "*" / "*PropertyTest".ktFile()

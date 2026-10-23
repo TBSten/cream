@@ -79,49 +79,19 @@ ls test/build/generated/ksp/metadata/commonMain/kotlin/
 
 ```
 cream/
-├── cream-runtime/          # Runtime annotations (Multiplatform)
-│   └── src/commonMain/kotlin/me/tbsten/cream/
-│       ├── CopyTo.kt           # Source-side annotation
-│       ├── CopyFrom.kt         # Target-side annotation
-│       ├── CopyToChildren.kt   # Sealed class annotation
-│       ├── CopyMapping.kt      # Library-to-library mapping
-│       ├── ParentOptional.kt   # Nullable accessor on sealed parent (per property)
-│       └── ChildOptionals.kt   # Nullable accessors on sealed parent (blanket)
-├── cream-ksp/              # KSP processor (JVM only)
-│   └── src/main/kotlin/me/tbsten/cream/ksp/
-│       ├── CreamSymbolProcessor.kt         # Composition root: dispatch all features
-│       ├── CreamSymbolProcessorProvider.kt # KSP provider
-│       ├── ProcessContext.kt               # {resolver, options, codeGenerator, logger}
-│       ├── feature/                        # Per-annotation entry points (10 = one dir per annotation)
-│       │   ├── copyTo/ copyFrom/ copyToChildren/ sealedCopy/
-│       │   ├── combineTo/ combineFrom/ copyMapping/ combineMapping/
-│       │   └── parentOptional/ childOptionals/
-│       │       # each: Process<Name>.kt with `context(ctx) fun processXxx()`
-│       ├── core/                           # cream-specific code generation
-│       │   ├── common/    # GenerateSourceAnnotation + its 10 impls, type params, where, sealed type rendering, property match, KDoc, naming, target validation, diagnostics
-│       │   ├── copyFun/   # copy generation (class/object/sealed dispatch)
-│       │   ├── combineFun/ # combine generation (N source -> 1 target)
-│       │   ├── sealedCopy/ # @SealedCopy generation
-│       │   ├── parentOptional/ # @ParentOptional / @ChildOptionals accessor generation
-│       │   └── error/     # CreamException hierarchy (leaf: depends on util only)
-│       ├── options/                        # KSP option model + parsing (CreamOptions, EscapeDot, ...)
-│       └── util/                           # Generic helpers only (no cream-specific types)
-├── test/                   # Integration tests (Multiplatform)
-│   ├── src/commonMain/kotlin/me/tbsten/cream/test/
-│   │   ├── copyTo/         # @CopyTo test data
-│   │   ├── copyFrom/       # @CopyFrom test data
-│   │   ├── copyToChildren/ # @CopyToChildren test data
-│   │   ├── parentOptional/ # @ParentOptional test data
-│   │   └── childOptionals/ # @ChildOptionals test data
-│   └── src/commonTest/kotlin/me/tbsten/cream/test/
-└── architecture-test/      # katachi architecture definition + the one test that checks it (JVM)
-    └── src/test/kotlin/me/tbsten/cream/test/architecture/
-        ├── ProjectArchitecture.kt      # architecture { } — only calls the top-level groups
-        ├── ProjectArchitectureTest.kt  # projectArchitecture.assert(FileConstraintCheck())
-        ├── <group>/<Group>.kt          # one file per group
-        ├── <group>/<role>/<Role>.kt    # one file per role
-        └── support/                    # shared paths and constraints
+├── cream-runtime/      # Runtime annotations (Multiplatform)
+├── cream-ksp/          # KSP processor (JVM only): composition root + feature / core / options / util
+├── test/               # Integration tests (Multiplatform)
+├── architecture-test/  # katachi architecture definition + the one test that checks it (JVM)
+└── buildLogic/         # Convention plugins (included build)
 ```
+
+**The architecture rules live in one place: the [katachi](https://tbsten.github.io/katachi/) definition in
+`architecture-test/`.** It declares every kind of file in the repository (deny by default), cream-ksp's
+layering and dependency table, naming, file-size budgets, test style and documentation rules, and
+`./gradlew :architecture-test:test` enforces all of it. The same definition generates the readable pages in
+[`doc/internal/architecture/`](doc/internal/architecture/README.md) — start there for where things live
+(e.g. [cream-ksp](doc/internal/architecture/creamKsp/README.md), [cream-ksp tests](doc/internal/architecture/creamKspTest/README.md)).
 
 ### Key Components
 
@@ -225,20 +195,18 @@ Unit tests for processor logic (naming strategies, property matching, etc.):
 
 JVM-only end-to-end tests built on kctfork live under
 `cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/`. See
-[.claude/rules/ksp-test.md](.claude/rules/ksp-test.md) for the layout
-(`testing/` / `diagnostic/` / `options/` / `snapshot/` / `architecture/`), the snapshot
-regeneration command, and how to add new tests. The `architecture/` tests use
-[Konsist](https://github.com/LemonAppDev/konsist) (not kctfork) to enforce the
-feature/core/util layering documented in `.claude/rules/ksp-architecture.md`.
+[doc/internal/architecture/creamKspTest/](doc/internal/architecture/creamKspTest/README.md) for the
+layout (the five tests of every feature, `testing/`, snapshot golden files), the snapshot
+regeneration command, and how to add new tests.
 
 ### Architecture Test (`architecture-test/` with katachi)
 
 [katachi](https://tbsten.github.io/katachi/) checks **where every file in the repository may live**.
 The definition (`architecture { }` in `architecture-test/`) declares one Role per kind of file; it is
 deny by default, so a file no Role declares fails `./gradlew :architecture-test:test` as
-`[UnexpectedFile]`. Roles also carry `konsist { }` / `fileConstraint { }` rules for conventions the
-cream-ksp Konsist specs do not cover (package follows directory, `options` / `core/error` /
-`ProcessContext` import rules, tests are kotest `FreeSpec`, every user doc has its `.ja.md`).
+`[UnexpectedFile]`. Roles also carry `konsist { }` / `fileConstraint { }` rules: cream-ksp's dependency
+table, the feature entry-point signature, the per-file line budget, package follows directory, tests are
+kotest `FreeSpec`, every user doc has its `.ja.md` while skills stay English only.
 
 When adding a new **kind** of file (not just one more file of an existing kind), add a Role for it —
 see [.claude/rules/architecture-test.md](.claude/rules/architecture-test.md). Adding a new annotation
@@ -269,14 +237,14 @@ fun Project.setupKspForMultiplatformWorkaround() {
 
 ### Adding a New Annotation
 
-See `.claude/rules/ksp-architecture.md` for the full architecture (feature/core/util boundaries, ProcessContext).
+See [doc/internal/architecture/creamKsp/](doc/internal/architecture/creamKsp/README.md) for the full architecture (feature/core/util boundaries, ProcessContext).
 
 1. Define annotation in `cream-runtime/src/commonMain/kotlin/me/tbsten/cream/`
 2. Add a `GenerateSourceAnnotation` implementation named `<Name>SourceAnnotation` in `core/common/` (package `me.tbsten.cream.ksp.core.common`), overriding only the rules the annotation needs and exposing `findMappedSourceProperty` / `isExcluded` properties when it has `.Map` / `@Exclude` semantics — do NOT add a `when` over the implementations
 3. Add `feature/<name>/Process<Name>.kt` with `context(ctx: ProcessContext) fun processXxx(): List<KSAnnotated>` (discover -> validate -> call core; no generation logic in feature)
 4. Reuse / extend generation logic under `core/` (`copyFun` / `combineFun` / `sealedCopy` / `parentOptional`, shared parts in `common`)
 5. Register the dispatch in `CreamSymbolProcessor.process()`
-6. Add test data in `test/src/commonMain/kotlin/me/tbsten/cream/test/newAnnotation/` and test cases in `test/src/commonTest/...`, plus snapshot/diagnostic tests in `cream-ksp` (see `.claude/rules/ksp-test.md`)
+6. Add test data in `test/src/commonMain/kotlin/me/tbsten/cream/test/newAnnotation/` and test cases in `test/src/commonTest/...`, plus snapshot/diagnostic tests in `cream-ksp` (see [doc/internal/architecture/creamKspTest/](doc/internal/architecture/creamKspTest/README.md))
 
 ### Adding Configuration Options
 
@@ -287,7 +255,7 @@ See `.claude/rules/ksp-architecture.md` for the full architecture (feature/core/
 
 ### Modifying Code Generation
 
-Generation logic lives under `core/` (see `.claude/rules/ksp-core-top-level.md` for the sub-directory layout):
+Generation logic lives under `core/` (see [doc/internal/architecture/creamKsp/core/](doc/internal/architecture/creamKsp/core/README.md) for the sub-directory layout):
 
 - **Function naming:** `core/common/CopyFunctionName.kt`
 - **Per-declaration `funName` templates/tokens:** `core/common/FunctionNameTemplate.kt` and the public token consts in `CopyFunctionNameToken.kt` (cream-runtime)
@@ -300,16 +268,8 @@ Generation logic lives under `core/` (see `.claude/rules/ksp-core-top-level.md` 
 
 ## Key Files to Know
 
-| Responsibility | Location |
-|------|----------|
-| KSP entry point & orchestration (`CreamSymbolProcessor`) | cream-ksp/src/main/kotlin/me/tbsten/cream/ksp/ |
-| Process context (`{resolver, options, codeGenerator, logger}`) | cream-ksp/src/main/kotlin/me/tbsten/cream/ksp/ProcessContext.kt |
-| Per-annotation entry points (`processXxx`) | cream-ksp/src/main/kotlin/me/tbsten/cream/ksp/feature/<name>/ |
-| Copy / combine / sealed-copy / parent-accessor generation | cream-ksp/src/main/kotlin/me/tbsten/cream/ksp/core/{copyFun,combineFun,sealedCopy,parentOptional}/ |
-| Shared generation parts (naming, property matching, type params, KDoc) | cream-ksp/src/main/kotlin/me/tbsten/cream/ksp/core/common/ |
-| Generic helpers (no cream-specific types) | cream-ksp/src/main/kotlin/me/tbsten/cream/ksp/util/ |
-| Configuration parsing (`CreamOptions`) | cream-ksp/src/main/kotlin/me/tbsten/cream/ksp/options/CreamOptions.kt |
-| Exception hierarchy (`CreamException`) | cream-ksp/src/main/kotlin/me/tbsten/cream/ksp/core/error/CreamException.kt |
+Where each kind of file lives is declared (and checked) by the katachi definition; see the generated
+[doc/internal/architecture/README.md](doc/internal/architecture/README.md) document map.
 
 ## Common Pitfalls
 
