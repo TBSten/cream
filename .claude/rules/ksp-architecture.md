@@ -49,6 +49,10 @@ feature ─▶ ProcessContext   （唯一の上向き依存。ProcessContext は
   `core/ArchTest.kt`（`core`=`common`/`copyFun`/`combineFun`/`sealedCopy`/`parentOptional`/`error` のみ・`feature`/root infra 非依存、`util` 直下は KSP 非依存・cream 固有型非参照）。
   共有 scope・ヘルパは `testing/konsist/KonsistSupport.kt`。
   強制内容は上記の依存方向テーブルどおり。この表や上記ルールを変えたら同テストを更新すること。
+- **ファイルの置き場所**（root 直下 3 ファイル・`feature/<name>/Process<Name>.kt`・`core/<sub>/` のみ等）は
+  [katachi](https://tbsten.github.io/katachi/) の `architecture-test/`（`./gradlew :architecture-test:test`）が deny by default で強制する。
+  上表のうち Konsist spec が見ていない `options/` / `core/error/` / `ProcessContext` の import 制約もそちらの Role に持たせている
+  （`architecture-test.md` 参照）。層やサブパッケージを増減したら定義も更新すること。
 
 ## ProcessContext & context parameters
 

@@ -25,6 +25,12 @@ cream.kt is a Kotlin Symbol Processing (KSP) plugin that automatically generates
 # Run tests for specific module
 ./gradlew :test:test
 ./gradlew :cream-ksp:test
+
+# Architecture test (katachi): every file must belong to a declared role
+./gradlew :architecture-test:test
+
+# Generate per-role documentation from the same definition (architecture-test/build/katachi/docs/)
+./gradlew :architecture-test:katachiDocs
 ```
 
 ### Building
@@ -100,14 +106,21 @@ cream/
 │       │   └── error/     # CreamException hierarchy (leaf: depends on util only)
 │       ├── options/                        # KSP option model + parsing (CreamOptions, EscapeDot, ...)
 │       └── util/                           # Generic helpers only (no cream-specific types)
-└── test/                   # Integration tests (Multiplatform)
-    ├── src/commonMain/kotlin/me/tbsten/cream/test/
-    │   ├── copyTo/         # @CopyTo test data
-    │   ├── copyFrom/       # @CopyFrom test data
-    │   ├── copyToChildren/ # @CopyToChildren test data
-    │   ├── parentOptional/ # @ParentOptional test data
-    │   └── childOptionals/ # @ChildOptionals test data
-    └── src/commonTest/kotlin/me/tbsten/cream/test/
+├── test/                   # Integration tests (Multiplatform)
+│   ├── src/commonMain/kotlin/me/tbsten/cream/test/
+│   │   ├── copyTo/         # @CopyTo test data
+│   │   ├── copyFrom/       # @CopyFrom test data
+│   │   ├── copyToChildren/ # @CopyToChildren test data
+│   │   ├── parentOptional/ # @ParentOptional test data
+│   │   └── childOptionals/ # @ChildOptionals test data
+│   └── src/commonTest/kotlin/me/tbsten/cream/test/
+└── architecture-test/      # katachi architecture definition + the one test that checks it (JVM)
+    └── src/test/kotlin/me/tbsten/cream/test/architecture/
+        ├── ProjectArchitecture.kt      # architecture { } — only calls the top-level groups
+        ├── ProjectArchitectureTest.kt  # projectArchitecture.assert(FileConstraintCheck())
+        ├── <group>/<Group>.kt          # one file per group
+        ├── <group>/<role>/<Role>.kt    # one file per role
+        └── support/                    # shared paths and constraints
 ```
 
 ### Key Components
@@ -217,6 +230,19 @@ JVM-only end-to-end tests built on kctfork live under
 regeneration command, and how to add new tests. The `architecture/` tests use
 [Konsist](https://github.com/LemonAppDev/konsist) (not kctfork) to enforce the
 feature/core/util layering documented in `.claude/rules/ksp-architecture.md`.
+
+### Architecture Test (`architecture-test/` with katachi)
+
+[katachi](https://tbsten.github.io/katachi/) checks **where every file in the repository may live**.
+The definition (`architecture { }` in `architecture-test/`) declares one Role per kind of file; it is
+deny by default, so a file no Role declares fails `./gradlew :architecture-test:test` as
+`[UnexpectedFile]`. Roles also carry `konsist { }` / `fileConstraint { }` rules for conventions the
+cream-ksp Konsist specs do not cover (package follows directory, `options` / `core/error` /
+`ProcessContext` import rules, tests are kotest `FreeSpec`, every user doc has its `.ja.md`).
+
+When adding a new **kind** of file (not just one more file of an existing kind), add a Role for it —
+see [.claude/rules/architecture-test.md](.claude/rules/architecture-test.md). Adding a new annotation
+needs no change: `feature/*/`, `test/.../*/` and the feature test roles are wildcards.
 
 ## Multiplatform Considerations
 
