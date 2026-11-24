@@ -70,6 +70,15 @@ dependencies {
 Kotlin Multiplatform（commonMain）では KSP の制約により追加セットアップが必要です
 → [Kotlin Multiplatform サポート](doc/customization/multiplatform.ja.md)
 
+### AI エージェントでセットアップ
+
+cream.kt は [agent skill](skills/cream/SKILL.md) を同梱しています。モジュールへのセットアップ（KMP のワークアラウンド込み）と、
+既存コードの手書きプロパティコピーを cream に置き換えるリファクタリングを行えます。
+
+```shell
+gh skill install TBSten/cream cream
+```
+
 ## クイックスタート
 
 コピー元クラスに `@CopyTo` を付けると、ターゲットクラスへのコピー関数が生成されます:

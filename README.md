@@ -70,6 +70,15 @@ dependencies {
 Kotlin Multiplatform (commonMain) requires additional setup due to a KSP limitation
 → [Kotlin Multiplatform support](doc/customization/multiplatform.md)
 
+### Set up with an AI agent
+
+cream.kt ships an [agent skill](skills/cream/SKILL.md) that sets cream.kt up in a module (including
+the KMP workaround) and refactors existing handwritten property copies to use it.
+
+```shell
+gh skill install TBSten/cream cream
+```
+
 ## Quick Start
 
 Annotate the source class with `@CopyTo`, and cream generates a copy function to the target class:
