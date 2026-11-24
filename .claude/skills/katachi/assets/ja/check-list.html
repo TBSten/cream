@@ -1,0 +1,4735 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>katachi インストール チェックリスト</title>
+<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9ImthdGFjaGkiPjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTAyIiBmaWxsPSIjYTJjY2Y3Ii8+PGcgZmlsbD0iI2ZmZiI+PHBhdGggZD0iTTk2IDE2MGg2MHYyOGgtMzJ2MTM2aDMydjI4SDk2eiIvPjxyZWN0IHg9IjIxOCIgeT0iMjE4IiB3aWR0aD0iNzYiIGhlaWdodD0iNzYiLz48cGF0aCBkPSJNNDE2IDM1MmgtNjB2LTI4aDMyVjE4OGgtMzJ2LTI4aDYweiIvPjwvZz48L3N2Zz4=">
+<style>
+  /* 色・線・角丸・影は katachi design system（docs サイトの nova のグレー）から写している */
+  :root {
+    color-scheme: light dark;
+
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans",
+      "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic UI", Meiryo, Arial, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+    --bg: #ffffff;
+    --bg-muted: #f3f4f6;
+    --bg-sunken: #e5e7eb;
+    --line: #d1d5dc;
+    --hairline: #e5e7eb;
+    --hairline-light: #e5e7eb;
+    --line-strong: #99a1af;
+    --ink: #101828;
+    --text: #364153;
+    --muted: #6a7282;
+    --accent: #1e2939;
+    --on-accent: #ffffff;
+    --wash: #99a1af4d;
+    --wash-faint: #99a1af1a;
+    --neutral-low: #e5e7eb;
+    --neutral: #1e2939;
+    --neutral-high: #101828;
+    --note-low: #dbeafe;
+    --note: #51a2ff;
+    --note-high: #193cb8;
+    --glow: #51a2ff;
+    --caution-low: #fef3c6;
+    --caution: #ffb900;
+    --caution-high: #973c00;
+    --danger-low: #ffe2e2;
+    --danger: #ff6467;
+    --danger-high: #9f0712;
+    --success-low: #dcfce7;
+    --success: #05df72;
+    --success-high: #016630;
+
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    --shadow-sm: 0 1px 1px rgba(0, 0, 0, 0.06), 0 2px 1px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 8px 4px rgba(0, 0, 0, 0.03), 0 5px 2px rgba(0, 0, 0, 0.03), 0 3px 2px rgba(0, 0, 0, 0.06), 0 1px 1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 25px 7px rgba(0, 0, 0, 0.01), 0 16px 6px rgba(0, 0, 0, 0.03), 0 9px 5px rgba(22, 24, 29, 0.08), 0 4px 4px rgba(0, 0, 0, 0.16), 0 4px 2px rgba(0, 0, 0, 0.04);
+
+    /* アイコン（Lucide、線幅 2）。mask で使い、色は文字色に従う */
+    --icon-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E");
+    --icon-folder: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z'/%3E%3C/svg%3E");
+    --icon-file: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z'/%3E%3Cpath d='M14 2v4a2 2 0 0 0 2 2h4'/%3E%3C/svg%3E");
+    --icon-group: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z'/%3E%3Cpath d='m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65'/%3E%3Cpath d='m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65'/%3E%3C/svg%3E");
+    --icon-role: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z'/%3E%3Cpath d='M14 2v4a2 2 0 0 0 2 2h4'/%3E%3Cpath d='m10 13-2 2 2 2'/%3E%3Cpath d='m14 17 2-2-2-2'/%3E%3C/svg%3E");
+    --icon-module: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z'/%3E%3Cpath d='M12 22V12'/%3E%3Cpath d='m3.3 7 7.4 4.3'/%3E%3Cpath d='m20.7 7-7.4 4.3'/%3E%3C/svg%3E");
+    --icon-comment: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7.9 20A9 9 0 1 0 4 16.1L2 22Z'/%3E%3C/svg%3E");
+    --icon-info: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 16v-4'/%3E%3Cpath d='M12 8h.01'/%3E%3C/svg%3E");
+    --icon-alert: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3'/%3E%3Cpath d='M12 9v4'/%3E%3Cpath d='M12 17h.01'/%3E%3C/svg%3E");
+    --icon-copy: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='14' height='14' x='8' y='8' rx='2' ry='2'/%3E%3Cpath d='M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2'/%3E%3C/svg%3E");
+    --icon-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+
+    /* 以前の名前（このファイルの中の古い規則が使う） */
+    --surface: var(--bg);
+    --surface-2: var(--bg-muted);
+    --border: var(--line);
+    --border-strong: var(--line-strong);
+    --text-muted: var(--muted);
+    --accent-soft: var(--bg-muted);
+    --warn: var(--caution-high);
+    --warn-soft: var(--caution-low);
+    --ok: var(--success-high);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #030712;
+      --bg-muted: #1e2939;
+      --bg-sunken: #1e2939;
+      --line: #364153;
+      --hairline: #1e2939;
+      --hairline-light: #364153;
+      --line-strong: #4a5565;
+      --ink: #ffffff;
+      --text: #d1d5dc;
+      --muted: #99a1af;
+      --accent: #f3f4f6;
+      --on-accent: #030712;
+      --neutral-low: #030712;
+      --neutral: #4a5565;
+      --neutral-high: #f3f4f6;
+      --note-low: #162456;
+      --note: #1c398e;
+      --note-high: #bedbff;
+      --caution-low: #461901;
+      --caution: #7b3306;
+      --caution-high: #fee685;
+      --danger-low: #460809;
+      --danger: #82181a;
+      --danger-high: #ffc9c9;
+      --success-low: #032e15;
+      --success: #0d542b;
+      --success-high: #b9f8cf;
+      --shadow-sm: 0 1px 1px rgba(0, 0, 0, 0.12), 0 2px 1px rgba(0, 0, 0, 0.24);
+      --shadow-md: 0 8px 4px rgba(0, 0, 0, 0.08), 0 5px 2px rgba(0, 0, 0, 0.08), 0 3px 2px rgba(0, 0, 0, 0.12), 0 1px 1px rgba(0, 0, 0, 0.15);
+      --shadow-lg: 0 25px 7px rgba(0, 0, 0, 0.03), 0 16px 6px rgba(0, 0, 0, 0.1), 0 9px 5px rgba(22, 24, 29, 0.33), 0 4px 4px rgba(0, 0, 0, 0.75), 0 4px 2px rgba(0, 0, 0, 0.25);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.75;
+    overflow-wrap: break-word;
+  }
+
+  .wrap {
+    width: min(100%, 72rem);
+    margin: 0 auto;
+    padding-left: max(24px, env(safe-area-inset-left, 0px));
+    padding-right: max(24px, env(safe-area-inset-right, 0px));
+  }
+
+  @media (max-width: 480px) {
+    .wrap {
+      padding-left: max(16px, env(safe-area-inset-left, 0px));
+      padding-right: max(16px, env(safe-area-inset-right, 0px));
+    }
+  }
+
+  h1, h2, h3 { color: var(--ink); font-weight: 600; line-height: 1.2; text-wrap: balance; word-break: auto-phrase; }
+  h1 { font-size: 29px; margin: 0; }
+  h2 { font-size: 24px; margin: 0 0 16px; }
+  h3 { font-size: 20px; margin: 40px 0 12px; }
+  p { margin: 12px 0; }
+  ul, ol { padding-left: 20px; }
+  li { margin: 4px 0; }
+  a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; transition: color 150ms; }
+  a:hover { color: var(--ink); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    background: var(--bg-muted);
+    border-radius: var(--radius-sm);
+    padding: 0.1em 0.35em;
+    overflow-wrap: anywhere;
+  }
+
+  pre {
+    margin: 0;
+    padding: 12px 16px;
+    background: var(--bg-muted);
+    border: 1px solid var(--line);
+    overflow-x: auto;
+    white-space: pre;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.75;
+  }
+
+  pre code { background: none; padding: 0; font-size: 1em; }
+
+  .lede { color: var(--muted); font-size: 14px; margin: 8px 0 0; }
+  .empty { color: var(--muted); }
+  p.empty { margin: 16px 0 0; }
+
+  .skip-link { position: absolute; left: -999px; top: 0; }
+  .skip-link:focus { left: 8px; top: 8px; z-index: 40; background: var(--bg); padding: 4px 8px; }
+
+  /* ヘッダ */
+  .page-header { border-bottom: 1px solid var(--hairline); }
+  .page-header .wrap { padding-top: 24px; padding-bottom: 24px; }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 20px;
+    color: var(--text);
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .brand svg { flex: none; width: 28px; height: 28px; }
+  .brand-sub { color: var(--muted); font-size: 14px; font-weight: 400; }
+  .brand-sub::before { content: "/"; margin: 0 8px 0 2px; color: var(--line-strong); }
+
+  /* 未記入マーカー */
+  .todo {
+    color: var(--muted);
+    background: var(--bg-muted);
+    border-bottom: 1px dashed var(--line-strong);
+    border-radius: 2px;
+    padding: 0 2px 1px;
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    overflow-wrap: anywhere;
+  }
+
+  /* Aside（note / caution / danger） */
+  .aside {
+    margin: 16px 0 0;
+    padding: 12px 16px;
+    background: var(--note-low);
+    border: 1px solid var(--note);
+    border-radius: var(--radius-lg);
+    font-size: 14px;
+  }
+
+  .aside p { margin: 4px 0 0; }
+
+  .aside .aside-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: var(--note-high);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .aside .aside-title::before {
+    content: "";
+    flex: none;
+    width: 20px;
+    height: 20px;
+    background: currentColor;
+    -webkit-mask: var(--icon-info) center / contain no-repeat;
+    mask: var(--icon-info) center / contain no-repeat;
+  }
+
+  .aside-caution { background: var(--caution-low); border-color: var(--caution); }
+  .aside-caution .aside-title { color: var(--caution-high); }
+  .aside-danger { background: var(--danger-low); border-color: var(--danger); }
+  .aside-danger .aside-title { color: var(--danger-high); }
+  .aside-caution .aside-title::before, .aside-danger .aside-title::before {
+    -webkit-mask-image: var(--icon-alert);
+    mask-image: var(--icon-alert);
+  }
+
+  /* データを読めなかったときの表示（真っ白にしない） */
+  .noscript-note { padding-top: 16px; }
+
+  /* 対になるもう1枚へのリンク（LinkCard） */
+  .cross-link {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "label arrow" "hint arrow";
+    align-items: center;
+    column-gap: 16px;
+    margin: 16px 0 0;
+    padding: 12px 16px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    color: var(--text);
+    text-decoration: none;
+    transition: background-color 150ms, border-color 150ms;
+  }
+
+  .cross-link:hover { background: var(--bg-muted); border-color: var(--text); color: var(--text); }
+  /* display: grid が UA の [hidden] { display: none } に勝ってしまうので上書きする */
+  .cross-link[hidden] { display: none; }
+  .cross-link-label { grid-area: label; color: var(--ink); font-size: 18px; font-weight: 600; line-height: 1.4; }
+  .cross-link-hint { grid-area: hint; color: var(--muted); font-size: 14px; }
+
+  .cross-link::after {
+    content: "\2192";
+    grid-area: arrow;
+    color: var(--ink);
+    transition: transform 150ms ease;
+  }
+
+  .cross-link:hover::after { transform: translateX(4px); }
+
+  /* Badge（等幅の小さなラベル） */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 6px;
+    border: 1px solid var(--neutral);
+    border-radius: var(--radius-sm);
+    background: var(--neutral-low);
+    color: var(--neutral-high);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.6;
+    white-space: nowrap;
+  }
+
+  .badge:empty { display: none; }
+  .badge-success { border-color: var(--success); background: var(--success-low); color: var(--success-high); }
+  .badge-caution { border-color: var(--caution); background: var(--caution-low); color: var(--caution-high); }
+  .badge-note { border-color: var(--note); background: var(--note-low); color: var(--note-high); }
+  .badge-quiet { border-color: var(--line); background: none; color: var(--muted); }
+  h2 .badge { margin-left: 10px; font-size: 13px; vertical-align: 4px; }
+
+  /* ボタン */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--bg);
+    color: var(--text);
+    font: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 150ms, border-color 150ms, color 150ms;
+  }
+
+  /* display: inline-flex が UA の [hidden] に勝ってしまうので上書きする */
+  .btn[hidden] { display: none; }
+
+
+  .btn:hover { background: var(--bg-muted); border-color: var(--line-strong); }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+  .btn-primary:hover { background: var(--ink); border-color: var(--ink); color: var(--on-accent); }
+  .btn-quiet { background: none; border-color: transparent; color: var(--muted); }
+  .btn-quiet:hover { background: var(--wash-faint); border-color: transparent; color: var(--ink); }
+  .btn-sm { padding: 2px 8px; font-size: 13px; }
+
+  .btn-icon::before {
+    content: "";
+    flex: none;
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    -webkit-mask: var(--btn-icon) center / contain no-repeat;
+    mask: var(--btn-icon) center / contain no-repeat;
+  }
+
+  .btn-copy { --btn-icon: var(--icon-copy); }
+  .btn-comment { --btn-icon: var(--icon-comment); }
+  .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0 0; }
+  .toolbar-end { justify-content: flex-end; gap: 4px; }
+
+  /* 見出しと値の対（2 列の grid。値は 1 行に畳む） */
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    margin: 16px 0 0;
+    background: var(--hairline);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .fact { position: relative; min-width: 0; margin: 0; padding: 10px 14px; background: var(--bg); }
+  /* 奇数個のとき、最後の 1 つは横いっぱいにして空きのマスを作らない */
+  .fact:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .fact dt { color: var(--muted); font-size: 13px; line-height: 1.5; }
+  .fact dd { margin: 2px 0 0; color: var(--ink); min-width: 0; }
+  /* 畳んだときは 1 行、開いたときは箇条書き */
+  .fact-list .fact-bullets { display: none; margin: 2px 0 0; overflow-wrap: anywhere; }
+  .fact-list .fact-bullets li { margin: 0; line-height: 1.6; }
+  .fact-list.is-open .fact-bullets { display: block; }
+  .fact-list.is-open .clip { display: none; }
+
+  @media (max-width: 560px) {
+    .facts { grid-template-columns: minmax(0, 1fr); }
+    .fact:last-child:nth-child(odd) { grid-column: auto; }
+  }
+
+  /* 1 行に畳む表示。はみ出したものだけクリックで開閉できる */
+  .clip { display: block; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  [data-clamp].is-open .clip { overflow: visible; white-space: normal; overflow-wrap: anywhere; }
+  /* 折り返して全文を出す列（違反の文など、読めないと困るもの） */
+  td.wrap .clip { overflow: visible; white-space: normal; overflow-wrap: anywhere; }
+  [data-clamp].is-clampable, [data-clamp].is-open { cursor: pointer; }
+  .fact[data-clamp].is-clampable:hover, .fact[data-clamp].is-open:hover { background: var(--bg-muted); }
+  .fact[data-clamp].is-clampable dd, .fact[data-clamp].is-open dd { padding-right: 20px; }
+
+  .fact[data-clamp].is-clampable::after, .fact[data-clamp].is-open::after,
+  tr[data-clamp].is-clampable > td:last-child::after, tr[data-clamp].is-open > td:last-child::after {
+    content: "";
+    position: absolute;
+    right: 12px;
+    bottom: 14px;
+    width: 14px;
+    height: 14px;
+    background: var(--muted);
+    -webkit-mask: var(--icon-chevron) center / contain no-repeat;
+    mask: var(--icon-chevron) center / contain no-repeat;
+    transform: rotate(90deg);
+    transition: transform 200ms;
+  }
+
+  .fact[data-clamp].is-open::after, tr[data-clamp].is-open > td:last-child::after { transform: rotate(-90deg); }
+  tr[data-clamp].is-clampable > td:last-child, tr[data-clamp].is-open > td:last-child { position: relative; padding-right: 32px; }
+  tr[data-clamp].is-clampable > td:last-child::after, tr[data-clamp].is-open > td:last-child::after { top: 13px; bottom: auto; }
+
+  /* 表。各行は 1 行に畳み、クリックで開閉する */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 16px 0 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+  }
+
+  table { border-collapse: collapse; width: 100%; min-width: 36rem; font-size: 14px; table-layout: fixed; }
+
+  th, td {
+    text-align: left;
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+
+  thead th {
+    background: var(--bg-muted);
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr[data-clamp].is-clampable:hover, tbody tr[data-clamp].is-open:hover { background: var(--bg-muted); }
+  td.mono { font-family: var(--font-mono); font-size: 13px; }
+
+  /* ツリー（<details> の入れ子）。ディレクトリ・モジュール・Role 候補で共通 */
+  .tree { margin: 8px 0 0; font-size: 14px; line-height: 1.5; }
+  .tree details > summary { list-style: none; }
+  .tree details > summary::-webkit-details-marker { display: none; }
+
+  .tree-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 30px;
+    padding: 3px 8px 3px 2px;
+    border-radius: var(--radius-sm);
+    transition: background-color 150ms;
+  }
+
+  summary.tree-row { cursor: pointer; }
+  summary.tree-row:hover { background: var(--bg-muted); }
+  summary.tree-row:focus-visible { outline-offset: -2px; }
+
+  .tw, .ti {
+    flex: none;
+    width: 16px;
+    height: 16px;
+  }
+
+  summary > .tw {
+    background: var(--muted);
+    -webkit-mask: var(--icon-chevron) center / 14px no-repeat;
+    mask: var(--icon-chevron) center / 14px no-repeat;
+    transition: transform 200ms;
+  }
+
+  details[open] > summary > .tw { transform: rotate(90deg); }
+
+  .ti {
+    background: var(--muted);
+    -webkit-mask: var(--ti) center / contain no-repeat;
+    mask: var(--ti) center / contain no-repeat;
+  }
+
+  .ti-folder { --ti: var(--icon-folder); }
+  .ti-file { --ti: var(--icon-file); }
+  .ti-group { --ti: var(--icon-group); background: var(--ink); }
+  .ti-role { --ti: var(--icon-role); }
+  .ti-module { --ti: var(--icon-module); }
+
+  .tree-children {
+    margin-left: 9px;
+    padding-left: 10px;
+    border-left: 1px solid var(--hairline-light);
+  }
+
+  .t-name { flex: none; max-width: 100%; color: var(--ink); font-family: var(--font-mono); font-size: 13px; overflow-wrap: anywhere; }
+  .t-note { min-width: 0; color: var(--muted); font-size: 12px; }
+
+  /* ユーザに確認したいこと */
+  .qa {
+    margin: 12px 0 0;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+  }
+
+  .qa > summary {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: var(--radius-lg);
+    list-style: none;
+    cursor: pointer;
+    transition: background-color 150ms;
+  }
+
+  .qa > summary::-webkit-details-marker { display: none; }
+  .qa > summary:hover { background: var(--bg-muted); }
+  .qa[open] > summary { border-bottom: 1px solid var(--hairline); border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+
+  .qa > summary::after {
+    content: "";
+    flex: none;
+    width: 16px;
+    height: 16px;
+    margin-top: 4px;
+    background: var(--muted);
+    -webkit-mask: var(--icon-chevron) center / 14px no-repeat;
+    mask: var(--icon-chevron) center / 14px no-repeat;
+    transition: transform 200ms;
+  }
+
+  .qa[open] > summary::after { transform: rotate(90deg); }
+  .qa-id { flex: none; margin-top: 2px; }
+  .qa-main { flex: 1; min-width: 0; }
+  .qa-title { display: block; color: var(--ink); font-weight: 600; line-height: 1.5; }
+  .qa-picked { margin-top: 2px; color: var(--success-high); font-size: 13px; }
+  .qa-picked:empty { display: none; }
+  .qa-state { flex: none; margin-top: 2px; }
+  .qa-body { display: grid; gap: 14px; padding: 14px 16px 16px; }
+  .qa-body > * { margin: 0; min-width: 0; }
+  .qa-label { margin: 0 0 4px; color: var(--muted); font-size: 13px; font-weight: 600; }
+  .qa-free > summary { margin: 0; cursor: pointer; width: fit-content; }
+  .qa-free > summary:hover { color: var(--ink); }
+  .qa-free[open] > summary { margin-bottom: 4px; }
+  .qa-observed p { margin: 0; }
+
+  .qa-options { display: grid; gap: 6px; min-width: 0; margin: 0; padding: 0; border: 0; }
+  .qa-options legend { padding: 0; }
+
+  .qa-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background-color 150ms, border-color 150ms;
+  }
+
+  .qa-option:hover { background: var(--bg-muted); }
+  .qa-option.is-checked { background: var(--bg-muted); border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  .qa-option input { flex: none; margin: 0.3em 0 0; accent-color: var(--accent); }
+  .opt-key { flex: none; color: var(--muted); font-family: var(--font-mono); font-size: 12px; margin-top: 3px; }
+  .opt-text { flex: 1; min-width: 0; color: var(--ink); }
+  .qa-option .badge { flex: none; margin-top: 2px; }
+
+  .qa-why { padding: 10px 12px; background: var(--bg-muted); border-radius: var(--radius-md); font-size: 14px; }
+  .qa-why p { margin: 0; }
+
+  .qa textarea, .fb-pop textarea {
+    display: block;
+    width: 100%;
+    min-height: 4.5em;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--bg);
+    color: var(--text);
+    font: inherit;
+    font-size: 14px;
+    line-height: 1.6;
+    resize: vertical;
+  }
+
+  .qa textarea:focus-visible, .fb-pop textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 0; }
+  .qa.is-imported .qa-state::after { content: ""; }
+
+  /* 渡すもの（回答・フィードバック）をコピーするメニュー。右下に浮かび、どちらかが 1 つでもあれば出る */
+  .send-bar {
+    position: fixed;
+    right: max(16px, env(safe-area-inset-right, 0px));
+    bottom: max(16px, env(safe-area-inset-bottom, 0px));
+    z-index: 32;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+    max-width: min(56rem, calc(100vw - 32px));
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+    padding: 10px 12px 10px 16px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    font-size: 14px;
+    animation: send-in 180ms ease-out;
+  }
+  .send-bar[hidden] { display: none; }
+  @keyframes send-in {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .send-bar { animation: none; }
+  }
+  @media (max-width: 640px) {
+    .send-bar { left: max(16px, env(safe-area-inset-left, 0px)); }
+  }
+  .send-summary { flex: 1 1 auto; min-width: 0; margin: 0; color: var(--ink); font-weight: 600; }
+  .send-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .send-status { flex-basis: 100%; margin: 0; color: var(--muted); font-size: 13px; }
+  .send-status:empty { display: none; }
+  .send-status.is-error { color: var(--danger-high); }
+  /* flex の子は中身の幅まで広がるので、min-width: 0 で欄の幅に収める */
+  .send-preview { flex-basis: 100%; min-width: 0; max-width: 100%; max-height: 14rem; margin: 0; font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .send-preview[hidden] { display: none; }
+  /* メニューがページの最後の行を隠さないように、その高さだけ下を空ける */
+  body { padding-bottom: var(--send-h, 0px); }
+
+  .answer-manual {
+    display: block;
+    flex-basis: 100%;
+    width: 100%;
+    min-height: 6em;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--bg-muted);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+
+  /* display: block が UA の [hidden] { display: none } に勝ってしまうので上書きする */
+  .answer-manual[hidden] { display: none; }
+
+  /* フィードバックモード */
+  .fb-fab {
+    position: fixed;
+    right: max(16px, env(safe-area-inset-right, 0px));
+    /* --send-h は下のメニューの高さ（出ていなければ 0）。その上に逃がす */
+    bottom: calc(max(16px, env(safe-area-inset-bottom, 0px)) + var(--send-h, 0px));
+    z-index: 30;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border: 1px solid var(--line);
+    border-radius: 9999px;
+    background: var(--bg);
+    color: var(--ink);
+    box-shadow: var(--shadow-md);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    cursor: pointer;
+    transition: background-color 150ms, color 150ms;
+    --btn-icon: var(--icon-comment);
+  }
+
+  .fb-fab:hover { background: var(--bg-muted); }
+  .fb-fab[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .fb-fab .badge { border-color: currentColor; background: none; color: inherit; }
+
+  .fb-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 30;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px 12px;
+    padding: calc(8px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 8px max(16px, env(safe-area-inset-left, 0px));
+    background: var(--accent);
+    color: var(--on-accent);
+    font-size: 14px;
+    box-shadow: var(--shadow-md);
+  }
+
+  .fb-banner[hidden] { display: none; }
+  .fb-banner p { margin: 0; }
+  .fb-banner .btn { background: none; border-color: currentColor; color: inherit; }
+  .fb-banner .btn:hover { background: var(--wash); }
+  body.fb-mode { padding-top: var(--fb-banner-h, 48px); }
+  body.fb-mode [data-fb] { cursor: crosshair; }
+  /* フィードバックモードの間は、画面の縁全体をふわっと光らせて、いまはモード中だと分かるようにする */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 29;
+    pointer-events: none;
+    box-shadow: inset 0 0 48px 8px color-mix(in srgb, var(--glow) 50%, transparent);
+    opacity: 0;
+    transition: opacity 400ms ease-out;
+  }
+  body.fb-mode::after { opacity: 1; animation: fb-glow 1.8s ease-in-out infinite alternate; }
+  @keyframes fb-glow {
+    from { box-shadow: inset 0 0 16px 0 color-mix(in srgb, var(--glow) 25%, transparent); }
+    to { box-shadow: inset 0 0 88px 18px color-mix(in srgb, var(--glow) 65%, transparent); }
+  }
+  @media (prefers-reduced-motion: reduce) { body.fb-mode::after { animation: none; } }
+  @media print { body::after { display: none; } }
+
+  .fb-hl {
+    position: absolute;
+    z-index: 24;
+    border: 2px solid var(--note-high);
+    border-radius: var(--radius-sm);
+    pointer-events: none;
+  }
+
+  .fb-hl[hidden] { display: none; }
+
+  .fb-hl span {
+    position: absolute;
+    left: -2px;
+    bottom: 100%;
+    max-width: min(32rem, 80vw);
+    padding: 1px 6px;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    background: var(--note-high);
+    color: var(--bg);
+    font-size: 12px;
+    line-height: 1.6;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* 入力欄を開いているあいだの宛先の枠。複数なら左上に番号 */
+  .fb-sel {
+    position: absolute;
+    z-index: 23;
+    border: 2px solid var(--note-high);
+    border-radius: var(--radius-sm);
+    background: var(--wash-faint);
+    pointer-events: none;
+  }
+  .fb-sel span {
+    position: absolute;
+    left: -2px;
+    top: -2px;
+    min-width: 18px;
+    padding: 0 5px;
+    border-radius: var(--radius-sm) 0 var(--radius-sm) 0;
+    background: var(--note-high);
+    color: var(--bg);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 18px;
+    text-align: center;
+  }
+
+  .fb-pin {
+    position: absolute;
+    z-index: 22;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    border: 2px solid var(--bg);
+    border-radius: 9999px;
+    background: var(--note-high);
+    color: var(--bg);
+    box-shadow: var(--shadow-sm);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 18px;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .fb-pop, .fb-panel {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    font-size: 14px;
+  }
+
+  .fb-pop { position: absolute; z-index: 35; width: min(24rem, calc(100vw - 32px)); padding: 12px; }
+  .fb-pop-grip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: -6px -6px 6px;
+    padding: 2px 6px;
+    border-radius: var(--radius-md);
+    color: var(--muted);
+    font-size: 12px;
+    cursor: move;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .fb-pop-grip:hover { background: var(--bg-muted); }
+  /* つかめる所の印（点を 2 列） */
+  .fb-pop-grip::before {
+    content: "";
+    flex: none;
+    width: 8px;
+    height: 12px;
+    background: radial-gradient(circle, currentColor 1px, transparent 1.5px) 0 0 / 4px 4px;
+  }
+  .fb-pop-grip-label { flex: 1; min-width: 0; }
+  .fb-pop-reset { padding: 0 6px; }
+  .fb-pop.is-dragging { opacity: 0.92; box-shadow: var(--shadow-lg), 0 0 0 2px var(--note-high); }
+  .fb-pop-quote { margin: 0 0 6px; padding-left: 8px; border-left: 3px solid var(--line); color: var(--text); font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+  .fb-list li.fb-draft { background: var(--wash-faint); }
+  .fb-list .fb-pop-quote { margin: 4px 0 0; }
+  .fb-pop-target { margin: 0 0 2px; color: var(--ink); font-weight: 600; line-height: 1.5; overflow-wrap: anywhere; }
+  .fb-pop-key { margin: 0 0 6px; color: var(--muted); font-family: var(--font-mono); font-size: 12px; overflow-wrap: anywhere; }
+  .fb-pop-targets { max-height: 32vh; overflow-y: auto; margin-bottom: 2px; }
+  .fb-pop-row { display: flex; align-items: flex-start; gap: 8px; }
+  .fb-pop-no {
+    display: inline-block;
+    min-width: 18px;
+    margin-right: 6px;
+    padding: 0 5px;
+    border-radius: var(--radius-sm);
+    background: var(--note-high);
+    color: var(--bg);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 18px;
+    text-align: center;
+    vertical-align: 1px;
+  }
+  .fb-pop-names { flex: 1; min-width: 0; }
+  .fb-pop-remove { flex: none; padding: 0 8px; }
+  .fb-pop-count, .fb-pop-hint { margin: 0 0 6px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+  .fb-pop-note { margin: 0 0 6px; color: var(--note-high); font-size: 12px; }
+  .fb-pop.is-nudged { animation: fb-nudge 300ms; border-color: var(--caution-high); }
+  @keyframes fb-nudge {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+  .fb-pop-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 8px; }
+  .fb-pop-actions .fb-delete { margin-right: auto; color: var(--danger-high); }
+
+  .fb-panel {
+    position: fixed;
+    right: max(16px, env(safe-area-inset-right, 0px));
+    bottom: calc(max(16px, env(safe-area-inset-bottom, 0px)) + 52px + var(--send-h, 0px));
+    z-index: 31;
+    display: flex;
+    flex-direction: column;
+    width: min(26rem, calc(100vw - 32px));
+    max-height: min(70vh, 40rem, calc(100vh - 140px - var(--send-h, 0px)));
+  }
+
+  .fb-panel[hidden] { display: none; }
+  .fb-panel-head { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--hairline); }
+  .fb-panel-head p { flex: 1; margin: 0; color: var(--ink); font-weight: 600; }
+  .fb-list { flex: 1; min-height: 0; margin: 0; padding: 0; overflow: auto; list-style: none; }
+  .fb-list li { margin: 0; padding: 10px 14px; border-bottom: 1px solid var(--hairline); }
+  .fb-item-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+  .fb-list li.is-copied .fb-item-text { color: var(--muted); }
+  .fb-item-target { flex: 1; min-width: 0; color: var(--ink); font-weight: 600; overflow-wrap: anywhere; }
+  .fb-item-key { margin: 0; color: var(--muted); font-family: var(--font-mono); font-size: 12px; overflow-wrap: anywhere; white-space: pre-line; }
+  .fb-item-text { margin: 4px 0 0; white-space: pre-wrap; }
+  .fb-item-actions { display: flex; gap: 4px; margin-top: 4px; }
+  .fb-empty { padding: 16px 14px; color: var(--muted); }
+  .fb-panel-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 14px; }
+  .fb-panel-foot .fb-status { flex-basis: 100%; margin: 0; color: var(--muted); font-size: 13px; }
+  .fb-panel-foot .fb-status:empty { display: none; }
+  .fb-panel-foot .fb-status.is-error { color: var(--danger-high); }
+
+  /* コピー・保存したときの短い知らせ（上の真ん中に出て、少しで消える） */
+  .toast {
+    position: fixed;
+    top: calc(16px + env(safe-area-inset-top, 0px));
+    left: 50%;
+    z-index: 45;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    max-width: calc(100vw - 32px);
+    padding: 8px 16px;
+    border-radius: 9999px;
+    background: var(--accent);
+    color: var(--on-accent);
+    box-shadow: var(--shadow-lg);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -8px);
+    transition: opacity 150ms, transform 150ms;
+  }
+  .toast::before {
+    content: "";
+    flex: none;
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    -webkit-mask: var(--icon-check) center / contain no-repeat;
+    mask: var(--icon-check) center / contain no-repeat;
+  }
+  .toast.is-error::before { -webkit-mask-image: var(--icon-alert); mask-image: var(--icon-alert); }
+  .toast.is-shown { opacity: 1; transform: translate(-50%, 0); }
+  .toast.is-shown.has-action { pointer-events: auto; }
+  .toast-action {
+    margin-left: 4px;
+    padding: 0 4px;
+    border: none;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; }
+  }
+
+  @media print {
+    /* OS がダークのままでも紙は白い。トークンをライト側で宣言し直す */
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --bg-muted: #f3f4f6;
+      --bg-sunken: #e5e7eb;
+      --line: #d1d5dc;
+      --hairline: #e5e7eb;
+      --hairline-light: #e5e7eb;
+      --line-strong: #99a1af;
+      --ink: #101828;
+      --text: #364153;
+      --muted: #6a7282;
+      --accent: #1e2939;
+      --on-accent: #ffffff;
+      --neutral-low: #e5e7eb;
+      --neutral: #1e2939;
+      --neutral-high: #101828;
+      --note-low: #dbeafe;
+      --note: #51a2ff;
+      --note-high: #193cb8;
+      --caution-low: #fef3c6;
+      --caution: #ffb900;
+      --caution-high: #973c00;
+      --danger-low: #ffe2e2;
+      --danger: #ff6467;
+      --danger-high: #9f0712;
+      --success-low: #dcfce7;
+      --success: #05df72;
+      --success-high: #016630;
+    }
+
+    body { background: #ffffff; color: #000000; }
+    body.fb-mode { padding-top: 0; }
+    .fb-fab, .fb-banner, .fb-hl, .fb-sel, .fb-pin, .fb-pop, .fb-panel,
+    .send-bar, .toolbar, .skip-link, .cross-link, .toast { display: none !important; }
+    a { color: #000000; }
+
+    /* 畳んだ行も紙には全部出す */
+    .clip { overflow: visible; white-space: normal; }
+    .table-wrap { overflow: visible; }
+    table { min-width: 0; }
+  }
+
+  /* 進捗（上部に固定） */
+  .progress {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--bg);
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  body.fb-mode .progress { top: var(--fb-banner-h, 48px); }
+  .progress .wrap { padding-top: 10px; padding-bottom: 12px; }
+  .progress-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 16px; }
+  .progress-actions { display: flex; align-items: center; gap: 8px; flex: none; }
+  #progress-text { color: var(--ink); font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  #progress-text span { color: var(--muted); font-weight: 400; }
+  #progress-text .progress-warn { color: var(--caution-high); }
+
+  .progress-track {
+    height: 4px;
+    margin-top: 8px;
+    border-radius: 9999px;
+    background: var(--bg-sunken);
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 9999px;
+    background: var(--success-high);
+    transition: width 150ms ease;
+  }
+
+  /* ステップ（縦のタイムライン + ステッパー。Steps の番号の丸と縦のガイド線） */
+  .steps { margin-top: 32px; }
+  .step { position: relative; }
+
+  .step::before {
+    content: "";
+    position: absolute;
+    left: 14px;
+    /* 丸の下端から、次のステップの丸の上端まで */
+    top: 42px;
+    bottom: -12px;
+    width: 1px;
+    background: var(--hairline-light);
+  }
+
+  .steps > .step:last-child::before { display: none; }
+  .step.is-done::before { background: var(--success); }
+
+  .step > summary {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 10px 12px 0;
+    border-radius: var(--radius-md);
+    list-style: none;
+    cursor: pointer;
+    transition: background-color 150ms;
+  }
+
+  .step > summary::-webkit-details-marker { display: none; }
+  .step > summary:hover { background: var(--bg-muted); }
+
+  .step > summary::after {
+    content: "";
+    flex: none;
+    width: 16px;
+    height: 16px;
+    margin-top: 6px;
+    background: var(--muted);
+    -webkit-mask: var(--icon-chevron) center / 14px no-repeat;
+    mask: var(--icon-chevron) center / 14px no-repeat;
+    transition: transform 200ms;
+  }
+
+  .step[open] > summary::after { transform: rotate(90deg); }
+
+  .step-num {
+    position: relative;
+    z-index: 1;
+    flex: none;
+    width: 29px;
+    height: 29px;
+    border-radius: 9999px;
+    background: var(--bg-sunken);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 27px;
+    text-align: center;
+  }
+
+  .step-title { flex: 1; min-width: 0; color: var(--ink); font-size: 20px; font-weight: 600; line-height: 1.4; word-break: auto-phrase; }
+  @media (max-width: 480px) { .step-title { font-size: 18px; } }
+  .step-state { flex: none; margin-top: 4px; }
+
+  .step.is-done .step-num { background: var(--success-high); border-color: var(--success-high); color: var(--bg); }
+  .step.is-done.has-warning::before { background: var(--caution); }
+  .step.is-done.has-warning .step-num { background: var(--caution-high); border-color: var(--caution-high); color: var(--bg); }
+
+  .step-warning { margin: 0 0 12px; }
+
+  /* 任意のステップ。必須と同じ見た目にすると、やらなかっただけで未完了に見える */
+  .step.is-optional .step-num { border-style: dashed; background: var(--bg); color: var(--muted); }
+  .step.is-optional .step-title { color: var(--muted); }
+  .step.is-optional::before { width: 0; border-left: 1px dashed var(--line); background: none; }
+  .step-body { padding: 0 0 32px 41px; }
+
+  /* チェック項目 */
+  .checklist { list-style: none; margin: 4px 0 0; padding: 0; }
+  .checklist li { margin: 0; border-bottom: 1px solid var(--hairline); }
+  .checklist li:last-child { border-bottom: none; }
+
+  .checklist label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 0 -8px;
+    padding: 10px 8px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+
+  .checklist label:hover { background: var(--bg-muted); }
+  .checklist input[type="checkbox"] { flex: none; width: 16px; height: 16px; margin: 0.32em 0 0; accent-color: var(--accent); }
+  .checklist .item { flex: 1; min-width: 0; }
+  .checklist input:checked + .item { color: var(--muted); }
+  .checklist .item-id { margin-right: 8px; color: var(--muted); font-family: var(--font-mono); font-size: 12px; }
+
+  /* ステップ以外のセクション */
+  .block { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--hairline); }
+
+  /* 書き方の方針（推奨と違う行） */
+  tr.pref-differs td { background: var(--caution-low); }
+  .pref-mark { color: var(--caution-high); font-size: 12px; white-space: nowrap; }
+
+  footer.page-footer { margin-top: 48px; border-top: 1px solid var(--hairline); }
+  footer.page-footer .wrap { padding-top: 20px; padding-bottom: 80px; color: var(--muted); font-size: 13px; }
+  footer.page-footer p { margin: 4px 0; }
+
+  /* メタ情報（デフォルトで閉じる） */
+  .meta-details { margin: 16px 0 0; }
+
+  .meta-details > summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 6px 2px 2px;
+    border-radius: var(--radius-sm);
+    color: var(--muted);
+    font-size: 14px;
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .meta-details > summary::-webkit-details-marker { display: none; }
+  .meta-details > summary:hover { color: var(--ink); background: var(--wash-faint); }
+  .meta-details .facts { margin-top: 8px; }
+
+  /* 本体レイアウト */
+  .layout {
+    display: grid;
+    grid-template-columns: 14rem minmax(0, 1fr);
+    gap: 48px;
+    align-items: start;
+    padding-top: 32px;
+  }
+
+  nav#toc { position: sticky; top: calc(var(--progress-h, 0px) + 24px); font-size: 13px; }
+  body.fb-mode nav#toc { top: calc(var(--fb-banner-h, 48px) + var(--progress-h, 0px) + 24px); }
+
+  nav#toc .toc-title {
+    margin: 0 0 8px;
+    color: var(--ink);
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  nav#toc ol { list-style: none; margin: 0; padding: 0; border-left: 1px solid var(--hairline); }
+  nav#toc li { margin: 0; }
+
+  nav#toc a {
+    display: block;
+    margin-left: -1px;
+    padding: 5px 8px 5px 12px;
+    border-left: 1px solid transparent;
+    color: var(--muted);
+    text-decoration: none;
+  }
+
+  nav#toc a:hover { color: var(--ink); }
+  nav#toc a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+
+  .report-main { min-width: 0; }
+  .report-main > section + section { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--hairline); }
+
+  /* 畳んで置くもの（根拠・特徴） */
+  .ask { margin-top: 8px; border: 1px solid var(--line); border-radius: var(--radius-lg); }
+
+  .ask > summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: var(--radius-lg);
+    color: var(--ink);
+    font-weight: 600;
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .ask > summary::-webkit-details-marker { display: none; }
+  .ask > summary:hover { background: var(--bg-muted); }
+  .ask[open] > summary { border-bottom: 1px solid var(--hairline); border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+  .ask-body { padding: 10px 14px 12px; }
+  .ask-body ul { margin: 0; padding-left: 18px; }
+  .arch-name { margin: 0 0 12px; color: var(--ink); font-size: 16px; line-height: 1.6; }
+
+  /* モジュールのツリー */
+  /* 長いモジュール名でも狭い画面に収まるよう折り返す */
+  .module-row { align-items: flex-start; }
+  .module-row > .tw, .module-row > .ti { margin-top: 4px; }
+  /* 名前・種別・⚑ は 1 つの段落として流す。長い ⚑ は名前の横から続けて折り返す */
+  .module-line { flex: 1 1 auto; min-width: 0; line-height: 24px; }
+  .module-line > .t-name { display: inline; overflow-wrap: anywhere; }
+  .module-line > .badge { margin-left: 6px; vertical-align: 1px; }
+  .module-line > .deviation { margin-left: 8px; color: var(--caution-high); font-size: 13px; overflow-wrap: anywhere; }
+  .module-line > .deviation::before { content: "\2691\00a0"; }
+  .module-body { padding: 2px 0 8px 24px; }
+
+  dl.fields { display: grid; grid-template-columns: 9rem minmax(0, 1fr); gap: 6px 16px; margin: 4px 0 0; font-size: 14px; }
+  dl.fields dt { color: var(--muted); font-size: 13px; padding-top: 1px; }
+  dl.fields dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+  dl.fields dd ul { margin: 0; padding-left: 18px; }
+
+  @media (max-width: 560px) {
+    dl.fields { grid-template-columns: minmax(0, 1fr); gap: 0; }
+    dl.fields dt { padding-top: 8px; }
+  }
+
+  /* ディレクトリ構造（FileTree） */
+  .file-tree {
+    margin: 8px 0 0;
+    padding: 10px 8px;
+    background: var(--bg-sunken);
+    border: 1px solid var(--line);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    overflow-x: auto;
+  }
+
+  .file-tree .tree-row { min-height: 26px; padding-top: 1px; padding-bottom: 1px; white-space: nowrap; }
+  .file-tree summary.tree-row:hover { background: var(--wash); }
+  .file-tree .tree-children { border-left-color: var(--line); }
+  .file-tree .t-name { font-size: 13px; }
+  .file-tree .is-dir > .tree-row .t-name { font-weight: 600; }
+  .file-tree .t-note { font-family: var(--font-sans); font-size: 12px; }
+  .raw-tree { margin-top: 8px; font-size: 13px; }
+  .raw-tree > summary { color: var(--muted); cursor: pointer; }
+  .raw-tree pre { margin-top: 6px; }
+
+  /* 要素（Role 候補）のツリー。group と Role が入れ子になる */
+  .legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; margin: 12px 0 0; color: var(--muted); font-size: 13px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+
+  .role-tree { margin-top: 12px; }
+  .group-row { flex-wrap: wrap; row-gap: 0; }
+  .group-row .t-name { font-size: 14px; font-weight: 600; }
+  .group-row .t-path { min-width: 0; color: var(--muted); font-family: var(--font-mono); font-size: 12px; overflow-wrap: anywhere; }
+  @media (max-width: 480px) { .group-row .t-path { display: none; } }
+  .group-row .badge { margin-left: 4px; }
+
+  .role-row { flex-wrap: wrap; row-gap: 0; }
+  .role-row .t-name { font-weight: 600; }
+  .role-row .rank { margin: 0 4px; }
+  .role-row .t-layout { flex: 1 1 12rem; min-width: 0; color: var(--muted); font-family: var(--font-mono); font-size: 12px; }
+  .role-row .t-count { flex: none; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+  .role-node.constraint-only > summary .ti { background: var(--line-strong); }
+  .role-node.constraint-only > summary .t-name { color: var(--text); font-weight: 400; }
+  .role-node.is-empty > summary .t-name { font-weight: 400; }
+
+  /* 重要度（5 段階のドット） */
+  .rank { display: inline-flex; flex: none; gap: 2px; }
+  .rank-dot { width: 6px; height: 6px; border-radius: 2px; background: var(--line); }
+  .rank-dot.is-on { background: var(--ink); }
+
+  .role-detail {
+    margin: 4px 0 10px 24px;
+    padding: 12px 14px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+  }
+
+  .role-detail > dl.fields:first-child { margin-top: 0; }
+  .role-tag { margin: 0 0 8px; color: var(--muted); font-size: 13px; }
+
+  /* 書いてよいもの / 書いてはいけないもの */
+  .rules { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0; font-size: 14px; }
+  .rules-col { min-width: 0; }
+  .rules-deny { border-left: 1px solid var(--hairline); padding-left: 16px; }
+  .rules-head { margin: 0 0 2px; color: var(--muted); font-size: 13px; }
+  .rules ul { margin: 0; padding-left: 18px; }
+  .rules li { margin: 2px 0; overflow-wrap: anywhere; }
+  .rules p.empty { margin: 0; }
+
+  @media (max-width: 640px) {
+    .rules { grid-template-columns: 1fr; }
+    .rules-deny { border-left: none; padding-left: 0; border-top: 1px solid var(--hairline); padding-top: 12px; }
+  }
+
+  /* コードベース レポート（チェックリストの下に埋め込む） */
+  .block.report { margin-top: 64px; padding-top: 32px; border-top: 2px solid var(--line); }
+  .report-title { font-size: 29px; margin: 0; }
+  .report > .lede { max-width: 48rem; }
+  .report-main > section > h3 { font-size: 24px; margin: 0 0 16px; }
+  .report-main h4 { color: var(--ink); font-size: 20px; font-weight: 600; line-height: 1.2; margin: 40px 0 12px; }
+  h3 .badge { margin-left: 10px; font-size: 13px; vertical-align: 4px; }
+  /* 見出しで開閉する一覧（モジュール一覧・ディレクトリ構造） */
+  .fold { margin-top: 40px; }
+  .fold > summary { display: flex; align-items: center; gap: 8px; width: fit-content; padding: 2px 8px 2px 2px; border-radius: var(--radius-md); list-style: none; cursor: pointer; transition: background-color 150ms; }
+  .fold > summary::-webkit-details-marker { display: none; }
+  .fold > summary:hover { background: var(--bg-muted); }
+  .fold > summary::before { content: ""; flex: none; width: 16px; height: 16px; background: var(--muted); -webkit-mask: var(--icon-chevron) center / 14px no-repeat; mask: var(--icon-chevron) center / 14px no-repeat; transition: transform 200ms; }
+  .fold[open] > summary::before { transform: rotate(90deg); }
+  .report-main .fold > summary > h4 { margin: 0; }
+  .fold > summary .badge { margin-left: 10px; font-size: 13px; font-weight: 400; vertical-align: 2px; }
+  .fold[open] > summary { margin-bottom: 12px; }
+  .report .meta-details { margin-top: 16px; }
+  .step-link { display: flex; width: fit-content; margin-top: 6px; font-size: 13px; text-decoration: none; }
+  .cross-link-label:has(.badge:not([hidden])) { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; }
+  .cross-link-label .badge { font-size: 13px; font-weight: 400; }
+  /* 目次・リンクで飛んだ先の見出しが、上に貼り付く進捗の下に隠れないように */
+  .block, .report-main > section, .report-sub { scroll-margin-top: calc(var(--progress-h, 0px) + 16px); }
+
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-top: 24px; }
+    nav#toc { position: static; padding-bottom: 16px; border-bottom: 1px solid var(--hairline); }
+    nav#toc ol { columns: 2; column-gap: 16px; }
+  }
+
+  @media print {
+    .progress { position: static; }
+    .step > summary::after { display: none; }
+    /* 背景グラフィックを出さないデフォルトの印刷でも読めるよう、塗りではなく枠線で示す */
+    .step .step-num, .step.is-done .step-num, .step.is-done.has-warning .step-num { background: none; color: var(--ink); }
+    .step.is-done .step-num { border-color: var(--success-high); color: var(--success-high); }
+    .step.is-done.has-warning .step-num { border-color: var(--caution-high); color: var(--caution-high); }
+    .step, .block:not(.report) { break-inside: avoid; }
+    nav#toc { display: none; }
+    .layout { grid-template-columns: 1fr; }
+    .report-main > section, .role-detail { break-inside: avoid-page; }
+  }
+</style>
+</head>
+<body>
+
+<noscript>
+  <div class="wrap noscript-note">
+    <div class="aside aside-danger">
+      <p class="aside-title">表示には JavaScript が必要です。</p>
+      <p>このページはページ内の JSON を読んで描画します。データそのものは、このファイルの
+      script type="application/json" id="checklist"（チェックリスト）と id="report"（コードベース レポート）のブロックにあります。</p>
+    </div>
+  </div>
+</noscript>
+
+<script type="application/json" id="checklist">
+{
+  "meta": {
+    "workdir": null,
+    "moduleDir": null,
+    "version": null,
+    "projectRoot": null,
+    "ranAt": null,
+    "kotlin": null,
+    "jvmToolchain": null,
+    "git": null
+  },
+  "steps": [
+    {
+      "id": "0",
+      "title": "事前準備",
+      "warning": null,
+      "items": [
+        {
+          "id": "0-1",
+          "label": "無害なコマンドを1種類ずつ実際に実行し、このあとの作業に要る許可を先に取った",
+          "done": false
+        },
+        {
+          "id": "0-2",
+          "label": "katachi skill から作業用ディレクトリを作り、meta（Gradle ルート / Git / バージョン）を埋めた",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": "1",
+      "title": "現在のプロジェクトコードベースの構造・各コンポーネントの制約を解析・推論",
+      "warning": null,
+      "items": [
+        {
+          "id": "1-1",
+          "label": "コードより先にプロジェクト自身のドキュメントを読んだ",
+          "done": false
+        },
+        {
+          "id": "1-2",
+          "label": "このページのコードベース レポート（report の JSON）を埋めた",
+          "done": false
+        },
+        {
+          "id": "1-3",
+          "label": "書き方の方針を聞いて preferences に記録した",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "title": "検査用モジュール（デフォルト architecture-test/）を作成し ビルドに組み込む",
+      "warning": null,
+      "items": [
+        {
+          "id": "2-1",
+          "label": "katachi scaffold --package <パッケージ名> を実行した",
+          "done": false
+        },
+        {
+          "id": "2-2",
+          "label": "定義が空の状態で 検査用モジュールの test が Unexpected だけで失敗することを確認した",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "title": "architecture { } 定義を作成",
+      "warning": null,
+      "items": [
+        {
+          "id": "3-1",
+          "label": "手順書 3-1 のドキュメントのページ（layout・role・basic-api。要るなら kt-file-content・gradle・ソースセット）を読んだ",
+          "done": false
+        },
+        {
+          "id": "3-2",
+          "label": "architecture { } 定義を書き、検査用モジュールの test の出力をリファクタリング前の基準として保存した",
+          "done": false
+        },
+        {
+          "id": "3-3",
+          "label": "定義をリファクタリングし（ファイル・パッケージの分割、説明、共通化）、検査のログを前後で比べて、検査結果が変わらないことを確かめた",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": "4",
+      "title": "検証する",
+      "warning": null,
+      "items": [
+        {
+          "id": "4-1",
+          "label": "検査用モジュールの test を実行した",
+          "done": false
+        },
+        {
+          "id": "4-2",
+          "label": "エラーに対処した（katachi 由来でないもの（Gradle / Java など）は直し、残した違反は記録した）",
+          "done": false
+        },
+        {
+          "id": "4-3",
+          "label": "検査用モジュールの katachiDocs で docs を生成し、出力を確かめた",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": "5",
+      "title": "チェックリストを確認する",
+      "warning": null,
+      "items": [
+        {
+          "id": "5-1",
+          "label": "このチェックリスト全体を見直した",
+          "done": false
+        },
+        {
+          "id": "5-2",
+          "label": "未記入が残っていないことを確かめた",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": "6",
+      "title": "（任意）導入できたことを確かめ、CI・ドキュメント生成・テンプレートに広げる",
+      "warning": null,
+      "optional": true,
+      "items": [
+        {
+          "id": "6-1",
+          "label": "題材となる実装タスクを回して architecture { } の修正要否を判断した",
+          "done": false
+        },
+        {
+          "id": "6-2",
+          "label": "CI に検査用モジュールの test を組み込んだ",
+          "done": false
+        },
+        {
+          "id": "6-3",
+          "label": "ドキュメント生成をセットアップした（title / description、コミットするかの決定）",
+          "done": false
+        },
+        {
+          "id": "6-4",
+          "label": "テンプレートを書き、1本生成した直後の検査用モジュールの test で違反が増えないことを確かめた",
+          "done": false
+        }
+      ]
+    }
+  ],
+  "preferences": {},
+  "violations": [],
+  "questions": [],
+  "answers": {},
+  "changedFiles": []
+}
+</script>
+
+<!-- 記入例: 上の JSON が完全に埋まった状態。この形で値を入れる。title と label はここでは「…」に縮めてある（上のものはそのまま残す）。このコメントは書き換えない。
+{
+  "meta": {
+    "workdir": ".local/install-katachi",
+    "moduleDir": "architecture-test",
+    "version": "0.4.0",
+    "projectRoot": "/Users/me/dev/example-app",
+    "ranAt": "2026-09-24 10:00 JST",
+    "kotlin": "2.4.10",
+    "jvmToolchain": "17（../app/build.gradle.kts の設定から）",
+    "git": "yes"
+  },
+  "steps": [
+    {
+      "id": "0",
+      "title": "…",
+      "warning": null,
+      "items": [
+        {
+          "id": "0-1",
+          "label": "…",
+          "done": true
+        },
+        {
+          "id": "0-2",
+          "label": "…",
+          "done": true
+        }
+      ]
+    },
+    {
+      "id": "1",
+      "title": "…",
+      "warning": null,
+      "items": [
+        {
+          "id": "1-1",
+          "label": "…",
+          "done": true
+        },
+        {
+          "id": "1-2",
+          "label": "…",
+          "done": true
+        },
+        {
+          "id": "1-3",
+          "label": "…",
+          "done": true
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "title": "…",
+      "warning": null,
+      "items": [
+        {
+          "id": "2-1",
+          "label": "…",
+          "done": true
+        },
+        {
+          "id": "2-2",
+          "label": "…",
+          "done": true
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "title": "…",
+      "warning": null,
+      "items": [
+        {
+          "id": "3-1",
+          "label": "…",
+          "done": true
+        },
+        {
+          "id": "3-2",
+          "label": "…",
+          "done": true
+        },
+        {
+          "id": "3-3",
+          "label": "…",
+          "done": true
+        }
+      ]
+    },
+    {
+      "id": "4",
+      "title": "…",
+      "warning": "アーキテクチャ違反を 1 件残しました",
+      "items": [
+        {
+          "id": "4-1",
+          "label": "…",
+          "done": true
+        },
+        {
+          "id": "4-2",
+          "label": "…",
+          "done": true
+        },
+        {
+          "id": "4-3",
+          "label": "…",
+          "done": true
+        }
+      ]
+    },
+    {
+      "id": "5",
+      "title": "…",
+      "warning": null,
+      "items": [
+        {
+          "id": "5-1",
+          "label": "…",
+          "done": true
+        },
+        {
+          "id": "5-2",
+          "label": "…",
+          "done": true
+        }
+      ]
+    },
+    {
+      "id": "6",
+      "title": "…",
+      "warning": null,
+      "optional": true,
+      "items": [
+        {
+          "id": "6-1",
+          "label": "…",
+          "done": true
+        },
+        {
+          "id": "6-2",
+          "label": "…",
+          "done": true
+        },
+        {
+          "id": "6-3",
+          "label": "…",
+          "done": true
+        },
+        {
+          "id": "6-4",
+          "label": "…",
+          "done": true
+        }
+      ]
+    }
+  ],
+  "preferences": {
+    "nestedGroups": "yes",
+    "testFramework": "kotest",
+    "dependencyStyle": "catalog",
+    "constraintNames": "numbered",
+    "oneRolePerFile": "yes"
+  },
+  "violations": [
+    {
+      "violation": "ui 層から data 層の DataSource を直接参照している",
+      "location": "app/src/main/kotlin/com/example/app/ui/home/HomeViewModel.kt:42",
+      "whyNotFixed": "呼び出し元が広く、1回の変更に収まらないため",
+      "suggestion": "GetHomeFeedUseCase を足し、ViewModel からはそれだけを呼ぶ"
+    }
+  ],
+  "questions": [
+    {
+      "id": "q1",
+      "question": "legacy パッケージは katachi の対象に含めますか？",
+      "observed": "app/src/main/kotlin/com/example/app/ui/legacy/ の配下だけ Fragment + Presenter のまま残っている",
+      "options": [
+        "対象に含めて直す",
+        "Role を分けて今の形（Fragment と Presenter）を宣言する",
+        "今ある違反を baseline に入れ、新しい違反だけを検出する"
+      ],
+      "recommendation": "C。対象が1画面だけで移行の予定も決まっていないため、今ある違反は受け入れ、新しい違反だけを検出する"
+    }
+  ],
+  "answers": {},
+  "changedFiles": [
+    {
+      "path": "architecture-test/build.gradle.kts",
+      "change": "新規",
+      "summary": "katachi の検査用モジュール"
+    },
+    {
+      "path": "settings.gradle.kts",
+      "change": "変更",
+      "summary": "architecture-test を include した"
+    }
+  ]
+}
+-->
+
+
+<script type="application/json" id="report">
+{
+  "meta": {
+    "projectName": null,
+    "analyzedAt": null,
+    "fileCount": null,
+    "gradleRoot": null,
+    "gitRoot": null
+  },
+  "overview": {
+    "language": null,
+    "frameworks": [],
+    "appPackage": null,
+    "targets": []
+  },
+  "architecture": {
+    "name": null,
+    "rationale": [],
+    "characteristics": []
+  },
+  "modules": [],
+  "directoryTree": null,
+  "roles": [],
+  "excluded": [],
+  "questions": [],
+  "answers": {},
+  "templates": []
+}
+</script>
+
+<!-- 記入例: 上の JSON が完全に埋まった状態。この形で値を入れる。
+{
+  "meta": {
+    "projectName": "example-app",
+    "analyzedAt": "2026-09-24T10:00:00+09:00",
+    "fileCount": 412,
+    "gradleRoot": "/Users/me/dev/example-app",
+    "gitRoot": "/Users/me/dev/example-app"
+  },
+  "overview": {
+    "language": "Kotlin 2.2.20",
+    "frameworks": ["Jetpack Compose", "Hilt"],
+    "appPackage": "com.example.app",
+    "targets": ["Android"]
+  },
+  "architecture": {
+    "name": "Android アプリアーキテクチャガイドの3層（ui / domain / data）",
+    "rationale": [
+      "app/src/main/kotlin/.../ui 配下に *ViewModel.kt が20件以上あり、Composable から共通して viewModel() で参照されている",
+      "domain モジュールの usecase パッケージに *UseCase.kt が集まっており、Android フレームワークへの依存が無い"
+    ],
+    "characteristics": ["一部の画面だけ MVI を試験導入している"]
+  },
+  "modules": [
+    { "path": "app", "kind": "app", "responsibility": "UI 層（Activity / Compose / ViewModel）", "buildFile": "app/build.gradle.kts" },
+    { "path": "core/domain", "kind": "library", "responsibility": "ドメインロジック", "buildFile": "core/domain/build.gradle.kts" },
+    { "path": "core/data", "kind": "library", "responsibility": "Repository の実装と DataSource", "buildFile": "core/data/build.gradle.kts", "deviation": "他の library と違い Android ライブラリ（com.android.library）になっている" }
+  ],
+  "directoryTree": "app/\n  build.gradle.kts\n  src/main/kotlin/com/example/app/\n    MainActivity.kt\n    ui/\n      home/\n        HomeScreen.kt\n        HomeViewModel.kt\n",
+  "roles": [
+    {
+      "importance": 5,
+      "name": "ViewModel",
+      "group": "App.Ui",
+      "constraintOnly": false,
+      "layout": "app/src/main/kotlin/<package>/ui/*/*ViewModel.kt",
+      "naming": "サフィックス ViewModel。ファイル名と同名のクラスを1つだけ持つ。",
+      "allowed": ["UI State の保持と更新", "UseCase の呼び出し", "viewModelScope の管理"],
+      "forbidden": ["Repository への直接アクセス", "Context / View への参照保持"],
+      "examples": [
+        "app/src/main/kotlin/com/example/app/ui/home/HomeViewModel.kt",
+        "app/src/main/kotlin/com/example/app/ui/profile/ProfileViewModel.kt"
+      ],
+      "count": 18,
+      "note": "一部の画面では rememberSaveable による State ホルダーと役割が重複している。"
+    },
+    {
+      "importance": 2,
+      "name": "AppBuildFile",
+      "group": "App",
+      "constraintOnly": true,
+      "layout": "app/build.gradle.kts",
+      "naming": "固定名",
+      "allowed": [],
+      "forbidden": [],
+      "examples": ["app/build.gradle.kts"],
+      "count": 1,
+      "note": "namespace とアプリのパッケージ名が一致することを、gradle() のフックで検査する（Role は作らない）"
+    }
+  ],
+  "excluded": [
+    { "path": "app/src/main/kotlin/**/generated/**", "reason": "コード生成の出力をコミットしているため。手で直せない" },
+    { "path": "third-party/", "reason": "外部から取り込んだソース。こちらの規約の対象にしない" }
+  ],
+  "questions": [
+    {
+      "id": "cq1",
+      "question": "UseCase と Repository の間に Interactor 層を挟む方針は今後も続けますか？",
+      "observed": "domain/src/main/kotlin/com/example/app/domain/interactor/ 配下の *Interactor.kt は3件だけで、残る15件の UseCase は Repository を直接呼んでいる",
+      "options": ["Interactor 層を全体に広げる", "Interactor を廃して UseCase に寄せる", "現状のまま両方を許す"],
+      "recommendation": "B。Interactor が3件に留まっており、UseCase 側へ寄せるほうが規約を1つにできるため"
+    },
+    {
+      "id": "cq2",
+      "question": "legacy パッケージは katachi の対象に含めますか？",
+      "observed": "app/src/main/kotlin/com/example/app/ui/legacy/ の配下だけ Fragment + Presenter のまま残っている",
+      "options": ["対象に含めて直す", "Role を分けて今の形（Fragment と Presenter）を宣言する", "今ある違反を baseline に入れ、新しい違反だけを検出する"],
+      "recommendation": "C。対象が1画面だけで移行の予定も決まっていないため、今ある違反は受け入れ、新しい違反だけを検出する"
+    }
+  ],
+  "answers": {
+    "cq1": { "answer": "Interactor を廃して UseCase に寄せる", "note": "次の四半期で移行する", "answeredAt": "2026-09-24T11:00:00+09:00" }
+  },
+  "templates": [
+    {
+      "role": "UseCase",
+      "files": ["${name}UseCase.kt"],
+      "params": ["name"],
+      "basedOn": "domain/src/main/kotlin/com/example/app/domain/useCase/GetUserUseCase.kt",
+      "reason": "18 件がすべて interface で、中身の形も揃っているため"
+    },
+    {
+      "role": "UseCaseImplementation",
+      "files": ["${name}UseCaseImplementation.kt"],
+      "params": ["name"],
+      "basedOn": "data/src/main/kotlin/com/example/app/data/useCase/GetUserUseCaseImplementation.kt",
+      "reason": "18 件がすべて UseCase の実装で、中身の形も揃っているため"
+    }
+  ]
+}
+-->
+
+
+<a class="skip-link" href="#main-content">本文へスキップ</a>
+
+<header class="page-header">
+  <div class="wrap">
+    <p class="brand">
+      <svg viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="102" fill="#a2ccf7"/><g fill="#ffffff"><path d="M96 160h60v28h-32v136h32v28H96z"/><rect x="218" y="218" width="76" height="76"/><path d="M416 352h-60v-28h32V188h-32v-28h60z"/></g></svg>
+      <span>katachi</span><span class="brand-sub">導入</span>
+    </p>
+    <h1>katachi インストール チェックリスト</h1>
+    <div class="aside">
+      <p class="aside-title">AI エージェントが記入しました</p>
+      <p>内容をあなたが確認してください。違うところは、右下の「フィードバック」から項目を選んでコメントし、まとめてコピーして AI エージェントに渡せます。</p>
+    </div>
+    <div data-render="error"></div>
+
+    <a class="cross-link" id="cross-link" href="#codebase-report">
+      <span class="cross-link-label">コードベース レポート<span class="badge badge-caution" id="report-open" hidden></span></span>
+      <span class="cross-link-hint">このプロジェクトの解析結果（このページの下にあります）</span>
+    </a>
+
+    <div data-fb="checklist.meta" data-fb-label="メタ情報">
+      <div data-render="meta"></div>
+    </div>
+  </div>
+</header>
+
+<div class="progress">
+  <div class="wrap">
+    <div class="progress-row">
+      <span id="progress-text"></span>
+      <span class="progress-actions">
+        <a class="btn btn-sm btn-quiet" id="report-link" href="#codebase-report">レポートを見る</a>
+        <button type="button" class="btn btn-sm btn-quiet" id="toggle-all">すべて開く</button>
+      </span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap" id="main-content">
+
+  <div class="steps" data-render="steps" data-fb="checklist.steps" data-fb-label="ステップ"></div>
+
+  <section class="block" id="preferences" data-fb="checklist.preferences" data-fb-label="書き方の方針">
+    <h2>書き方の方針</h2>
+    <p class="lede">ステップ 1-3 で聞いた、定義の書き方の方針です。推奨と違うものは強調しています。検査用モジュールの置き場所はメタ情報にあります。</p>
+    <div data-render="preferences"></div>
+  </section>
+
+  <section class="block" id="violations" data-fb="checklist.violations" data-fb-label="残しているアーキテクチャ違反">
+    <h2>残しているアーキテクチャ違反<span class="badge" data-render="violationCount"></span></h2>
+    <div data-render="violations"></div>
+  </section>
+
+  <section class="block" id="questions" data-fb="checklist.questions" data-fb-label="ユーザに確認したいこと">
+    <h2>ユーザに確認したいこと<span class="badge" data-render="questionCount"></span><span class="badge badge-success" data-render="answeredCount"></span></h2>
+    <p class="lede">選択肢を選ぶか、自由に書いてください（両方あれば自由記入は補足）。答えると画面の右下にメニューが出ます。「まとめてコピー」で、AI エージェントとのチャットにそのまま貼れる文がコピーされます（フィードバックがあれば一緒に入ります）。ファイルで渡すときは「JSON を保存」。入力はこのブラウザに下書きとして残ります。</p>
+    <div class="toolbar" data-render="answerActions"></div>
+    <div class="qa-flow">
+      <div data-render="questions"></div>
+    </div>
+  </section>
+
+  <section class="block" id="changed-files" data-fb="checklist.changedFiles" data-fb-label="作成・変更したファイル">
+    <h2>作成・変更したファイル<span class="badge" data-render="changedCount"></span></h2>
+    <div data-render="changedFiles"></div>
+  </section>
+
+  <section class="block report" id="codebase-report" data-doc="report" data-fb="report" data-fb-label="コードベース レポート">
+    <h2 class="report-title">コードベース レポート</h2>
+    <p class="lede">
+      AI エージェントが katachi (<code>architecture { }</code> 定義) をこのプロジェクトへ導入するために、
+      コードベースを走査して作成した下調べレポートです。
+    </p>
+
+    <div class="aside">
+      <p class="aside-title">AI エージェントが自動生成したレポートです</p>
+      <p>次の工程に進む前に、認識が合っているかをあなたの目で確かめてください。特に「2. 要素（Role 候補）」は今後のルールの根拠になります。</p>
+    </div>
+
+    <div data-render="error"></div>
+
+    <details class="meta-details tree" data-fb="report.meta" data-fb-label="メタ情報">
+      <summary><span class="tw"></span>メタ情報</summary>
+      <div data-render="meta"></div>
+    </details>
+
+    <div class="layout">
+    <nav id="toc" aria-label="目次">
+      <p class="toc-title">目次</p>
+      <ol>
+        <li><a href="#report-overview">1. アーキテクチャ調査結果</a></li>
+        <li><a href="#report-roles">2. 要素（Role 候補）</a></li>
+        <li><a href="#report-ignore">3. katachi の対象外にするもの</a></li>
+        <li><a href="#report-questions">4. ユーザに確認したいこと</a></li>
+        <li><a href="#report-templates">5. テンプレートの提案</a></li>
+      </ol>
+    </nav>
+
+      <div class="report-main">
+      <section id="report-overview" data-fb="report.overview" data-fb-label="1. アーキテクチャ調査結果">
+        <h3>1. アーキテクチャ調査結果</h3>
+        <div data-render="overview"></div>
+
+        <div id="report-architecture" class="report-sub" data-fb="report.architecture" data-fb-label="採用しているアーキテクチャ">
+          <h4>採用しているアーキテクチャ</h4>
+          <div data-render="architecture"></div>
+        </div>
+
+        <div id="report-modules" class="report-sub" data-fb="report.modules" data-fb-label="モジュール構成とディレクトリ">
+          <div data-render="modules"></div>
+        </div>
+      </section>
+
+      <section id="report-roles" data-fb="report.roles" data-fb-label="2. 要素（Role 候補）">
+        <h3>2. 要素（Role 候補）<span class="badge" data-render="roleCount"></span></h3>
+        <p class="lede">group の中に Role が入れ子で並びます。1 つの Role は 1 種類のファイルで、モジュールや層のように種類の違うファイルのまとまりは group です。同じ group の中は重要度の高い順（5 = 必ず定義に入れる / 1 = 入れなくてもよい）。行をクリックすると詳細が開きます。</p>
+        <div data-render="roles"></div>
+      </section>
+
+      <section id="report-ignore" data-fb="report.excluded" data-fb-label="3. katachi の対象外にするもの">
+        <h3>3. katachi の対象外にするもの</h3>
+        <p class="lede">katachi は <code>.gitignore</code> で除外されたファイルを見ません。ここに並ぶのは、git が追跡している（または未追跡で ignore されていない）のに検査から外すものです。</p>
+        <div data-render="excluded"></div>
+      </section>
+
+      <section id="report-questions" data-fb="report.questions" data-fb-label="4. ユーザに確認したいこと">
+        <h3>4. ユーザに確認したいこと<span class="badge" data-render="questionCount"></span><span class="badge badge-success" data-render="answeredCount"></span></h3>
+        <p class="lede">選択肢を選ぶか、自由に書いてください（両方あれば自由記入は補足）。答えると画面の右下にメニューが出ます。「まとめてコピー」で、AI エージェントとのチャットにそのまま貼れる文がコピーされます（フィードバックがあれば一緒に入ります）。ファイルで渡すときは「JSON を保存」。入力はこのブラウザに下書きとして残ります。</p>
+        <div class="toolbar" data-render="answerActions"></div>
+        <div class="qa-flow">
+          <div data-render="questions"></div>
+        </div>
+      </section>
+
+      <section id="report-templates" data-fb="report.templates" data-fb-label="5. テンプレートの提案">
+        <h3>5. テンプレートの提案</h3>
+        <p class="lede">同じ形のファイルが何本もある Role に、<code>.template { }</code> を足す提案です。導入の最後に AI エージェントが記録します。任意です。</p>
+        <div data-render="templates"></div>
+      </section>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="page-footer">
+  <div class="wrap">
+    <p><a href="https://tbsten.github.io/katachi/">katachi のドキュメント</a></p>
+    <p>
+      このチェックリストは katachi skill のセットアップ手順
+      （<a href="https://github.com/TBSten/katachi/tree/main/skills/katachi">skills/katachi</a>）
+      に対応しています。
+    </p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  // 画面の文言
+  var T = {
+    unfilled: '未記入: ',
+    none: 'なし',
+    unknown: '不明',
+    count: function (n) { return n + ' 件'; },
+    clampHint: 'クリックで全文を表示 / 1 行に戻す',
+    expandAll: 'すべて開く',
+    collapseAll: 'すべて閉じる',
+    // 確認事項
+    observed: '観測したこと',
+    pickOne: '回答を選ぶ',
+    recommended: '推奨',
+    recommendation: '推奨',
+    recommendationWhy: '推奨の理由',
+    freeLabel: '補足・自由記入',
+    freePlaceholder: '選択肢を選んだときは補足になります。合う選択肢が無ければ、ここに答えを書いてください。',
+    adoptOne: '推奨を採用',
+    clearOne: 'この回答を消す',
+    adoptAll: '未回答に推奨を採用',
+    adoptedCount: function (n) { return '未回答の ' + n + ' 件に推奨を入れました'; },
+    adoptedNone: '推奨を入れられる未回答の質問はありません',
+    revertOne: '取り込み済みに戻す',
+    clearAll: '回答をすべて消す',
+    imported: '取り込み済み',
+    importedChanged: '取り込み済みから変更',
+    answered: '回答済み',
+    unanswered: '未回答',
+    withNote: '（補足あり）',
+    answeredCount: function (n) { return '回答済み ' + n + ' 件'; },
+    answerProgress: function (a, t) { return '回答 ' + a + ' / ' + t + ' 件'; },
+    sendLabel: 'AI エージェントに渡すもの',
+    sendCopy: 'まとめてコピー',
+    sendClear: 'クリア',
+    sendClearTitle: '回答とフィードバックをすべて消す',
+    sendCleared: '回答とフィードバックをすべて消しました',
+    sendFeedback: function (n) { return 'フィードバック ' + n + ' 件'; },
+    sendCopiedMark: '（コピー済み）',
+    sendPending: function (n) { return '（未コピー ' + n + ' 件）'; },
+    sendJoin: ' / ',
+    sendAnswers: function (n) { return '確認の回答 ' + n + ' 件'; },
+    sendCopiedAgain: 'すべてコピー済みだったので、全部をもう一度コピーしました',
+    saveAnswers: 'JSON を保存',
+    previewLabel: '内容を見る',
+    previewHide: '内容を隠す',
+    manualLabel: 'コピーする内容',
+    answersMissing: '未回答: ',
+    answersCopied: 'コピーしました。AI エージェントとのチャットに貼り付けてください。',
+    answersSaved: function (file) { return file + ' を保存しました。AI エージェントに渡してください。'; },
+    answersCleared: '回答をすべて消しました',
+    undo: '元に戻す',
+    restored: '元に戻しました。',
+    toastCopied: 'コピーしました',
+    toastSaved: '保存しました',
+    copyFailed: 'コピーできませんでした。下の文を手で選んでコピーしてください。',
+    copyFailedShort: 'コピーできませんでした。右下のメニューに出た文を手で選んでコピーしてください',
+    saveFailed: '保存できませんでした。下の JSON を手で選んでコピーしてください。',
+    // フィードバック
+    fbFab: 'フィードバック',
+    fbBanner: 'フィードバックモード: コメントしたい項目をクリックしてください（文字をドラッグで選ぶと引用、Shift + クリックで複数、行の矢印で開閉）',
+    fbWholePageButton: 'ページ全体に書く',
+    fbWholePage: 'ページ全体',
+    fbList: function (n) { return '一覧 (' + n + ')'; },
+    fbExit: '終了',
+    fbPanelLabel: 'フィードバックの一覧',
+    fbClose: '閉じる',
+    fbClearAll: 'すべて消す',
+    fbEmpty: 'まだありません。「フィードバック」を押してから項目をクリックすると書けます。',
+    fbComposeLabel: 'フィードバック',
+    fbPlaceholder: '違うところ・直してほしいこと（⌘/Ctrl + Enter で保存）',
+    fbSave: '保存',
+    fbCancel: 'やめる',
+    fbDelete: '削除',
+    fbEdit: '編集',
+    fbShow: '場所を見る',
+    fbSaved: '保存しました（このブラウザに残ります）。',
+    fbDeleted: '削除しました',
+    fbCleared: 'フィードバックをすべて消しました',
+    fbClearCopied: function (n) { return 'コピー済みを消す (' + n + ')'; },
+    fbCopiedCleared: 'コピー済みのフィードバックを消しました',
+    fbCopiedMark: 'コピー済み',
+    fbMissing: '場所が見つかりません',
+    fbMissingHint: 'JSON からこの場所が無くなりました。直ったか、名前が変わった可能性があります。',
+    fbDraftRestored: '保存していない書きかけを戻しました。',
+    fbUnsaved: '書きかけがあります。「保存」か「やめる」を押してください',
+    fbNoStorage: 'このブラウザでは保存できません（プライベートウィンドウなど）。閉じる前にコピーしてください。',
+    fbPinLabel: function (n, label) { return 'フィードバック ' + n + ': ' + label; },
+    fbTargetPrefix: '対象: ',
+    dateFormat: function (y, mo, d, h, mi, zone) { return y + '年' + Number(mo) + '月' + Number(d) + '日 ' + h + ':' + mi + (zone ? '（' + zone + '）' : ''); },
+    fbQuotePrefix: '引用: ',
+    fbContentPrefix: 'いまの内容: ',
+    fbQuoted: function (raw) { return '「' + raw + '」'; },
+    fbDragHint: 'ドラッグで動かせます。動かした位置は次から使います',
+    fbResetPos: '位置を戻す',
+    fbDraftMark: '書きかけ',
+    fbDraftResume: '続きを書く',
+    fbDraftDiscard: '捨てる',
+    fbDraftDiscarded: '書きかけを捨てました',
+    fbTargetWithLabel: function (key, label) { return key + '（' + label + '）'; },
+    fbMore: function (n) { return ' ほか ' + n + ' か所'; },
+    fbTargetsCount: function (n) { return n + ' か所にまとめてコメント'; },
+    fbPopHint: 'Shift + クリックで、ほかの項目を足す・外す',
+    fbRemoveTarget: function (label) { return '対象から外す: ' + label; },
+    fbMaxTargets: function (n) { return '一度に選べるのは ' + n + ' か所までです'; },
+    dataError: 'チェックリストのデータ（このファイル内の JSON）を読めませんでした。',
+    meta: [
+      ['workdir', '作業用ディレクトリ'],
+      ['moduleDir', '検査用モジュールの置き場所'],
+      ['version', 'katachi のバージョン'],
+      ['kotlin', 'Kotlin'],
+      ['jvmToolchain', 'JVM toolchain'],
+      ['git', 'Git 管理下'],
+      ['projectRoot', '対象プロジェクトのルート'],
+      ['ranAt', '実行日時']
+    ],
+    warningLabel: '警告',
+    stepDoneWarning: '完了（警告）',
+    stepDone: '完了',
+    stepOptional: '任意',
+    progress: function (done, total, pct) { return done + ' / ' + total + ' 項目 完了（' + pct + '%）'; },
+    progressOptional: function (done, total) { return '・任意 ' + done + ' / ' + total; },
+    progressWarnings: function (n) { return '・警告 ' + n + ' 件'; },
+    preferences: [
+      ['nestedGroups', 'group を入れ子にするか', 'yes'],
+      ['testFramework', 'テストのフレームワーク', null],
+      ['dependencyStyle', '依存の書き方', null],
+      ['constraintNames', '制約名に確認事項の番号を入れるか', 'plain'],
+      ['oneRolePerFile', '定義のファイルを Role ごとに分けるか', 'yes']
+    ],
+    prefNotRecordedDetected: '未記録（検出した値を使う）',
+    prefNotRecordedDefault: '未記録（推奨のまま）',
+    prefDetected: '検出',
+    prefDiffers: ' 推奨と違う',
+    prefHeaders: ['key', '問い', '値', '推奨'],
+    allGreen: 'なし（All green）',
+    violationHeaders: ['違反', '場所', '直さなかった理由', 'どうするのがよさそうか'],
+    changedHeaders: ['パス', '新規 / 変更', '内容'],
+    answersIntro: 'katachi のインストール チェックリスト（check-list.html）の「ユーザに確認したいこと」への回答です。JSON のいちばん外のキー（checklist / report）は、このファイルの JSON ブロックの id です。それぞれのブロックの answers に取り込んでください。',
+    reportLink: 'レポートを見る',
+    backToChecklist: 'チェックリストに戻る',
+    reportLinkStep: 'コードベース レポートを見る ↓',
+    reportOpen: function (n) { return '未回答の質問 ' + n + ' 件'; },
+    fbIntro: function (n) { return 'katachi のインストール チェックリスト（check-list.html）へのフィードバックです（' + n + ' 件）。「対象」はこのファイルの JSON の場所で、頭の checklist. / report. がどの JSON ブロック（id）かを表します。直して、直せないものは理由を返してください。'; },
+    // コードベース レポート
+    reportDataError: 'レポートのデータ（このファイル内の JSON）を読めませんでした。',
+    reportMeta: {
+      projectName: 'プロジェクト名',
+      analyzedAt: '解析日時',
+      fileCount: '走査したファイル数',
+      gradleRoot: 'Gradle のルート',
+      gitRoot: 'Git のルート',
+    },
+    overview: {
+      language: '言語とバージョン',
+      frameworks: '主要フレームワーク',
+      appPackage: 'アプリのパッケージ名',
+      targets: 'ターゲット',
+    },
+    rationale: 'そう判断した根拠',
+    characteristics: 'プロジェクト構成上の特徴',
+    moduleList: 'モジュール一覧',
+    deviationLabel: '他との違い',
+    deviationLede: '⚑ は、同じ種別の他のモジュールと構成が違う点です。',
+    responsibility: '責務',
+    buildFile: 'ビルドファイル',
+    directoryTree: 'ディレクトリ構造',
+    directoryLede: 'フォルダの行をクリックすると開閉します。',
+    rawTree: 'テキストで見る',
+    legendGroup: 'group',
+    legendRole: 'Role',
+    constraintTag: '制約のみ',
+    legendRank: '重要度（5 段階）',
+    roleUnit: function (n) { return n + ' Role'; },
+    rank: function (n) { return '重要度 ' + n + ' / 5'; },
+    files: function (n) { return n + ' 件'; },
+    constraintOnly: '制約のための Role（gradle() のファイルに検査を足す。ドキュメントには載せない）',
+    layout: '配置パターン',
+    naming: '命名規約',
+    allowed: '書いてよいもの',
+    forbidden: '書いてはいけないもの',
+    examples: '実例ファイル',
+    countLabel: '件数',
+    note: '備考',
+    noGroup: 'group 未記入',
+    excluded: ['パス', '理由'],
+    templates: ['Role', '作るファイル', 'パラメータ', '元にした実例', '理由']
+  };
+  // このページは 2 つの JSON ブロックを持つ。checklist（導入の進み具合）と report（コードベース レポート）。
+  // 描画中のブロックを CURRENT に置き、フィードバックの宛先の頭（scope）と質問 id の頭（prefix）をそこから取る
+  var DOCS = {
+    checklist: { id: 'checklist', scope: 'checklist.', prefix: 'q', dataError: T.dataError, ok: true },
+    report: { id: 'report', scope: 'report.', prefix: 'cq', dataError: T.reportDataError, ok: true }
+  };
+  var DOC_LIST = [DOCS.checklist, DOCS.report];
+  var CURRENT = DOCS.checklist;
+  var ANSWER_FILE = 'katachi-answers.json';
+  var stepNodes = [];
+  var boxes = [];
+
+  // ---- ここから下は 2 つのブロック（チェックリストとレポート）で共有する ----
+
+  // JSON を読めたか。読めていないときは件数を 0 と断言しない
+  var dataOk = true;
+  // doc のブロックとして run を描画する（mount の置き場所・宛先の頭・JSON を読めたか、を切り替える）
+  function inDoc(doc, run) {
+    var saved = CURRENT;
+    CURRENT = doc;
+    dataOk = doc.ok;
+    try {
+      return run();
+    } finally {
+      doc.ok = dataOk;
+      CURRENT = saved;
+      dataOk = saved.ok;
+    }
+  }
+  // そのノードがどのブロックの表示か。レポートの節の中なら report、それ以外は checklist
+  function docOf(node) {
+    var box = node.closest('[data-doc]');
+    return box ? box.getAttribute('data-doc') : 'checklist';
+  }
+
+  // ---- DOM ヘルパ（値は必ず textContent 経由で入れる） ----
+  function el(tag, cls) {
+    var node = document.createElement(tag);
+    if (cls) node.className = cls;
+    return node;
+  }
+  function text(raw) { return document.createTextNode(String(raw)); }
+  function blank(value) {
+    return value == null || value === '' || (Array.isArray(value) && value.length === 0);
+  }
+  function unfilled(key) {
+    var span = el('span', 'todo');
+    span.textContent = T.unfilled + key;
+    return span;
+  }
+  function value(raw, key) {
+    if (blank(raw)) return unfilled(key);
+    return text(raw);
+  }
+  // ISO 8601 の日時（2026-11-10T08:40:00+09:00）を読みやすい形にする。時差はその文字列のまま（変換しない）。それ以外の文字はそのまま
+  function dateValue(raw, key) {
+    if (blank(raw)) return unfilled(key);
+    var m = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::\d{2}(?:\.\d+)?)?(Z|[+-]\d{2}:?\d{2})?$/.exec(String(raw).trim());
+    if (!m) return text(raw);
+    var zone = !m[6] ? '' : m[6] === 'Z' ? 'UTC' : m[6] === '+09:00' || m[6] === '+0900' ? 'JST' : 'UTC' + m[6];
+    var span = el('span');
+    span.textContent = T.dateFormat(m[1], m[2], m[3], m[4], m[5], zone);
+    span.setAttribute('title', String(raw));
+    return span;
+  }
+  // 空白で区切られた ASCII のトークンのうち、パスに見えるものを <code> にする
+  function richText(raw, key) {
+    if (blank(raw)) return unfilled(key);
+    var box = document.createDocumentFragment();
+    String(raw).split(/(\s+)/).forEach(function (token) {
+      if (token.indexOf('/') >= 0 && /^[!-~]+$/.test(token)) {
+        var code = el('code');
+        code.textContent = token;
+        box.appendChild(code);
+      } else {
+        box.appendChild(text(token));
+      }
+    });
+    return box;
+  }
+  // 空でも成立する場所は「なし」、調べていないことを意味する場所は「未記入」
+  function none(label) {
+    var p = el('p', 'empty');
+    p.textContent = dataOk ? (label || T.none) : T.unknown;
+    return p;
+  }
+  function noneInline() {
+    var span = el('span', 'empty');
+    span.textContent = dataOk ? T.none : T.unknown;
+    return span;
+  }
+  function inlineOrNone(values) {
+    if (blank(values)) return noneInline();
+    return text(values.map(String).join(' / '));
+  }
+  function bullets(values, key) {
+    if (blank(values)) return unfilled(key);
+    var ul = el('ul');
+    values.forEach(function (item) {
+      var li = el('li');
+      li.textContent = String(item);
+      ul.appendChild(li);
+    });
+    return ul;
+  }
+  // 「Kotlin 2.2.20（KMP。JVM toolchain 17）」のような 1 文を、括弧の外と、括弧の中の文ごとに分ける
+  function sentenceParts(raw) {
+    if (blank(raw)) return [];
+    var whole = String(raw).trim();
+    var parts;
+    var m = /^([^（(]+?)\s*[（(]([\s\S]*)[）)]\s*$/.exec(whole);
+    if (m) parts = [m[1]].concat(m[2].split(/[。;；]\s*/));
+    else parts = whole.split(/[。;；]\s*/);
+    return parts.map(function (part) { return part.trim(); }).filter(function (part) { return part; });
+  }
+  function bulletsOrNone(values) {
+    if (blank(values)) return none();
+    return bullets(values, '');
+  }
+  function paragraph(node) {
+    var p = el('p');
+    p.appendChild(node);
+    return p;
+  }
+  function subHeading(label) {
+    var node = el('p', 'qa-label');
+    node.textContent = label;
+    return node;
+  }
+  function record(raw) { return raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {}; }
+  function list(raw) { return Array.isArray(raw) ? raw.map(record) : []; }
+  // 配列が空なら「未記入の1件」を出すために、空オブジェクトを1つ返す
+  function entries(raw) {
+    var items = list(raw);
+    return items.length ? items : [{}];
+  }
+  function countOf(raw) { return Array.isArray(raw) ? raw.length : 0; }
+  function countLabel(raw) { return dataOk ? T.count(countOf(raw)) : T.unknown; }
+  function mount(name, nodes) {
+    var host = null;
+    var hosts = document.querySelectorAll('[data-render="' + name + '"]');
+    for (var i = 0; i < hosts.length && !host; i += 1) {
+      if (docOf(hosts[i]) === CURRENT.id) host = hosts[i];
+    }
+    if (!host) return;
+    host.textContent = '';
+    nodes.forEach(function (node) { if (node) host.appendChild(node); });
+  }
+  function button(label, handler, cls) {
+    var node = el('button', 'btn' + (cls ? ' ' + cls : ''));
+    node.type = 'button';
+    node.textContent = label;
+    node.addEventListener('click', handler);
+    return node;
+  }
+  // フィードバックの宛先。key は JSON の場所、label は画面に出す名前
+  function target(node, key, label) {
+    node.setAttribute('data-fb', CURRENT.scope + key);
+    if (label != null) node.setAttribute('data-fb-label', String(label));
+    return node;
+  }
+
+  // ---- 1 行に畳む表示（[data-clamp] の中の .clip がはみ出したら、クリックで開閉） ----
+  function clip(child) {
+    var span = el('span', 'clip');
+    if (child) span.appendChild(child);
+    return span;
+  }
+  function refreshClamps(scope) {
+    var roots = (scope && scope.querySelectorAll ? scope : document).querySelectorAll('[data-clamp]');
+    Array.prototype.forEach.call(roots, function (root) {
+      if (root.classList.contains('is-open')) return;
+      // data-clamp-always は、1 行に収まっていても開ける（開くと箇条書きになるもの）
+      var over = root.hasAttribute('data-clamp-always') || Array.prototype.some.call(root.querySelectorAll('.clip'), function (box) {
+        return box.scrollWidth > box.clientWidth + 1;
+      });
+      root.classList.toggle('is-clampable', over);
+      if (over) {
+        root.setAttribute('tabindex', '0');
+        root.setAttribute('aria-expanded', 'false');
+        root.setAttribute('title', T.clampHint);
+      } else {
+        root.removeAttribute('tabindex');
+        root.removeAttribute('aria-expanded');
+        root.removeAttribute('title');
+      }
+    });
+  }
+  function toggleClamp(root) {
+    var opening = !root.classList.contains('is-open');
+    root.classList.toggle('is-open', opening);
+    root.setAttribute('aria-expanded', opening ? 'true' : 'false');
+    if (!opening) refreshClamps(root.parentNode);
+    schedulePins();
+  }
+  function installClamps() {
+    document.addEventListener('click', function (event) {
+      var root = event.target.closest && event.target.closest('[data-clamp]');
+      if (!root || !(root.classList.contains('is-clampable') || root.classList.contains('is-open'))) return;
+      if (event.target.closest('a, button, input, textarea, select, summary')) return;
+      // 文字を選んでコピーしようとしているときは閉じない
+      var selection = window.getSelection ? String(window.getSelection()) : '';
+      if (selection) return;
+      toggleClamp(root);
+    });
+    document.addEventListener('keydown', function (event) {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      var root = event.target;
+      if (!root.hasAttribute || !root.hasAttribute('data-clamp')) return;
+      if (!(root.classList.contains('is-clampable') || root.classList.contains('is-open'))) return;
+      event.preventDefault();
+      toggleClamp(root);
+    });
+    // 閉じていた <details> が開くと、中の幅がはじめて決まる
+    document.addEventListener('toggle', function (event) {
+      if (event.target.open) refreshClamps(event.target);
+      schedulePins();
+    }, true);
+    var queued = false;
+    addEventListener('resize', function () {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(function () { queued = false; refreshClamps(); schedulePins(); });
+    });
+  }
+
+  // 見出しと値の対。pairs は [見出し, 値のノード, フィードバックの key]
+  function facts(pairs, section) {
+    var dl = el('dl', 'facts');
+    pairs.forEach(function (pair) {
+      if (!pair[1]) return;
+      // pair[3] に箇条書き（<ul>）を渡すと、畳んだときは 1 行、開いたときはその箇条書きを出す
+      var list = pair[3] && pair[3].tagName === 'UL' ? pair[3] : null;
+      var cell = el('div', list ? 'fact fact-list' : 'fact');
+      cell.setAttribute('data-clamp', '');
+      if (list) cell.setAttribute('data-clamp-always', '');
+      if (pair[2]) target(cell, pair[2], pair[0]);
+      var dt = el('dt');
+      dt.textContent = pair[0];
+      var dd = el('dd');
+      dd.appendChild(clip(pair[1]));
+      if (list) { list.classList.add('fact-bullets'); dd.appendChild(list); }
+      cell.appendChild(dt);
+      cell.appendChild(dd);
+      dl.appendChild(cell);
+    });
+    return dl;
+  }
+
+  // 表。widths は列の幅（例 '30%'）。rows は { cells, key, label }。各行は 1 行に畳む。wrapCols の列だけは折り返して全文を出す
+  function tableOf(headers, rows, widths, monoFirst, wrapCols) {
+    var wrap = el('div', 'table-wrap');
+    var table = el('table');
+    var cols = el('colgroup');
+    headers.forEach(function (label, i) {
+      var col = el('col');
+      if (widths && widths[i]) col.style.width = widths[i];
+      cols.appendChild(col);
+    });
+    table.appendChild(cols);
+    var head = el('thead');
+    var headRow = el('tr');
+    headers.forEach(function (label) {
+      var th = el('th');
+      th.textContent = label;
+      th.setAttribute('title', label);
+      headRow.appendChild(th);
+    });
+    head.appendChild(headRow);
+    var body = el('tbody');
+    rows.forEach(function (row) {
+      var tr = el('tr');
+      tr.setAttribute('data-clamp', '');
+      if (row.key) target(tr, row.key, row.label);
+      row.cells.forEach(function (cell, i) {
+        var td = el('td', [monoFirst !== false && i === 0 ? 'mono' : '', wrapCols && wrapCols.indexOf(i) >= 0 ? 'wrap' : ''].join(' ').trim());
+        // row.fields があれば、セルごとにも JSON の場所をフィードバックの宛先にする
+        if (row.key && row.fields && row.fields[i]) target(td, row.key + '.' + row.fields[i], headers[i]);
+        td.appendChild(clip(cell));
+        tr.appendChild(td);
+      });
+      body.appendChild(tr);
+    });
+    table.appendChild(head);
+    table.appendChild(body);
+    wrap.appendChild(table);
+    return wrap;
+  }
+
+  // 文字列をクリップボードへ。だめなら fail を呼ぶ
+  function copyText(value, done, fail) {
+    function fallback() {
+      var box = el('textarea');
+      box.value = value;
+      box.setAttribute('readonly', '');
+      box.style.position = 'fixed';
+      box.style.left = '-9999px';
+      document.body.appendChild(box);
+      box.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (error) { ok = false; }
+      document.body.removeChild(box);
+      if (ok) done(); else fail();
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(value).then(done, fallback);
+    } else {
+      fallback();
+    }
+  }
+  // コピー・保存できたことを短く知らせる。読み上げにも届くよう role="status" の 1 つを使い回す
+  var toastNode = null;
+  var toastTimer = null;
+  // action（{ label, run }）を渡すと「元に戻す」などのボタンを付け、長めに出す
+  function toast(message, isError, action) {
+    if (!toastNode) {
+      // fb-ui: フィードバックモードでも「元に戻す」を押せるように
+      toastNode = el('div', 'toast fb-ui');
+      toastNode.setAttribute('role', 'status');
+      toastNode.setAttribute('aria-live', 'polite');
+      document.body.appendChild(toastNode);
+    }
+    toastNode.textContent = '';
+    toastNode.appendChild(text(message));
+    if (action) {
+      var actionButton = el('button', 'toast-action');
+      actionButton.type = 'button';
+      actionButton.textContent = action.label;
+      actionButton.addEventListener('click', function () {
+        clearTimeout(toastTimer);
+        toastNode.classList.remove('is-shown');
+        action.run();
+      });
+      toastNode.appendChild(actionButton);
+    }
+    toastNode.classList.toggle('has-action', !!action);
+    // フィードバックモードの帯は狭い画面で何行にもなるので、その下に出す
+    var banner = document.querySelector('.fb-banner');
+    var bannerBottom = banner && !banner.hidden ? banner.getBoundingClientRect().bottom : 0;
+    toastNode.style.top = bannerBottom > 0 ? (bannerBottom + 8) + 'px' : '';
+    toastNode.classList.toggle('is-error', isError === true);
+    // 続けて押したときも出し直す
+    toastNode.classList.remove('is-shown');
+    void toastNode.offsetWidth;
+    toastNode.classList.add('is-shown');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastNode.classList.remove('is-shown'); }, action ? 8000 : 2400);
+  }
+  function storageGet(key) {
+    try { return localStorage.getItem(key); } catch (error) { return null; }
+  }
+  function storageSet(key, raw) {
+    try {
+      if (raw == null) localStorage.removeItem(key); else localStorage.setItem(key, raw);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  // ---- 確認事項の回答欄 ----
+  // { id, recommendation, radios, free, card, state, picked }
+  var answerCards = [];
+
+  function questionId(item, index) {
+    return blank(item.id) ? CURRENT.prefix + (index + 1) : String(item.id);
+  }
+  // 入力途中の下書き。localStorage が使えなくても描画は壊さない
+  function draftKey(id) { return location.href.split('#')[0] + '#answer:' + id; }
+  function readDraft(id) {
+    try {
+      var raw = storageGet(draftKey(id));
+      return raw ? record(JSON.parse(raw)) : null;
+    } catch (error) {
+      return null;
+    }
+  }
+  function writeDraft(id, draft) { storageSet(draftKey(id), draft ? JSON.stringify(draft) : null); }
+  // 回答欄の状態。選択肢を選んでいれば自由記入は note、選んでいなければ自由記入が answer
+  function readCard(entry) {
+    var picked = entry.radios.filter(function (radio) { return radio.checked; })[0];
+    var free = entry.free.value.replace(/^\s+|\s+$/g, '');
+    if (picked) return { answer: picked.value, note: free || null };
+    if (free) return { answer: free, note: null };
+    return null;
+  }
+  function fillCard(entry, answer) {
+    var found = false;
+    entry.radios.forEach(function (radio) {
+      radio.checked = !found && radio.value === answer.answer;
+      if (radio.checked) found = true;
+    });
+    var note = blank(answer.note) ? '' : String(answer.note);
+    entry.free.value = found ? note : [answer.answer || '', note].filter(Boolean).join('\n');
+    openFreeIfFilled(entry);
+  }
+  function openFreeIfFilled(entry) {
+    if (entry.freeToggle && entry.free.value.replace(/\s+/g, '') !== '') entry.freeToggle.open = true;
+  }
+  // 推奨の先頭の文字（"B。..."）が選択肢の記号なら、その番号。そうでなければ -1
+  function recommendedIndex(recommendation, count) {
+    var head = blank(recommendation) ? '' : String(recommendation).replace(/^\s+/, '');
+    var match = /^([A-Z])(?![A-Za-z])/.exec(head);
+    var index = match ? match[1].charCodeAt(0) - 65 : -1;
+    return index >= 0 && index < count ? index : -1;
+  }
+  // 推奨の文から、先頭の選択肢の記号と区切りを外す
+  function recommendationReason(recommendation) {
+    return String(recommendation).replace(/^\s*[A-Z](?![A-Za-z])[\s。．.、,:：)）]*/, '');
+  }
+  function unansweredIds() {
+    return answerCards.filter(function (entry) { return !readCard(entry); }).map(function (entry) { return entry.id; });
+  }
+  // ブロックごとに分ける（{ "report": { "answers": { "cq1": … } } }）。回答の無いブロックは入れない
+  function collectAnswers() {
+    var out = {};
+    var now = new Date().toISOString();
+    answerCards.forEach(function (entry) {
+      var current = readCard(entry);
+      if (!current) return;
+      var block = out[entry.doc.id] || (out[entry.doc.id] = { answers: {} });
+      block.answers[entry.id] = { answer: current.answer, note: current.note, answeredAt: now };
+    });
+    return out;
+  }
+  function answersJson() {
+    return JSON.stringify(collectAnswers(), null, 2) + '\n';
+  }
+  // チャットにそのまま貼れる形（1 行目で何の回答か、未回答、JSON）
+  function answersMessage() {
+    var lines = [T.answersIntro];
+    var missing = unansweredIds();
+    if (missing.length) lines.push(T.answersMissing + missing.join(', '));
+    lines.push('', '```json', answersJson().replace(/\n$/, ''), '```');
+    return lines.join('\n') + '\n';
+  }
+  function paintAnswers() {
+    var answered = 0;
+    answerCards.forEach(function (entry) {
+      var current = readCard(entry);
+      entry.card.classList.toggle('is-answered', current !== null);
+      entry.state.className = current ? 'badge badge-success qa-state' : 'badge badge-quiet qa-state';
+      entry.state.textContent = current ? T.answered : T.unanswered;
+      entry.picked.textContent = current ? '→ ' + current.answer + (current.note ? T.withNote : '') : '';
+      entry.radios.forEach(function (radio) { radio.parentNode.classList.toggle('is-checked', radio.checked); });
+      if (entry.importMark) {
+        var changed = changedFromImported(entry);
+        entry.importMark.textContent = changed ? T.importedChanged : T.imported;
+        entry.importMark.className = changed ? 'badge badge-caution' : 'badge badge-note';
+        entry.revert.hidden = !changed;
+      }
+      if (current) answered += 1;
+    });
+    DOC_LIST.forEach(function (doc) {
+      var count = answerCards.filter(function (entry) { return entry.doc === doc && readCard(entry); }).length;
+      inDoc(doc, function () { mount('answeredCount', [text(count ? T.answeredCount(count) : '')]); });
+    });
+    var open = document.getElementById('report-open');
+    if (open) {
+      var left = answerCards.filter(function (entry) { return entry.doc === DOCS.report && !readCard(entry); }).length;
+      open.textContent = left ? T.reportOpen(left) : '';
+      open.hidden = !left;
+    }
+    paintSend();
+  }
+  function sameAnswer(a, b) {
+    if (!a || !b) return !a && !b;
+    var noteA = blank(a.note) ? null : String(a.note);
+    var noteB = blank(b.note) ? null : String(b.note);
+    return String(a.answer) === String(b.answer) && noteA === noteB;
+  }
+  // 取り込み済みの回答から変えたか（entry.baseline は取り込み済みの回答を欄に入れた直後の状態）
+  function changedFromImported(entry) {
+    return !!entry.imported && !sameAnswer(readCard(entry), entry.baseline);
+  }
+  // 取り込み済みの回答から変えたときは、消したことも下書きに残す（再読み込みで取り込み済みに戻らないように）
+  function saveDraft(entry) {
+    var current = readCard(entry);
+    if (!entry.imported) { writeDraft(entry.id, current); return; }
+    writeDraft(entry.id, changedFromImported(entry) ? (current || { cleared: true }) : null);
+  }
+  function emptyCard(entry) {
+    entry.radios.forEach(function (radio) { radio.checked = false; });
+    entry.free.value = '';
+  }
+  function onCardInput(entry) {
+    saveDraft(entry);
+    paintAnswers();
+  }
+  // 推奨が選択肢を指しているときだけ「推奨を採用」できる
+  function canAdopt(entry) {
+    return recommendedIndex(entry.recommendation, entry.radios.length) >= 0;
+  }
+  function adoptRecommendation(entry) {
+    var index = recommendedIndex(entry.recommendation, entry.radios.length);
+    if (index < 0) return;
+    entry.radios[index].checked = true;
+    onCardInput(entry);
+  }
+  // 自分で選んだ回答は上書きしない。まだ答えていない質問だけに入れる
+  function adoptAllRecommendations(doc) {
+    var filled = 0;
+    answerCards.forEach(function (entry) {
+      if (doc && entry.doc !== doc) return;
+      if (readCard(entry) || !canAdopt(entry)) return;
+      adoptRecommendation(entry);
+      filled += 1;
+    });
+    toast(filled ? T.adoptedCount(filled) : T.adoptedNone);
+  }
+  // ---- 渡すもの（回答とフィードバック）を 1 か所からコピーする、画面の下の小さなメニュー。どちらかが 1 つでもあれば出る ----
+  var SENT_KEY = 'katachi-answers-sent:' + location.href.split('#')[0];
+  var send = null;
+  // 回答の中身だけの指紋（時刻を含めない）。前にコピーしたものと同じかを見る
+  function answersSignature() {
+    return JSON.stringify(answerCards.map(function (entry) {
+      var current = readCard(entry);
+      return [entry.id, current ? current.answer : null, current && !blank(current.note) ? String(current.note) : null];
+    }));
+  }
+  // hasAnswers: JSON に取り込み済みのまま変えていない回答は、渡すものに数えない
+  function sendState() {
+    var answered = answerCards.filter(function (entry) { return readCard(entry); }).length;
+    var pristine = answerCards.every(function (entry) {
+      return entry.imported ? !changedFromImported(entry) : !readCard(entry);
+    });
+    var hasAnswers = answered > 0 && !pristine;
+    var answersNew = hasAnswers && storageGet(SENT_KEY) !== answersSignature();
+    var pending = fb.items.filter(function (item) { return !item.copiedAt; });
+    // まだ渡していないものだけを送る。すべて渡し済みなら、全部をもう一度
+    var again = !answersNew && pending.length === 0;
+    return {
+      answered: answered,
+      total: answerCards.length,
+      hasAnswers: hasAnswers,
+      answersNew: answersNew,
+      pending: pending,
+      again: again,
+      withAnswers: hasAnswers && (answersNew || again),
+      feedback: again ? fb.items.slice() : pending
+    };
+  }
+  function sendMessage(state) {
+    var blocks = [];
+    if (state.withAnswers) blocks.push(answersMessage().replace(/\n+$/, ''));
+    if (state.feedback.length) blocks.push(fbMessage(state.feedback).replace(/\n+$/, ''));
+    return blocks.join('\n\n') + '\n';
+  }
+  function sendUi() {
+    if (send) return send;
+    var root = el('section', 'send-bar fb-ui');
+    root.hidden = true;
+    root.setAttribute('aria-label', T.sendLabel);
+    var summary = el('p', 'send-summary');
+    var actions = el('div', 'send-actions');
+    var copy = button(T.sendCopy, sendCopy, 'btn-primary btn-icon btn-copy');
+    var save = button(T.saveAnswers, downloadAnswers);
+    var clear = button(T.sendClear, sendClear, 'btn-quiet');
+    clear.setAttribute('title', T.sendClearTitle);
+    var preview = el('pre', 'send-preview');
+    preview.hidden = true;
+    var peek = button(T.previewLabel, function () {
+      preview.hidden = !preview.hidden;
+      peek.textContent = preview.hidden ? T.previewLabel : T.previewHide;
+      peek.setAttribute('aria-expanded', preview.hidden ? 'false' : 'true');
+    }, 'btn-quiet');
+    peek.setAttribute('aria-expanded', 'false');
+    actions.appendChild(copy);
+    actions.appendChild(save);
+    actions.appendChild(peek);
+    actions.appendChild(clear);
+    var status = el('p', 'send-status');
+    status.setAttribute('role', 'status');
+    var manual = el('textarea', 'answer-manual');
+    manual.setAttribute('readonly', '');
+    manual.setAttribute('aria-label', T.manualLabel);
+    manual.hidden = true;
+    [summary, actions, status, manual, preview].forEach(function (node) { root.appendChild(node); });
+    document.body.appendChild(root);
+    send = { root: root, summary: summary, save: save, status: status, manual: manual, preview: preview, peek: peek };
+    if (window.ResizeObserver) new ResizeObserver(syncSendHeight).observe(root);
+    return send;
+  }
+  // メニューの高さを CSS 変数に入れて、右下の「フィードバック」ボタンと一覧をその上に逃がす
+  function syncSendHeight() {
+    var height = send && !send.root.hidden ? send.root.offsetHeight + 12 : 0;
+    document.documentElement.style.setProperty('--send-h', height + 'px');
+  }
+  function paintSend() {
+    var ui = sendUi();
+    var state = sendState();
+    var n = fb.items.length;
+    var visible = state.hasAnswers || n > 0;
+    // いまコピーに入るもの（フィードバック・確認の回答）を件数で見せる
+    var parts = [];
+    if (n) {
+      parts.push(T.sendFeedback(n) + (state.pending.length === 0 ? T.sendCopiedMark : state.pending.length < n ? T.sendPending(state.pending.length) : ''));
+    }
+    if (state.hasAnswers) parts.push(T.sendAnswers(state.answered) + (state.answersNew ? '' : T.sendCopiedMark));
+    ui.summary.textContent = parts.join(T.sendJoin);
+    ui.save.hidden = !state.hasAnswers;
+    ui.preview.textContent = visible ? sendMessage(state) : '';
+    if (ui.root.hidden === visible) {
+      ui.root.hidden = !visible;
+      if (!visible) {
+        ui.status.textContent = '';
+        ui.manual.hidden = true;
+        if (!ui.preview.hidden) ui.peek.click();
+      }
+    }
+    syncSendHeight();
+  }
+  function setAnswerStatus(message, isError) {
+    var ui = sendUi();
+    ui.status.textContent = message;
+    ui.status.classList.toggle('is-error', isError === true);
+    ui.manual.hidden = true;
+  }
+  // 自動で渡せなかったときは中身をそのまま出して、手で選んでもらう
+  function showManual(content, message) {
+    var ui = sendUi();
+    setAnswerStatus(message, true);
+    ui.manual.value = content;
+    ui.manual.hidden = false;
+    ui.manual.focus();
+    ui.manual.select();
+  }
+  function sendCopy() {
+    var state = sendState();
+    var content = sendMessage(state);
+    copyText(content, function () {
+      if (state.withAnswers) storageSet(SENT_KEY, answersSignature());
+      var now = new Date().toISOString();
+      state.feedback.forEach(function (item) { item.copiedAt = now; });
+      var kept = state.feedback.length ? fbStore() : true;
+      fbPaint();
+      if (!kept) return;
+      // うまくいったことはトーストだけで知らせる（メニューを小さく保つ）。下の行は失敗のときだけ使う
+      setAnswerStatus('');
+      toast(state.again ? T.sendCopiedAgain : T.answersCopied);
+    }, function () {
+      showManual(content, T.copyFailed);
+      toast(T.copyFailedShort, true);
+    });
+  }
+  function downloadAnswers() {
+    var content = answersJson();
+    try {
+      var url = URL.createObjectURL(new Blob([content], { type: 'application/json' }));
+      var a = el('a');
+      a.setAttribute('href', url);
+      a.setAttribute('download', ANSWER_FILE);
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+      storageSet(SENT_KEY, answersSignature());
+      paintSend();
+      setAnswerStatus('');
+      toast(T.answersSaved(ANSWER_FILE));
+    } catch (error) {
+      showManual(content, T.saveFailed);
+    }
+  }
+  // 回答を全部消して、元に戻す関数を返す（消す前の回答と下書きを持っておく）
+  function wipeAnswers(doc) {
+    var cards = answerCards.filter(function (entry) { return !doc || entry.doc === doc; });
+    var before = cards.map(function (entry) {
+      return { entry: entry, answer: readCard(entry), draft: storageGet(draftKey(entry.id)) };
+    });
+    cards.forEach(function (entry) {
+      emptyCard(entry);
+      saveDraft(entry);
+    });
+    return function () {
+      before.forEach(function (saved) {
+        emptyCard(saved.entry);
+        if (saved.answer) fillCard(saved.entry, saved.answer);
+        storageSet(draftKey(saved.entry.id), saved.draft);
+      });
+    };
+  }
+  function clearAnswers(doc) {
+    var restore = wipeAnswers(doc);
+    paintAnswers();
+    toast(T.answersCleared, false, { label: T.undo, run: function () {
+      restore();
+      paintAnswers();
+      toast(T.restored);
+    } });
+  }
+  // メニューの「クリア」: 回答とフィードバックを両方消す。トーストから戻せる
+  function sendClear() {
+    var restoreAnswers = wipeAnswers();
+    var items = fb.items.slice();
+    fb.items = [];
+    fbStore();
+    paintAnswers();
+    fbPaint();
+    toast(T.sendCleared, false, { label: T.undo, run: function () {
+      restoreAnswers();
+      fb.items = items;
+      fbStore();
+      paintAnswers();
+      fbPaint();
+      toast(T.restored);
+    } });
+  }
+
+  function questionCard(item, index, answers) {
+    var id = questionId(item, index);
+    var cardKey = 'questions[id=' + id + ']';
+    var card = target(el('details', 'qa'), cardKey, id);
+    var summary = el('summary');
+    var badge = el('span', 'badge qa-id');
+    badge.textContent = id;
+    var main = el('span', 'qa-main');
+    var title = el('span', 'qa-title');
+    title.appendChild(value(item.question, 'questions[].question'));
+    var picked = el('span', 'qa-picked clip');
+    main.appendChild(title);
+    main.appendChild(picked);
+    var state = el('span', 'badge badge-quiet qa-state');
+    summary.appendChild(badge);
+    summary.appendChild(main);
+    summary.appendChild(state);
+
+    var body = el('div', 'qa-body');
+    var observed = target(el('div', 'qa-observed'), cardKey + '.observed', T.observed);
+    observed.appendChild(subHeading(T.observed));
+    observed.appendChild(paragraph(richText(item.observed, 'questions[].observed')));
+    body.appendChild(observed);
+
+    var entry = { id: id, doc: CURRENT, recommendation: item.recommendation, radios: [], free: null, card: card, state: state, picked: picked };
+    var options = Array.isArray(item.options) ? item.options : [];
+    var recommended = recommendedIndex(item.recommendation, options.length);
+    if (!options.length) {
+      body.appendChild(paragraph(unfilled('questions[].options')));
+    } else {
+      var set = el('fieldset', 'qa-options');
+      var legend = el('legend', 'qa-label');
+      legend.textContent = T.pickOne;
+      set.appendChild(legend);
+      options.forEach(function (option, i) {
+        var label = target(el('label', 'qa-option'), cardKey + '.options[' + i + ']', String.fromCharCode(65 + i));
+        var radio = el('input');
+        radio.type = 'radio';
+        radio.name = 'answer-' + id;
+        radio.id = 'answer-' + id + '-' + i;
+        radio.value = String(option);
+        radio.addEventListener('change', function () { onCardInput(entry); });
+        var key = el('span', 'opt-key');
+        key.textContent = String.fromCharCode(65 + i);
+        var optionText = el('span', 'opt-text');
+        optionText.textContent = String(option);
+        label.appendChild(radio);
+        label.appendChild(key);
+        label.appendChild(optionText);
+        if (i === recommended) {
+          var tag = el('span', 'badge badge-success');
+          tag.textContent = T.recommended;
+          label.appendChild(tag);
+        }
+        set.appendChild(label);
+        entry.radios.push(radio);
+      });
+      body.appendChild(set);
+    }
+
+    var why = target(el('div', 'qa-why'), cardKey + '.recommendation', T.recommendation);
+    if (blank(item.recommendation)) {
+      why.appendChild(subHeading(T.recommendation));
+      why.appendChild(paragraph(unfilled('questions[].recommendation')));
+    } else if (recommended >= 0) {
+      // 「B」だけで理由が無いときは、選択肢の「推奨」の印で足りるので枠を出さない
+      var reason = recommendationReason(item.recommendation);
+      if (reason.replace(/\s+/g, '') !== '') {
+        why.appendChild(subHeading(T.recommendationWhy));
+        why.appendChild(paragraph(richText(reason, '')));
+      }
+    } else {
+      why.appendChild(subHeading(T.recommendation));
+      why.appendChild(paragraph(richText(item.recommendation, '')));
+    }
+    if (why.firstChild) body.appendChild(why);
+
+    var freeBox = el('div');
+    // 補足・自由記入は畳んでおく。中身があるとき・選択肢が無い質問では開く
+    var freeToggle = el('details', 'qa-free');
+    var freeSummary = el('summary', 'qa-label');
+    freeSummary.textContent = T.freeLabel;
+    var free = el('textarea');
+    free.id = 'answer-' + id + '-free';
+    free.setAttribute('aria-label', T.freeLabel);
+    free.setAttribute('placeholder', T.freePlaceholder);
+    free.addEventListener('input', function () { onCardInput(entry); });
+    entry.free = free;
+    entry.freeToggle = freeToggle;
+    freeToggle.open = entry.radios.length === 0;
+    freeToggle.appendChild(freeSummary);
+    freeToggle.appendChild(free);
+    freeBox.appendChild(freeToggle);
+    var tools = el('div', 'toolbar');
+    if (recommended >= 0) {
+      tools.appendChild(button(T.adoptOne, function () { adoptRecommendation(entry); }, 'btn-sm'));
+    }
+    tools.appendChild(button(T.clearOne, function () {
+      emptyCard(entry);
+      onCardInput(entry);
+    }, 'btn-sm btn-quiet'));
+    var revert = button(T.revertOne, function () {
+      emptyCard(entry);
+      fillCard(entry, entry.imported);
+      onCardInput(entry);
+    }, 'btn-sm btn-quiet');
+    revert.hidden = true;
+    entry.revert = revert;
+    tools.appendChild(revert);
+    freeBox.appendChild(tools);
+    body.appendChild(freeBox);
+
+    // JSON に取り込み済みの回答を入れ、そこから変えた下書きがあれば下書きを出す。未回答のカードは開いておく
+    var imported = answers[id] ? record(answers[id]) : null;
+    if (imported) {
+      entry.imported = imported;
+      entry.importMark = el('span', 'badge badge-note');
+      main.appendChild(entry.importMark);
+      fillCard(entry, imported);
+      entry.baseline = readCard(entry);
+    }
+    var draft = readDraft(id);
+    if (draft && draft.cleared === true) {
+      if (imported) emptyCard(entry);
+    } else if (draft && !blank(draft.answer)) {
+      emptyCard(entry);
+      fillCard(entry, draft);
+    }
+    card.open = !readCard(entry);
+    answerCards.push(entry);
+
+    card.appendChild(summary);
+    card.appendChild(body);
+    return card;
+  }
+
+  function renderAnswerActions() {
+    var doc = CURRENT;
+    mount('answerActions', [
+      button(T.adoptAll, function () { adoptAllRecommendations(doc); }, 'btn-sm'),
+      button(T.clearAll, function () { clearAnswers(doc); }, 'btn-sm btn-quiet')
+    ]);
+  }
+
+  function renderQuestions(questions, answers) {
+    answerCards = answerCards.filter(function (entry) { return entry.doc !== CURRENT; });
+    mount('questionCount', [text(countLabel(questions))]);
+    if (!countOf(questions)) {
+      mount('questions', [none()]);
+      mount('answerActions', []);
+      return;
+    }
+    mount('questions', entries(questions).map(function (item, index) {
+      return questionCard(item, index, answers);
+    }));
+    renderAnswerActions();
+    paintAnswers();
+  }
+
+  // ---- フィードバックモード（項目を選んでコメントを書き、まとめてコピーして AI エージェントに渡す） ----
+  var FEEDBACK_KEY = 'katachi-feedback:' + location.href.split('#')[0];
+  // drafts は保存していない書きかけ（宛先の key ごと）。閉じても次に開いたときに戻す
+  var fb = { on: false, items: [], hover: null, editing: null, drafts: {}, ui: {} };
+
+  function fbLoad() {
+    try {
+      var raw = JSON.parse(storageGet(FEEDBACK_KEY) || '[]');
+      return Array.isArray(raw) ? raw.filter(function (item) {
+        return item && typeof item.key === 'string' && typeof item.comment === 'string';
+      }) : [];
+    } catch (error) {
+      return [];
+    }
+  }
+  // 保存できたかを返す。できなければ一覧を開いて警告を出し、トーストでもコピーを促す
+  function fbStore() {
+    if (storageSet(FEEDBACK_KEY, fb.items.length ? JSON.stringify(fb.items) : null)) return true;
+    fbTogglePanel(true);
+    fbStatus(T.fbNoStorage, true);
+    toast(T.fbNoStorage, true);
+    return false;
+  }
+  // 1 件のフィードバックは 1 か所か、Shift + クリックで選んだ複数の場所に付く。複数のときだけ keys / labels を持ち、key はそれをつないだもの（1 件を見分ける名前）
+  var FB_MAX_TARGETS = 20;
+  function fbKeys(item) {
+    return Array.isArray(item.keys) && item.keys.length ? item.keys.map(String) : [item.key];
+  }
+  function fbLabels(item) {
+    var keys = fbKeys(item);
+    return Array.isArray(item.labels) && item.labels.length === keys.length ? item.labels.map(String) : keys.map(function () { return item.label || ''; });
+  }
+  function fbId(keys) { return keys.join(', '); }
+  function fbTitle(labels) {
+    return labels.length > 1 ? labels[0] + T.fbMore(labels.length - 1) : labels[0];
+  }
+  // quotes は文字を選んで書いたときの引用、texts は保存したときのその場所の内容（どちらも宛先と同じ並び）
+  function fbTargetsOf(item) {
+    var labels = fbLabels(item);
+    var quotes = Array.isArray(item.quotes) ? item.quotes : [];
+    var texts = Array.isArray(item.texts) ? item.texts : [];
+    return fbKeys(item).map(function (key, i) {
+      return { key: key, label: labels[i], node: key === 'page' ? null : fbFind(key), quote: quotes[i] || '', text: texts[i] || '' };
+    });
+  }
+  var FB_QUOTE_MAX = 300;
+  var FB_TEXT_MAX = 120;
+  function fbShorten(raw, max) {
+    var flat = String(raw || '').replace(/\s+/g, ' ').replace(/^ | $/g, '');
+    return flat.length > max ? flat.slice(0, max - 1) + '…' : flat;
+  }
+  // その場所に今見えている文。畳んだ <details> の中でも読めるように innerText が空なら textContent
+  function fbNodeText(node) {
+    if (!node) return '';
+    return fbShorten(node.innerText || node.textContent, FB_TEXT_MAX);
+  }
+  // ---- 書きかけ（保存していないコメント）。タブを閉じるまで sessionStorage に残し、再読み込みしても戻す ----
+  var DRAFTS_KEY = 'katachi-feedback-drafts:' + location.href.split('#')[0];
+  function fbLoadDrafts() {
+    try {
+      var raw = JSON.parse(sessionStorage.getItem(DRAFTS_KEY) || '{}');
+      var out = {};
+      Object.keys(raw || {}).forEach(function (key) {
+        var d = raw[key];
+        if (d && typeof d.text === 'string' && Array.isArray(d.targets) && d.targets.length) out[key] = d;
+      });
+      return out;
+    } catch (error) {
+      return {};
+    }
+  }
+  function fbSaveDrafts() {
+    try {
+      if (Object.keys(fb.drafts).length) sessionStorage.setItem(DRAFTS_KEY, JSON.stringify(fb.drafts));
+      else sessionStorage.removeItem(DRAFTS_KEY);
+    } catch (error) { /* 読み書きできなければメモリだけで持つ */ }
+  }
+  // 開いている入力欄の書きかけを持っておく（書き換えるたび）。変えていなければ消す
+  function fbKeepDraft(pop) {
+    if (!pop || !pop.draftKey) return;
+    if (pop.isDirty()) {
+      fb.drafts[pop.draftKey] = {
+        text: pop.area.value,
+        targets: pop.targets.map(function (target) { return { key: target.key, label: target.label, quote: target.quote || '' }; }),
+        originKey: pop.origin ? pop.origin.key : null,
+        at: new Date().toISOString()
+      };
+    } else {
+      delete fb.drafts[pop.draftKey];
+    }
+    fbSaveDrafts();
+  }
+  function fbDropDraft(key) {
+    if (!Object.prototype.hasOwnProperty.call(fb.drafts, key)) return;
+    delete fb.drafts[key];
+    fbSaveDrafts();
+  }
+  function fbDraftTargets(draft) {
+    return draft.targets.map(function (target) {
+      return { key: target.key, label: target.label, quote: target.quote || '', node: target.key === 'page' ? null : fbFind(target.key) };
+    });
+  }
+
+  // ---- 入力欄の位置。ドラッグで動かしたら覚えて、次からはそこに出す ----
+  var POP_POS_KEY = 'katachi-feedback-pop-pos';
+  function fbSavedPos() {
+    try {
+      var pos = JSON.parse(storageGet(POP_POS_KEY) || 'null');
+      return pos && typeof pos.x === 'number' && typeof pos.y === 'number' ? pos : null;
+    } catch (error) {
+      return null;
+    }
+  }
+  function fbFind(key) {
+    var nodes = document.querySelectorAll('[data-fb]');
+    for (var i = 0; i < nodes.length; i += 1) {
+      if (nodes[i].getAttribute('data-fb') === key) return nodes[i];
+    }
+    return null;
+  }
+  // 外側の宛先から順に名前をつなぐ（「4. 要素 › app › ViewModel」）
+  function fbLabel(node) {
+    var parts = [];
+    for (var cur = node; cur && cur !== document.body; cur = cur.parentElement) {
+      if (!cur.hasAttribute('data-fb')) continue;
+      var label = cur.getAttribute('data-fb-label');
+      if (!label && /^H[1-6]$/.test((cur.firstElementChild || {}).tagName || '')) label = cur.firstElementChild.textContent;
+      if (label) parts.unshift(label.replace(/\s+/g, ' ').trim());
+    }
+    return parts.join(' › ') || T.fbWholePage;
+  }
+  function fbStatus(message, isError) {
+    if (!fb.ui.status) return;
+    fb.ui.status.textContent = message;
+    fb.ui.status.classList.toggle('is-error', isError === true);
+  }
+  function fbMessage(items) {
+    var lines = [T.fbIntro(items.length), ''];
+    items.forEach(function (item, i) {
+      var keys = fbKeys(item);
+      var labels = fbLabels(item);
+      lines.push((i + 1) + '. ' + (keys.length > 1 ? fbTitle(labels) : item.label));
+      var targets = fbTargetsOf(item);
+      keys.forEach(function (key, k) {
+        lines.push('   ' + T.fbTargetPrefix + (keys.length > 1 ? T.fbTargetWithLabel(key, labels[k]) : key));
+        // 引用（選んだ文字）があればそれを、無ければ保存したときのその場所の内容を添える
+        if (targets[k].quote) lines.push('   ' + T.fbQuotePrefix + T.fbQuoted(targets[k].quote));
+        else if (targets[k].text) lines.push('   ' + T.fbContentPrefix + T.fbQuoted(targets[k].text));
+      });
+      String(item.comment).split('\n').forEach(function (line) { lines.push('   > ' + line); });
+      lines.push('');
+    });
+    return lines.join('\n');
+  }
+  // 閉じた <details> の中にあるものは、いちばん外の閉じた <details> の見出しに印を付ける
+  function visibleAnchor(node) {
+    var anchor = node;
+    for (var cur = node.parentElement; cur && cur !== document.body; cur = cur.parentElement) {
+      if (cur.tagName === 'DETAILS' && !cur.open) {
+        var summary = cur.querySelector(':scope > summary');
+        if (summary && !summary.contains(node)) anchor = summary;
+      }
+    }
+    return anchor;
+  }
+  var pinsQueued = false;
+  function schedulePins() {
+    if (pinsQueued || !fb.ui.layer) return;
+    pinsQueued = true;
+    requestAnimationFrame(function () { pinsQueued = false; layoutPins(); });
+  }
+  function layoutPins() {
+    var layer = fb.ui.layer;
+    layer.textContent = '';
+    var used = {};
+    fb.items.forEach(function (item, i) { fbTargetsOf(item).forEach(function (target) {
+      var node = target.node;
+      if (!node) return;
+      var anchor = visibleAnchor(node);
+      var rect = anchor.getBoundingClientRect();
+      if (!rect.width && !rect.height) return;
+      var top = Math.round(rect.top + window.pageYOffset) - 9;
+      var left = Math.round(Math.min(rect.right, document.documentElement.clientWidth - 16) + window.pageXOffset) - 14;
+      // 同じ場所に重なる印は少しずつずらす
+      var spot = top + ':' + left;
+      while (used[spot]) { left -= 26; spot = top + ':' + left; }
+      used[spot] = true;
+      var pin = el('button', 'fb-pin fb-ui');
+      pin.type = 'button';
+      pin.textContent = String(i + 1);
+      pin.setAttribute('aria-label', T.fbPinLabel(i + 1, item.label));
+      pin.setAttribute('title', item.comment);
+      pin.style.top = top + 'px';
+      pin.style.left = Math.max(4, left) + 'px';
+      pin.addEventListener('click', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        var pinRect = pin.getBoundingClientRect();
+        fbCompose(fbTargetsOf(item), { x: pinRect.left, y: pinRect.bottom });
+      });
+      layer.appendChild(pin);
+    }); });
+    // 入力欄を開いているあいだは、その宛先を枠で囲む（複数なら番号も）
+    var pop = fb.ui.pop;
+    if (!pop || !pop.targets) return;
+    pop.targets.forEach(function (target, i) {
+      if (!target.node) return;
+      var rect = visibleAnchor(target.node).getBoundingClientRect();
+      if (!rect.width && !rect.height) return;
+      var box = el('div', 'fb-sel');
+      box.style.top = (rect.top + window.pageYOffset - 2) + 'px';
+      box.style.left = (rect.left + window.pageXOffset - 2) + 'px';
+      box.style.width = (rect.width + 4) + 'px';
+      box.style.height = (rect.height + 4) + 'px';
+      if (pop.targets.length > 1) {
+        var order = el('span');
+        order.textContent = String(i + 1);
+        box.appendChild(order);
+      }
+      layer.appendChild(box);
+    });
+  }
+  function fbHighlight(node) {
+    var hl = fb.ui.highlight;
+    if (!node) { hl.hidden = true; fb.hover = null; return; }
+    fb.hover = node;
+    var rect = node.getBoundingClientRect();
+    hl.style.top = (rect.top + window.pageYOffset - 2) + 'px';
+    hl.style.left = (rect.left + window.pageXOffset - 2) + 'px';
+    hl.style.width = (rect.width + 4) + 'px';
+    hl.style.height = (rect.height + 4) + 'px';
+    hl.firstChild.textContent = fbLabel(node);
+    hl.hidden = false;
+  }
+  // keepDraft のときは書きかけを宛先ごとに持っておく（Esc・別の項目を開いたとき）。「やめる」と保存では捨てる
+  function fbClosePop(keepDraft) {
+    var pop = fb.ui.pop;
+    if (pop) {
+      if (keepDraft) fbKeepDraft(pop);
+      else fbDropDraft(pop.draftKey);
+    }
+    if (pop) pop.remove();
+    fb.ui.pop = null;
+    fb.editing = null;
+    if (pop && fb.ui.list) fbPaint();
+    schedulePins();
+  }
+  // point はクリックした位置（画面の座標）。その近くに出す
+  // targets は { node, key, label } の並び。carry は宛先を足し引きして開き直すときの { text, origin, top, left }（書いた文と位置を引き継ぐ）
+  function fbCompose(targets, point, carry) {
+    if (carry) {
+      fb.ui.pop.remove();
+      fb.ui.pop = null;
+      fb.editing = null;
+    } else {
+      fbClosePop(true);
+    }
+    fbHighlight(null);
+    var keys = targets.map(function (target) { return target.key; });
+    var labels = targets.map(function (target) { return target.label; });
+    var key = fbId(keys);
+    var node = (targets.filter(function (target) { return target.node; })[0] || {}).node || null;
+    var draft = !carry && Object.prototype.hasOwnProperty.call(fb.drafts, key) ? fb.drafts[key] : null;
+    var existing = carry ? carry.origin : (fb.items.filter(function (item) { return item.key === key || (draft && item.key === draft.originKey); })[0] || null);
+    var original = existing ? existing.comment : '';
+    var restored = !!draft;
+    // 保存済みのものを開き直したときは、その引用を引き継ぐ（新しく文字を選んだときはそちら）
+    if (existing) {
+      fbTargetsOf(existing).forEach(function (before) {
+        targets.forEach(function (target) { if (!target.quote && target.key === before.key) target.quote = before.quote; });
+      });
+    }
+    // 書きかけに引用があれば、それを宛先に戻す
+    if (draft) {
+      targets.forEach(function (target, i) {
+        if (!target.quote && draft.targets[i] && draft.targets[i].key === target.key) target.quote = draft.targets[i].quote || '';
+      });
+    }
+    fb.editing = key;
+    var pop = el('div', 'fb-pop fb-ui');
+    pop.setAttribute('role', 'dialog');
+    pop.setAttribute('aria-label', T.fbComposeLabel);
+    pop.targets = targets;
+    pop.origin = existing;
+    pop.draftKey = key;
+    // つかんで動かすための帯
+    var grip = el('div', 'fb-pop-grip');
+    grip.setAttribute('title', T.fbDragHint);
+    var gripLabel = el('span', 'fb-pop-grip-label');
+    gripLabel.textContent = T.fbComposeLabel;
+    grip.appendChild(gripLabel);
+    var resetPos = button(T.fbResetPos, function () {
+      storageSet(POP_POS_KEY, null);
+      resetPos.hidden = true;
+      fbPlacePop(pop, null, node, null);
+    }, 'btn-sm btn-quiet fb-pop-reset');
+    resetPos.hidden = !fbSavedPos();
+    grip.appendChild(resetPos);
+    fbDraggable(pop, grip, function () { resetPos.hidden = false; });
+    pop.appendChild(grip);
+    var head = el('div', 'fb-pop-targets');
+    if (targets.length > 1) {
+      var countLine = el('p', 'fb-pop-count');
+      countLine.textContent = T.fbTargetsCount(targets.length);
+      head.appendChild(countLine);
+    }
+    targets.forEach(function (target, i) {
+      var row = el('div', 'fb-pop-row');
+      var names = el('div', 'fb-pop-names');
+      var name = el('p', 'fb-pop-target');
+      if (targets.length > 1) {
+        var order = el('span', 'fb-pop-no');
+        order.textContent = String(i + 1);
+        name.appendChild(order);
+      }
+      name.appendChild(text(target.label));
+      var keyLine = el('p', 'fb-pop-key');
+      keyLine.textContent = target.key;
+      names.appendChild(name);
+      names.appendChild(keyLine);
+      if (target.quote) {
+        var quote = el('p', 'fb-pop-quote');
+        quote.textContent = T.fbQuoted(target.quote);
+        names.appendChild(quote);
+      }
+      row.appendChild(names);
+      if (targets.length > 1) {
+        var remove = button('×', function () {
+          fbRetarget(targets.filter(function (other) { return other !== target; }));
+        }, 'btn-sm btn-quiet fb-pop-remove');
+        remove.setAttribute('aria-label', T.fbRemoveTarget(target.label));
+        remove.setAttribute('title', T.fbRemoveTarget(target.label));
+        row.appendChild(remove);
+      }
+      head.appendChild(row);
+    });
+    var area = el('textarea');
+    area.id = 'fb-comment';
+    area.setAttribute('aria-label', T.fbComposeLabel);
+    area.setAttribute('placeholder', T.fbPlaceholder);
+    area.value = carry ? carry.text : restored ? draft.text : original;
+    pop.area = area;
+    // 文が変わったか、保存済みのものの宛先を変えたら「書きかけ」
+    pop.isDirty = function () {
+      return area.value.replace(/^\s+|\s+$/g, '') !== original.replace(/^\s+|\s+$/g, '') || (existing !== null && existing.key !== key);
+    };
+    area.addEventListener('input', function () { fbKeepDraft(pop); });
+    var actions = el('div', 'fb-pop-actions');
+    function save() {
+      var comment = area.value.replace(/^\s+|\s+$/g, '');
+      // 編集中のもの（宛先を変える前の名前でも）と、同じ宛先のものを入れ替える。場所は元のまま
+      var at = -1;
+      fb.items.forEach(function (item, i) {
+        if (at < 0 && (item.key === key || (existing && item.key === existing.key))) at = i;
+      });
+      fb.items = fb.items.filter(function (item) { return item.key !== key && !(existing && item.key === existing.key); });
+      if (comment) {
+        var entry = { key: key, label: fbTitle(labels), comment: comment, at: new Date().toISOString() };
+        if (keys.length > 1) { entry.keys = keys; entry.labels = labels; }
+        // 保存したときのその場所の内容と、引用（選んだ文字）
+        entry.texts = targets.map(function (target) { return target.node ? fbNodeText(target.node) : ''; });
+        if (targets.some(function (target) { return target.quote; })) entry.quotes = targets.map(function (target) { return target.quote || ''; });
+        if (at >= 0) fb.items.splice(Math.min(fb.items.length, at), 0, entry);
+        else fb.items.push(entry);
+      }
+      var kept = fbStore();
+      fbClosePop(false);
+      fbPaint();
+      // 保存できなかったときの警告を、成功の表示で消さない
+      if (kept) fbStatus(comment ? T.fbSaved : T.fbDeleted);
+    }
+    if (existing) {
+      actions.appendChild(button(T.fbDelete, function () { area.value = ''; save(); }, 'btn-sm btn-quiet fb-delete'));
+    }
+    actions.appendChild(button(T.fbCancel, function () { fbClosePop(false); }, 'btn-sm btn-quiet'));
+    actions.appendChild(button(T.fbSave, save, 'btn-sm btn-primary'));
+    area.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) { event.preventDefault(); save(); }
+      if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); fbClosePop(true); }
+    });
+    pop.appendChild(head);
+    if (keys[0] !== 'page') {
+      var hint = el('p', 'fb-pop-hint');
+      hint.textContent = T.fbPopHint;
+      pop.appendChild(hint);
+    }
+    if (restored) {
+      var note = el('p', 'fb-pop-note');
+      note.textContent = T.fbDraftRestored;
+      pop.appendChild(note);
+    }
+    pop.appendChild(area);
+    pop.appendChild(actions);
+    document.body.appendChild(pop);
+    fb.ui.pop = pop;
+    fbPlacePop(pop, point, node, carry);
+    // focus でページが宛先の下まで飛ばないように
+    area.focus({ preventScroll: true });
+    if (restored || carry) area.setSelectionRange(area.value.length, area.value.length);
+    if (carry) fbKeepDraft(pop);
+    // 一覧に出ている書きかけのうち、いま開いたものを隠す
+    if (fb.ui.list && Object.keys(fb.drafts).length) fbPaint();
+    schedulePins();
+  }
+  // 入力欄を画面の中に収める（上はバナーの下、左右と下は 16px / 8px 空ける）。表示と、覚える位置の両方で使う
+  function fbClampPop(pop, top, left) {
+    var banner = fb.ui.banner;
+    var minTop = (banner && !banner.hidden ? banner.getBoundingClientRect().bottom : 0) + 8;
+    var maxTop = window.innerHeight - pop.offsetHeight - 8;
+    var maxLeft = document.documentElement.clientWidth - pop.offsetWidth - 16;
+    return { top: Math.max(minTop, Math.min(top, maxTop)), left: Math.max(16, Math.min(left, maxLeft)) };
+  }
+  // 画面の中に出す。動かして覚えた位置があればそこ。無ければクリックした位置の下（入らなければ上）、それも無ければ宛先の見えている部分の下（入らなければ上）
+  function fbPlacePop(pop, point, node, carry) {
+    var height = pop.offsetHeight;
+    var viewH = window.innerHeight;
+    var banner = fb.ui.banner;
+    var minTop = (banner && !banner.hidden ? banner.getBoundingClientRect().bottom : 0) + 8;
+    var maxTop = viewH - height - 8;
+    var top;
+    var left;
+    var saved = carry ? null : fbSavedPos();
+    if (carry) {
+      top = carry.top - window.pageYOffset;
+      left = carry.left - window.pageXOffset;
+    } else if (saved) {
+      top = saved.y;
+      left = saved.x;
+    } else if (point) {
+      top = point.y + 12 <= maxTop ? point.y + 12 : point.y - height - 12;
+      left = point.x - 24;
+    } else if (node) {
+      var rect = visibleAnchor(node).getBoundingClientRect();
+      var shownTop = Math.max(rect.top, minTop);
+      var shownBottom = Math.min(rect.bottom, viewH);
+      if (shownBottom < shownTop) shownBottom = shownTop;
+      top = shownBottom + 8 <= maxTop ? shownBottom + 8 : shownTop - height - 8;
+      left = rect.left;
+    } else {
+      top = minTop + 16;
+      left = 16;
+    }
+    var fitted = fbClampPop(pop, top, left);
+    pop.style.top = Math.round(fitted.top + window.pageYOffset) + 'px';
+    pop.style.left = Math.round(fitted.left + window.pageXOffset) + 'px';
+  }
+  // 帯をつかんで動かす。離した位置（画面の座標）を覚える
+  function fbDraggable(pop, grip, onMoved) {
+    var start = null;
+    grip.addEventListener('pointerdown', function (event) {
+      if (event.button !== 0 || event.target.closest('button')) return;
+      event.preventDefault();
+      var rect = pop.getBoundingClientRect();
+      start = { x: event.clientX, y: event.clientY, top: rect.top, left: rect.left };
+      pop.classList.add('is-dragging');
+      if (grip.setPointerCapture) grip.setPointerCapture(event.pointerId);
+    });
+    grip.addEventListener('pointermove', function (event) {
+      if (!start) return;
+      var fitted = fbClampPop(pop, start.top + event.clientY - start.y, start.left + event.clientX - start.x);
+      pop.style.top = Math.round(fitted.top + window.pageYOffset) + 'px';
+      pop.style.left = Math.round(fitted.left + window.pageXOffset) + 'px';
+    });
+    function end() {
+      if (!start) return;
+      start = null;
+      pop.classList.remove('is-dragging');
+      var rect = pop.getBoundingClientRect();
+      storageSet(POP_POS_KEY, JSON.stringify({ x: Math.round(rect.left), y: Math.round(rect.top) }));
+      onMoved();
+    }
+    grip.addEventListener('pointerup', end);
+    grip.addEventListener('pointercancel', end);
+  }
+  // 入力欄を開いたまま宛先を入れ替える。書いた文と位置はそのまま
+  function fbRetarget(targets) {
+    var pop = fb.ui.pop;
+    fbDropDraft(pop.draftKey);
+    fbCompose(targets, null, {
+      text: pop.area.value,
+      origin: pop.origin,
+      top: parseFloat(pop.style.top) || 0,
+      left: parseFloat(pop.style.left) || 0
+    });
+  }
+  // Shift + クリック: 宛先に足す。すでに入っていれば外す
+  // quote があるとき（文字を選んで Shift + クリック）は、すでに入っている宛先でも外さずに引用を差し替える
+  function fbToggleTarget(node, quote) {
+    var pop = fb.ui.pop;
+    var key = node.getAttribute('data-fb');
+    var current = pop.targets.filter(function (target) { return target.key !== 'page'; });
+    var next = current.filter(function (target) { return target.key !== key; });
+    if (next.length < current.length && quote) {
+      next = current.map(function (target) {
+        return target.key === key ? { node: target.node, key: key, label: target.label, quote: quote } : target;
+      });
+    } else if (next.length === current.length) {
+      if (current.length >= FB_MAX_TARGETS) { toast(T.fbMaxTargets(FB_MAX_TARGETS), true); return; }
+      next = current.concat([{ node: node, key: key, label: fbLabel(node), quote: quote || '' }]);
+    }
+    if (!next.length) {
+      if (pop.isDirty()) fbNudgePop(); else fbClosePop(false);
+      return;
+    }
+    fbRetarget(next);
+  }
+  // ページの中で文字が選ばれていれば、その文字（詰めて切ったもの）と、それを含むいちばん内側の宛先
+  function fbSelectionTarget() {
+    var selection = window.getSelection ? window.getSelection() : null;
+    if (!selection || selection.isCollapsed || !selection.rangeCount) return null;
+    var quote = fbShorten(String(selection), FB_QUOTE_MAX);
+    if (!quote) return null;
+    var container = selection.getRangeAt(0).commonAncestorContainer;
+    var host = container.nodeType === 1 ? container : container.parentElement;
+    if (!host || (host.closest && host.closest('.fb-ui'))) return null;
+    var node = host.closest && host.closest('[data-fb]');
+    if (!node) return null;
+    return { node: node, quote: quote };
+  }
+  // 書きかけがあるのに外側をクリックしたときは閉じずに知らせる
+  function fbNudgePop() {
+    var pop = fb.ui.pop;
+    pop.classList.remove('is-nudged');
+    void pop.offsetWidth;
+    pop.classList.add('is-nudged');
+    pop.area.focus({ preventScroll: true });
+    toast(T.fbUnsaved, true);
+  }
+  function fbPaint() {
+    paintSend();
+    var n = fb.items.length;
+    fb.ui.fabCount.textContent = n ? String(n) : '';
+    fb.ui.listButton.textContent = T.fbList(n);
+    var listBox = fb.ui.list;
+    listBox.textContent = '';
+    if (!n) {
+      var empty = el('li', 'fb-empty');
+      empty.textContent = T.fbEmpty;
+      listBox.appendChild(empty);
+    }
+    // 保存していない書きかけ（開いている入力欄のものは除く）も一覧の最後に出す。コピーには入らない
+    var openKey = fb.ui.pop ? fb.ui.pop.draftKey : null;
+    var draftRows = [];
+    var savedKeys = {};
+    fb.items.forEach(function (item) { savedKeys[item.key] = true; });
+    Object.keys(fb.drafts).forEach(function (key) {
+      if (key === openKey) return;
+      var draft = fb.drafts[key];
+      var li = el('li', 'fb-draft');
+      var head = el('div', 'fb-item-head');
+      var mark = el('span', 'badge badge-caution');
+      mark.textContent = T.fbDraftMark;
+      var name = el('span', 'fb-item-target');
+      name.textContent = fbTitle(draft.targets.map(function (target) { return target.label; }));
+      head.appendChild(mark);
+      head.appendChild(name);
+      var keyLine = el('p', 'fb-item-key');
+      keyLine.textContent = draft.targets.map(function (target) { return target.key; }).join('\n');
+      var body = el('p', 'fb-item-text');
+      body.textContent = draft.text;
+      var actions = el('div', 'fb-item-actions');
+      actions.appendChild(button(T.fbDraftResume, function () {
+        var targets = fbDraftTargets(draft);
+        targets.forEach(function (target) { if (target.node) openAncestors(target.node); });
+        var first = targets.filter(function (target) { return target.node; })[0];
+        if (first) first.node.scrollIntoView({ block: 'center' });
+        if (!fb.on) fbToggle(true);
+        fbCompose(targets);
+      }, 'btn-sm btn-quiet'));
+      actions.appendChild(button(T.fbDraftDiscard, function () {
+        var kept = draft;
+        fbDropDraft(key);
+        fbPaint();
+        toast(T.fbDraftDiscarded, false, { label: T.undo, run: function () {
+          fb.drafts[key] = kept;
+          fbSaveDrafts();
+          fbPaint();
+        } });
+      }, 'btn-sm btn-quiet'));
+      li.appendChild(head);
+      li.appendChild(keyLine);
+      li.appendChild(body);
+      li.appendChild(actions);
+      if (savedKeys[key] || (draft.originKey && savedKeys[draft.originKey])) li.classList.add('is-edit');
+      draftRows.push(li);
+    });
+    var copiedCount = fb.items.filter(function (item) { return item.copiedAt; }).length;
+    fb.ui.clearCopied.hidden = copiedCount === 0;
+    fb.ui.clearCopied.textContent = T.fbClearCopied(copiedCount);
+    fb.items.forEach(function (item, i) {
+      var li = el('li');
+      var head = el('div', 'fb-item-head');
+      var num = el('span', 'badge badge-note');
+      num.textContent = String(i + 1);
+      var name = el('span', 'fb-item-target');
+      name.textContent = item.label;
+      head.appendChild(num);
+      head.appendChild(name);
+      var targets = fbTargetsOf(item);
+      var found = targets.filter(function (target) { return target.node; });
+      var node = found.length ? found[0].node : null;
+      if (item.copiedAt) {
+        var copied = el('span', 'badge badge-quiet');
+        copied.textContent = T.fbCopiedMark;
+        head.appendChild(copied);
+        li.classList.add('is-copied');
+      }
+      // 宛先が JSON から消えたもの（直った・名前が変わった）
+      if (item.key !== 'page' && found.length < targets.length) {
+        var missing = el('span', 'badge badge-caution');
+        missing.textContent = T.fbMissing;
+        missing.setAttribute('title', T.fbMissingHint);
+        head.appendChild(missing);
+      }
+      var key = el('p', 'fb-item-key');
+      key.textContent = fbKeys(item).join('\n');
+      var quotes = targets.filter(function (target) { return target.quote; });
+      var body = el('p', 'fb-item-text');
+      body.textContent = item.comment;
+      var actions = el('div', 'fb-item-actions');
+      if (node) {
+        actions.appendChild(button(T.fbShow, function () {
+          openAncestors(node);
+          node.scrollIntoView({ block: 'center' });
+          if (!fb.on) fbToggle(true);
+          setTimeout(function () { fbHighlight(node); }, 50);
+        }, 'btn-sm btn-quiet'));
+      }
+      actions.appendChild(button(T.fbEdit, function () {
+        found.forEach(function (target) { openAncestors(target.node); });
+        if (node) node.scrollIntoView({ block: 'center' });
+        fbCompose(targets);
+      }, 'btn-sm btn-quiet'));
+      actions.appendChild(button(T.fbDelete, function () {
+        fbRemove(function (other) { return other.key !== item.key; }, T.fbDeleted);
+      }, 'btn-sm btn-quiet'));
+      li.appendChild(head);
+      li.appendChild(key);
+      quotes.forEach(function (target) {
+        var quote = el('p', 'fb-pop-quote');
+        quote.textContent = T.fbQuoted(target.quote);
+        li.appendChild(quote);
+      });
+      li.appendChild(body);
+      li.appendChild(actions);
+      listBox.appendChild(li);
+    });
+    draftRows.forEach(function (row) { listBox.appendChild(row); });
+    if (draftRows.length && !n) listBox.removeChild(listBox.firstChild);
+    schedulePins();
+  }
+  function openAncestors(node) {
+    for (var cur = node.parentElement; cur; cur = cur.parentElement) {
+      if (cur.tagName === 'DETAILS') cur.open = true;
+    }
+  }
+  function fbToggle(on) {
+    fb.on = on;
+    document.body.classList.toggle('fb-mode', on);
+    fb.ui.fab.setAttribute('aria-pressed', on ? 'true' : 'false');
+    fb.ui.banner.hidden = !on;
+    if (!on) { fbHighlight(null); fbClosePop(true); }
+    syncBannerHeight();
+    schedulePins();
+  }
+  // 帯は狭い画面で何行にもなるので、実際の高さを CSS 変数に入れて、上に貼り付くものの位置に使う
+  function syncBannerHeight() {
+    var banner = fb.ui.banner;
+    var height = banner && !banner.hidden ? banner.offsetHeight : 0;
+    document.documentElement.style.setProperty('--fb-banner-h', height + 'px');
+  }
+  // 消したものを戻せるようにトーストで「元に戻す」を出す
+  function fbRemove(keep, message) {
+    var before = fb.items.slice();
+    fb.items = fb.items.filter(keep);
+    var kept = fbStore();
+    fbPaint();
+    if (!kept) return;
+    fbStatus(message);
+    toast(message, false, { label: T.undo, run: function () {
+      fb.items = before;
+      var restoredKept = fbStore();
+      fbPaint();
+      if (restoredKept) fbStatus(T.restored);
+    } });
+  }
+  function fbTogglePanel(open) {
+    var panel = fb.ui.panel;
+    panel.hidden = open === undefined ? !panel.hidden : !open;
+  }
+  function installFeedback() {
+    fb.items = fbLoad();
+    fb.drafts = fbLoadDrafts();
+    var layer = el('div', 'fb-layer');
+    var highlight = el('div', 'fb-hl');
+    highlight.hidden = true;
+    highlight.appendChild(el('span'));
+    var fab = el('button', 'fb-fab btn-icon fb-ui');
+    fab.type = 'button';
+    fab.setAttribute('aria-pressed', 'false');
+    fab.appendChild(text(T.fbFab));
+    var fabCount = el('span', 'badge');
+    fab.appendChild(fabCount);
+    fab.addEventListener('click', function () { fbToggle(!fb.on); });
+
+    var banner = el('div', 'fb-banner fb-ui');
+    banner.hidden = true;
+    var bannerText = el('p');
+    bannerText.textContent = T.fbBanner;
+    var listButton = button(T.fbList(0), function () { fbTogglePanel(); }, 'btn-sm');
+    banner.appendChild(bannerText);
+    banner.appendChild(button(T.fbWholePageButton, function () { fbCompose([{ node: null, key: 'page', label: T.fbWholePage }]); }, 'btn-sm'));
+    banner.appendChild(listButton);
+    banner.appendChild(button(T.fbExit, function () { fbToggle(false); }, 'btn-sm'));
+
+    var panel = el('section', 'fb-panel fb-ui');
+    panel.hidden = true;
+    panel.setAttribute('aria-label', T.fbPanelLabel);
+    var panelHead = el('div', 'fb-panel-head');
+    var panelTitle = el('p');
+    panelTitle.textContent = T.fbPanelLabel;
+    panelHead.appendChild(panelTitle);
+    panelHead.appendChild(button(T.fbClose, function () { fbTogglePanel(false); }, 'btn-sm btn-quiet'));
+    var listBox = el('ol', 'fb-list');
+    var foot = el('div', 'fb-panel-foot');
+    var clearCopied = button(T.fbClearCopied(0), function () {
+      fbRemove(function (item) { return !item.copiedAt; }, T.fbCopiedCleared);
+    }, 'btn-sm btn-quiet');
+    foot.appendChild(clearCopied);
+    foot.appendChild(button(T.fbClearAll, function () {
+      if (!fb.items.length) return;
+      fbRemove(function () { return false; }, T.fbCleared);
+    }, 'btn-sm btn-quiet'));
+    var status = el('p', 'fb-status');
+    status.setAttribute('role', 'status');
+    foot.appendChild(status);
+    panel.appendChild(panelHead);
+    panel.appendChild(listBox);
+    panel.appendChild(foot);
+
+    [layer, highlight, banner, panel, fab].forEach(function (node) { document.body.appendChild(node); });
+    fb.ui = { layer: layer, highlight: highlight, fab: fab, fabCount: fabCount, banner: banner, listButton: listButton, panel: panel, list: listBox, status: status, clearCopied: clearCopied, pop: null };
+
+    function inUi(node) { return node.closest && node.closest('.fb-ui'); }
+    document.addEventListener('mousemove', function (event) {
+      // 入力欄を開いているあいだは、Shift を押しているときだけ次に足す項目を示す
+      if (!fb.on) return;
+      if (fb.ui.pop && !event.shiftKey) { if (fb.hover) fbHighlight(null); return; }
+      var node = inUi(event.target) ? null : event.target.closest && event.target.closest('[data-fb]');
+      if (node !== fb.hover) fbHighlight(node);
+    }, true);
+    // Shift + クリックで文字の選択が広がったり、入力欄からフォーカスが外れたりしないように
+    document.addEventListener('mousedown', function (event) {
+      if (fb.on && event.shiftKey && !inUi(event.target)) event.preventDefault();
+    }, true);
+    document.addEventListener('keyup', function (event) {
+      if (event.key === 'Shift' && fb.ui.pop && fb.hover) fbHighlight(null);
+    });
+    document.addEventListener('click', function (event) {
+      if (!fb.on || inUi(event.target)) return;
+      // 開閉の矢印だけは、モードの中でも開閉として通す
+      if (!fb.ui.pop && event.target.closest && event.target.closest('summary > .tw')) return;
+      // モードの中では、開閉や入力より先にフィードバックの宛先として受け取る
+      event.preventDefault();
+      event.stopPropagation();
+      var node = event.target.closest && event.target.closest('[data-fb]');
+      // 文字をドラッグで選んでいたら、選んだ文字を引用にして、それを含むいちばん内側の宛先に書く
+      // 選んだ文字と関係のない場所をクリックしたとき（前の選択が残っているだけ）は、選択を使わない
+      var picked = fbSelectionTarget();
+      if (picked && !(picked.node.contains(event.target) || event.target.contains(picked.node))) picked = null;
+      var quote = '';
+      if (picked) { node = picked.node; quote = picked.quote; }
+      if (fb.ui.pop) {
+        if (event.shiftKey && node) fbToggleTarget(node, quote);
+        else if (fb.ui.pop.isDirty()) fbNudgePop();
+        else if (picked) fbCompose([{ node: node, key: node.getAttribute('data-fb'), label: fbLabel(node), quote: quote }], { x: event.clientX, y: event.clientY });
+        else fbClosePop(false);
+        return;
+      }
+      if (!node) return;
+      fbCompose([{ node: node, key: node.getAttribute('data-fb'), label: fbLabel(node), quote: quote }], { x: event.clientX, y: event.clientY });
+    }, true);
+    document.addEventListener('keydown', function (event) {
+      if (event.key !== 'Escape' || !fb.on) return;
+      if (fb.ui.pop) fbClosePop(true); else fbToggle(false);
+    });
+    if (window.ResizeObserver) {
+      new ResizeObserver(schedulePins).observe(document.body);
+      new ResizeObserver(syncBannerHeight).observe(banner);
+    }
+    fbPaint();
+  }
+
+  // ---- 印刷のときは畳んだものを開く ----
+  function openWhilePrinting() {
+    var saved = null;
+    addEventListener('beforeprint', function () {
+      var boxes = Array.prototype.slice.call(document.querySelectorAll('details'));
+      saved = boxes.map(function (box) { return [box, box.open]; });
+      boxes.forEach(function (box) { box.open = true; });
+    });
+    addEventListener('afterprint', function () {
+      if (!saved) return;
+      saved.forEach(function (pair) { pair[0].open = pair[1]; });
+      saved = null;
+    });
+  }
+
+  function renderError(message) {
+    var box = el('div', 'aside aside-danger');
+    var title = el('p', 'aside-title');
+    title.textContent = CURRENT.dataError;
+    var detail = el('p');
+    detail.textContent = message;
+    box.appendChild(title);
+    box.appendChild(detail);
+    mount('error', [box]);
+  }
+  // ここまでレポートとチェックリストで同じ
+
+  // ---- ステップ ----
+  function itemRow(item, index, stepKey) {
+    var id = 'item-' + (blank(item.id) ? 'x' + index : String(item.id));
+    var li = target(el('li'), stepKey + '.items[' + (blank(item.id) ? index : 'id=' + item.id) + ']', blank(item.id) ? String(index + 1) : String(item.id));
+    var label = el('label');
+    label.setAttribute('for', id);
+    var box = el('input');
+    box.type = 'checkbox';
+    box.id = id;
+    box.setAttribute('data-item', blank(item.id) ? '' : String(item.id));
+    box.checked = item.done === true;
+    var body = el('span', 'item');
+    if (!blank(item.id)) {
+      var tag = el('span', 'item-id');
+      tag.textContent = String(item.id);
+      body.appendChild(tag);
+    }
+    body.appendChild(value(item.label, 'steps[].items[].label'));
+    label.appendChild(box);
+    label.appendChild(body);
+    li.appendChild(label);
+    boxes.push(box);
+    return li;
+  }
+  function stepBlock(step, index) {
+    var id = blank(step.id) ? String(index) : String(step.id);
+    var key = 'steps[' + (blank(step.id) ? index : 'id=' + step.id) + ']';
+    var box = target(el('details', 'step'), key, blank(step.title) ? id : id + '. ' + step.title);
+    box.setAttribute('data-step', id);
+    if (step.optional === true) box.classList.add('is-optional');
+
+    var summary = el('summary');
+    var num = el('span', 'step-num');
+    num.setAttribute('aria-hidden', 'true');
+    num.textContent = id;
+    var title = el('span', 'step-title');
+    title.appendChild(value(step.title, 'steps[].title'));
+    var state = el('span', 'badge step-state');
+    // 手順 1 で埋めるのは、このページの下のコードベース レポート
+    // 畳んでいても見えるように見出しの行に置く。summary の中のリンクは押しても開閉しない
+    if (id === '1') {
+      var jump = el('a', 'btn btn-sm step-link');
+      jump.setAttribute('href', '#codebase-report');
+      jump.textContent = T.reportLinkStep;
+      title.appendChild(jump);
+    }
+    summary.appendChild(num);
+    summary.appendChild(title);
+    summary.appendChild(state);
+
+    var body = el('div', 'step-body');
+    if (!blank(step.warning)) {
+      var warning = target(el('div', 'aside aside-caution step-warning'), key + '.warning', T.warningLabel);
+      var warningText = el('p', 'aside-title');
+      warningText.textContent = String(step.warning);
+      warning.appendChild(warningText);
+      body.appendChild(warning);
+    }
+    var items = el('ul', 'checklist');
+    list(step.items).forEach(function (item, i) { items.appendChild(itemRow(item, i, key)); });
+    body.appendChild(items);
+
+    box.appendChild(summary);
+    box.appendChild(body);
+    stepNodes.push(box);
+    return box;
+  }
+  function renderSteps(steps) {
+    stepNodes = [];
+    boxes = [];
+    var items = list(steps);
+    if (!items.length) {
+      mount('steps', [paragraph(unfilled('steps'))]);
+      return;
+    }
+    mount('steps', items.map(stepBlock));
+  }
+
+  // ---- 進捗と3つの状態 ----
+  function checkedIn(nodes) {
+    return nodes.filter(function (box) { return box.checked; }).length;
+  }
+  function boxesIn(step) {
+    return Array.prototype.slice.call(step.querySelectorAll('input[type="checkbox"]'));
+  }
+  function warned(step) { return step.querySelector('.step-warning') !== null; }
+  function optional(step) { return step.classList.contains('is-optional'); }
+  function paint() {
+    var warnings = 0;
+    var optDone = 0;
+    var optTotal = 0;
+    stepNodes.forEach(function (step) {
+      var nodes = boxesIn(step);
+      var done = checkedIn(nodes);
+      var complete = nodes.length > 0 && done === nodes.length;
+      var hasWarning = warned(step);
+      if (hasWarning) warnings += 1;
+      if (optional(step)) { optDone += done; optTotal += nodes.length; }
+      step.classList.toggle('is-done', complete);
+      step.classList.toggle('has-warning', hasWarning);
+      var chip = step.querySelector('.step-state');
+      if (!chip) return;
+      chip.className = 'badge step-state';
+      if (complete && hasWarning) { chip.textContent = T.stepDoneWarning; chip.classList.add('badge-caution'); }
+      else if (complete) { chip.textContent = T.stepDone; chip.classList.add('badge-success'); }
+      else if (optional(step) && done === 0) { chip.textContent = T.stepOptional; chip.classList.add('badge-quiet'); }
+      else chip.textContent = done + ' / ' + nodes.length;
+    });
+
+    var total = boxes.length - optTotal;
+    var done = checkedIn(boxes) - optDone;
+    var pct = total === 0 ? 0 : Math.round((done / total) * 100);
+    var line = document.getElementById('progress-text');
+    line.textContent = T.progress(done, total, pct);
+    if (optTotal > 0) {
+      var opt = el('span');
+      opt.textContent = T.progressOptional(optDone, optTotal);
+      line.appendChild(opt);
+    }
+    if (warnings > 0) {
+      var note = el('span', 'progress-warn');
+      note.textContent = T.progressWarnings(warnings);
+      line.appendChild(note);
+    }
+    document.getElementById('progress-fill').style.width = pct + '%';
+  }
+  // 読み込み時にだけ判定する。完了かつ警告なしのステップだけ閉じる
+  function foldFinishedSteps() {
+    stepNodes.forEach(function (step) {
+      var nodes = boxesIn(step);
+      var done = checkedIn(nodes);
+      var complete = nodes.length > 0 && done === nodes.length;
+      // 任意のステップは、手を付けていなければ畳んでおく
+      if (optional(step) && done === 0) { step.open = false; return; }
+      step.open = !complete || warned(step);
+    });
+  }
+
+  // ---- ステップ以降の3セクション ----
+  function renderMeta(meta) {
+    mount('meta', [facts(T.meta.map(function (spec) {
+      var show = spec[0] === 'ranAt' ? dateValue : value;
+      return [spec[1], show(meta[spec[0]], 'meta.' + spec[0]), 'meta.' + spec[0]];
+    }))]);
+  }
+
+  // 書き方の方針。key / 問い / 推奨（null は「検出」で、推奨との比較をしない）
+  function renderPreferences(preferences) {
+    var known = T.preferences.map(function (spec) { return spec[0]; });
+    var extra = Object.keys(preferences).filter(function (key) { return known.indexOf(key) < 0; });
+    var specs = T.preferences.concat(extra.map(function (key) { return [key, '', null]; }));
+    var differs = [];
+    var rows = specs.map(function (spec, index) {
+      var key = spec[0];
+      var raw = preferences[key];
+      var recorded = !blank(raw);
+      var valueCell = el('span');
+      if (recorded) {
+        valueCell.textContent = String(raw);
+      } else {
+        var muted = el('span', 'empty');
+        muted.textContent = spec[2] === null ? T.prefNotRecordedDetected : T.prefNotRecordedDefault;
+        valueCell.appendChild(muted);
+      }
+      if (recorded && spec[2] !== null && String(raw) !== spec[2]) {
+        differs.push(index);
+        var mark = el('span', 'pref-mark');
+        mark.textContent = T.prefDiffers;
+        valueCell.appendChild(mark);
+      }
+      return {
+        key: 'preferences.' + key,
+        label: spec[1] || key,
+        cells: [text(key), text(spec[1]), valueCell, text(spec[2] === null ? T.prefDetected : spec[2])]
+      };
+    });
+    var table = tableOf(T.prefHeaders, rows, ['22%', '38%', '24%', '16%']);
+    var trs = table.querySelectorAll('tbody tr');
+    differs.forEach(function (index) { trs[index].classList.add('pref-differs'); });
+    mount('preferences', [table]);
+  }
+
+  function renderViolations(violations) {
+    mount('violationCount', [text(countLabel(violations))]);
+    if (!countOf(violations)) { mount('violations', [none(T.allGreen)]); return; }
+    var rows = entries(violations).map(function (item, i) {
+      return {
+        key: 'violations[' + i + ']',
+        label: blank(item.violation) ? String(i + 1) : String(item.violation),
+        cells: [
+          value(item.violation, 'violations[].violation'),
+          value(item.location, 'violations[].location'),
+          value(item.whyNotFixed, 'violations[].whyNotFixed'),
+          value(item.suggestion, 'violations[].suggestion')
+        ],
+        fields: ['violation', 'location', 'whyNotFixed', 'suggestion']
+      };
+    });
+    // 違反の文は読めないと困るので、その列だけ折り返す
+    mount('violations', [tableOf(T.violationHeaders, rows, ['25%', '25%', '25%', '25%'], false, [0])]);
+  }
+
+  function renderChangedFiles(changed) {
+    mount('changedCount', [text(countLabel(changed))]);
+    if (!countOf(changed)) { mount('changedFiles', [none()]); return; }
+    var rows = entries(changed).map(function (item, i) {
+      return {
+        key: blank(item.path) ? 'changedFiles[' + i + ']' : 'changedFiles[path=' + item.path + ']',
+        label: blank(item.path) ? String(i + 1) : String(item.path),
+        cells: [
+          value(item.path, 'changedFiles[].path'),
+          value(item.change, 'changedFiles[].change'),
+          value(item.summary, 'changedFiles[].summary')
+        ],
+        fields: ['path', 'change', 'summary']
+      };
+    });
+    mount('changedFiles', [tableOf(T.changedHeaders, rows, ['40%', '16%', '44%'])]);
+  }
+
+  // ---- コードベース レポートの組み立て ----
+  function renderReportMeta(meta) {
+    mount('meta', [facts([
+      [T.reportMeta.projectName, value(meta.projectName, 'meta.projectName'), 'meta.projectName'],
+      [T.reportMeta.analyzedAt, dateValue(meta.analyzedAt, 'meta.analyzedAt'), 'meta.analyzedAt'],
+      [T.reportMeta.fileCount, value(meta.fileCount, 'meta.fileCount'), 'meta.fileCount'],
+      [T.reportMeta.gradleRoot, value(meta.gradleRoot, 'meta.gradleRoot'), 'meta.gradleRoot'],
+      [T.reportMeta.gitRoot, value(meta.gitRoot, 'meta.gitRoot'), 'meta.gitRoot']
+    ])]);
+  }
+
+  function renderOverview(overview) {
+    mount('overview', [facts([
+      [T.overview.language, value(overview.language, 'overview.language'), 'overview.language', listWhenOpen(sentenceParts(overview.language), null)],
+      [T.overview.frameworks, inlineOrNone(overview.frameworks), 'overview.frameworks', listWhenOpen(overview.frameworks, 'overview.frameworks')],
+      [T.overview.appPackage, value(overview.appPackage, 'overview.appPackage'), 'overview.appPackage'],
+      [T.overview.targets, inlineOrNone(overview.targets), 'overview.targets', listWhenOpen(overview.targets, 'overview.targets')]
+    ])]);
+  }
+
+  // 開いたときに出す箇条書き。2 個以上のときだけ。key があれば各行をフィードバックの宛先にする
+  function listWhenOpen(values, key) {
+    if (blank(values) || values.length < 2) return null;
+    var list = bullets(values, '');
+    return key ? targetBullets(list, key) : list;
+  }
+
+  function folded(label, bodyNode, key) {
+    var box = el('details', 'ask tree');
+    if (key) target(box, key, label);
+    var head = el('summary');
+    head.appendChild(el('span', 'tw'));
+    head.appendChild(text(label));
+    var body = el('div', 'ask-body');
+    body.appendChild(bodyNode);
+    box.appendChild(head);
+    box.appendChild(body);
+    return box;
+  }
+  // 箇条書きの 1 行ずつをフィードバックの宛先にする
+  function targetBullets(listNode, key) {
+    if (!listNode || listNode.tagName !== 'UL') return listNode;
+    Array.prototype.forEach.call(listNode.children, function (li, i) { target(li, key + '[' + i + ']', String(i + 1)); });
+    return listNode;
+  }
+
+  function renderArchitecture(architecture) {
+    var name = target(el('p', 'arch-name'), 'architecture.name', null);
+    name.appendChild(value(architecture.name, 'architecture.name'));
+    mount('architecture', [
+      name,
+      folded(T.rationale, targetBullets(bullets(architecture.rationale, 'architecture.rationale'), 'architecture.rationale'), 'architecture.rationale'),
+      folded(T.characteristics, targetBullets(bulletsOrNone(architecture.characteristics), 'architecture.characteristics'), 'architecture.characteristics')
+    ]);
+  }
+
+  // modules[].path を "/" で割って木にする。親は持たず、パスから導く
+  function buildModuleTree(modules) {
+    var root = { name: '', module: null, order: [] };
+    list(modules).forEach(function (module) {
+      var segments = blank(module.path) ? ['?'] : String(module.path).split('/').filter(Boolean);
+      var node = root;
+      segments.forEach(function (segment) {
+        var next = node.order.filter(function (child) { return child.name === segment; })[0];
+        if (!next) {
+          next = { name: segment, module: null, order: [] };
+          node.order.push(next);
+        }
+        node = next;
+      });
+      // 同じ path が 2 回あれば後勝ち。記入漏れの path は "?" にまとめる
+      node.module = module;
+    });
+    return root.order;
+  }
+  function hasDeviation(node) {
+    if (node.module && !blank(node.module.deviation)) return true;
+    return node.order.some(hasDeviation);
+  }
+  function moduleNode(node, depth) {
+    var module = node.module;
+    var hasBody = module || node.order.length;
+    var box = el(hasBody ? 'details' : 'div', 'module-node');
+    if (module) target(box, 'modules[path=' + (blank(module.path) ? '?' : module.path) + ']', node.name);
+    var row = el(hasBody ? 'summary' : 'div', 'tree-row module-row');
+    row.appendChild(el('span', 'tw'));
+    row.appendChild(el('span', 'ti ' + (module ? 'ti-module' : 'ti-folder')));
+    var line = el('span', 'module-line');
+    row.appendChild(line);
+    var name = el('span', 't-name');
+    name.textContent = node.name;
+    line.appendChild(name);
+    if (module) {
+      var kind = el('span', 'badge');
+      kind.appendChild(value(module.kind, 'modules[].kind'));
+      line.appendChild(kind);
+      if (!blank(module.deviation)) {
+        var flag = target(el('span', 'deviation'), 'modules[path=' + (blank(module.path) ? '?' : module.path) + '].deviation', T.deviationLabel);
+        flag.textContent = String(module.deviation);
+        line.appendChild(flag);
+      }
+    }
+    box.appendChild(row);
+    if (!hasBody) return box;
+
+    var body = el('div', 'tree-children');
+    if (module) {
+      var fields = el('dl', 'fields module-body');
+      var moduleKey = 'modules[path=' + (blank(module.path) ? '?' : module.path) + ']';
+      [[T.responsibility, value(module.responsibility, 'modules[].responsibility'), 'responsibility'],
+       [T.buildFile, value(module.buildFile, 'modules[].buildFile'), 'buildFile']].forEach(function (pair) {
+        var dt = el('dt');
+        dt.textContent = pair[0];
+        var dd = target(el('dd'), moduleKey + '.' + pair[2], pair[0]);
+        dd.appendChild(pair[1]);
+        fields.appendChild(dt);
+        fields.appendChild(dd);
+      });
+      body.appendChild(fields);
+    }
+    node.order.forEach(function (child) { body.appendChild(moduleNode(child, depth + 1)); });
+    box.appendChild(body);
+    // 最初は 2 階層まで開く。deviation を含む枝は深さに関わらず開く
+    box.open = depth < 1 || hasDeviation(node);
+    return box;
+  }
+
+  // ディレクトリ構造の文字列を木にする。字下げ（空白・タブ・│├└─）の深さで親子を決める
+  function parseDirectoryTree(raw) {
+    var root = { name: '', note: '', indent: -1, children: [] };
+    var stack = [root];
+    String(raw).split(/\r?\n/).forEach(function (line) {
+      if (!line.replace(/[\s│├└┬┼─|`+\-]/g, '')) return;
+      var match = /^(?:[ \t│├└┬┼─]|[|`+](?=[\s─-])|-(?=[\s─-]))*/.exec(line);
+      var prefix = match ? match[0] : '';
+      var indent = prefix.replace(/\t/g, '    ').length;
+      var rest = line.slice(prefix.length).replace(/\s+$/, '');
+      var noteAt = rest.search(/\s{2,}#\s|\s+#\s|\s{2,}(?:←|<-)\s?/);
+      var name = noteAt >= 0 ? rest.slice(0, noteAt) : rest;
+      var note = noteAt >= 0 ? rest.slice(noteAt).replace(/^\s*(?:#|←|<-)\s*/, '') : '';
+      var node = { name: name, note: note, indent: indent, children: [] };
+      while (stack.length > 1 && stack[stack.length - 1].indent >= indent) stack.pop();
+      stack[stack.length - 1].children.push(node);
+      stack.push(node);
+    });
+    return root.children;
+  }
+  function dirNode(node, path, depth) {
+    var isDir = node.children.length > 0 || /\/$/.test(node.name);
+    var full = path + node.name + (isDir && !/\/$/.test(node.name) ? '/' : '');
+    var box = el(node.children.length ? 'details' : 'div', isDir ? 'is-dir' : 'is-file');
+    target(box, 'directoryTree: ' + full, node.name);
+    var row = el(node.children.length ? 'summary' : 'div', 'tree-row');
+    row.appendChild(el('span', 'tw'));
+    row.appendChild(el('span', 'ti ' + (isDir ? 'ti-folder' : 'ti-file')));
+    var name = el('span', 't-name');
+    name.textContent = node.name;
+    row.appendChild(name);
+    if (node.note) {
+      var note = el('span', 't-note');
+      note.textContent = node.note;
+      row.appendChild(note);
+    }
+    box.appendChild(row);
+    if (node.children.length) {
+      var kids = el('div', 'tree-children');
+      node.children.forEach(function (child) { kids.appendChild(dirNode(child, full, depth + 1)); });
+      box.appendChild(kids);
+      box.open = depth < 2;
+    }
+    return box;
+  }
+  function setAllOpen(container, open) {
+    Array.prototype.forEach.call(container.querySelectorAll('details'), function (box) { box.open = open; });
+  }
+  function treeTools(container) {
+    var tools = el('div', 'toolbar toolbar-end');
+    tools.appendChild(button(T.expandAll, function () { setAllOpen(container, true); }, 'btn-sm btn-quiet'));
+    tools.appendChild(button(T.collapseAll, function () { setAllOpen(container, false); }, 'btn-sm btn-quiet'));
+    return tools;
+  }
+
+  // 長くなりがちな一覧は見出しで開閉する。最初は閉じておく（印刷のときは openWhilePrinting が開く）
+  function fold(title, count, children) {
+    var box = el('details', 'fold');
+    var head = el('summary');
+    var h = el('h4');
+    h.textContent = title;
+    if (count !== null) {
+      var badge = el('span', 'badge');
+      badge.textContent = String(count);
+      h.appendChild(badge);
+    }
+    head.appendChild(h);
+    box.appendChild(head);
+    children.forEach(function (child) { box.appendChild(child); });
+    return box;
+  }
+  function renderModules(data) {
+    var tree = buildModuleTree(data.modules);
+    var nodes = [];
+    var mods = [];
+    if (!tree.length) {
+      mods.push(paragraph(unfilled('modules')));
+    } else {
+      var lede = el('p', 'lede');
+      lede.textContent = T.deviationLede;
+      mods.push(lede);
+      var moduleTree = el('div', 'tree');
+      tree.forEach(function (node) { moduleTree.appendChild(moduleNode(node, 0)); });
+      mods.push(moduleTree);
+    }
+    nodes.push(fold(T.moduleList, list(data.modules).length || null, mods));
+
+    var dirs = [];
+    if (blank(data.directoryTree)) {
+      dirs.push(paragraph(unfilled('directoryTree')));
+    } else {
+      var lede2 = el('p', 'lede');
+      lede2.textContent = T.directoryLede;
+      dirs.push(lede2);
+      var fileTree = target(el('div', 'tree file-tree'), 'directoryTree', null);
+      parseDirectoryTree(data.directoryTree).forEach(function (node) { fileTree.appendChild(dirNode(node, '', 0)); });
+      dirs.push(treeTools(fileTree));
+      dirs.push(fileTree);
+      var raw = el('details', 'raw-tree');
+      var rawHead = el('summary');
+      rawHead.textContent = T.rawTree;
+      var pre = el('pre');
+      var code = el('code');
+      code.textContent = String(data.directoryTree);
+      pre.appendChild(code);
+      raw.appendChild(rawHead);
+      raw.appendChild(pre);
+      dirs.push(raw);
+    }
+    nodes.push(fold(T.directoryTree, null, dirs));
+    mount('modules', nodes);
+  }
+
+  // importance は 1〜5 の整数。それ以外は 0 として最後にまとめる
+  function rankOf(role) {
+    var level = role.importance;
+    var ok = typeof level === 'number' && isFinite(level) &&
+      level >= 1 && level <= 5 && Math.floor(level) === level;
+    return ok ? level : 0;
+  }
+  function rankDots(level) {
+    var label = T.rank(level);
+    var box = el('span', 'rank');
+    box.setAttribute('title', label);
+    box.setAttribute('aria-label', label);
+    box.setAttribute('role', 'img');
+    for (var i = 1; i <= 5; i += 1) {
+      box.appendChild(el('span', i <= level ? 'rank-dot is-on' : 'rank-dot'));
+    }
+    return box;
+  }
+  // 実例ファイルの一覧。meta.gradleRoot があれば file:// のリンクにする（sh の file_uri と同じ規則）
+  function fileUri(root, rel) {
+    var path = String(root).replace(/\/+$/, '') + '/' + String(rel).replace(/^\.?\//, '');
+    return 'file://' + path.replace(/%/g, '%25').replace(/ /g, '%20').replace(/#/g, '%23').replace(/\?/g, '%3F');
+  }
+  function fileLinks(paths, root) {
+    if (blank(paths)) return none();
+    var ul = el('ul');
+    paths.forEach(function (item) {
+      var li = el('li');
+      if (blank(root)) {
+        li.textContent = String(item);
+      } else {
+        var a = el('a');
+        a.setAttribute('href', fileUri(root, item));
+        a.textContent = String(item);
+        li.appendChild(a);
+      }
+      ul.appendChild(li);
+    });
+    return ul;
+  }
+  // pair は [見出し, 中身, JSON の場所]。場所があれば dd をフィードバックの宛先にする
+  function fieldList(pairs) {
+    var dl = el('dl', 'fields');
+    pairs.forEach(function (pair) {
+      if (!pair[1]) return;
+      var dt = el('dt');
+      dt.textContent = pair[0];
+      var dd = el('dd');
+      if (pair[2]) target(dd, pair[2], pair[0]);
+      dd.appendChild(pair[1]);
+      dl.appendChild(dt);
+      dl.appendChild(dd);
+    });
+    return dl;
+  }
+
+  function roleNode(role, root, index) {
+    var constraint = role.constraintOnly === true;
+    var box = el('details', 'role-node' + (constraint ? ' constraint-only' : '') + (blank(role.name) ? ' is-empty' : ''));
+    var roleKey = blank(role.name) ? 'roles[' + index + ']' : 'roles[name=' + role.name + ']';
+    target(box, roleKey, blank(role.name) ? '?' : role.name);
+    var row = el('summary', 'tree-row role-row');
+    row.appendChild(el('span', 'tw'));
+    row.appendChild(el('span', 'ti ti-role'));
+    var name = el('span', 't-name');
+    name.appendChild(value(role.name, 'roles[].name'));
+    row.appendChild(name);
+    var level = rankOf(role);
+    row.appendChild(level ? rankDots(level) : unfilled('roles[].importance'));
+    if (constraint) {
+      var tag = el('span', 'badge badge-quiet');
+      tag.textContent = T.constraintTag;
+      tag.setAttribute('title', T.constraintOnly);
+      row.appendChild(tag);
+    }
+    var layout = el('span', 't-layout clip');
+    layout.appendChild(blank(role.layout) ? unfilled('roles[].layout') : text(role.layout));
+    row.appendChild(layout);
+    var count = el('span', 't-count');
+    count.textContent = typeof role.count === 'number' ? T.files(role.count) : '';
+    row.appendChild(count);
+    box.appendChild(row);
+
+    var detail = el('div', 'role-detail');
+    if (constraint) {
+      var note = el('p', 'role-tag');
+      note.textContent = T.constraintOnly;
+      detail.appendChild(note);
+    }
+    detail.appendChild(fieldList([
+      [T.layout, blank(role.layout) ? unfilled('roles[].layout') : richText(role.layout, 'roles[].layout'), roleKey + '.layout'],
+      [T.naming, value(role.naming, 'roles[].naming'), roleKey + '.naming']
+    ]));
+    var rules = el('div', 'rules');
+    [[T.allowed, 'rules-col', role.allowed, 'allowed'],
+     [T.forbidden, 'rules-col rules-deny', role.forbidden, 'forbidden']
+    ].forEach(function (spec) {
+      var col = target(el('div', spec[1]), roleKey + '.' + spec[3], spec[0]);
+      var label = el('p', 'rules-head');
+      label.textContent = spec[0];
+      col.appendChild(label);
+      col.appendChild(targetBullets(bulletsOrNone(spec[2]), roleKey + '.' + spec[3]));
+      rules.appendChild(col);
+    });
+    detail.appendChild(rules);
+    detail.appendChild(fieldList([
+      [T.examples, targetBullets(fileLinks(role.examples, root), roleKey + '.examples'), roleKey + '.examples'],
+      [T.countLabel, value(role.count, 'roles[].count'), roleKey + '.count'],
+      [T.note, blank(role.note) ? null : text(role.note), roleKey + '.note']
+    ]));
+    box.appendChild(detail);
+    return box;
+  }
+
+  // group を "." で割って木にする。group 未記入の Role は最後の束に入れる
+  function buildGroupTree(roles) {
+    var root = { name: '', path: '', roles: [], order: [] };
+    roles.forEach(function (role, index) {
+      var segments = blank(role.group) ? [] : String(role.group).split('.').filter(Boolean);
+      var node = root;
+      segments.forEach(function (segment) {
+        var next = node.order.filter(function (child) { return child.name === segment; })[0];
+        if (!next) {
+          next = { name: segment, path: node.path ? node.path + '.' + segment : segment, roles: [], order: [] };
+          node.order.push(next);
+        }
+        node = next;
+      });
+      node.roles.push({ role: role, index: index });
+    });
+    return root;
+  }
+  function countRoles(node) {
+    return node.roles.length + node.order.reduce(function (sum, child) { return sum + countRoles(child); }, 0);
+  }
+  function sortedRoles(items) {
+    // 重要度の降順。同じ重要度は JSON に書かれた順のまま（sort は安定）
+    return items.slice().sort(function (a, b) { return rankOf(b.role) - rankOf(a.role); });
+  }
+  function groupNode(node, root, depth) {
+    var box = target(el('details', 'group-node'), 'roles[group=' + node.path + ']', node.name);
+    var row = el('summary', 'tree-row group-row');
+    row.appendChild(el('span', 'tw'));
+    row.appendChild(el('span', 'ti ti-group'));
+    var name = el('span', 't-name');
+    name.textContent = node.name;
+    row.appendChild(name);
+    if (depth > 0) {
+      var full = el('span', 't-path');
+      full.textContent = node.path;
+      row.appendChild(full);
+    }
+    var badge = el('span', 'badge badge-quiet');
+    badge.textContent = T.roleUnit(countRoles(node));
+    row.appendChild(badge);
+    box.appendChild(row);
+    var kids = el('div', 'tree-children');
+    node.order.forEach(function (child) { kids.appendChild(groupNode(child, root, depth + 1)); });
+    sortedRoles(node.roles).forEach(function (item) { kids.appendChild(roleNode(item.role, root, item.index)); });
+    box.appendChild(kids);
+    box.open = true;
+    return box;
+  }
+  function legend() {
+    var box = el('div', 'legend');
+    [['ti ti-group', T.legendGroup], ['ti ti-role', T.legendRole]].forEach(function (spec) {
+      var item = el('span');
+      item.appendChild(el('span', spec[0]));
+      item.appendChild(text(spec[1]));
+      box.appendChild(item);
+    });
+    var rank = el('span');
+    rank.appendChild(rankDots(3));
+    rank.appendChild(text(T.legendRank));
+    box.appendChild(rank);
+    return box;
+  }
+  function renderRoles(roles, meta) {
+    var root = blank(meta.gradleRoot) ? null : String(meta.gradleRoot);
+    mount('roleCount', [text(countLabel(roles))]);
+    var tree = buildGroupTree(entries(roles));
+    var container = el('div', 'tree role-tree');
+    tree.order.forEach(function (child) { container.appendChild(groupNode(child, root, 0)); });
+    if (tree.roles.length) {
+      // group 未記入の Role。手順 5-2 で未記入に数える
+      var box = el('details', 'group-node');
+      box.open = true;
+      var row = el('summary', 'tree-row group-row');
+      row.appendChild(el('span', 'tw'));
+      row.appendChild(el('span', 'ti ti-group'));
+      row.appendChild(unfilled('roles[].group'));
+      var badge = el('span', 'badge badge-quiet');
+      badge.textContent = T.roleUnit(tree.roles.length);
+      row.appendChild(badge);
+      box.appendChild(row);
+      var kids = el('div', 'tree-children');
+      sortedRoles(tree.roles).forEach(function (item) { kids.appendChild(roleNode(item.role, root, item.index)); });
+      box.appendChild(kids);
+      container.appendChild(box);
+    }
+    mount('roles', [legend(), treeTools(container), container]);
+  }
+
+  function renderExcluded(excluded) {
+    if (!countOf(excluded)) { mount('excluded', [none()]); return; }
+    var rows = entries(excluded).map(function (entry, i) {
+      return {
+        key: blank(entry.path) ? 'excluded[' + i + ']' : 'excluded[path=' + entry.path + ']',
+        label: blank(entry.path) ? String(i + 1) : String(entry.path),
+        cells: [value(entry.path, 'excluded[].path'), value(entry.reason, 'excluded[].reason')],
+        fields: ['path', 'reason']
+      };
+    });
+    mount('excluded', [tableOf(T.excluded, rows, ['40%', '60%'])]);
+  }
+
+  function renderTemplates(templates) {
+    if (!countOf(templates)) { mount('templates', [none()]); return; }
+    var rows = entries(templates).map(function (entry, i) {
+      return {
+        key: blank(entry.role) ? 'templates[' + i + ']' : 'templates[role=' + entry.role + ']',
+        label: blank(entry.role) ? String(i + 1) : String(entry.role),
+        cells: [
+          value(entry.role, 'templates[].role'),
+          inlineOrNone(entry.files),
+          inlineOrNone(entry.params),
+          blank(entry.basedOn) ? noneInline() : richText(entry.basedOn, 'templates[].basedOn'),
+          blank(entry.reason) ? text('') : text(entry.reason)
+        ],
+        fields: ['role', 'files', 'params', 'basedOn', 'reason']
+      };
+    });
+    // 理由は読めないと困るので、その列だけ折り返す
+    mount('templates', [tableOf(T.templates, rows, ['16%', '20%', '12%', '26%', '26%'], undefined, [4])]);
+  }
+
+  // ビューポート上端より上にある最後のセクションを現在地とする。
+  // 交差の順に任せると短いセクションが次のセクションに上書きされ、上方向のスクロールでも更新されないため
+  function highlightToc() {
+    var links = Array.prototype.slice.call(document.querySelectorAll('#toc a'));
+    if (!links.length) return;
+    var sections = links.map(function (a) {
+      var href = a.getAttribute('href') || '';
+      return href.charAt(0) === '#' ? document.getElementById(href.slice(1)) : null;
+    });
+    var queued = false;
+
+    function pick() {
+      queued = false;
+      var view = window.innerHeight;
+      var rest = Math.max(0, document.documentElement.scrollHeight - view - window.pageYOffset);
+      // 最後の1画面ぶんはどのセクションももう上端まで来られないので、そこだけ線を下げていく
+      var top = (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--progress-h')) || 0) + 24;
+      var line = top;
+      if (rest < view && document.documentElement.scrollHeight - view >= view) {
+        line = top + (view - top) * (1 - rest / view);
+      }
+      var index = 0;
+      for (var i = 0; i < sections.length; i += 1) {
+        if (sections[i] && sections[i].getBoundingClientRect().top <= line) index = i;
+      }
+      if (rest <= 2) index = links.length - 1;
+      links.forEach(function (a, i) { a.classList.toggle('active', i === index); });
+    }
+
+    function schedule() {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(pick);
+    }
+
+    addEventListener('scroll', schedule, { passive: true });
+    addEventListener('resize', schedule);
+    pick();
+  }
+
+  function bootChecklist() {
+    var data = {};
+    try {
+      data = record(JSON.parse(document.getElementById('checklist').textContent));
+    } catch (error) {
+      dataOk = false;
+      renderError(error && error.message ? error.message : String(error));
+    }
+    renderMeta(record(data.meta));
+    renderSteps(data.steps);
+    renderPreferences(record(data.preferences));
+    renderViolations(data.violations);
+    renderQuestions(data.questions, record(data.answers));
+    renderChangedFiles(data.changedFiles);
+    foldFinishedSteps();
+    paint();
+
+    boxes.forEach(function (box) { box.addEventListener('change', paint); });
+    document.getElementById('toggle-all').addEventListener('click', function () {
+      var opening = stepNodes.some(function (step) { return !step.open; });
+      stepNodes.forEach(function (step) { step.open = opening; });
+      this.textContent = opening ? T.collapseAll : T.expandAll;
+    });
+  }
+  function bootReport() {
+    var data = {};
+    try {
+      data = record(JSON.parse(document.getElementById('report').textContent));
+    } catch (error) {
+      dataOk = false;
+      renderError(error && error.message ? error.message : String(error));
+    }
+    renderReportMeta(record(data.meta));
+    renderOverview(record(data.overview));
+    renderArchitecture(record(data.architecture));
+    renderModules(data);
+    renderRoles(data.roles, record(data.meta));
+    renderExcluded(data.excluded);
+    renderQuestions(data.questions, record(data.answers));
+    renderTemplates(data.templates);
+  }
+
+  // 上に貼り付く進捗の高さを CSS 変数に入れて、レポートの目次をその下に置く
+  function syncProgressHeight() {
+    var bar = document.querySelector('.progress');
+    var update = function () {
+      var sticky = bar && getComputedStyle(bar).position === 'sticky';
+      document.documentElement.style.setProperty('--progress-h', (sticky ? bar.offsetHeight : 0) + 'px');
+    };
+    update();
+    if (bar && window.ResizeObserver) new ResizeObserver(update).observe(bar);
+  }
+
+  // 進捗の「レポートを見る」は、レポートまで来たら「チェックリストに戻る」にする
+  function trackReportLink() {
+    var link = document.getElementById('report-link');
+    var report = document.getElementById('codebase-report');
+    if (!link || !report) return;
+    var inReport = null;
+    var queued = false;
+    function update() {
+      queued = false;
+      var line = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--progress-h')) || 0;
+      var now = report.getBoundingClientRect().top <= line + 24;
+      if (now === inReport) return;
+      inReport = now;
+      link.textContent = now ? T.backToChecklist : T.reportLink;
+      link.setAttribute('href', now ? '#main-content' : '#codebase-report');
+    }
+    function schedule() {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(update);
+    }
+    addEventListener('scroll', schedule, { passive: true });
+    addEventListener('resize', schedule);
+    update();
+  }
+
+  function boot() {
+    inDoc(DOCS.checklist, bootChecklist);
+    inDoc(DOCS.report, bootReport);
+    installClamps();
+    installFeedback();
+    refreshClamps();
+    syncProgressHeight();
+    trackReportLink();
+    highlightToc();
+    openWhilePrinting();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+</body>
+</html>

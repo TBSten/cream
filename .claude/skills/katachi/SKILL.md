@@ -1,0 +1,85 @@
+---
+description: Install katachi (architecture checks for Kotlin/Gradle projects, written as an architecture { } definition) into a project, add to or update an existing definition, upgrade katachi, or fix katachi violations. Use whenever the user asks to install, set up or try katachi ("add katachi to this project", "katachi を導入して"), to change the architecture definition (a new Role, moved files or modules, a new rule, ProjectArchitecture.kt), to upgrade katachi, or when the katachi check (`:architecture-test:test`) fails with violations such as [UnexpectedFile] ("katachi のテストが落ちた"). Use it instead of writing a definition from memory, because the steps run the katachi command and read the documentation for the exact API.
+metadata:
+    github-path: skills/katachi
+    github-ref: refs/tags/v0.4.0
+    github-repo: https://github.com/TBSten/katachi
+    github-tree-sha: 9ccd06ebdfbc22ad92992d6362232a1f15520f45
+name: katachi
+---
+# katachi
+
+[katachi](https://tbsten.github.io/katachi) checks that a Kotlin / Gradle project follows its architecture. The architecture is written in Kotlin as an `architecture { }` definition: **Roles** (one kind of file each, with a `layout { }` saying where its files go and, optionally, constraints on their contents) bundled into **groups**. A test in a dedicated Gradle module, the **verification module**, checks every file in the repository against it. katachi is deny by default: a file that no Role declares is a violation.
+
+## Which reference to read
+
+First find out whether katachi is already set up: look for a Gradle module whose `build.gradle.kts` applies the `me.tbsten.katachi` plugin and has `katachi { architecture = "..." }` (usually `architecture-test/`). Then look for a setup that stopped half way: a working directory with a `check-list.html` (usually `.local/install-katachi/`, `.tmp/install-katachi/`, `tmp/install-katachi/` or `.scratch/install-katachi/`). The verification module exists from step 2 on, so it alone does not tell you that the setup is finished.
+
+| Situation | Read |
+|---|---|
+| A working directory with a `check-list.html` is there and its items of steps 0 to 5 are not all done (step 6 is optional and does not count), or the user asks for one of 6-A to 6-D after the setup | [references/setup/README.md](references/setup/README.md) (go on from where the checklist stops) |
+| katachi is not in the project yet | [references/setup/README.md](references/setup/README.md) |
+| katachi is set up, and the definition has to follow the project: a new kind of file, a moved or renamed module or package, a new rule, a katachi upgrade | [references/add-and-update/README.md](references/add-and-update/README.md) |
+| The check fails (on CI or locally) and you have to decide what to fix | [references/fix-violations/README.md](references/fix-violations/README.md) |
+| You only have to run the check, read its result or compare two runs | [references/run-the-check/README.md](references/run-the-check/README.md) |
+
+Read only the reference that fits, and inside it only the files it points you to. Do not load everything at once.
+
+## Common rules
+
+- **Reply to the user in their language.** These references are in English; the user may not be.
+- **Ask, do not decide, when the answer depends on the team.** Whether a file is in the wrong place or the definition is out of date, whether to add something to `.gitignore`, whether to fix existing code: put it in front of the user.
+- **Do not edit `.gitignore` yourself.** Suggest the line.
+- **Do not rewrite existing source code to satisfy the definition** without the user's consent. The definition describes the project; changing the project is a separate decision.
+- **Do not rewrite what `katachi scaffold` generated**: the verification module's `build.gradle.kts`, the `include(...)` in the settings file, the aliases in `gradle/libs.versions.toml`, the Kotlin plugin line in the root build file. The exceptions are a katachi version bump ([references/add-and-update/upgrade-katachi.md](references/add-and-update/upgrade-katachi.md)) and `processors { }` in `katachi { }` once the user agrees (setup 6-C; the templates in 6-D need no change there).
+- **Do not guess an API.** Read the documentation (below) or the API reference. An API that is not in the documentation does not exist because a similar name does.
+- **Do not silence a violation by loosening the definition.** No catch-all Role (`anyFile()`, `"**" / "*.kt".file()` with nothing else), no line added to whichever Role is nearest. A file belongs to the Role whose `summary` describes it, or to a new Role.
+- **Keep one Role = one kind of file.** If a Role's `summary` cannot describe every file it holds in one sentence, split it (setup 3-2, "One Role = one kind of file").
+
+## Where things are in the user's project
+
+```
+<project root>/
+├── architecture-test/                  the verification module (its path can differ; it is recorded as moduleDir)
+│   ├── build.gradle.kts                generated by scaffold
+│   └── src/test/kotlin/<package>/test/architecture/
+│       ├── ProjectArchitecture.kt      val projectArchitecture = architecture { … } (keep its name and package:
+│       │                               katachi { architecture = "<package>.test.architecture.projectArchitecture" } points at it)
+│       ├── ProjectArchitectureTest.kt  calls projectArchitecture.assert(FileConstraintCheck())
+│       │                               (a plain assert() when scaffold ran with --no-konsist)
+│       └── <group>/<Role>Role.kt …     the split definition, one Role or group per file (naming: setup 3-3)
+└── tmp/install-katachi/                the working directory of the setup (or inside an already-ignored directory)
+    ├── check-list.html                 the setup's checklist, with the codebase report from setup step 1 below it
+    │                                   (two JSON blocks inside, checklist and report; setup 0-3 says how to edit them)
+    └── tmp/                            logs, fetched documentation, notes; without Homebrew also katachi.main.kts;
+                                        katachi-command.txt when katachi runs as a script or needs a JAVA_HOME= prefix
+                                        (how to run katachi: setup 0-1)
+```
+
+The working directory is only for the setup and is ignored by git, so it may be gone later. Nothing below needs it: the logs of the check are kept in `build/katachi/` of the project root.
+
+| What | Command |
+|---|---|
+| Run the check, and compare two runs (before and after a change to the definition) | `./gradlew :architecture-test:test --console=plain -Dkatachi.maxViolations=all > build/katachi/test-<name>.log 2>&1`, then read and compare the logs as [references/run-the-check/README.md](references/run-the-check/README.md) says |
+| Find Roles that hold different kinds of files, hand-written Gradle Roles, flat groups, Role and group names that start lowercase | `katachi lint` |
+| Generate a page per Role | `./gradlew :architecture-test:katachiDocs` |
+| Generate a file from a Role's `.template { }` | `./gradlew :architecture-test:katachiTemplate --arg template=<Group.Role> --arg <name>=<value>` |
+
+Read `:architecture-test` as the verification module's Gradle path when it is somewhere else.
+
+## Documentation
+
+| Topic | Page |
+|---|---|
+| Writing `layout { }` | https://tbsten.github.io/katachi/guides/layout/ |
+| Roles and groups | https://tbsten.github.io/katachi/guides/role/ |
+| The basic API | https://tbsten.github.io/katachi/guides/basic-api/ |
+| Constraints on contents (`ktFileContent { }`) | https://tbsten.github.io/katachi/guides/kt-file-content/ |
+| Baseline (tolerate existing violations) | https://tbsten.github.io/katachi/guides/baseline/ |
+| Document generation | https://tbsten.github.io/katachi/guides/document-generation/ |
+| Code generation from templates | https://tbsten.github.io/katachi/guides/generate-code-from-template/ |
+| Gradle files, `buildSrc` and `includeBuild` | https://tbsten.github.io/katachi/recipes/gradle/ |
+
+The pages to read are listed in 3-1 (references/setup/step3/3-1-fetch-docs.md), with the recipes for other tools. Fetch a page's Markdown version, its URL with the trailing `/` replaced by `.md` (https://tbsten.github.io/katachi/guides/layout.md): the same text at a fraction of the HTML's size. https://tbsten.github.io/katachi/llms.txt only links the site's text versions (it does not list the pages). The whole site in one file is https://tbsten.github.io/katachi/llms-full.txt; do not read it whole, cut out the page you need (3-1 says where a page starts: a `# ` heading inside a code block is not one). For signatures, read the API reference: https://tbsten.github.io/katachi/api-docs/llms.txt, and the Markdown version of one API's page (its HTML URL with `.md` appended).
+
+`capture()`, `fileConstraint`, `ktFileContent { }`, `.template { }` and `baseline()` are experimental: a file that uses one starts with `@file:OptIn(ExperimentalKatachiApi::class)` and `import me.tbsten.katachi.ExperimentalKatachiApi`.
