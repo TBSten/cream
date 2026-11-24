@@ -64,6 +64,17 @@ public annotation class CombineFrom(
     val visibility: CopyVisibility = CopyVisibility.INHERIT,
     val funName: String = DefaultCopyFunctionName,
 ) {
+    /**
+     * Maps an annotated target constructor parameter to a differently-named property of a source class.
+     *
+     * Annotate a **target-class constructor parameter** and pass the source property name(s) in
+     * [propertyNames]; the generated combine function then defaults the annotated parameter to that
+     * source property. Putting it on a type parameter currently has no effect.
+     *
+     * @property propertyNames Names of the source properties this parameter is copied from.
+     * @see CombineFrom.Exclude
+     * @see CombineFrom
+     */
     @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE_PARAMETER)
     public annotation class Map(
         vararg val propertyNames: String,

@@ -53,6 +53,31 @@ public annotation class CopyFrom(
     val visibility: CopyVisibility = CopyVisibility.INHERIT,
     val funName: String = DefaultCopyFunctionName,
 ) {
+    /**
+     * Maps an annotated target constructor parameter to a differently-named source property.
+     *
+     * Annotate a **target-class constructor parameter** and pass the source property name(s) in
+     * [propertyNames]; the generated copy function then defaults the annotated parameter to
+     * `this.<source property>`.
+     *
+     * On a type parameter it works the other way round: put it on a **type parameter of the source
+     * class** and pass the name(s) of the target class's type parameter(s) it corresponds to.
+     *
+     * ```kt
+     * @CopyFrom(DataModel::class)
+     * data class DomainModel(
+     *     @CopyFrom.Map("dataId")
+     *     val domainId: String,
+     * )
+     *
+     * // Generated:
+     * fun DataModel.copyToDomainModel(domainId: String = this.dataId): DomainModel = ...
+     * ```
+     *
+     * @property propertyNames Names of the source properties this parameter is copied from.
+     * @see CopyFrom.Exclude
+     * @see CopyFrom
+     */
     @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE_PARAMETER)
     public annotation class Map(
         vararg val propertyNames: String,
