@@ -1,10 +1,4 @@
----
-name: setup-cream
-description: Set up cream.kt — a KSP plugin that generates cross-class copy functions — in a Kotlin or Kotlin Multiplatform module. Applies the KSP plugin, adds the cream-runtime / cream-ksp dependencies, and wires up the commonMain workaround that KMP requires. Use when adding cream.kt to a project for the first time.
-license: Apache-2.0
----
-
-# Setup cream.kt skill
+# Set up cream.kt
 
 Sets [cream.kt](https://github.com/TBSten/cream) up in a Kotlin module, right now.
 
@@ -264,4 +258,4 @@ where generated sources land.
 - [cream.kt README](https://github.com/TBSten/cream/blob/main/README.md) — setup and quick start
 - [Kotlin Multiplatform support](https://github.com/TBSten/cream/blob/main/doc/customization/multiplatform.md)
 - [KSP Options](https://github.com/TBSten/cream/blob/main/doc/customization/options.md)
-- [Refactor by cream skill](https://github.com/TBSten/cream/blob/main/doc/ai-integration/skills/refactor-by-cream/SKILL.md) — apply cream.kt to existing code once setup is done
+- [Refactor existing code with cream.kt](./refactor.md) — apply cream.kt to existing code once setup is done

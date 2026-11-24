@@ -230,7 +230,7 @@ leaving an empty wrapper — but say so rather than renaming silently.
 
 ### 6. Verify
 
-Run the verification method the user chose in step 1 of the parent skill. That answer governs —
+Run the verification method the user chose in step 1 of [refactor.md](./refactor.md#1-confirm-the-targets-and-the-verification-method-with-the-user). That answer governs —
 including when it was "compile only" or "do not verify". Do not upgrade it on your own initiative.
 
 If the chosen method looks too weak for what you changed — mapper unit tests exist and would catch
