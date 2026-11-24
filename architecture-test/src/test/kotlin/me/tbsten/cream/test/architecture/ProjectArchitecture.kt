@@ -21,6 +21,9 @@ val projectArchitecture =
             生成コードを呼んで確かめる結合テスト（test）でできている。
             """.trimIndent()
 
+        // 導入時からある違反を許容する。記録: -Dkatachi.baseline.update=true / 削除: -Dkatachi.baseline.prune=true
+        baseline()
+
         libraryGroup()
         testGroup()
         docGroup()

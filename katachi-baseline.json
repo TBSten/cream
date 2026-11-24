@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "checks": {
+    "me.tbsten.katachi.check.FileConstraintCheck": [
+      {"rule": "UnsatisfiedFileConstraint", "path": "cream-runtime/src/commonMain/kotlin/me/tbsten/cream/CombineFrom.kt", "role": "Library.Runtime.RuntimeApi", "constraint": "KDoc 付きの公開アノテーションとトークン定数だけを置く (ktFileContent)", "declaration": "CombineFrom.Map"},
+      {"rule": "UnsatisfiedFileConstraint", "path": "cream-runtime/src/commonMain/kotlin/me/tbsten/cream/CombineTo.kt", "role": "Library.Runtime.RuntimeApi", "constraint": "KDoc 付きの公開アノテーションとトークン定数だけを置く (ktFileContent)", "declaration": "CombineTo.Map"},
+      {"rule": "UnsatisfiedFileConstraint", "path": "cream-runtime/src/commonMain/kotlin/me/tbsten/cream/CopyFrom.kt", "role": "Library.Runtime.RuntimeApi", "constraint": "KDoc 付きの公開アノテーションとトークン定数だけを置く (ktFileContent)", "declaration": "CopyFrom.Map"},
+      {"rule": "UnsatisfiedFileConstraint", "path": "cream-runtime/src/commonMain/kotlin/me/tbsten/cream/CopyTo.kt", "role": "Library.Runtime.RuntimeApi", "constraint": "KDoc 付きの公開アノテーションとトークン定数だけを置く (ktFileContent)", "declaration": "CopyTo.Map"},
+      {"rule": "UnsatisfiedFileConstraint", "path": "cream-runtime/src/commonMain/kotlin/me/tbsten/cream/InternalCreamApi.kt", "role": "Library.Runtime.RuntimeApi", "constraint": "KDoc 付きの公開アノテーションとトークン定数だけを置く (ktFileContent)", "declaration": "InternalCreamApi"},
+      {"rule": "UnsatisfiedFileConstraint", "path": "test/src/commonMain/kotlin/me/tbsten/cream/test/copyMapping/CopyMappingClasses.kt", "role": "Test.IntegrationTest.IntegrationTestData", "constraint": "対になる *Test.kt がある"},
+      {"rule": "UnsatisfiedFileConstraint", "path": "test/src/commonMain/kotlin/me/tbsten/cream/test/copyMapping/lib/CrossPackageModels.kt", "role": "Test.IntegrationTest.IntegrationTestData", "constraint": "対になる *Test.kt がある"},
+      {"rule": "UnsatisfiedFileConstraint", "path": "test/src/commonMain/kotlin/me/tbsten/cream/test/exclude/ExcludeClasses.kt", "role": "Test.IntegrationTest.IntegrationTestData", "constraint": "対になる *Test.kt がある"},
+      {"rule": "UnsatisfiedFileConstraint", "path": "test/src/commonMain/kotlin/me/tbsten/cream/test/generic/GenericClasses.kt", "role": "Test.IntegrationTest.IntegrationTestData", "constraint": "対になる *Test.kt がある"},
+      {"rule": "UnsatisfiedFileConstraint", "path": "test/src/commonMain/kotlin/me/tbsten/cream/test/vararg/VarargClasses.kt", "role": "Test.IntegrationTest.IntegrationTestData", "constraint": "対になる *Test.kt がある"},
+      {"rule": "UnsatisfiedFileConstraint", "path": "test/src/commonTest/kotlin/me/tbsten/cream/test/copyMapping/CopyMappingTest.kt", "role": "Test.IntegrationTest.IntegrationTest", "constraint": "対になるデータファイルがある"},
+      {"rule": "UnsatisfiedFileConstraint", "path": "test/src/commonTest/kotlin/me/tbsten/cream/test/exclude/ExcludeTest.kt", "role": "Test.IntegrationTest.IntegrationTest", "constraint": "対になるデータファイルがある"},
+      {"rule": "UnsatisfiedFileConstraint", "path": "test/src/commonTest/kotlin/me/tbsten/cream/test/generic/GenericClassTest.kt", "role": "Test.IntegrationTest.IntegrationTest", "constraint": "対になるデータファイルがある"},
+      {"rule": "UnsatisfiedFileConstraint", "path": "test/src/commonTest/kotlin/me/tbsten/cream/test/vararg/VarargTest.kt", "role": "Test.IntegrationTest.IntegrationTest", "constraint": "対になるデータファイルがある"}
+    ],
+    "me.tbsten.katachi.check.LayoutCheck": [
+      {"rule": "UnexpectedFile", "path": ".claude/agents/pr-creator.md"},
+      {"rule": "UnexpectedFile", "path": ".claude/commands/implements.md"},
+      {"rule": "UnexpectedFile", "path": ".claude/commands/requirements.md"},
+      {"rule": "UnexpectedFile", "path": ".claude/commands/resolve-pr-comments.md"},
+      {"rule": "UnexpectedFile", "path": "LICENSE.txt"}
+    ]
+  }
+}
