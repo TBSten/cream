@@ -1,0 +1,4735 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>katachi Installation Checklist</title>
+<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9ImthdGFjaGkiPjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiByeD0iMTAyIiBmaWxsPSIjYTJjY2Y3Ii8+PGcgZmlsbD0iI2ZmZiI+PHBhdGggZD0iTTk2IDE2MGg2MHYyOGgtMzJ2MTM2aDMydjI4SDk2eiIvPjxyZWN0IHg9IjIxOCIgeT0iMjE4IiB3aWR0aD0iNzYiIGhlaWdodD0iNzYiLz48cGF0aCBkPSJNNDE2IDM1MmgtNjB2LTI4aDMyVjE4OGgtMzJ2LTI4aDYweiIvPjwvZz48L3N2Zz4=">
+<style>
+  /* Colors, lines, radii and shadows are copied from the katachi design system (the docs site's nova grays) */
+  :root {
+    color-scheme: light dark;
+
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans",
+      "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Yu Gothic UI", Meiryo, Arial, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+    --bg: #ffffff;
+    --bg-muted: #f3f4f6;
+    --bg-sunken: #e5e7eb;
+    --line: #d1d5dc;
+    --hairline: #e5e7eb;
+    --hairline-light: #e5e7eb;
+    --line-strong: #99a1af;
+    --ink: #101828;
+    --text: #364153;
+    --muted: #6a7282;
+    --accent: #1e2939;
+    --on-accent: #ffffff;
+    --wash: #99a1af4d;
+    --wash-faint: #99a1af1a;
+    --neutral-low: #e5e7eb;
+    --neutral: #1e2939;
+    --neutral-high: #101828;
+    --note-low: #dbeafe;
+    --note: #51a2ff;
+    --note-high: #193cb8;
+    --glow: #51a2ff;
+    --caution-low: #fef3c6;
+    --caution: #ffb900;
+    --caution-high: #973c00;
+    --danger-low: #ffe2e2;
+    --danger: #ff6467;
+    --danger-high: #9f0712;
+    --success-low: #dcfce7;
+    --success: #05df72;
+    --success-high: #016630;
+
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    --shadow-sm: 0 1px 1px rgba(0, 0, 0, 0.06), 0 2px 1px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 8px 4px rgba(0, 0, 0, 0.03), 0 5px 2px rgba(0, 0, 0, 0.03), 0 3px 2px rgba(0, 0, 0, 0.06), 0 1px 1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 25px 7px rgba(0, 0, 0, 0.01), 0 16px 6px rgba(0, 0, 0, 0.03), 0 9px 5px rgba(22, 24, 29, 0.08), 0 4px 4px rgba(0, 0, 0, 0.16), 0 4px 2px rgba(0, 0, 0, 0.04);
+
+    /* Icons (Lucide, stroke width 2). Used as masks, so they take the text color */
+    --icon-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E");
+    --icon-folder: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z'/%3E%3C/svg%3E");
+    --icon-file: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z'/%3E%3Cpath d='M14 2v4a2 2 0 0 0 2 2h4'/%3E%3C/svg%3E");
+    --icon-group: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z'/%3E%3Cpath d='m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65'/%3E%3Cpath d='m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65'/%3E%3C/svg%3E");
+    --icon-role: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z'/%3E%3Cpath d='M14 2v4a2 2 0 0 0 2 2h4'/%3E%3Cpath d='m10 13-2 2 2 2'/%3E%3Cpath d='m14 17 2-2-2-2'/%3E%3C/svg%3E");
+    --icon-module: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z'/%3E%3Cpath d='M12 22V12'/%3E%3Cpath d='m3.3 7 7.4 4.3'/%3E%3Cpath d='m20.7 7-7.4 4.3'/%3E%3C/svg%3E");
+    --icon-comment: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7.9 20A9 9 0 1 0 4 16.1L2 22Z'/%3E%3C/svg%3E");
+    --icon-info: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 16v-4'/%3E%3Cpath d='M12 8h.01'/%3E%3C/svg%3E");
+    --icon-alert: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3'/%3E%3Cpath d='M12 9v4'/%3E%3Cpath d='M12 17h.01'/%3E%3C/svg%3E");
+    --icon-copy: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='14' height='14' x='8' y='8' rx='2' ry='2'/%3E%3Cpath d='M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2'/%3E%3C/svg%3E");
+    --icon-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+
+    /* Older names, used by older rules in this file */
+    --surface: var(--bg);
+    --surface-2: var(--bg-muted);
+    --border: var(--line);
+    --border-strong: var(--line-strong);
+    --text-muted: var(--muted);
+    --accent-soft: var(--bg-muted);
+    --warn: var(--caution-high);
+    --warn-soft: var(--caution-low);
+    --ok: var(--success-high);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #030712;
+      --bg-muted: #1e2939;
+      --bg-sunken: #1e2939;
+      --line: #364153;
+      --hairline: #1e2939;
+      --hairline-light: #364153;
+      --line-strong: #4a5565;
+      --ink: #ffffff;
+      --text: #d1d5dc;
+      --muted: #99a1af;
+      --accent: #f3f4f6;
+      --on-accent: #030712;
+      --neutral-low: #030712;
+      --neutral: #4a5565;
+      --neutral-high: #f3f4f6;
+      --note-low: #162456;
+      --note: #1c398e;
+      --note-high: #bedbff;
+      --caution-low: #461901;
+      --caution: #7b3306;
+      --caution-high: #fee685;
+      --danger-low: #460809;
+      --danger: #82181a;
+      --danger-high: #ffc9c9;
+      --success-low: #032e15;
+      --success: #0d542b;
+      --success-high: #b9f8cf;
+      --shadow-sm: 0 1px 1px rgba(0, 0, 0, 0.12), 0 2px 1px rgba(0, 0, 0, 0.24);
+      --shadow-md: 0 8px 4px rgba(0, 0, 0, 0.08), 0 5px 2px rgba(0, 0, 0, 0.08), 0 3px 2px rgba(0, 0, 0, 0.12), 0 1px 1px rgba(0, 0, 0, 0.15);
+      --shadow-lg: 0 25px 7px rgba(0, 0, 0, 0.03), 0 16px 6px rgba(0, 0, 0, 0.1), 0 9px 5px rgba(22, 24, 29, 0.33), 0 4px 4px rgba(0, 0, 0, 0.75), 0 4px 2px rgba(0, 0, 0, 0.25);
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.75;
+    overflow-wrap: break-word;
+  }
+
+  .wrap {
+    width: min(100%, 72rem);
+    margin: 0 auto;
+    padding-left: max(24px, env(safe-area-inset-left, 0px));
+    padding-right: max(24px, env(safe-area-inset-right, 0px));
+  }
+
+  @media (max-width: 480px) {
+    .wrap {
+      padding-left: max(16px, env(safe-area-inset-left, 0px));
+      padding-right: max(16px, env(safe-area-inset-right, 0px));
+    }
+  }
+
+  h1, h2, h3 { color: var(--ink); font-weight: 600; line-height: 1.2; text-wrap: balance; word-break: auto-phrase; }
+  h1 { font-size: 29px; margin: 0; }
+  h2 { font-size: 24px; margin: 0 0 16px; }
+  h3 { font-size: 20px; margin: 40px 0 12px; }
+  p { margin: 12px 0; }
+  ul, ol { padding-left: 20px; }
+  li { margin: 4px 0; }
+  a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; transition: color 150ms; }
+  a:hover { color: var(--ink); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    background: var(--bg-muted);
+    border-radius: var(--radius-sm);
+    padding: 0.1em 0.35em;
+    overflow-wrap: anywhere;
+  }
+
+  pre {
+    margin: 0;
+    padding: 12px 16px;
+    background: var(--bg-muted);
+    border: 1px solid var(--line);
+    overflow-x: auto;
+    white-space: pre;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.75;
+  }
+
+  pre code { background: none; padding: 0; font-size: 1em; }
+
+  .lede { color: var(--muted); font-size: 14px; margin: 8px 0 0; }
+  .empty { color: var(--muted); }
+  p.empty { margin: 16px 0 0; }
+
+  .skip-link { position: absolute; left: -999px; top: 0; }
+  .skip-link:focus { left: 8px; top: 8px; z-index: 40; background: var(--bg); padding: 4px 8px; }
+
+  /* Header */
+  .page-header { border-bottom: 1px solid var(--hairline); }
+  .page-header .wrap { padding-top: 24px; padding-bottom: 24px; }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 20px;
+    color: var(--text);
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .brand svg { flex: none; width: 28px; height: 28px; }
+  .brand-sub { color: var(--muted); font-size: 14px; font-weight: 400; }
+  .brand-sub::before { content: "/"; margin: 0 8px 0 2px; color: var(--line-strong); }
+
+  /* Unfilled marker */
+  .todo {
+    color: var(--muted);
+    background: var(--bg-muted);
+    border-bottom: 1px dashed var(--line-strong);
+    border-radius: 2px;
+    padding: 0 2px 1px;
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    overflow-wrap: anywhere;
+  }
+
+  /* Aside (note / caution / danger) */
+  .aside {
+    margin: 16px 0 0;
+    padding: 12px 16px;
+    background: var(--note-low);
+    border: 1px solid var(--note);
+    border-radius: var(--radius-lg);
+    font-size: 14px;
+  }
+
+  .aside p { margin: 4px 0 0; }
+
+  .aside .aside-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    color: var(--note-high);
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .aside .aside-title::before {
+    content: "";
+    flex: none;
+    width: 20px;
+    height: 20px;
+    background: currentColor;
+    -webkit-mask: var(--icon-info) center / contain no-repeat;
+    mask: var(--icon-info) center / contain no-repeat;
+  }
+
+  .aside-caution { background: var(--caution-low); border-color: var(--caution); }
+  .aside-caution .aside-title { color: var(--caution-high); }
+  .aside-danger { background: var(--danger-low); border-color: var(--danger); }
+  .aside-danger .aside-title { color: var(--danger-high); }
+  .aside-caution .aside-title::before, .aside-danger .aside-title::before {
+    -webkit-mask-image: var(--icon-alert);
+    mask-image: var(--icon-alert);
+  }
+
+  /* Shown when the data can't be read (avoid a blank page) */
+  .noscript-note { padding-top: 16px; }
+
+  /* Link to the paired page (LinkCard) */
+  .cross-link {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "label arrow" "hint arrow";
+    align-items: center;
+    column-gap: 16px;
+    margin: 16px 0 0;
+    padding: 12px 16px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    color: var(--text);
+    text-decoration: none;
+    transition: background-color 150ms, border-color 150ms;
+  }
+
+  .cross-link:hover { background: var(--bg-muted); border-color: var(--text); color: var(--text); }
+  /* display: grid beats the UA's [hidden] { display: none }, so override it */
+  .cross-link[hidden] { display: none; }
+  .cross-link-label { grid-area: label; color: var(--ink); font-size: 18px; font-weight: 600; line-height: 1.4; }
+  .cross-link-hint { grid-area: hint; color: var(--muted); font-size: 14px; }
+
+  .cross-link::after {
+    content: "\2192";
+    grid-area: arrow;
+    color: var(--ink);
+    transition: transform 150ms ease;
+  }
+
+  .cross-link:hover::after { transform: translateX(4px); }
+
+  /* Badge (small monospace label) */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 6px;
+    border: 1px solid var(--neutral);
+    border-radius: var(--radius-sm);
+    background: var(--neutral-low);
+    color: var(--neutral-high);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.6;
+    white-space: nowrap;
+  }
+
+  .badge:empty { display: none; }
+  .badge-success { border-color: var(--success); background: var(--success-low); color: var(--success-high); }
+  .badge-caution { border-color: var(--caution); background: var(--caution-low); color: var(--caution-high); }
+  .badge-note { border-color: var(--note); background: var(--note-low); color: var(--note-high); }
+  .badge-quiet { border-color: var(--line); background: none; color: var(--muted); }
+  h2 .badge { margin-left: 10px; font-size: 13px; vertical-align: 4px; }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--bg);
+    color: var(--text);
+    font: inherit;
+    font-size: 14px;
+    line-height: 1.5;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 150ms, border-color 150ms, color 150ms;
+  }
+
+  /* display: inline-flex beats the UA's [hidden], so override it */
+  .btn[hidden] { display: none; }
+
+
+  .btn:hover { background: var(--bg-muted); border-color: var(--line-strong); }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); font-weight: 600; }
+  .btn-primary:hover { background: var(--ink); border-color: var(--ink); color: var(--on-accent); }
+  .btn-quiet { background: none; border-color: transparent; color: var(--muted); }
+  .btn-quiet:hover { background: var(--wash-faint); border-color: transparent; color: var(--ink); }
+  .btn-sm { padding: 2px 8px; font-size: 13px; }
+
+  .btn-icon::before {
+    content: "";
+    flex: none;
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    -webkit-mask: var(--btn-icon) center / contain no-repeat;
+    mask: var(--btn-icon) center / contain no-repeat;
+  }
+
+  .btn-copy { --btn-icon: var(--icon-copy); }
+  .btn-comment { --btn-icon: var(--icon-comment); }
+  .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0 0; }
+  .toolbar-end { justify-content: flex-end; gap: 4px; }
+
+  /* Label/value pairs (a 2-column grid; each value folds to one line) */
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    margin: 16px 0 0;
+    background: var(--hairline);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  .fact { position: relative; min-width: 0; margin: 0; padding: 10px 14px; background: var(--bg); }
+  /* With an odd count, the last one spans the row so no empty cell is left */
+  .fact:last-child:nth-child(odd) { grid-column: 1 / -1; }
+  .fact dt { color: var(--muted); font-size: 13px; line-height: 1.5; }
+  .fact dd { margin: 2px 0 0; color: var(--ink); min-width: 0; }
+  /* One line while folded, bullets while open */
+  .fact-list .fact-bullets { display: none; margin: 2px 0 0; overflow-wrap: anywhere; }
+  .fact-list .fact-bullets li { margin: 0; line-height: 1.6; }
+  .fact-list.is-open .fact-bullets { display: block; }
+  .fact-list.is-open .clip { display: none; }
+
+  @media (max-width: 560px) {
+    .facts { grid-template-columns: minmax(0, 1fr); }
+    .fact:last-child:nth-child(odd) { grid-column: auto; }
+  }
+
+  /* One-line folding. Only content that overflows can be clicked open and closed */
+  .clip { display: block; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  [data-clamp].is-open .clip { overflow: visible; white-space: normal; overflow-wrap: anywhere; }
+  /* Columns that wrap and show everything (things like the violation text that must be readable) */
+  td.wrap .clip { overflow: visible; white-space: normal; overflow-wrap: anywhere; }
+  [data-clamp].is-clampable, [data-clamp].is-open { cursor: pointer; }
+  .fact[data-clamp].is-clampable:hover, .fact[data-clamp].is-open:hover { background: var(--bg-muted); }
+  .fact[data-clamp].is-clampable dd, .fact[data-clamp].is-open dd { padding-right: 20px; }
+
+  .fact[data-clamp].is-clampable::after, .fact[data-clamp].is-open::after,
+  tr[data-clamp].is-clampable > td:last-child::after, tr[data-clamp].is-open > td:last-child::after {
+    content: "";
+    position: absolute;
+    right: 12px;
+    bottom: 14px;
+    width: 14px;
+    height: 14px;
+    background: var(--muted);
+    -webkit-mask: var(--icon-chevron) center / contain no-repeat;
+    mask: var(--icon-chevron) center / contain no-repeat;
+    transform: rotate(90deg);
+    transition: transform 200ms;
+  }
+
+  .fact[data-clamp].is-open::after, tr[data-clamp].is-open > td:last-child::after { transform: rotate(-90deg); }
+  tr[data-clamp].is-clampable > td:last-child, tr[data-clamp].is-open > td:last-child { position: relative; padding-right: 32px; }
+  tr[data-clamp].is-clampable > td:last-child::after, tr[data-clamp].is-open > td:last-child::after { top: 13px; bottom: auto; }
+
+  /* Tables. Each row folds to one line and opens on click */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 16px 0 0;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+  }
+
+  table { border-collapse: collapse; width: 100%; min-width: 36rem; font-size: 14px; table-layout: fixed; }
+
+  th, td {
+    text-align: left;
+    padding: 8px 14px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+  }
+
+  thead th {
+    background: var(--bg-muted);
+    color: var(--ink);
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr[data-clamp].is-clampable:hover, tbody tr[data-clamp].is-open:hover { background: var(--bg-muted); }
+  td.mono { font-family: var(--font-mono); font-size: 13px; }
+
+  /* Trees (nested <details>), shared by directories, modules and candidate roles */
+  .tree { margin: 8px 0 0; font-size: 14px; line-height: 1.5; }
+  .tree details > summary { list-style: none; }
+  .tree details > summary::-webkit-details-marker { display: none; }
+
+  .tree-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 30px;
+    padding: 3px 8px 3px 2px;
+    border-radius: var(--radius-sm);
+    transition: background-color 150ms;
+  }
+
+  summary.tree-row { cursor: pointer; }
+  summary.tree-row:hover { background: var(--bg-muted); }
+  summary.tree-row:focus-visible { outline-offset: -2px; }
+
+  .tw, .ti {
+    flex: none;
+    width: 16px;
+    height: 16px;
+  }
+
+  summary > .tw {
+    background: var(--muted);
+    -webkit-mask: var(--icon-chevron) center / 14px no-repeat;
+    mask: var(--icon-chevron) center / 14px no-repeat;
+    transition: transform 200ms;
+  }
+
+  details[open] > summary > .tw { transform: rotate(90deg); }
+
+  .ti {
+    background: var(--muted);
+    -webkit-mask: var(--ti) center / contain no-repeat;
+    mask: var(--ti) center / contain no-repeat;
+  }
+
+  .ti-folder { --ti: var(--icon-folder); }
+  .ti-file { --ti: var(--icon-file); }
+  .ti-group { --ti: var(--icon-group); background: var(--ink); }
+  .ti-role { --ti: var(--icon-role); }
+  .ti-module { --ti: var(--icon-module); }
+
+  .tree-children {
+    margin-left: 9px;
+    padding-left: 10px;
+    border-left: 1px solid var(--hairline-light);
+  }
+
+  .t-name { flex: none; max-width: 100%; color: var(--ink); font-family: var(--font-mono); font-size: 13px; overflow-wrap: anywhere; }
+  .t-note { min-width: 0; color: var(--muted); font-size: 12px; }
+
+  /* Questions for you */
+  .qa {
+    margin: 12px 0 0;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+  }
+
+  .qa > summary {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: var(--radius-lg);
+    list-style: none;
+    cursor: pointer;
+    transition: background-color 150ms;
+  }
+
+  .qa > summary::-webkit-details-marker { display: none; }
+  .qa > summary:hover { background: var(--bg-muted); }
+  .qa[open] > summary { border-bottom: 1px solid var(--hairline); border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+
+  .qa > summary::after {
+    content: "";
+    flex: none;
+    width: 16px;
+    height: 16px;
+    margin-top: 4px;
+    background: var(--muted);
+    -webkit-mask: var(--icon-chevron) center / 14px no-repeat;
+    mask: var(--icon-chevron) center / 14px no-repeat;
+    transition: transform 200ms;
+  }
+
+  .qa[open] > summary::after { transform: rotate(90deg); }
+  .qa-id { flex: none; margin-top: 2px; }
+  .qa-main { flex: 1; min-width: 0; }
+  .qa-title { display: block; color: var(--ink); font-weight: 600; line-height: 1.5; }
+  .qa-picked { margin-top: 2px; color: var(--success-high); font-size: 13px; }
+  .qa-picked:empty { display: none; }
+  .qa-state { flex: none; margin-top: 2px; }
+  .qa-body { display: grid; gap: 14px; padding: 14px 16px 16px; }
+  .qa-body > * { margin: 0; min-width: 0; }
+  .qa-label { margin: 0 0 4px; color: var(--muted); font-size: 13px; font-weight: 600; }
+  .qa-free > summary { margin: 0; cursor: pointer; width: fit-content; }
+  .qa-free > summary:hover { color: var(--ink); }
+  .qa-free[open] > summary { margin-bottom: 4px; }
+  .qa-observed p { margin: 0; }
+
+  .qa-options { display: grid; gap: 6px; min-width: 0; margin: 0; padding: 0; border: 0; }
+  .qa-options legend { padding: 0; }
+
+  .qa-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background-color 150ms, border-color 150ms;
+  }
+
+  .qa-option:hover { background: var(--bg-muted); }
+  .qa-option.is-checked { background: var(--bg-muted); border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  .qa-option input { flex: none; margin: 0.3em 0 0; accent-color: var(--accent); }
+  .opt-key { flex: none; color: var(--muted); font-family: var(--font-mono); font-size: 12px; margin-top: 3px; }
+  .opt-text { flex: 1; min-width: 0; color: var(--ink); }
+  .qa-option .badge { flex: none; margin-top: 2px; }
+
+  .qa-why { padding: 10px 12px; background: var(--bg-muted); border-radius: var(--radius-md); font-size: 14px; }
+  .qa-why p { margin: 0; }
+
+  .qa textarea, .fb-pop textarea {
+    display: block;
+    width: 100%;
+    min-height: 4.5em;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--bg);
+    color: var(--text);
+    font: inherit;
+    font-size: 14px;
+    line-height: 1.6;
+    resize: vertical;
+  }
+
+  .qa textarea:focus-visible, .fb-pop textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 0; }
+  .qa.is-imported .qa-state::after { content: ""; }
+
+  /* The menu that copies what there is to hand over (answers, feedback). It floats at the bottom right and appears once there is at least one of either */
+  .send-bar {
+    position: fixed;
+    right: max(16px, env(safe-area-inset-right, 0px));
+    bottom: max(16px, env(safe-area-inset-bottom, 0px));
+    z-index: 32;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+    max-width: min(56rem, calc(100vw - 32px));
+    max-height: calc(100vh - 32px);
+    overflow-y: auto;
+    padding: 10px 12px 10px 16px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    font-size: 14px;
+    animation: send-in 180ms ease-out;
+  }
+  .send-bar[hidden] { display: none; }
+  @keyframes send-in {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .send-bar { animation: none; }
+  }
+  @media (max-width: 640px) {
+    .send-bar { left: max(16px, env(safe-area-inset-left, 0px)); }
+  }
+  .send-summary { flex: 1 1 auto; min-width: 0; margin: 0; color: var(--ink); font-weight: 600; }
+  .send-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .send-status { flex-basis: 100%; margin: 0; color: var(--muted); font-size: 13px; }
+  .send-status:empty { display: none; }
+  .send-status.is-error { color: var(--danger-high); }
+  /* A flex child grows to its content's width; min-width: 0 keeps it inside the bar */
+  .send-preview { flex-basis: 100%; min-width: 0; max-width: 100%; max-height: 14rem; margin: 0; font-size: 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .send-preview[hidden] { display: none; }
+  /* Leave room at the bottom for the menu so it doesn't cover the last lines of the page */
+  body { padding-bottom: var(--send-h, 0px); }
+
+  .answer-manual {
+    display: block;
+    flex-basis: 100%;
+    width: 100%;
+    min-height: 6em;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--bg-muted);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+
+  /* display: block beats the UA's [hidden] { display: none }, so override it */
+  .answer-manual[hidden] { display: none; }
+
+  /* Feedback mode */
+  .fb-fab {
+    position: fixed;
+    right: max(16px, env(safe-area-inset-right, 0px));
+    /* --send-h is the height of the menu below (0 when it is not shown); sit above it */
+    bottom: calc(max(16px, env(safe-area-inset-bottom, 0px)) + var(--send-h, 0px));
+    z-index: 30;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border: 1px solid var(--line);
+    border-radius: 9999px;
+    background: var(--bg);
+    color: var(--ink);
+    box-shadow: var(--shadow-md);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    cursor: pointer;
+    transition: background-color 150ms, color 150ms;
+    --btn-icon: var(--icon-comment);
+  }
+
+  .fb-fab:hover { background: var(--bg-muted); }
+  .fb-fab[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .fb-fab .badge { border-color: currentColor; background: none; color: inherit; }
+
+  .fb-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 30;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 8px 12px;
+    padding: calc(8px + env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) 8px max(16px, env(safe-area-inset-left, 0px));
+    background: var(--accent);
+    color: var(--on-accent);
+    font-size: 14px;
+    box-shadow: var(--shadow-md);
+  }
+
+  .fb-banner[hidden] { display: none; }
+  .fb-banner p { margin: 0; }
+  .fb-banner .btn { background: none; border-color: currentColor; color: inherit; }
+  .fb-banner .btn:hover { background: var(--wash); }
+  body.fb-mode { padding-top: var(--fb-banner-h, 48px); }
+  body.fb-mode [data-fb] { cursor: crosshair; }
+  /* While feedback mode is on, the whole edge of the screen glows softly so it is clear the mode is on */
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 29;
+    pointer-events: none;
+    box-shadow: inset 0 0 48px 8px color-mix(in srgb, var(--glow) 50%, transparent);
+    opacity: 0;
+    transition: opacity 400ms ease-out;
+  }
+  body.fb-mode::after { opacity: 1; animation: fb-glow 1.8s ease-in-out infinite alternate; }
+  @keyframes fb-glow {
+    from { box-shadow: inset 0 0 16px 0 color-mix(in srgb, var(--glow) 25%, transparent); }
+    to { box-shadow: inset 0 0 88px 18px color-mix(in srgb, var(--glow) 65%, transparent); }
+  }
+  @media (prefers-reduced-motion: reduce) { body.fb-mode::after { animation: none; } }
+  @media print { body::after { display: none; } }
+
+  .fb-hl {
+    position: absolute;
+    z-index: 24;
+    border: 2px solid var(--note-high);
+    border-radius: var(--radius-sm);
+    pointer-events: none;
+  }
+
+  .fb-hl[hidden] { display: none; }
+
+  .fb-hl span {
+    position: absolute;
+    left: -2px;
+    bottom: 100%;
+    max-width: min(32rem, 80vw);
+    padding: 1px 6px;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    background: var(--note-high);
+    color: var(--bg);
+    font-size: 12px;
+    line-height: 1.6;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Frames around the targets while the comment box is open; numbered at the top left when there are several */
+  .fb-sel {
+    position: absolute;
+    z-index: 23;
+    border: 2px solid var(--note-high);
+    border-radius: var(--radius-sm);
+    background: var(--wash-faint);
+    pointer-events: none;
+  }
+  .fb-sel span {
+    position: absolute;
+    left: -2px;
+    top: -2px;
+    min-width: 18px;
+    padding: 0 5px;
+    border-radius: var(--radius-sm) 0 var(--radius-sm) 0;
+    background: var(--note-high);
+    color: var(--bg);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 18px;
+    text-align: center;
+  }
+
+  .fb-pin {
+    position: absolute;
+    z-index: 22;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    border: 2px solid var(--bg);
+    border-radius: 9999px;
+    background: var(--note-high);
+    color: var(--bg);
+    box-shadow: var(--shadow-sm);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 18px;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .fb-pop, .fb-panel {
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    font-size: 14px;
+  }
+
+  .fb-pop { position: absolute; z-index: 35; width: min(24rem, calc(100vw - 32px)); padding: 12px; }
+  .fb-pop-grip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: -6px -6px 6px;
+    padding: 2px 6px;
+    border-radius: var(--radius-md);
+    color: var(--muted);
+    font-size: 12px;
+    cursor: move;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .fb-pop-grip:hover { background: var(--bg-muted); }
+  /* A grip mark (two columns of dots) */
+  .fb-pop-grip::before {
+    content: "";
+    flex: none;
+    width: 8px;
+    height: 12px;
+    background: radial-gradient(circle, currentColor 1px, transparent 1.5px) 0 0 / 4px 4px;
+  }
+  .fb-pop-grip-label { flex: 1; min-width: 0; }
+  .fb-pop-reset { padding: 0 6px; }
+  .fb-pop.is-dragging { opacity: 0.92; box-shadow: var(--shadow-lg), 0 0 0 2px var(--note-high); }
+  .fb-pop-quote { margin: 0 0 6px; padding-left: 8px; border-left: 3px solid var(--line); color: var(--text); font-size: 13px; line-height: 1.6; overflow-wrap: anywhere; }
+  .fb-list li.fb-draft { background: var(--wash-faint); }
+  .fb-list .fb-pop-quote { margin: 4px 0 0; }
+  .fb-pop-target { margin: 0 0 2px; color: var(--ink); font-weight: 600; line-height: 1.5; overflow-wrap: anywhere; }
+  .fb-pop-key { margin: 0 0 6px; color: var(--muted); font-family: var(--font-mono); font-size: 12px; overflow-wrap: anywhere; }
+  .fb-pop-targets { max-height: 32vh; overflow-y: auto; margin-bottom: 2px; }
+  .fb-pop-row { display: flex; align-items: flex-start; gap: 8px; }
+  .fb-pop-no {
+    display: inline-block;
+    min-width: 18px;
+    margin-right: 6px;
+    padding: 0 5px;
+    border-radius: var(--radius-sm);
+    background: var(--note-high);
+    color: var(--bg);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    line-height: 18px;
+    text-align: center;
+    vertical-align: 1px;
+  }
+  .fb-pop-names { flex: 1; min-width: 0; }
+  .fb-pop-remove { flex: none; padding: 0 8px; }
+  .fb-pop-count, .fb-pop-hint { margin: 0 0 6px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+  .fb-pop-note { margin: 0 0 6px; color: var(--note-high); font-size: 12px; }
+  .fb-pop.is-nudged { animation: fb-nudge 300ms; border-color: var(--caution-high); }
+  @keyframes fb-nudge {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+  .fb-pop-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-top: 8px; }
+  .fb-pop-actions .fb-delete { margin-right: auto; color: var(--danger-high); }
+
+  .fb-panel {
+    position: fixed;
+    right: max(16px, env(safe-area-inset-right, 0px));
+    bottom: calc(max(16px, env(safe-area-inset-bottom, 0px)) + 52px + var(--send-h, 0px));
+    z-index: 31;
+    display: flex;
+    flex-direction: column;
+    width: min(26rem, calc(100vw - 32px));
+    max-height: min(70vh, 40rem, calc(100vh - 140px - var(--send-h, 0px)));
+  }
+
+  .fb-panel[hidden] { display: none; }
+  .fb-panel-head { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--hairline); }
+  .fb-panel-head p { flex: 1; margin: 0; color: var(--ink); font-weight: 600; }
+  .fb-list { flex: 1; min-height: 0; margin: 0; padding: 0; overflow: auto; list-style: none; }
+  .fb-list li { margin: 0; padding: 10px 14px; border-bottom: 1px solid var(--hairline); }
+  .fb-item-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+  .fb-list li.is-copied .fb-item-text { color: var(--muted); }
+  .fb-item-target { flex: 1; min-width: 0; color: var(--ink); font-weight: 600; overflow-wrap: anywhere; }
+  .fb-item-key { margin: 0; color: var(--muted); font-family: var(--font-mono); font-size: 12px; overflow-wrap: anywhere; white-space: pre-line; }
+  .fb-item-text { margin: 4px 0 0; white-space: pre-wrap; }
+  .fb-item-actions { display: flex; gap: 4px; margin-top: 4px; }
+  .fb-empty { padding: 16px 14px; color: var(--muted); }
+  .fb-panel-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 14px; }
+  .fb-panel-foot .fb-status { flex-basis: 100%; margin: 0; color: var(--muted); font-size: 13px; }
+  .fb-panel-foot .fb-status:empty { display: none; }
+  .fb-panel-foot .fb-status.is-error { color: var(--danger-high); }
+
+  /* Short notice after copying or saving (appears at the top centre and fades out) */
+  .toast {
+    position: fixed;
+    top: calc(16px + env(safe-area-inset-top, 0px));
+    left: 50%;
+    z-index: 45;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    max-width: calc(100vw - 32px);
+    padding: 8px 16px;
+    border-radius: 9999px;
+    background: var(--accent);
+    color: var(--on-accent);
+    box-shadow: var(--shadow-lg);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    pointer-events: none;
+    opacity: 0;
+    transform: translate(-50%, -8px);
+    transition: opacity 150ms, transform 150ms;
+  }
+  .toast::before {
+    content: "";
+    flex: none;
+    width: 16px;
+    height: 16px;
+    background: currentColor;
+    -webkit-mask: var(--icon-check) center / contain no-repeat;
+    mask: var(--icon-check) center / contain no-repeat;
+  }
+  .toast.is-error::before { -webkit-mask-image: var(--icon-alert); mask-image: var(--icon-alert); }
+  .toast.is-shown { opacity: 1; transform: translate(-50%, 0); }
+  .toast.is-shown.has-action { pointer-events: auto; }
+  .toast-action {
+    margin-left: 4px;
+    padding: 0 4px;
+    border: none;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; }
+  }
+
+  @media print {
+    /* Paper stays white even when the OS is dark; redeclare the tokens for light */
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --bg-muted: #f3f4f6;
+      --bg-sunken: #e5e7eb;
+      --line: #d1d5dc;
+      --hairline: #e5e7eb;
+      --hairline-light: #e5e7eb;
+      --line-strong: #99a1af;
+      --ink: #101828;
+      --text: #364153;
+      --muted: #6a7282;
+      --accent: #1e2939;
+      --on-accent: #ffffff;
+      --neutral-low: #e5e7eb;
+      --neutral: #1e2939;
+      --neutral-high: #101828;
+      --note-low: #dbeafe;
+      --note: #51a2ff;
+      --note-high: #193cb8;
+      --caution-low: #fef3c6;
+      --caution: #ffb900;
+      --caution-high: #973c00;
+      --danger-low: #ffe2e2;
+      --danger: #ff6467;
+      --danger-high: #9f0712;
+      --success-low: #dcfce7;
+      --success: #05df72;
+      --success-high: #016630;
+    }
+
+    body { background: #ffffff; color: #000000; }
+    body.fb-mode { padding-top: 0; }
+    .fb-fab, .fb-banner, .fb-hl, .fb-sel, .fb-pin, .fb-pop, .fb-panel,
+    .send-bar, .toolbar, .skip-link, .cross-link, .toast { display: none !important; }
+    a { color: #000000; }
+
+    /* Folded rows print in full */
+    .clip { overflow: visible; white-space: normal; }
+    .table-wrap { overflow: visible; }
+    table { min-width: 0; }
+  }
+
+  /* Progress (sticky at the top) */
+  .progress {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--bg);
+    border-bottom: 1px solid var(--hairline);
+  }
+
+  body.fb-mode .progress { top: var(--fb-banner-h, 48px); }
+  .progress .wrap { padding-top: 10px; padding-bottom: 12px; }
+  .progress-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 16px; }
+  .progress-actions { display: flex; align-items: center; gap: 8px; flex: none; }
+  #progress-text { color: var(--ink); font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  #progress-text span { color: var(--muted); font-weight: 400; }
+  #progress-text .progress-warn { color: var(--caution-high); }
+
+  .progress-track {
+    height: 4px;
+    margin-top: 8px;
+    border-radius: 9999px;
+    background: var(--bg-sunken);
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    border-radius: 9999px;
+    background: var(--success-high);
+    transition: width 150ms ease;
+  }
+
+  /* Steps (a vertical timeline + stepper: the numbered circles and vertical guide of Steps) */
+  .steps { margin-top: 32px; }
+  .step { position: relative; }
+
+  .step::before {
+    content: "";
+    position: absolute;
+    left: 14px;
+    /* From the bottom of this circle to the top of the next step's circle */
+    top: 42px;
+    bottom: -12px;
+    width: 1px;
+    background: var(--hairline-light);
+  }
+
+  .steps > .step:last-child::before { display: none; }
+  .step.is-done::before { background: var(--success); }
+
+  .step > summary {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 10px 12px 0;
+    border-radius: var(--radius-md);
+    list-style: none;
+    cursor: pointer;
+    transition: background-color 150ms;
+  }
+
+  .step > summary::-webkit-details-marker { display: none; }
+  .step > summary:hover { background: var(--bg-muted); }
+
+  .step > summary::after {
+    content: "";
+    flex: none;
+    width: 16px;
+    height: 16px;
+    margin-top: 6px;
+    background: var(--muted);
+    -webkit-mask: var(--icon-chevron) center / 14px no-repeat;
+    mask: var(--icon-chevron) center / 14px no-repeat;
+    transition: transform 200ms;
+  }
+
+  .step[open] > summary::after { transform: rotate(90deg); }
+
+  .step-num {
+    position: relative;
+    z-index: 1;
+    flex: none;
+    width: 29px;
+    height: 29px;
+    border-radius: 9999px;
+    background: var(--bg-sunken);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 27px;
+    text-align: center;
+  }
+
+  .step-title { flex: 1; min-width: 0; color: var(--ink); font-size: 20px; font-weight: 600; line-height: 1.4; word-break: auto-phrase; }
+  @media (max-width: 480px) { .step-title { font-size: 18px; } }
+  .step-state { flex: none; margin-top: 4px; }
+
+  .step.is-done .step-num { background: var(--success-high); border-color: var(--success-high); color: var(--bg); }
+  .step.is-done.has-warning::before { background: var(--caution); }
+  .step.is-done.has-warning .step-num { background: var(--caution-high); border-color: var(--caution-high); color: var(--bg); }
+
+  .step-warning { margin: 0 0 12px; }
+
+  /* Optional steps: styled like the required ones, they would look unfinished just for not being done */
+  .step.is-optional .step-num { border-style: dashed; background: var(--bg); color: var(--muted); }
+  .step.is-optional .step-title { color: var(--muted); }
+  .step.is-optional::before { width: 0; border-left: 1px dashed var(--line); background: none; }
+  .step-body { padding: 0 0 32px 41px; }
+
+  /* Checklist items */
+  .checklist { list-style: none; margin: 4px 0 0; padding: 0; }
+  .checklist li { margin: 0; border-bottom: 1px solid var(--hairline); }
+  .checklist li:last-child { border-bottom: none; }
+
+  .checklist label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 0 -8px;
+    padding: 10px 8px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+
+  .checklist label:hover { background: var(--bg-muted); }
+  .checklist input[type="checkbox"] { flex: none; width: 16px; height: 16px; margin: 0.32em 0 0; accent-color: var(--accent); }
+  .checklist .item { flex: 1; min-width: 0; }
+  .checklist input:checked + .item { color: var(--muted); }
+  .checklist .item-id { margin-right: 8px; color: var(--muted); font-family: var(--font-mono); font-size: 12px; }
+
+  /* Sections other than the steps */
+  .block { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--hairline); }
+
+  /* Writing preferences (rows that differ from the recommendation) */
+  tr.pref-differs td { background: var(--caution-low); }
+  .pref-mark { color: var(--caution-high); font-size: 12px; white-space: nowrap; }
+
+  footer.page-footer { margin-top: 48px; border-top: 1px solid var(--hairline); }
+  footer.page-footer .wrap { padding-top: 20px; padding-bottom: 80px; color: var(--muted); font-size: 13px; }
+  footer.page-footer p { margin: 4px 0; }
+
+  /* Metadata (collapsed by default) */
+  .meta-details { margin: 16px 0 0; }
+
+  .meta-details > summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 6px 2px 2px;
+    border-radius: var(--radius-sm);
+    color: var(--muted);
+    font-size: 14px;
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .meta-details > summary::-webkit-details-marker { display: none; }
+  .meta-details > summary:hover { color: var(--ink); background: var(--wash-faint); }
+  .meta-details .facts { margin-top: 8px; }
+
+  /* Body layout */
+  .layout {
+    display: grid;
+    grid-template-columns: 14rem minmax(0, 1fr);
+    gap: 48px;
+    align-items: start;
+    padding-top: 32px;
+  }
+
+  nav#toc { position: sticky; top: calc(var(--progress-h, 0px) + 24px); font-size: 13px; }
+  body.fb-mode nav#toc { top: calc(var(--fb-banner-h, 48px) + var(--progress-h, 0px) + 24px); }
+
+  nav#toc .toc-title {
+    margin: 0 0 8px;
+    color: var(--ink);
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  nav#toc ol { list-style: none; margin: 0; padding: 0; border-left: 1px solid var(--hairline); }
+  nav#toc li { margin: 0; }
+
+  nav#toc a {
+    display: block;
+    margin-left: -1px;
+    padding: 5px 8px 5px 12px;
+    border-left: 1px solid transparent;
+    color: var(--muted);
+    text-decoration: none;
+  }
+
+  nav#toc a:hover { color: var(--ink); }
+  nav#toc a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+
+  .report-main { min-width: 0; }
+  .report-main > section + section { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--hairline); }
+
+  /* Things kept collapsed (rationale, characteristics) */
+  .ask { margin-top: 8px; border: 1px solid var(--line); border-radius: var(--radius-lg); }
+
+  .ask > summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: var(--radius-lg);
+    color: var(--ink);
+    font-weight: 600;
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .ask > summary::-webkit-details-marker { display: none; }
+  .ask > summary:hover { background: var(--bg-muted); }
+  .ask[open] > summary { border-bottom: 1px solid var(--hairline); border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+  .ask-body { padding: 10px 14px 12px; }
+  .ask-body ul { margin: 0; padding-left: 18px; }
+  .arch-name { margin: 0 0 12px; color: var(--ink); font-size: 16px; line-height: 1.6; }
+
+  /* Module tree */
+  /* Wrap so long module names fit on narrow screens */
+  .module-row { align-items: flex-start; }
+  .module-row > .tw, .module-row > .ti { margin-top: 4px; }
+  /* Name, kind and ⚑ flow as one paragraph. A long ⚑ continues beside the name and wraps */
+  .module-line { flex: 1 1 auto; min-width: 0; line-height: 24px; }
+  .module-line > .t-name { display: inline; overflow-wrap: anywhere; }
+  .module-line > .badge { margin-left: 6px; vertical-align: 1px; }
+  .module-line > .deviation { margin-left: 8px; color: var(--caution-high); font-size: 13px; overflow-wrap: anywhere; }
+  .module-line > .deviation::before { content: "\2691\00a0"; }
+  .module-body { padding: 2px 0 8px 24px; }
+
+  dl.fields { display: grid; grid-template-columns: 9rem minmax(0, 1fr); gap: 6px 16px; margin: 4px 0 0; font-size: 14px; }
+  dl.fields dt { color: var(--muted); font-size: 13px; padding-top: 1px; }
+  dl.fields dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+  dl.fields dd ul { margin: 0; padding-left: 18px; }
+
+  @media (max-width: 560px) {
+    dl.fields { grid-template-columns: minmax(0, 1fr); gap: 0; }
+    dl.fields dt { padding-top: 8px; }
+  }
+
+  /* Directory structure (FileTree) */
+  .file-tree {
+    margin: 8px 0 0;
+    padding: 10px 8px;
+    background: var(--bg-sunken);
+    border: 1px solid var(--line);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    overflow-x: auto;
+  }
+
+  .file-tree .tree-row { min-height: 26px; padding-top: 1px; padding-bottom: 1px; white-space: nowrap; }
+  .file-tree summary.tree-row:hover { background: var(--wash); }
+  .file-tree .tree-children { border-left-color: var(--line); }
+  .file-tree .t-name { font-size: 13px; }
+  .file-tree .is-dir > .tree-row .t-name { font-weight: 600; }
+  .file-tree .t-note { font-family: var(--font-sans); font-size: 12px; }
+  .raw-tree { margin-top: 8px; font-size: 13px; }
+  .raw-tree > summary { color: var(--muted); cursor: pointer; }
+  .raw-tree pre { margin-top: 6px; }
+
+  /* Tree of elements (candidate roles): groups and roles nest */
+  .legend { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 16px; margin: 12px 0 0; color: var(--muted); font-size: 13px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+
+  .role-tree { margin-top: 12px; }
+  .group-row { flex-wrap: wrap; row-gap: 0; }
+  .group-row .t-name { font-size: 14px; font-weight: 600; }
+  .group-row .t-path { min-width: 0; color: var(--muted); font-family: var(--font-mono); font-size: 12px; overflow-wrap: anywhere; }
+  @media (max-width: 480px) { .group-row .t-path { display: none; } }
+  .group-row .badge { margin-left: 4px; }
+
+  .role-row { flex-wrap: wrap; row-gap: 0; }
+  .role-row .t-name { font-weight: 600; }
+  .role-row .rank { margin: 0 4px; }
+  .role-row .t-layout { flex: 1 1 12rem; min-width: 0; color: var(--muted); font-family: var(--font-mono); font-size: 12px; }
+  .role-row .t-count { flex: none; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+  .role-node.constraint-only > summary .ti { background: var(--line-strong); }
+  .role-node.constraint-only > summary .t-name { color: var(--text); font-weight: 400; }
+  .role-node.is-empty > summary .t-name { font-weight: 400; }
+
+  /* Importance (5-level dots) */
+  .rank { display: inline-flex; flex: none; gap: 2px; }
+  .rank-dot { width: 6px; height: 6px; border-radius: 2px; background: var(--line); }
+  .rank-dot.is-on { background: var(--ink); }
+
+  .role-detail {
+    margin: 4px 0 10px 24px;
+    padding: 12px 14px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+  }
+
+  .role-detail > dl.fields:first-child { margin-top: 0; }
+  .role-tag { margin: 0 0 8px; color: var(--muted); font-size: 13px; }
+
+  /* Allowed / Not allowed */
+  .rules { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 12px 0; font-size: 14px; }
+  .rules-col { min-width: 0; }
+  .rules-deny { border-left: 1px solid var(--hairline); padding-left: 16px; }
+  .rules-head { margin: 0 0 2px; color: var(--muted); font-size: 13px; }
+  .rules ul { margin: 0; padding-left: 18px; }
+  .rules li { margin: 2px 0; overflow-wrap: anywhere; }
+  .rules p.empty { margin: 0; }
+
+  @media (max-width: 640px) {
+    .rules { grid-template-columns: 1fr; }
+    .rules-deny { border-left: none; padding-left: 0; border-top: 1px solid var(--hairline); padding-top: 12px; }
+  }
+
+  /* The codebase report (embedded below the checklist) */
+  .block.report { margin-top: 64px; padding-top: 32px; border-top: 2px solid var(--line); }
+  .report-title { font-size: 29px; margin: 0; }
+  .report > .lede { max-width: 48rem; }
+  .report-main > section > h3 { font-size: 24px; margin: 0 0 16px; }
+  .report-main h4 { color: var(--ink); font-size: 20px; font-weight: 600; line-height: 1.2; margin: 40px 0 12px; }
+  h3 .badge { margin-left: 10px; font-size: 13px; vertical-align: 4px; }
+  /* Lists that open and close from their heading (module list, directory tree) */
+  .fold { margin-top: 40px; }
+  .fold > summary { display: flex; align-items: center; gap: 8px; width: fit-content; padding: 2px 8px 2px 2px; border-radius: var(--radius-md); list-style: none; cursor: pointer; transition: background-color 150ms; }
+  .fold > summary::-webkit-details-marker { display: none; }
+  .fold > summary:hover { background: var(--bg-muted); }
+  .fold > summary::before { content: ""; flex: none; width: 16px; height: 16px; background: var(--muted); -webkit-mask: var(--icon-chevron) center / 14px no-repeat; mask: var(--icon-chevron) center / 14px no-repeat; transition: transform 200ms; }
+  .fold[open] > summary::before { transform: rotate(90deg); }
+  .report-main .fold > summary > h4 { margin: 0; }
+  .fold > summary .badge { margin-left: 10px; font-size: 13px; font-weight: 400; vertical-align: 2px; }
+  .fold[open] > summary { margin-bottom: 12px; }
+  .report .meta-details { margin-top: 16px; }
+  .step-link { display: flex; width: fit-content; margin-top: 6px; font-size: 13px; text-decoration: none; }
+  .cross-link-label:has(.badge:not([hidden])) { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 10px; }
+  .cross-link-label .badge { font-size: 13px; font-weight: 400; }
+  /* Keep the heading a link or the table of contents jumps to from hiding under the sticky progress bar */
+  .block, .report-main > section, .report-sub { scroll-margin-top: calc(var(--progress-h, 0px) + 16px); }
+
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-top: 24px; }
+    nav#toc { position: static; padding-bottom: 16px; border-bottom: 1px solid var(--hairline); }
+    nav#toc ol { columns: 2; column-gap: 16px; }
+  }
+
+  @media print {
+    .progress { position: static; }
+    .step > summary::after { display: none; }
+    /* Show as an outline rather than a fill, so it still reads under default print settings that omit background graphics */
+    .step .step-num, .step.is-done .step-num, .step.is-done.has-warning .step-num { background: none; color: var(--ink); }
+    .step.is-done .step-num { border-color: var(--success-high); color: var(--success-high); }
+    .step.is-done.has-warning .step-num { border-color: var(--caution-high); color: var(--caution-high); }
+    .step, .block:not(.report) { break-inside: avoid; }
+    nav#toc { display: none; }
+    .layout { grid-template-columns: 1fr; }
+    .report-main > section, .role-detail { break-inside: avoid-page; }
+  }
+</style>
+</head>
+<body>
+
+<noscript>
+  <div class="wrap noscript-note">
+    <div class="aside aside-danger">
+      <p class="aside-title">This page needs JavaScript to render.</p>
+      <p>This page reads the JSON embedded in it to render. The data itself lives in this file's
+      script type="application/json" id="checklist" (the checklist) and id="report" (the codebase report) blocks.</p>
+    </div>
+  </div>
+</noscript>
+
+<script type="application/json" id="checklist">
+{
+  "meta": {
+    "workdir": null,
+    "moduleDir": null,
+    "version": null,
+    "projectRoot": null,
+    "ranAt": null,
+    "kotlin": null,
+    "jvmToolchain": null,
+    "git": null
+  },
+  "steps": [
+    {
+      "id": "0",
+      "title": "Preparation",
+      "warning": null,
+      "items": [
+        {
+          "id": "0-1",
+          "label": "Ran one harmless command of each kind for real, to get the approvals the rest of the work needs up front",
+          "done": false
+        },
+        {
+          "id": "0-2",
+          "label": "Set up the working directory from the katachi skill and filled in meta (Gradle root, Git, versions)",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": "1",
+      "title": "Analyze the current codebase's structure and infer each component's constraints",
+      "warning": null,
+      "items": [
+        {
+          "id": "1-1",
+          "label": "Read the project's own documentation before the code",
+          "done": false
+        },
+        {
+          "id": "1-2",
+          "label": "Filled in the codebase report on this page (the report JSON)",
+          "done": false
+        },
+        {
+          "id": "1-3",
+          "label": "Asked about writing preferences and recorded them in preferences",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "title": "Create the verification module (default architecture-test/) and wire it into the build",
+      "warning": null,
+      "items": [
+        {
+          "id": "2-1",
+          "label": "Ran `katachi scaffold --package <package name>`",
+          "done": false
+        },
+        {
+          "id": "2-2",
+          "label": "Confirmed that with an empty definition, the verification module's test fails only with Unexpected",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "title": "Write the `architecture { }` definition",
+      "warning": null,
+      "items": [
+        {
+          "id": "3-1",
+          "label": "Read the documentation pages in step 3-1 (layout, role, basic-api; kt-file-content, gradle and source sets when the project needs them)",
+          "done": false
+        },
+        {
+          "id": "3-2",
+          "label": "Wrote the architecture { } definition and saved the verification module's test output as the pre-refactoring reference log",
+          "done": false
+        },
+        {
+          "id": "3-3",
+          "label": "Refactored the definition (splitting files and packages, descriptions, shared parts) and confirmed by comparing the logs of the check before and after that the result did not change",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": "4",
+      "title": "Verify",
+      "warning": null,
+      "items": [
+        {
+          "id": "4-1",
+          "label": "Ran the verification module's test",
+          "done": false
+        },
+        {
+          "id": "4-2",
+          "label": "Handled the errors: fixed those not caused by katachi (Gradle, Java, etc.) and recorded the violations left",
+          "done": false
+        },
+        {
+          "id": "4-3",
+          "label": "Generated docs with the verification module's katachiDocs and checked the output",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": "5",
+      "title": "Review the checklist",
+      "warning": null,
+      "items": [
+        {
+          "id": "5-1",
+          "label": "Reviewed this checklist in full",
+          "done": false
+        },
+        {
+          "id": "5-2",
+          "label": "Confirmed nothing was left unfilled",
+          "done": false
+        }
+      ]
+    },
+    {
+      "id": "6",
+      "title": "(Optional) Confirm it works, and extend it to CI, docs and templates",
+      "warning": null,
+      "optional": true,
+      "items": [
+        {
+          "id": "6-1",
+          "label": "Ran a real implementation task and judged whether architecture { } needed changes",
+          "done": false
+        },
+        {
+          "id": "6-2",
+          "label": "Added the verification module's test to CI",
+          "done": false
+        },
+        {
+          "id": "6-3",
+          "label": "Set up documentation generation (title / description, whether to commit it)",
+          "done": false
+        },
+        {
+          "id": "6-4",
+          "label": "Wrote a template and confirmed the verification module's test reports no new violations right after generating one file",
+          "done": false
+        }
+      ]
+    }
+  ],
+  "preferences": {},
+  "violations": [],
+  "questions": [],
+  "answers": {},
+  "changedFiles": []
+}
+</script>
+
+<!-- Example: the JSON above, fully filled in. Enter values in this shape. "title" and "label" are cut to "…" here: keep the ones above as they are. Never edit this comment.
+{
+  "meta": {
+    "workdir": ".local/install-katachi",
+    "moduleDir": "architecture-test",
+    "version": "0.4.0",
+    "projectRoot": "/Users/me/dev/example-app",
+    "ranAt": "2026-09-24 10:00 JST",
+    "kotlin": "2.4.10",
+    "jvmToolchain": "17 (from ../app/build.gradle.kts)",
+    "git": "yes"
+  },
+  "steps": [
+    {
+      "id": "0",
+      "title": "…",
+      "warning": null,
+      "items": [
+        {
+          "id": "0-1",
+          "label": "…",
+          "done": true
+        },
+        {
+          "id": "0-2",
+          "label": "…",
+          "done": true
+        }
+      ]
+    },
+    {
+      "id": "1",
+      "title": "…",
+      "warning": null,
+      "items": [
+        {
+          "id": "1-1",
+          "label": "…",
+          "done": true
+        },
+        {
+          "id": "1-2",
+          "label": "…",
+          "done": true
+        },
+        {
+          "id": "1-3",
+          "label": "…",
+          "done": true
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "title": "…",
+      "warning": null,
+      "items": [
+        {
+          "id": "2-1",
+          "label": "…",
+          "done": true
+        },
+        {
+          "id": "2-2",
+          "label": "…",
+          "done": true
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "title": "…",
+      "warning": null,
+      "items": [
+        {
+          "id": "3-1",
+          "label": "…",
+          "done": true
+        },
+        {
+          "id": "3-2",
+          "label": "…",
+          "done": true
+        },
+        {
+          "id": "3-3",
+          "label": "…",
+          "done": true
+        }
+      ]
+    },
+    {
+      "id": "4",
+      "title": "…",
+      "warning": "Left 1 architecture violation unfixed",
+      "items": [
+        {
+          "id": "4-1",
+          "label": "…",
+          "done": true
+        },
+        {
+          "id": "4-2",
+          "label": "…",
+          "done": true
+        },
+        {
+          "id": "4-3",
+          "label": "…",
+          "done": true
+        }
+      ]
+    },
+    {
+      "id": "5",
+      "title": "…",
+      "warning": null,
+      "items": [
+        {
+          "id": "5-1",
+          "label": "…",
+          "done": true
+        },
+        {
+          "id": "5-2",
+          "label": "…",
+          "done": true
+        }
+      ]
+    },
+    {
+      "id": "6",
+      "title": "…",
+      "warning": null,
+      "optional": true,
+      "items": [
+        {
+          "id": "6-1",
+          "label": "…",
+          "done": true
+        },
+        {
+          "id": "6-2",
+          "label": "…",
+          "done": true
+        },
+        {
+          "id": "6-3",
+          "label": "…",
+          "done": true
+        },
+        {
+          "id": "6-4",
+          "label": "…",
+          "done": true
+        }
+      ]
+    }
+  ],
+  "preferences": {
+    "nestedGroups": "yes",
+    "testFramework": "kotest",
+    "dependencyStyle": "catalog",
+    "constraintNames": "numbered",
+    "oneRolePerFile": "yes"
+  },
+  "violations": [
+    {
+      "violation": "The ui layer references the data layer's DataSource directly",
+      "location": "app/src/main/kotlin/com/example/app/ui/home/HomeViewModel.kt:42",
+      "whyNotFixed": "Because the callers are too widespread to fix in a single change",
+      "suggestion": "Add a GetHomeFeedUseCase and have the ViewModel call only that"
+    }
+  ],
+  "questions": [
+    {
+      "id": "q1",
+      "question": "Should the legacy package be included in katachi's scope?",
+      "observed": "Only the files under app/src/main/kotlin/com/example/app/ui/legacy/ still use the old Fragment + Presenter pattern",
+      "options": [
+        "Include it and fix it",
+        "Declare it as it is, in a Role of its own (Fragment and Presenter)",
+        "Accept its current violations in the baseline, so only new violations are detected"
+      ],
+      "recommendation": "C. Only one screen is affected and no migration plan is decided yet, so accept what is there now and catch only new violations"
+    }
+  ],
+  "answers": {},
+  "changedFiles": [
+    {
+      "path": "architecture-test/build.gradle.kts",
+      "change": "New",
+      "summary": "katachi's verification module"
+    },
+    {
+      "path": "settings.gradle.kts",
+      "change": "Modified",
+      "summary": "Included architecture-test"
+    }
+  ]
+}
+-->
+
+
+<script type="application/json" id="report">
+{
+  "meta": {
+    "projectName": null,
+    "analyzedAt": null,
+    "fileCount": null,
+    "gradleRoot": null,
+    "gitRoot": null
+  },
+  "overview": {
+    "language": null,
+    "frameworks": [],
+    "appPackage": null,
+    "targets": []
+  },
+  "architecture": {
+    "name": null,
+    "rationale": [],
+    "characteristics": []
+  },
+  "modules": [],
+  "directoryTree": null,
+  "roles": [],
+  "excluded": [],
+  "questions": [],
+  "answers": {},
+  "templates": []
+}
+</script>
+
+<!-- Example: the JSON above, fully filled in. Enter values in this shape.
+{
+  "meta": {
+    "projectName": "example-app",
+    "analyzedAt": "2026-09-24T10:00:00+09:00",
+    "fileCount": 412,
+    "gradleRoot": "/Users/me/dev/example-app",
+    "gitRoot": "/Users/me/dev/example-app"
+  },
+  "overview": {
+    "language": "Kotlin 2.2.20",
+    "frameworks": ["Jetpack Compose", "Hilt"],
+    "appPackage": "com.example.app",
+    "targets": ["Android"]
+  },
+  "architecture": {
+    "name": "The three layers from the Android app architecture guide (ui / domain / data)",
+    "rationale": [
+      "There are 20+ *ViewModel.kt files under app/src/main/kotlin/.../ui, and Composables commonly reference them via viewModel()",
+      "The domain module's usecase package collects *UseCase.kt files with no dependency on the Android framework"
+    ],
+    "characteristics": ["A few screens are trialing MVI"]
+  },
+  "modules": [
+    { "path": "app", "kind": "app", "responsibility": "UI layer (Activity / Compose / ViewModel)", "buildFile": "app/build.gradle.kts" },
+    { "path": "core/domain", "kind": "library", "responsibility": "Domain logic", "buildFile": "core/domain/build.gradle.kts" },
+    { "path": "core/data", "kind": "library", "responsibility": "Repository implementations and DataSources", "buildFile": "core/data/build.gradle.kts", "deviation": "Unlike the other libraries, this is an Android library (com.android.library)" }
+  ],
+  "directoryTree": "app/\n  build.gradle.kts\n  src/main/kotlin/com/example/app/\n    MainActivity.kt\n    ui/\n      home/\n        HomeScreen.kt\n        HomeViewModel.kt\n",
+  "roles": [
+    {
+      "importance": 5,
+      "name": "ViewModel",
+      "group": "App.Ui",
+      "constraintOnly": false,
+      "layout": "app/src/main/kotlin/<package>/ui/*/*ViewModel.kt",
+      "naming": "Suffix ViewModel. Exactly one class per file, matching the file name.",
+      "allowed": ["Holding and updating UI state", "Calling UseCases", "Managing viewModelScope"],
+      "forbidden": ["Direct access to a Repository", "Holding a reference to Context / View"],
+      "examples": [
+        "app/src/main/kotlin/com/example/app/ui/home/HomeViewModel.kt",
+        "app/src/main/kotlin/com/example/app/ui/profile/ProfileViewModel.kt"
+      ],
+      "count": 18,
+      "note": "On some screens this overlaps with a rememberSaveable-based state holder."
+    },
+    {
+      "importance": 2,
+      "name": "AppBuildFile",
+      "group": "App",
+      "constraintOnly": true,
+      "layout": "app/build.gradle.kts",
+      "naming": "Fixed name",
+      "allowed": [],
+      "forbidden": [],
+      "examples": ["app/build.gradle.kts"],
+      "count": 1,
+      "note": "Checks with a hook on gradle() that the namespace matches the app package name (no Role is created)"
+    }
+  ],
+  "excluded": [
+    { "path": "app/src/main/kotlin/**/generated/**", "reason": "Generated code output is committed here. It can't be hand-edited" },
+    { "path": "third-party/", "reason": "Source pulled in from outside. Our conventions don't apply to it" }
+  ],
+  "questions": [
+    {
+      "id": "cq1",
+      "question": "Will you keep the policy of inserting an Interactor layer between UseCase and Repository?",
+      "observed": "Only 3 *Interactor.kt files exist under domain/src/main/kotlin/com/example/app/domain/interactor/; the remaining 15 UseCases call the Repository directly",
+      "options": ["Extend the Interactor layer to everything", "Drop Interactor and consolidate into UseCase", "Keep the current state and allow both"],
+      "recommendation": "B. Only 3 Interactors exist, and consolidating into UseCase keeps the convention singular"
+    },
+    {
+      "id": "cq2",
+      "question": "Should the legacy package be included in katachi's scope?",
+      "observed": "Only the files under app/src/main/kotlin/com/example/app/ui/legacy/ still use the old Fragment + Presenter pattern",
+      "options": ["Include it and fix it", "Declare it as it is, in a Role of its own (Fragment and Presenter)", "Accept its current violations in the baseline, so only new violations are detected"],
+      "recommendation": "C. Only one screen is affected and no migration plan is decided yet, so accept what is there now and catch only new violations"
+    }
+  ],
+  "answers": {
+    "cq1": { "answer": "Drop Interactor and consolidate into UseCase", "note": "Migrate next quarter", "answeredAt": "2026-09-24T11:00:00+09:00" }
+  },
+  "templates": [
+    {
+      "role": "UseCase",
+      "files": ["${name}UseCase.kt"],
+      "params": ["name"],
+      "basedOn": "domain/src/main/kotlin/com/example/app/domain/useCase/GetUserUseCase.kt",
+      "reason": "All 18 are interfaces, and their bodies share one shape"
+    },
+    {
+      "role": "UseCaseImplementation",
+      "files": ["${name}UseCaseImplementation.kt"],
+      "params": ["name"],
+      "basedOn": "data/src/main/kotlin/com/example/app/data/useCase/GetUserUseCaseImplementation.kt",
+      "reason": "All 18 implement a UseCase, and their bodies share one shape"
+    }
+  ]
+}
+-->
+
+
+<a class="skip-link" href="#main-content">Skip to content</a>
+
+<header class="page-header">
+  <div class="wrap">
+    <p class="brand">
+      <svg viewBox="0 0 512 512" aria-hidden="true"><rect width="512" height="512" rx="102" fill="#a2ccf7"/><g fill="#ffffff"><path d="M96 160h60v28h-32v136h32v28H96z"/><rect x="218" y="218" width="76" height="76"/><path d="M416 352h-60v-28h32V188h-32v-28h60z"/></g></svg>
+      <span>katachi</span><span class="brand-sub">setup</span>
+    </p>
+    <h1>katachi Installation Checklist</h1>
+    <div class="aside">
+      <p class="aside-title">An AI agent filled this in</p>
+      <p>Please check the contents. Where something is off, use "Feedback" at the bottom right to pick the item and comment, then copy all comments and hand them to the AI agent.</p>
+    </div>
+    <div data-render="error"></div>
+
+    <a class="cross-link" id="cross-link" href="#codebase-report">
+      <span class="cross-link-label">Codebase report<span class="badge badge-caution" id="report-open" hidden></span></span>
+      <span class="cross-link-hint">Analysis of this project (further down this page)</span>
+    </a>
+
+    <div data-fb="checklist.meta" data-fb-label="Metadata">
+      <div data-render="meta"></div>
+    </div>
+  </div>
+</header>
+
+<div class="progress">
+  <div class="wrap">
+    <div class="progress-row">
+      <span id="progress-text"></span>
+      <span class="progress-actions">
+        <a class="btn btn-sm btn-quiet" id="report-link" href="#codebase-report">View the report</a>
+        <button type="button" class="btn btn-sm btn-quiet" id="toggle-all">Expand all</button>
+      </span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+  </div>
+</div>
+
+<main class="wrap" id="main-content">
+
+  <div class="steps" data-render="steps" data-fb="checklist.steps" data-fb-label="Steps"></div>
+
+  <section class="block" id="preferences" data-fb="checklist.preferences" data-fb-label="Writing preferences">
+    <h2>Writing preferences</h2>
+    <p class="lede">How the definition is written, as asked in step 1-3. Values that differ from the recommendation are highlighted. The verification module location is in the meta information.</p>
+    <div data-render="preferences"></div>
+  </section>
+
+  <section class="block" id="violations" data-fb="checklist.violations" data-fb-label="Architecture violations left unfixed">
+    <h2>Architecture violations left unfixed<span class="badge" data-render="violationCount"></span></h2>
+    <div data-render="violations"></div>
+  </section>
+
+  <section class="block" id="questions" data-fb="checklist.questions" data-fb-label="Questions for you">
+    <h2>Questions for you<span class="badge" data-render="questionCount"></span><span class="badge badge-success" data-render="answeredCount"></span></h2>
+    <p class="lede">Pick an option or write freely (if you do both, the free text is a note). Once you answer, a menu appears at the bottom right: "Copy all" copies text you can paste straight into the chat with the AI agent (any feedback goes in with it). To hand over a file instead, use "Save as JSON". What you type stays in this browser as a draft.</p>
+    <div class="toolbar" data-render="answerActions"></div>
+    <div class="qa-flow">
+      <div data-render="questions"></div>
+    </div>
+  </section>
+
+  <section class="block" id="changed-files" data-fb="checklist.changedFiles" data-fb-label="Files created or changed">
+    <h2>Files created or changed<span class="badge" data-render="changedCount"></span></h2>
+    <div data-render="changedFiles"></div>
+  </section>
+
+  <section class="block report" id="codebase-report" data-doc="report" data-fb="report" data-fb-label="Codebase report">
+    <h2 class="report-title">Codebase report</h2>
+    <p class="lede">
+      A preliminary report the AI agent wrote by scanning the codebase, in order to introduce katachi (an
+      <code>architecture { }</code> definition) into this project.
+    </p>
+
+    <div class="aside">
+      <p class="aside-title">An AI agent generated this report</p>
+      <p>Before moving on, check with your own eyes that it matches your understanding. "2. Elements (candidate roles)" in particular becomes the basis for the rules.</p>
+    </div>
+
+    <div data-render="error"></div>
+
+    <details class="meta-details tree" data-fb="report.meta" data-fb-label="Metadata">
+      <summary><span class="tw"></span>Metadata</summary>
+      <div data-render="meta"></div>
+    </details>
+
+    <div class="layout">
+    <nav id="toc" aria-label="Table of contents">
+      <p class="toc-title">Contents</p>
+      <ol>
+        <li><a href="#report-overview">1. Architecture findings</a></li>
+        <li><a href="#report-roles">2. Elements (candidate roles)</a></li>
+        <li><a href="#report-ignore">3. What katachi should not check</a></li>
+        <li><a href="#report-questions">4. Questions for you</a></li>
+        <li><a href="#report-templates">5. Proposed templates</a></li>
+      </ol>
+    </nav>
+
+      <div class="report-main">
+      <section id="report-overview" data-fb="report.overview" data-fb-label="1. Architecture findings">
+        <h3>1. Architecture findings</h3>
+        <div data-render="overview"></div>
+
+        <div id="report-architecture" class="report-sub" data-fb="report.architecture" data-fb-label="Architecture in use">
+          <h4>Architecture in use</h4>
+          <div data-render="architecture"></div>
+        </div>
+
+        <div id="report-modules" class="report-sub" data-fb="report.modules" data-fb-label="Modules and directories">
+          <div data-render="modules"></div>
+        </div>
+      </section>
+
+      <section id="report-roles" data-fb="report.roles" data-fb-label="2. Elements (candidate roles)">
+        <h3>2. Elements (candidate roles)<span class="badge" data-render="roleCount"></span></h3>
+        <p class="lede">Roles are nested inside groups. One role is one kind of file; a bundle of different kinds of files, like a module or a layer, is a group. Within a group they are sorted by importance (5 = must be in the definition / 1 = may be left out). Click a row to open its details.</p>
+        <div data-render="roles"></div>
+      </section>
+
+      <section id="report-ignore" data-fb="report.excluded" data-fb-label="3. What katachi should not check">
+        <h3>3. What katachi should not check</h3>
+        <p class="lede">katachi never looks at files excluded by <code>.gitignore</code>. What is listed here is tracked by git (or untracked but not ignored) and still left out of the checks.</p>
+        <div data-render="excluded"></div>
+      </section>
+
+      <section id="report-questions" data-fb="report.questions" data-fb-label="4. Questions for you">
+        <h3>4. Questions for you<span class="badge" data-render="questionCount"></span><span class="badge badge-success" data-render="answeredCount"></span></h3>
+        <p class="lede">Pick an option or write freely (if you do both, the free text is a note). Once you answer, a menu appears at the bottom right: "Copy all" copies text you can paste straight into the chat with the AI agent (any feedback goes in with it). To hand over a file instead, use "Save as JSON". What you type stays in this browser as a draft.</p>
+        <div class="toolbar" data-render="answerActions"></div>
+        <div class="qa-flow">
+          <div data-render="questions"></div>
+        </div>
+      </section>
+
+      <section id="report-templates" data-fb="report.templates" data-fb-label="5. Proposed templates">
+        <h3>5. Proposed templates</h3>
+        <p class="lede">Proposals to put <code>.template { }</code> on roles that have many files of the same shape. The AI agent records them at the end of the installation. Optional.</p>
+        <div data-render="templates"></div>
+      </section>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="page-footer">
+  <div class="wrap">
+    <p><a href="https://tbsten.github.io/katachi/">katachi documentation</a></p>
+    <p>
+      This checklist follows the setup steps of the katachi skill
+      (<a href="https://github.com/TBSten/katachi/tree/main/skills/katachi">skills/katachi</a>)
+      and mirrors its steps.
+    </p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  // Text shown on the page
+  var T = {
+    unfilled: 'Unfilled: ',
+    none: 'None',
+    unknown: 'Unknown',
+    count: function (n) { return n + (n === 1 ? ' item' : ' items'); },
+    clampHint: 'Click to show it all / fold back to one line',
+    expandAll: 'Expand all',
+    collapseAll: 'Collapse all',
+    // Questions
+    observed: 'What we observed',
+    pickOne: 'Pick an answer',
+    recommended: 'Recommended',
+    recommendation: 'Recommendation',
+    recommendationWhy: 'Why it is recommended',
+    freeLabel: 'Note or free answer',
+    freePlaceholder: 'With an option picked, this becomes a note. If no option fits, write your answer here.',
+    adoptOne: 'Use the recommendation',
+    clearOne: 'Clear this answer',
+    adoptAll: 'Use recommendations for open ones',
+    adoptedCount: function (n) { return 'Filled ' + n + ' open question' + (n === 1 ? '' : 's') + ' with the recommendation'; },
+    adoptedNone: 'No open question has a recommendation to use',
+    revertOne: 'Back to the recorded answer',
+    clearAll: 'Clear all answers',
+    imported: 'Recorded',
+    importedChanged: 'Changed from recorded',
+    answered: 'Answered',
+    unanswered: 'Open',
+    withNote: ' (with a note)',
+    answeredCount: function (n) { return n + ' answered'; },
+    answerProgress: function (a, t) { return 'Answered ' + a + ' of ' + t; },
+    sendLabel: 'What to hand to the AI agent',
+    sendCopy: 'Copy all',
+    sendClear: 'Clear',
+    sendClearTitle: 'Delete all answers and feedback',
+    sendCleared: 'Deleted all answers and feedback',
+    sendFeedback: function (n) { return 'Feedback ' + n; },
+    sendCopiedMark: ' (copied)',
+    sendPending: function (n) { return ' (' + n + ' not copied)'; },
+    sendJoin: ' / ',
+    sendAnswers: function (n) { return 'Answers ' + n; },
+    sendCopiedAgain: 'Everything had been copied, so all of it was copied again',
+    saveAnswers: 'Save as JSON',
+    previewLabel: 'Preview',
+    previewHide: 'Hide preview',
+    manualLabel: 'Text to copy',
+    answersMissing: 'Still open: ',
+    answersCopied: 'Copied. Paste it into the chat with the AI agent.',
+    answersSaved: function (file) { return 'Saved ' + file + '. Hand it to the AI agent.'; },
+    answersCleared: 'Cleared all answers',
+    undo: 'Undo',
+    restored: 'Restored.',
+    toastCopied: 'Copied',
+    toastSaved: 'Saved',
+    copyFailed: 'Could not copy. Select the text below by hand and copy it.',
+    copyFailedShort: 'Could not copy. Select the text shown in the menu at the bottom right by hand and copy it',
+    saveFailed: 'Could not save. Select the JSON below by hand and copy it.',
+    // Feedback
+    fbFab: 'Feedback',
+    fbBanner: 'Feedback mode: click the item you want to comment on (drag over text to quote it, Shift-click for several; the arrow on a row opens and closes it)',
+    fbWholePageButton: 'Comment on the whole page',
+    fbWholePage: 'Whole page',
+    fbList: function (n) { return 'List (' + n + ')'; },
+    fbExit: 'Done',
+    fbPanelLabel: 'Feedback list',
+    fbClose: 'Close',
+    fbClearAll: 'Delete all',
+    fbEmpty: 'Nothing yet. Press "Feedback", then click an item to write one.',
+    fbComposeLabel: 'Feedback',
+    fbPlaceholder: 'What is off, or what should change (⌘/Ctrl + Enter to save)',
+    fbSave: 'Save',
+    fbCancel: 'Cancel',
+    fbDelete: 'Delete',
+    fbEdit: 'Edit',
+    fbShow: 'Show',
+    fbSaved: 'Saved (kept in this browser).',
+    fbDeleted: 'Deleted',
+    fbCleared: 'Deleted all feedback',
+    fbClearCopied: function (n) { return 'Delete copied (' + n + ')'; },
+    fbCopiedCleared: 'Deleted the copied feedback',
+    fbCopiedMark: 'Copied',
+    fbMissing: 'Target not found',
+    fbMissingHint: 'This place is no longer in the JSON. It may have been fixed or renamed.',
+    fbDraftRestored: 'Restored your unsaved text.',
+    fbUnsaved: 'You have unsaved text. Press Save or Cancel',
+    fbNoStorage: 'This browser can\'t keep it (a private window, for example). Copy before closing.',
+    fbPinLabel: function (n, label) { return 'Feedback ' + n + ': ' + label; },
+    fbTargetPrefix: 'Target: ',
+    dateFormat: function (y, mo, d, h, mi, zone) { return y + '-' + mo + '-' + d + ' ' + h + ':' + mi + (zone ? ' (' + zone + ')' : ''); },
+    fbQuotePrefix: 'Quote: ',
+    fbContentPrefix: 'Shows: ',
+    fbQuoted: function (raw) { return '"' + raw + '"'; },
+    fbDragHint: 'Drag to move. The position is used from then on',
+    fbResetPos: 'Reset position',
+    fbDraftMark: 'Draft',
+    fbDraftResume: 'Continue',
+    fbDraftDiscard: 'Discard',
+    fbDraftDiscarded: 'Discarded the draft',
+    fbTargetWithLabel: function (key, label) { return key + ' (' + label + ')'; },
+    fbMore: function (n) { return ' and ' + n + ' more'; },
+    fbTargetsCount: function (n) { return 'One comment for ' + n + ' places'; },
+    fbPopHint: 'Shift-click another item to add or remove it',
+    fbRemoveTarget: function (label) { return 'Remove from targets: ' + label; },
+    fbMaxTargets: function (n) { return 'You can pick up to ' + n + ' places at once'; },
+    dataError: 'Could not read the checklist data (the JSON in this file).',
+    meta: [
+      ['workdir', 'Working directory'],
+      ['moduleDir', 'Verification module location'],
+      ['version', 'katachi version'],
+      ['kotlin', 'Kotlin'],
+      ['jvmToolchain', 'JVM toolchain'],
+      ['git', 'Under Git'],
+      ['projectRoot', 'Target project root'],
+      ['ranAt', 'Ran at']
+    ],
+    warningLabel: 'Warning',
+    stepDoneWarning: 'Done (warning)',
+    stepDone: 'Done',
+    stepOptional: 'Optional',
+    progress: function (done, total, pct) { return done + ' / ' + total + ' items done (' + pct + '%)'; },
+    progressOptional: function (done, total) { return ' · optional ' + done + ' / ' + total; },
+    progressWarnings: function (n) { return ' · ' + n + ' warning' + (n === 1 ? '' : 's'); },
+    preferences: [
+      ['nestedGroups', 'Nest groups?', 'yes'],
+      ['testFramework', 'Test framework', null],
+      ['dependencyStyle', 'How dependencies are written', null],
+      ['constraintNames', 'Put question numbers in constraint names?', 'plain'],
+      ['oneRolePerFile', 'Split the definition files per Role?', 'yes']
+    ],
+    prefNotRecordedDetected: 'Not recorded (detected value is used)',
+    prefNotRecordedDefault: 'Not recorded (recommendation is used)',
+    prefDetected: 'detected',
+    prefDiffers: ' differs from the recommendation',
+    prefHeaders: ['key', 'Question', 'Value', 'Recommended'],
+    allGreen: 'None (all green)',
+    violationHeaders: ['Violation', 'Location', 'Why not fixed', 'Suggested next step'],
+    changedHeaders: ['Path', 'New / Modified', 'Summary'],
+    answersIntro: 'These are my answers to "Questions for you" in the katachi installation checklist (check-list.html). The outermost keys of the JSON (checklist / report) are the ids of the JSON blocks in that file. Copy each into answers of its block.',
+    reportLink: 'View the report',
+    backToChecklist: 'Back to the checklist',
+    reportLinkStep: 'See the codebase report ↓',
+    reportOpen: function (n) { return n + ' unanswered question' + (n === 1 ? '' : 's'); },
+    fbIntro: function (n) { return 'Feedback on the katachi installation checklist (check-list.html), ' + n + ' item(s). "Target" is the place in that file\'s JSON; its head, checklist. or report., names the JSON block (id). Fix them, and reply with the reason for any you can\'t.'; },
+    // The codebase report
+    reportDataError: 'Could not read the report data (the JSON in this file).',
+    reportMeta: {
+      projectName: 'Project name',
+      analyzedAt: 'Analyzed at',
+      fileCount: 'Files scanned',
+      gradleRoot: 'Gradle root',
+      gitRoot: 'Git root',
+    },
+    overview: {
+      language: 'Language and version',
+      frameworks: 'Main frameworks',
+      appPackage: 'App package name',
+      targets: 'Targets',
+    },
+    rationale: 'Why we think so',
+    characteristics: 'Notable traits of the project layout',
+    moduleList: 'Modules',
+    deviationLabel: 'Difference from the others',
+    deviationLede: '⚑ marks where a module is set up differently from the other modules of its kind.',
+    responsibility: 'Responsibility',
+    buildFile: 'Build file',
+    directoryTree: 'Directory structure',
+    directoryLede: 'Click a folder row to open or close it.',
+    rawTree: 'View as text',
+    legendGroup: 'group',
+    legendRole: 'Role',
+    constraintTag: 'constraint only',
+    legendRank: 'Importance (5 levels)',
+    roleUnit: function (n) { return n + (n === 1 ? ' role' : ' roles'); },
+    rank: function (n) { return 'Importance ' + n + ' / 5'; },
+    files: function (n) { return n + (n === 1 ? ' file' : ' files'); },
+    constraintOnly: 'Constraint-only role (adds a check to a gradle() file; not shown in the documentation)',
+    layout: 'Layout pattern',
+    naming: 'Naming convention',
+    allowed: 'Allowed',
+    forbidden: 'Not allowed',
+    examples: 'Example files',
+    countLabel: 'Count',
+    note: 'Note',
+    noGroup: 'No group',
+    excluded: ['Path', 'Reason'],
+    templates: ['Role', 'Files created', 'Parameters', 'Based on', 'Reason']
+  };
+  // This page holds two JSON blocks: checklist (progress of the installation) and report (the codebase report).
+  // CURRENT is the block being rendered; feedback targets take their head (scope) and question ids their head (prefix) from it
+  var DOCS = {
+    checklist: { id: 'checklist', scope: 'checklist.', prefix: 'q', dataError: T.dataError, ok: true },
+    report: { id: 'report', scope: 'report.', prefix: 'cq', dataError: T.reportDataError, ok: true }
+  };
+  var DOC_LIST = [DOCS.checklist, DOCS.report];
+  var CURRENT = DOCS.checklist;
+  var ANSWER_FILE = 'katachi-answers.json';
+  var stepNodes = [];
+  var boxes = [];
+
+  // ---- Everything from here down is shared by the two blocks (the checklist and the report) ----
+
+  // Whether the JSON was read. If not, don't claim a count of 0
+  var dataOk = true;
+  // Render run as the block doc (switches where mount looks, the head of feedback targets, and whether the JSON was read)
+  function inDoc(doc, run) {
+    var saved = CURRENT;
+    CURRENT = doc;
+    dataOk = doc.ok;
+    try {
+      return run();
+    } finally {
+      doc.ok = dataOk;
+      CURRENT = saved;
+      dataOk = saved.ok;
+    }
+  }
+  // Which block a node belongs to: report inside the report section, checklist everywhere else
+  function docOf(node) {
+    var box = node.closest('[data-doc]');
+    return box ? box.getAttribute('data-doc') : 'checklist';
+  }
+
+  // ---- DOM helpers (values always go in through textContent) ----
+  function el(tag, cls) {
+    var node = document.createElement(tag);
+    if (cls) node.className = cls;
+    return node;
+  }
+  function text(raw) { return document.createTextNode(String(raw)); }
+  function blank(value) {
+    return value == null || value === '' || (Array.isArray(value) && value.length === 0);
+  }
+  function unfilled(key) {
+    var span = el('span', 'todo');
+    span.textContent = T.unfilled + key;
+    return span;
+  }
+  function value(raw, key) {
+    if (blank(raw)) return unfilled(key);
+    return text(raw);
+  }
+  // Make an ISO 8601 date-time (2026-11-10T08:40:00+09:00) easy to read. Keep the string's own offset (no conversion). Anything else stays as it is
+  function dateValue(raw, key) {
+    if (blank(raw)) return unfilled(key);
+    var m = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::\d{2}(?:\.\d+)?)?(Z|[+-]\d{2}:?\d{2})?$/.exec(String(raw).trim());
+    if (!m) return text(raw);
+    var zone = !m[6] ? '' : m[6] === 'Z' ? 'UTC' : m[6] === '+09:00' || m[6] === '+0900' ? 'JST' : 'UTC' + m[6];
+    var span = el('span');
+    span.textContent = T.dateFormat(m[1], m[2], m[3], m[4], m[5], zone);
+    span.setAttribute('title', String(raw));
+    return span;
+  }
+  // Turn whitespace-separated ASCII tokens that look like paths into <code>
+  function richText(raw, key) {
+    if (blank(raw)) return unfilled(key);
+    var box = document.createDocumentFragment();
+    String(raw).split(/(\s+)/).forEach(function (token) {
+      if (token.indexOf('/') >= 0 && /^[!-~]+$/.test(token)) {
+        var code = el('code');
+        code.textContent = token;
+        box.appendChild(code);
+      } else {
+        box.appendChild(text(token));
+      }
+    });
+    return box;
+  }
+  // Places that may be empty say "None"; places that mean "not investigated" say "Unfilled"
+  function none(label) {
+    var p = el('p', 'empty');
+    p.textContent = dataOk ? (label || T.none) : T.unknown;
+    return p;
+  }
+  function noneInline() {
+    var span = el('span', 'empty');
+    span.textContent = dataOk ? T.none : T.unknown;
+    return span;
+  }
+  function inlineOrNone(values) {
+    if (blank(values)) return noneInline();
+    return text(values.map(String).join(' / '));
+  }
+  function bullets(values, key) {
+    if (blank(values)) return unfilled(key);
+    var ul = el('ul');
+    values.forEach(function (item) {
+      var li = el('li');
+      li.textContent = String(item);
+      ul.appendChild(li);
+    });
+    return ul;
+  }
+  // Split one sentence like "Kotlin 2.2.20 (KMP; JVM toolchain 17)" into the part outside the parentheses and each sentence inside
+  function sentenceParts(raw) {
+    if (blank(raw)) return [];
+    var whole = String(raw).trim();
+    var parts;
+    var m = /^([^（(]+?)\s*[（(]([\s\S]*)[）)]\s*$/.exec(whole);
+    if (m) parts = [m[1]].concat(m[2].split(/[。;；]\s*/));
+    else parts = whole.split(/[。;；]\s*/);
+    return parts.map(function (part) { return part.trim(); }).filter(function (part) { return part; });
+  }
+  function bulletsOrNone(values) {
+    if (blank(values)) return none();
+    return bullets(values, '');
+  }
+  function paragraph(node) {
+    var p = el('p');
+    p.appendChild(node);
+    return p;
+  }
+  function subHeading(label) {
+    var node = el('p', 'qa-label');
+    node.textContent = label;
+    return node;
+  }
+  function record(raw) { return raw && typeof raw === 'object' && !Array.isArray(raw) ? raw : {}; }
+  function list(raw) { return Array.isArray(raw) ? raw.map(record) : []; }
+  // If the array is empty, return one empty object so an "unfilled" entry shows
+  function entries(raw) {
+    var items = list(raw);
+    return items.length ? items : [{}];
+  }
+  function countOf(raw) { return Array.isArray(raw) ? raw.length : 0; }
+  function countLabel(raw) { return dataOk ? T.count(countOf(raw)) : T.unknown; }
+  function mount(name, nodes) {
+    var host = null;
+    var hosts = document.querySelectorAll('[data-render="' + name + '"]');
+    for (var i = 0; i < hosts.length && !host; i += 1) {
+      if (docOf(hosts[i]) === CURRENT.id) host = hosts[i];
+    }
+    if (!host) return;
+    host.textContent = '';
+    nodes.forEach(function (node) { if (node) host.appendChild(node); });
+  }
+  function button(label, handler, cls) {
+    var node = el('button', 'btn' + (cls ? ' ' + cls : ''));
+    node.type = 'button';
+    node.textContent = label;
+    node.addEventListener('click', handler);
+    return node;
+  }
+  // Feedback target. key is the place in the JSON; label is the name shown on screen
+  function target(node, key, label) {
+    node.setAttribute('data-fb', CURRENT.scope + key);
+    if (label != null) node.setAttribute('data-fb-label', String(label));
+    return node;
+  }
+
+  // ---- One-line folding (when a .clip inside [data-clamp] overflows, a click opens and closes it) ----
+  function clip(child) {
+    var span = el('span', 'clip');
+    if (child) span.appendChild(child);
+    return span;
+  }
+  function refreshClamps(scope) {
+    var roots = (scope && scope.querySelectorAll ? scope : document).querySelectorAll('[data-clamp]');
+    Array.prototype.forEach.call(roots, function (root) {
+      if (root.classList.contains('is-open')) return;
+      // data-clamp-always can open even when it fits on one line (it turns into bullets when open)
+      var over = root.hasAttribute('data-clamp-always') || Array.prototype.some.call(root.querySelectorAll('.clip'), function (box) {
+        return box.scrollWidth > box.clientWidth + 1;
+      });
+      root.classList.toggle('is-clampable', over);
+      if (over) {
+        root.setAttribute('tabindex', '0');
+        root.setAttribute('aria-expanded', 'false');
+        root.setAttribute('title', T.clampHint);
+      } else {
+        root.removeAttribute('tabindex');
+        root.removeAttribute('aria-expanded');
+        root.removeAttribute('title');
+      }
+    });
+  }
+  function toggleClamp(root) {
+    var opening = !root.classList.contains('is-open');
+    root.classList.toggle('is-open', opening);
+    root.setAttribute('aria-expanded', opening ? 'true' : 'false');
+    if (!opening) refreshClamps(root.parentNode);
+    schedulePins();
+  }
+  function installClamps() {
+    document.addEventListener('click', function (event) {
+      var root = event.target.closest && event.target.closest('[data-clamp]');
+      if (!root || !(root.classList.contains('is-clampable') || root.classList.contains('is-open'))) return;
+      if (event.target.closest('a, button, input, textarea, select, summary')) return;
+      // Don't fold while the user is selecting text to copy
+      var selection = window.getSelection ? String(window.getSelection()) : '';
+      if (selection) return;
+      toggleClamp(root);
+    });
+    document.addEventListener('keydown', function (event) {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      var root = event.target;
+      if (!root.hasAttribute || !root.hasAttribute('data-clamp')) return;
+      if (!(root.classList.contains('is-clampable') || root.classList.contains('is-open'))) return;
+      event.preventDefault();
+      toggleClamp(root);
+    });
+    // Widths inside a closed <details> are only known once it opens
+    document.addEventListener('toggle', function (event) {
+      if (event.target.open) refreshClamps(event.target);
+      schedulePins();
+    }, true);
+    var queued = false;
+    addEventListener('resize', function () {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(function () { queued = false; refreshClamps(); schedulePins(); });
+    });
+  }
+
+  // Label/value pairs. pairs are [label, value node, feedback key]
+  function facts(pairs, section) {
+    var dl = el('dl', 'facts');
+    pairs.forEach(function (pair) {
+      if (!pair[1]) return;
+      // When pair[3] is a bullet list (<ul>), show one line while folded and the bullets while open
+      var list = pair[3] && pair[3].tagName === 'UL' ? pair[3] : null;
+      var cell = el('div', list ? 'fact fact-list' : 'fact');
+      cell.setAttribute('data-clamp', '');
+      if (list) cell.setAttribute('data-clamp-always', '');
+      if (pair[2]) target(cell, pair[2], pair[0]);
+      var dt = el('dt');
+      dt.textContent = pair[0];
+      var dd = el('dd');
+      dd.appendChild(clip(pair[1]));
+      if (list) { list.classList.add('fact-bullets'); dd.appendChild(list); }
+      cell.appendChild(dt);
+      cell.appendChild(dd);
+      dl.appendChild(cell);
+    });
+    return dl;
+  }
+
+  // A table. widths are the column widths (e.g. '30%'). rows are { cells, key, label }. Each row folds to one line, except the wrapCols columns, which wrap and show everything
+  function tableOf(headers, rows, widths, monoFirst, wrapCols) {
+    var wrap = el('div', 'table-wrap');
+    var table = el('table');
+    var cols = el('colgroup');
+    headers.forEach(function (label, i) {
+      var col = el('col');
+      if (widths && widths[i]) col.style.width = widths[i];
+      cols.appendChild(col);
+    });
+    table.appendChild(cols);
+    var head = el('thead');
+    var headRow = el('tr');
+    headers.forEach(function (label) {
+      var th = el('th');
+      th.textContent = label;
+      th.setAttribute('title', label);
+      headRow.appendChild(th);
+    });
+    head.appendChild(headRow);
+    var body = el('tbody');
+    rows.forEach(function (row) {
+      var tr = el('tr');
+      tr.setAttribute('data-clamp', '');
+      if (row.key) target(tr, row.key, row.label);
+      row.cells.forEach(function (cell, i) {
+        var td = el('td', [monoFirst !== false && i === 0 ? 'mono' : '', wrapCols && wrapCols.indexOf(i) >= 0 ? 'wrap' : ''].join(' ').trim());
+        // With row.fields, each cell is a feedback target at its own place in the JSON too
+        if (row.key && row.fields && row.fields[i]) target(td, row.key + '.' + row.fields[i], headers[i]);
+        td.appendChild(clip(cell));
+        tr.appendChild(td);
+      });
+      body.appendChild(tr);
+    });
+    table.appendChild(head);
+    table.appendChild(body);
+    wrap.appendChild(table);
+    return wrap;
+  }
+
+  // Copy a string to the clipboard; call fail if that's not possible
+  function copyText(value, done, fail) {
+    function fallback() {
+      var box = el('textarea');
+      box.value = value;
+      box.setAttribute('readonly', '');
+      box.style.position = 'fixed';
+      box.style.left = '-9999px';
+      document.body.appendChild(box);
+      box.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (error) { ok = false; }
+      document.body.removeChild(box);
+      if (ok) done(); else fail();
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(value).then(done, fallback);
+    } else {
+      fallback();
+    }
+  }
+  // Briefly confirm a copy or save. Reuse one role="status" element so screen readers announce it too
+  var toastNode = null;
+  var toastTimer = null;
+  // Pass action ({ label, run }) to add a button such as "Undo" and keep it up longer
+  function toast(message, isError, action) {
+    if (!toastNode) {
+      // fb-ui: so "Undo" can be pressed in feedback mode too
+      toastNode = el('div', 'toast fb-ui');
+      toastNode.setAttribute('role', 'status');
+      toastNode.setAttribute('aria-live', 'polite');
+      document.body.appendChild(toastNode);
+    }
+    toastNode.textContent = '';
+    toastNode.appendChild(text(message));
+    if (action) {
+      var actionButton = el('button', 'toast-action');
+      actionButton.type = 'button';
+      actionButton.textContent = action.label;
+      actionButton.addEventListener('click', function () {
+        clearTimeout(toastTimer);
+        toastNode.classList.remove('is-shown');
+        action.run();
+      });
+      toastNode.appendChild(actionButton);
+    }
+    toastNode.classList.toggle('has-action', !!action);
+    // The feedback banner wraps to several lines on narrow screens, so show it just below
+    var banner = document.querySelector('.fb-banner');
+    var bannerBottom = banner && !banner.hidden ? banner.getBoundingClientRect().bottom : 0;
+    toastNode.style.top = bannerBottom > 0 ? (bannerBottom + 8) + 'px' : '';
+    toastNode.classList.toggle('is-error', isError === true);
+    // Show it again when pressed repeatedly
+    toastNode.classList.remove('is-shown');
+    void toastNode.offsetWidth;
+    toastNode.classList.add('is-shown');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastNode.classList.remove('is-shown'); }, action ? 8000 : 2400);
+  }
+  function storageGet(key) {
+    try { return localStorage.getItem(key); } catch (error) { return null; }
+  }
+  function storageSet(key, raw) {
+    try {
+      if (raw == null) localStorage.removeItem(key); else localStorage.setItem(key, raw);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  // ---- Answer fields for the questions ----
+  // { id, recommendation, radios, free, card, state, picked }
+  var answerCards = [];
+
+  function questionId(item, index) {
+    return blank(item.id) ? CURRENT.prefix + (index + 1) : String(item.id);
+  }
+  // Drafts in progress. Rendering still works without localStorage
+  function draftKey(id) { return location.href.split('#')[0] + '#answer:' + id; }
+  function readDraft(id) {
+    try {
+      var raw = storageGet(draftKey(id));
+      return raw ? record(JSON.parse(raw)) : null;
+    } catch (error) {
+      return null;
+    }
+  }
+  function writeDraft(id, draft) { storageSet(draftKey(id), draft ? JSON.stringify(draft) : null); }
+  // State of an answer field. With an option picked, the free text is the note; without one, the free text is the answer
+  function readCard(entry) {
+    var picked = entry.radios.filter(function (radio) { return radio.checked; })[0];
+    var free = entry.free.value.replace(/^\s+|\s+$/g, '');
+    if (picked) return { answer: picked.value, note: free || null };
+    if (free) return { answer: free, note: null };
+    return null;
+  }
+  function fillCard(entry, answer) {
+    var found = false;
+    entry.radios.forEach(function (radio) {
+      radio.checked = !found && radio.value === answer.answer;
+      if (radio.checked) found = true;
+    });
+    var note = blank(answer.note) ? '' : String(answer.note);
+    entry.free.value = found ? note : [answer.answer || '', note].filter(Boolean).join('\n');
+    openFreeIfFilled(entry);
+  }
+  function openFreeIfFilled(entry) {
+    if (entry.freeToggle && entry.free.value.replace(/\s+/g, '') !== '') entry.freeToggle.open = true;
+  }
+  // If the recommendation starts with an option letter ("B. ..."), its index; otherwise -1
+  function recommendedIndex(recommendation, count) {
+    var head = blank(recommendation) ? '' : String(recommendation).replace(/^\s+/, '');
+    var match = /^([A-Z])(?![A-Za-z])/.exec(head);
+    var index = match ? match[1].charCodeAt(0) - 65 : -1;
+    return index >= 0 && index < count ? index : -1;
+  }
+  // Strip the leading option letter and separator from the recommendation
+  function recommendationReason(recommendation) {
+    return String(recommendation).replace(/^\s*[A-Z](?![A-Za-z])[\s。．.、,:：)）]*/, '');
+  }
+  function unansweredIds() {
+    return answerCards.filter(function (entry) { return !readCard(entry); }).map(function (entry) { return entry.id; });
+  }
+  // Split by block ({ "report": { "answers": { "cq1": … } } }). A block with no answers is left out
+  function collectAnswers() {
+    var out = {};
+    var now = new Date().toISOString();
+    answerCards.forEach(function (entry) {
+      var current = readCard(entry);
+      if (!current) return;
+      var block = out[entry.doc.id] || (out[entry.doc.id] = { answers: {} });
+      block.answers[entry.id] = { answer: current.answer, note: current.note, answeredAt: now };
+    });
+    return out;
+  }
+  function answersJson() {
+    return JSON.stringify(collectAnswers(), null, 2) + '\n';
+  }
+  // A form that pastes straight into chat (what the answers are for, what's unanswered, the JSON)
+  function answersMessage() {
+    var lines = [T.answersIntro];
+    var missing = unansweredIds();
+    if (missing.length) lines.push(T.answersMissing + missing.join(', '));
+    lines.push('', '```json', answersJson().replace(/\n$/, ''), '```');
+    return lines.join('\n') + '\n';
+  }
+  function paintAnswers() {
+    var answered = 0;
+    answerCards.forEach(function (entry) {
+      var current = readCard(entry);
+      entry.card.classList.toggle('is-answered', current !== null);
+      entry.state.className = current ? 'badge badge-success qa-state' : 'badge badge-quiet qa-state';
+      entry.state.textContent = current ? T.answered : T.unanswered;
+      entry.picked.textContent = current ? '→ ' + current.answer + (current.note ? T.withNote : '') : '';
+      entry.radios.forEach(function (radio) { radio.parentNode.classList.toggle('is-checked', radio.checked); });
+      if (entry.importMark) {
+        var changed = changedFromImported(entry);
+        entry.importMark.textContent = changed ? T.importedChanged : T.imported;
+        entry.importMark.className = changed ? 'badge badge-caution' : 'badge badge-note';
+        entry.revert.hidden = !changed;
+      }
+      if (current) answered += 1;
+    });
+    DOC_LIST.forEach(function (doc) {
+      var count = answerCards.filter(function (entry) { return entry.doc === doc && readCard(entry); }).length;
+      inDoc(doc, function () { mount('answeredCount', [text(count ? T.answeredCount(count) : '')]); });
+    });
+    var open = document.getElementById('report-open');
+    if (open) {
+      var left = answerCards.filter(function (entry) { return entry.doc === DOCS.report && !readCard(entry); }).length;
+      open.textContent = left ? T.reportOpen(left) : '';
+      open.hidden = !left;
+    }
+    paintSend();
+  }
+  function sameAnswer(a, b) {
+    if (!a || !b) return !a && !b;
+    var noteA = blank(a.note) ? null : String(a.note);
+    var noteB = blank(b.note) ? null : String(b.note);
+    return String(a.answer) === String(b.answer) && noteA === noteB;
+  }
+  // Whether the answer differs from the recorded one (entry.baseline is the field's state right after filling in the recorded answer)
+  function changedFromImported(entry) {
+    return !!entry.imported && !sameAnswer(readCard(entry), entry.baseline);
+  }
+  // When the recorded answer was changed, keep even a cleared answer as a draft (so a reload doesn't bring the recorded one back)
+  function saveDraft(entry) {
+    var current = readCard(entry);
+    if (!entry.imported) { writeDraft(entry.id, current); return; }
+    writeDraft(entry.id, changedFromImported(entry) ? (current || { cleared: true }) : null);
+  }
+  function emptyCard(entry) {
+    entry.radios.forEach(function (radio) { radio.checked = false; });
+    entry.free.value = '';
+  }
+  function onCardInput(entry) {
+    saveDraft(entry);
+    paintAnswers();
+  }
+  // "Use the recommendation" only works when the recommendation points at an option
+  function canAdopt(entry) {
+    return recommendedIndex(entry.recommendation, entry.radios.length) >= 0;
+  }
+  function adoptRecommendation(entry) {
+    var index = recommendedIndex(entry.recommendation, entry.radios.length);
+    if (index < 0) return;
+    entry.radios[index].checked = true;
+    onCardInput(entry);
+  }
+  // Don't overwrite answers the user picked; fill only the questions not yet answered
+  function adoptAllRecommendations(doc) {
+    var filled = 0;
+    answerCards.forEach(function (entry) {
+      if (doc && entry.doc !== doc) return;
+      if (readCard(entry) || !canAdopt(entry)) return;
+      adoptRecommendation(entry);
+      filled += 1;
+    });
+    toast(filled ? T.adoptedCount(filled) : T.adoptedNone);
+  }
+  // ---- One small menu at the bottom that copies what there is to hand over (answers and feedback). It appears once there is at least one of either ----
+  var SENT_KEY = 'katachi-answers-sent:' + location.href.split('#')[0];
+  var send = null;
+  // A fingerprint of the answers alone (no timestamps), to tell whether they match what was copied before
+  function answersSignature() {
+    return JSON.stringify(answerCards.map(function (entry) {
+      var current = readCard(entry);
+      return [entry.id, current ? current.answer : null, current && !blank(current.note) ? String(current.note) : null];
+    }));
+  }
+  // hasAnswers: answers still as recorded in the JSON are not counted as something to hand over
+  function sendState() {
+    var answered = answerCards.filter(function (entry) { return readCard(entry); }).length;
+    var pristine = answerCards.every(function (entry) {
+      return entry.imported ? !changedFromImported(entry) : !readCard(entry);
+    });
+    var hasAnswers = answered > 0 && !pristine;
+    var answersNew = hasAnswers && storageGet(SENT_KEY) !== answersSignature();
+    var pending = fb.items.filter(function (item) { return !item.copiedAt; });
+    // Send only what hasn't been handed over yet. If everything has been, send all of it again
+    var again = !answersNew && pending.length === 0;
+    return {
+      answered: answered,
+      total: answerCards.length,
+      hasAnswers: hasAnswers,
+      answersNew: answersNew,
+      pending: pending,
+      again: again,
+      withAnswers: hasAnswers && (answersNew || again),
+      feedback: again ? fb.items.slice() : pending
+    };
+  }
+  function sendMessage(state) {
+    var blocks = [];
+    if (state.withAnswers) blocks.push(answersMessage().replace(/\n+$/, ''));
+    if (state.feedback.length) blocks.push(fbMessage(state.feedback).replace(/\n+$/, ''));
+    return blocks.join('\n\n') + '\n';
+  }
+  function sendUi() {
+    if (send) return send;
+    var root = el('section', 'send-bar fb-ui');
+    root.hidden = true;
+    root.setAttribute('aria-label', T.sendLabel);
+    var summary = el('p', 'send-summary');
+    var actions = el('div', 'send-actions');
+    var copy = button(T.sendCopy, sendCopy, 'btn-primary btn-icon btn-copy');
+    var save = button(T.saveAnswers, downloadAnswers);
+    var clear = button(T.sendClear, sendClear, 'btn-quiet');
+    clear.setAttribute('title', T.sendClearTitle);
+    var preview = el('pre', 'send-preview');
+    preview.hidden = true;
+    var peek = button(T.previewLabel, function () {
+      preview.hidden = !preview.hidden;
+      peek.textContent = preview.hidden ? T.previewLabel : T.previewHide;
+      peek.setAttribute('aria-expanded', preview.hidden ? 'false' : 'true');
+    }, 'btn-quiet');
+    peek.setAttribute('aria-expanded', 'false');
+    actions.appendChild(copy);
+    actions.appendChild(save);
+    actions.appendChild(peek);
+    actions.appendChild(clear);
+    var status = el('p', 'send-status');
+    status.setAttribute('role', 'status');
+    var manual = el('textarea', 'answer-manual');
+    manual.setAttribute('readonly', '');
+    manual.setAttribute('aria-label', T.manualLabel);
+    manual.hidden = true;
+    [summary, actions, status, manual, preview].forEach(function (node) { root.appendChild(node); });
+    document.body.appendChild(root);
+    send = { root: root, summary: summary, save: save, status: status, manual: manual, preview: preview, peek: peek };
+    if (window.ResizeObserver) new ResizeObserver(syncSendHeight).observe(root);
+    return send;
+  }
+  // Put the menu's height in a CSS variable so the "Feedback" button and the list at the bottom right move above it
+  function syncSendHeight() {
+    var height = send && !send.root.hidden ? send.root.offsetHeight + 12 : 0;
+    document.documentElement.style.setProperty('--send-h', height + 'px');
+  }
+  function paintSend() {
+    var ui = sendUi();
+    var state = sendState();
+    var n = fb.items.length;
+    var visible = state.hasAnswers || n > 0;
+    // Show, by count, what goes into the copy right now (feedback, answers to the questions)
+    var parts = [];
+    if (n) {
+      parts.push(T.sendFeedback(n) + (state.pending.length === 0 ? T.sendCopiedMark : state.pending.length < n ? T.sendPending(state.pending.length) : ''));
+    }
+    if (state.hasAnswers) parts.push(T.sendAnswers(state.answered) + (state.answersNew ? '' : T.sendCopiedMark));
+    ui.summary.textContent = parts.join(T.sendJoin);
+    ui.save.hidden = !state.hasAnswers;
+    ui.preview.textContent = visible ? sendMessage(state) : '';
+    if (ui.root.hidden === visible) {
+      ui.root.hidden = !visible;
+      if (!visible) {
+        ui.status.textContent = '';
+        ui.manual.hidden = true;
+        if (!ui.preview.hidden) ui.peek.click();
+      }
+    }
+    syncSendHeight();
+  }
+  function setAnswerStatus(message, isError) {
+    var ui = sendUi();
+    ui.status.textContent = message;
+    ui.status.classList.toggle('is-error', isError === true);
+    ui.manual.hidden = true;
+  }
+  // When the automatic hand-off fails, show the content so the user can select it by hand
+  function showManual(content, message) {
+    var ui = sendUi();
+    setAnswerStatus(message, true);
+    ui.manual.value = content;
+    ui.manual.hidden = false;
+    ui.manual.focus();
+    ui.manual.select();
+  }
+  function sendCopy() {
+    var state = sendState();
+    var content = sendMessage(state);
+    copyText(content, function () {
+      if (state.withAnswers) storageSet(SENT_KEY, answersSignature());
+      var now = new Date().toISOString();
+      state.feedback.forEach(function (item) { item.copiedAt = now; });
+      var kept = state.feedback.length ? fbStore() : true;
+      fbPaint();
+      if (!kept) return;
+      // Success is only announced in a toast (to keep the menu small); the line below is for failures only
+      setAnswerStatus('');
+      toast(state.again ? T.sendCopiedAgain : T.answersCopied);
+    }, function () {
+      showManual(content, T.copyFailed);
+      toast(T.copyFailedShort, true);
+    });
+  }
+  function downloadAnswers() {
+    var content = answersJson();
+    try {
+      var url = URL.createObjectURL(new Blob([content], { type: 'application/json' }));
+      var a = el('a');
+      a.setAttribute('href', url);
+      a.setAttribute('download', ANSWER_FILE);
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+      storageSet(SENT_KEY, answersSignature());
+      paintSend();
+      setAnswerStatus('');
+      toast(T.answersSaved(ANSWER_FILE));
+    } catch (error) {
+      showManual(content, T.saveFailed);
+    }
+  }
+  // Clear every answer and return a function that undoes it (it keeps the answers and drafts from before)
+  function wipeAnswers(doc) {
+    var cards = answerCards.filter(function (entry) { return !doc || entry.doc === doc; });
+    var before = cards.map(function (entry) {
+      return { entry: entry, answer: readCard(entry), draft: storageGet(draftKey(entry.id)) };
+    });
+    cards.forEach(function (entry) {
+      emptyCard(entry);
+      saveDraft(entry);
+    });
+    return function () {
+      before.forEach(function (saved) {
+        emptyCard(saved.entry);
+        if (saved.answer) fillCard(saved.entry, saved.answer);
+        storageSet(draftKey(saved.entry.id), saved.draft);
+      });
+    };
+  }
+  function clearAnswers(doc) {
+    var restore = wipeAnswers(doc);
+    paintAnswers();
+    toast(T.answersCleared, false, { label: T.undo, run: function () {
+      restore();
+      paintAnswers();
+      toast(T.restored);
+    } });
+  }
+  // "Clear" in the menu: removes both the answers and the feedback. The toast can undo it
+  function sendClear() {
+    var restoreAnswers = wipeAnswers();
+    var items = fb.items.slice();
+    fb.items = [];
+    fbStore();
+    paintAnswers();
+    fbPaint();
+    toast(T.sendCleared, false, { label: T.undo, run: function () {
+      restoreAnswers();
+      fb.items = items;
+      fbStore();
+      paintAnswers();
+      fbPaint();
+      toast(T.restored);
+    } });
+  }
+
+  function questionCard(item, index, answers) {
+    var id = questionId(item, index);
+    var cardKey = 'questions[id=' + id + ']';
+    var card = target(el('details', 'qa'), cardKey, id);
+    var summary = el('summary');
+    var badge = el('span', 'badge qa-id');
+    badge.textContent = id;
+    var main = el('span', 'qa-main');
+    var title = el('span', 'qa-title');
+    title.appendChild(value(item.question, 'questions[].question'));
+    var picked = el('span', 'qa-picked clip');
+    main.appendChild(title);
+    main.appendChild(picked);
+    var state = el('span', 'badge badge-quiet qa-state');
+    summary.appendChild(badge);
+    summary.appendChild(main);
+    summary.appendChild(state);
+
+    var body = el('div', 'qa-body');
+    var observed = target(el('div', 'qa-observed'), cardKey + '.observed', T.observed);
+    observed.appendChild(subHeading(T.observed));
+    observed.appendChild(paragraph(richText(item.observed, 'questions[].observed')));
+    body.appendChild(observed);
+
+    var entry = { id: id, doc: CURRENT, recommendation: item.recommendation, radios: [], free: null, card: card, state: state, picked: picked };
+    var options = Array.isArray(item.options) ? item.options : [];
+    var recommended = recommendedIndex(item.recommendation, options.length);
+    if (!options.length) {
+      body.appendChild(paragraph(unfilled('questions[].options')));
+    } else {
+      var set = el('fieldset', 'qa-options');
+      var legend = el('legend', 'qa-label');
+      legend.textContent = T.pickOne;
+      set.appendChild(legend);
+      options.forEach(function (option, i) {
+        var label = target(el('label', 'qa-option'), cardKey + '.options[' + i + ']', String.fromCharCode(65 + i));
+        var radio = el('input');
+        radio.type = 'radio';
+        radio.name = 'answer-' + id;
+        radio.id = 'answer-' + id + '-' + i;
+        radio.value = String(option);
+        radio.addEventListener('change', function () { onCardInput(entry); });
+        var key = el('span', 'opt-key');
+        key.textContent = String.fromCharCode(65 + i);
+        var optionText = el('span', 'opt-text');
+        optionText.textContent = String(option);
+        label.appendChild(radio);
+        label.appendChild(key);
+        label.appendChild(optionText);
+        if (i === recommended) {
+          var tag = el('span', 'badge badge-success');
+          tag.textContent = T.recommended;
+          label.appendChild(tag);
+        }
+        set.appendChild(label);
+        entry.radios.push(radio);
+      });
+      body.appendChild(set);
+    }
+
+    var why = target(el('div', 'qa-why'), cardKey + '.recommendation', T.recommendation);
+    if (blank(item.recommendation)) {
+      why.appendChild(subHeading(T.recommendation));
+      why.appendChild(paragraph(unfilled('questions[].recommendation')));
+    } else if (recommended >= 0) {
+      // With just "B" and no reason, the "Recommended" tag on the option is enough, so skip the box
+      var reason = recommendationReason(item.recommendation);
+      if (reason.replace(/\s+/g, '') !== '') {
+        why.appendChild(subHeading(T.recommendationWhy));
+        why.appendChild(paragraph(richText(reason, '')));
+      }
+    } else {
+      why.appendChild(subHeading(T.recommendation));
+      why.appendChild(paragraph(richText(item.recommendation, '')));
+    }
+    if (why.firstChild) body.appendChild(why);
+
+    var freeBox = el('div');
+    // Keep the note / free answer folded; open it when it has text or the question has no options
+    var freeToggle = el('details', 'qa-free');
+    var freeSummary = el('summary', 'qa-label');
+    freeSummary.textContent = T.freeLabel;
+    var free = el('textarea');
+    free.id = 'answer-' + id + '-free';
+    free.setAttribute('aria-label', T.freeLabel);
+    free.setAttribute('placeholder', T.freePlaceholder);
+    free.addEventListener('input', function () { onCardInput(entry); });
+    entry.free = free;
+    entry.freeToggle = freeToggle;
+    freeToggle.open = entry.radios.length === 0;
+    freeToggle.appendChild(freeSummary);
+    freeToggle.appendChild(free);
+    freeBox.appendChild(freeToggle);
+    var tools = el('div', 'toolbar');
+    if (recommended >= 0) {
+      tools.appendChild(button(T.adoptOne, function () { adoptRecommendation(entry); }, 'btn-sm'));
+    }
+    tools.appendChild(button(T.clearOne, function () {
+      emptyCard(entry);
+      onCardInput(entry);
+    }, 'btn-sm btn-quiet'));
+    var revert = button(T.revertOne, function () {
+      emptyCard(entry);
+      fillCard(entry, entry.imported);
+      onCardInput(entry);
+    }, 'btn-sm btn-quiet');
+    revert.hidden = true;
+    entry.revert = revert;
+    tools.appendChild(revert);
+    freeBox.appendChild(tools);
+    body.appendChild(freeBox);
+
+    // Fill in the answer already in the JSON, then the draft if it was changed from there. Unanswered cards start open
+    var imported = answers[id] ? record(answers[id]) : null;
+    if (imported) {
+      entry.imported = imported;
+      entry.importMark = el('span', 'badge badge-note');
+      main.appendChild(entry.importMark);
+      fillCard(entry, imported);
+      entry.baseline = readCard(entry);
+    }
+    var draft = readDraft(id);
+    if (draft && draft.cleared === true) {
+      if (imported) emptyCard(entry);
+    } else if (draft && !blank(draft.answer)) {
+      emptyCard(entry);
+      fillCard(entry, draft);
+    }
+    card.open = !readCard(entry);
+    answerCards.push(entry);
+
+    card.appendChild(summary);
+    card.appendChild(body);
+    return card;
+  }
+
+  function renderAnswerActions() {
+    var doc = CURRENT;
+    mount('answerActions', [
+      button(T.adoptAll, function () { adoptAllRecommendations(doc); }, 'btn-sm'),
+      button(T.clearAll, function () { clearAnswers(doc); }, 'btn-sm btn-quiet')
+    ]);
+  }
+
+  function renderQuestions(questions, answers) {
+    answerCards = answerCards.filter(function (entry) { return entry.doc !== CURRENT; });
+    mount('questionCount', [text(countLabel(questions))]);
+    if (!countOf(questions)) {
+      mount('questions', [none()]);
+      mount('answerActions', []);
+      return;
+    }
+    mount('questions', entries(questions).map(function (item, index) {
+      return questionCard(item, index, answers);
+    }));
+    renderAnswerActions();
+    paintAnswers();
+  }
+
+  // ---- Feedback mode (pick an item, write a comment, copy them all and hand them to the AI agent) ----
+  var FEEDBACK_KEY = 'katachi-feedback:' + location.href.split('#')[0];
+  // drafts are unsaved comments (per target key). They come back the next time that target is opened
+  var fb = { on: false, items: [], hover: null, editing: null, drafts: {}, ui: {} };
+
+  function fbLoad() {
+    try {
+      var raw = JSON.parse(storageGet(FEEDBACK_KEY) || '[]');
+      return Array.isArray(raw) ? raw.filter(function (item) {
+        return item && typeof item.key === 'string' && typeof item.comment === 'string';
+      }) : [];
+    } catch (error) {
+      return [];
+    }
+  }
+  // Return whether it was kept. If not, open the list with a warning and prompt a copy in a toast too
+  function fbStore() {
+    if (storageSet(FEEDBACK_KEY, fb.items.length ? JSON.stringify(fb.items) : null)) return true;
+    fbTogglePanel(true);
+    fbStatus(T.fbNoStorage, true);
+    toast(T.fbNoStorage, true);
+    return false;
+  }
+  // One piece of feedback goes to one place, or to several picked with Shift-click. Only then does it carry keys / labels; key is those joined (the name that identifies the item)
+  var FB_MAX_TARGETS = 20;
+  function fbKeys(item) {
+    return Array.isArray(item.keys) && item.keys.length ? item.keys.map(String) : [item.key];
+  }
+  function fbLabels(item) {
+    var keys = fbKeys(item);
+    return Array.isArray(item.labels) && item.labels.length === keys.length ? item.labels.map(String) : keys.map(function () { return item.label || ''; });
+  }
+  function fbId(keys) { return keys.join(', '); }
+  function fbTitle(labels) {
+    return labels.length > 1 ? labels[0] + T.fbMore(labels.length - 1) : labels[0];
+  }
+  // quotes are the selected text when a comment was written on a selection; texts are what each place said when saved (both in the same order as the targets)
+  function fbTargetsOf(item) {
+    var labels = fbLabels(item);
+    var quotes = Array.isArray(item.quotes) ? item.quotes : [];
+    var texts = Array.isArray(item.texts) ? item.texts : [];
+    return fbKeys(item).map(function (key, i) {
+      return { key: key, label: labels[i], node: key === 'page' ? null : fbFind(key), quote: quotes[i] || '', text: texts[i] || '' };
+    });
+  }
+  var FB_QUOTE_MAX = 300;
+  var FB_TEXT_MAX = 120;
+  function fbShorten(raw, max) {
+    var flat = String(raw || '').replace(/\s+/g, ' ').replace(/^ | $/g, '');
+    return flat.length > max ? flat.slice(0, max - 1) + '…' : flat;
+  }
+  // The text the place shows now. Falls back to textContent when innerText is empty (inside a closed <details>)
+  function fbNodeText(node) {
+    if (!node) return '';
+    return fbShorten(node.innerText || node.textContent, FB_TEXT_MAX);
+  }
+  // ---- Unsaved comments. Kept in sessionStorage until the tab closes, so they survive a reload ----
+  var DRAFTS_KEY = 'katachi-feedback-drafts:' + location.href.split('#')[0];
+  function fbLoadDrafts() {
+    try {
+      var raw = JSON.parse(sessionStorage.getItem(DRAFTS_KEY) || '{}');
+      var out = {};
+      Object.keys(raw || {}).forEach(function (key) {
+        var d = raw[key];
+        if (d && typeof d.text === 'string' && Array.isArray(d.targets) && d.targets.length) out[key] = d;
+      });
+      return out;
+    } catch (error) {
+      return {};
+    }
+  }
+  function fbSaveDrafts() {
+    try {
+      if (Object.keys(fb.drafts).length) sessionStorage.setItem(DRAFTS_KEY, JSON.stringify(fb.drafts));
+      else sessionStorage.removeItem(DRAFTS_KEY);
+    } catch (error) { /* Without storage, keep them in memory only */ }
+  }
+  // Keep the open box's unsaved text (on every change). Drop it when nothing changed
+  function fbKeepDraft(pop) {
+    if (!pop || !pop.draftKey) return;
+    if (pop.isDirty()) {
+      fb.drafts[pop.draftKey] = {
+        text: pop.area.value,
+        targets: pop.targets.map(function (target) { return { key: target.key, label: target.label, quote: target.quote || '' }; }),
+        originKey: pop.origin ? pop.origin.key : null,
+        at: new Date().toISOString()
+      };
+    } else {
+      delete fb.drafts[pop.draftKey];
+    }
+    fbSaveDrafts();
+  }
+  function fbDropDraft(key) {
+    if (!Object.prototype.hasOwnProperty.call(fb.drafts, key)) return;
+    delete fb.drafts[key];
+    fbSaveDrafts();
+  }
+  function fbDraftTargets(draft) {
+    return draft.targets.map(function (target) {
+      return { key: target.key, label: target.label, quote: target.quote || '', node: target.key === 'page' ? null : fbFind(target.key) };
+    });
+  }
+
+  // ---- The comment box position. Once dragged, remember it and open there next time ----
+  var POP_POS_KEY = 'katachi-feedback-pop-pos';
+  function fbSavedPos() {
+    try {
+      var pos = JSON.parse(storageGet(POP_POS_KEY) || 'null');
+      return pos && typeof pos.x === 'number' && typeof pos.y === 'number' ? pos : null;
+    } catch (error) {
+      return null;
+    }
+  }
+  function fbFind(key) {
+    var nodes = document.querySelectorAll('[data-fb]');
+    for (var i = 0; i < nodes.length; i += 1) {
+      if (nodes[i].getAttribute('data-fb') === key) return nodes[i];
+    }
+    return null;
+  }
+  // Join the names of the targets from the outside in ("4. Elements › app › ViewModel")
+  function fbLabel(node) {
+    var parts = [];
+    for (var cur = node; cur && cur !== document.body; cur = cur.parentElement) {
+      if (!cur.hasAttribute('data-fb')) continue;
+      var label = cur.getAttribute('data-fb-label');
+      if (!label && /^H[1-6]$/.test((cur.firstElementChild || {}).tagName || '')) label = cur.firstElementChild.textContent;
+      if (label) parts.unshift(label.replace(/\s+/g, ' ').trim());
+    }
+    return parts.join(' › ') || T.fbWholePage;
+  }
+  function fbStatus(message, isError) {
+    if (!fb.ui.status) return;
+    fb.ui.status.textContent = message;
+    fb.ui.status.classList.toggle('is-error', isError === true);
+  }
+  function fbMessage(items) {
+    var lines = [T.fbIntro(items.length), ''];
+    items.forEach(function (item, i) {
+      var keys = fbKeys(item);
+      var labels = fbLabels(item);
+      lines.push((i + 1) + '. ' + (keys.length > 1 ? fbTitle(labels) : item.label));
+      var targets = fbTargetsOf(item);
+      keys.forEach(function (key, k) {
+        lines.push('   ' + T.fbTargetPrefix + (keys.length > 1 ? T.fbTargetWithLabel(key, labels[k]) : key));
+        // Add the quote (the selected text) if there is one, otherwise what the place said when saved
+        if (targets[k].quote) lines.push('   ' + T.fbQuotePrefix + T.fbQuoted(targets[k].quote));
+        else if (targets[k].text) lines.push('   ' + T.fbContentPrefix + T.fbQuoted(targets[k].text));
+      });
+      String(item.comment).split('\n').forEach(function (line) { lines.push('   > ' + line); });
+      lines.push('');
+    });
+    return lines.join('\n');
+  }
+  // For something inside a closed <details>, mark the summary of the outermost closed one
+  function visibleAnchor(node) {
+    var anchor = node;
+    for (var cur = node.parentElement; cur && cur !== document.body; cur = cur.parentElement) {
+      if (cur.tagName === 'DETAILS' && !cur.open) {
+        var summary = cur.querySelector(':scope > summary');
+        if (summary && !summary.contains(node)) anchor = summary;
+      }
+    }
+    return anchor;
+  }
+  var pinsQueued = false;
+  function schedulePins() {
+    if (pinsQueued || !fb.ui.layer) return;
+    pinsQueued = true;
+    requestAnimationFrame(function () { pinsQueued = false; layoutPins(); });
+  }
+  function layoutPins() {
+    var layer = fb.ui.layer;
+    layer.textContent = '';
+    var used = {};
+    fb.items.forEach(function (item, i) { fbTargetsOf(item).forEach(function (target) {
+      var node = target.node;
+      if (!node) return;
+      var anchor = visibleAnchor(node);
+      var rect = anchor.getBoundingClientRect();
+      if (!rect.width && !rect.height) return;
+      var top = Math.round(rect.top + window.pageYOffset) - 9;
+      var left = Math.round(Math.min(rect.right, document.documentElement.clientWidth - 16) + window.pageXOffset) - 14;
+      // Shift pins that land on the same spot
+      var spot = top + ':' + left;
+      while (used[spot]) { left -= 26; spot = top + ':' + left; }
+      used[spot] = true;
+      var pin = el('button', 'fb-pin fb-ui');
+      pin.type = 'button';
+      pin.textContent = String(i + 1);
+      pin.setAttribute('aria-label', T.fbPinLabel(i + 1, item.label));
+      pin.setAttribute('title', item.comment);
+      pin.style.top = top + 'px';
+      pin.style.left = Math.max(4, left) + 'px';
+      pin.addEventListener('click', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        var pinRect = pin.getBoundingClientRect();
+        fbCompose(fbTargetsOf(item), { x: pinRect.left, y: pinRect.bottom });
+      });
+      layer.appendChild(pin);
+    }); });
+    // While the comment box is open, frame its targets (numbered when there are several)
+    var pop = fb.ui.pop;
+    if (!pop || !pop.targets) return;
+    pop.targets.forEach(function (target, i) {
+      if (!target.node) return;
+      var rect = visibleAnchor(target.node).getBoundingClientRect();
+      if (!rect.width && !rect.height) return;
+      var box = el('div', 'fb-sel');
+      box.style.top = (rect.top + window.pageYOffset - 2) + 'px';
+      box.style.left = (rect.left + window.pageXOffset - 2) + 'px';
+      box.style.width = (rect.width + 4) + 'px';
+      box.style.height = (rect.height + 4) + 'px';
+      if (pop.targets.length > 1) {
+        var order = el('span');
+        order.textContent = String(i + 1);
+        box.appendChild(order);
+      }
+      layer.appendChild(box);
+    });
+  }
+  function fbHighlight(node) {
+    var hl = fb.ui.highlight;
+    if (!node) { hl.hidden = true; fb.hover = null; return; }
+    fb.hover = node;
+    var rect = node.getBoundingClientRect();
+    hl.style.top = (rect.top + window.pageYOffset - 2) + 'px';
+    hl.style.left = (rect.left + window.pageXOffset - 2) + 'px';
+    hl.style.width = (rect.width + 4) + 'px';
+    hl.style.height = (rect.height + 4) + 'px';
+    hl.firstChild.textContent = fbLabel(node);
+    hl.hidden = false;
+  }
+  // With keepDraft, keep the unsaved text per target (Esc, opening another item). Cancel and Save drop it
+  function fbClosePop(keepDraft) {
+    var pop = fb.ui.pop;
+    if (pop) {
+      if (keepDraft) fbKeepDraft(pop);
+      else fbDropDraft(pop.draftKey);
+    }
+    if (pop) pop.remove();
+    fb.ui.pop = null;
+    fb.editing = null;
+    if (pop && fb.ui.list) fbPaint();
+    schedulePins();
+  }
+  // point is where the click happened (viewport coordinates); the box opens near it
+  // targets is a list of { node, key, label }. carry is { text, origin, top, left } when reopening after adding or removing a target (the text and position carry over)
+  function fbCompose(targets, point, carry) {
+    if (carry) {
+      fb.ui.pop.remove();
+      fb.ui.pop = null;
+      fb.editing = null;
+    } else {
+      fbClosePop(true);
+    }
+    fbHighlight(null);
+    var keys = targets.map(function (target) { return target.key; });
+    var labels = targets.map(function (target) { return target.label; });
+    var key = fbId(keys);
+    var node = (targets.filter(function (target) { return target.node; })[0] || {}).node || null;
+    var draft = !carry && Object.prototype.hasOwnProperty.call(fb.drafts, key) ? fb.drafts[key] : null;
+    var existing = carry ? carry.origin : (fb.items.filter(function (item) { return item.key === key || (draft && item.key === draft.originKey); })[0] || null);
+    var original = existing ? existing.comment : '';
+    var restored = !!draft;
+    // When reopening a saved item, keep its quotes (unless new text was just selected)
+    if (existing) {
+      fbTargetsOf(existing).forEach(function (before) {
+        targets.forEach(function (target) { if (!target.quote && target.key === before.key) target.quote = before.quote; });
+      });
+    }
+    // If the draft had quotes, put them back on the targets
+    if (draft) {
+      targets.forEach(function (target, i) {
+        if (!target.quote && draft.targets[i] && draft.targets[i].key === target.key) target.quote = draft.targets[i].quote || '';
+      });
+    }
+    fb.editing = key;
+    var pop = el('div', 'fb-pop fb-ui');
+    pop.setAttribute('role', 'dialog');
+    pop.setAttribute('aria-label', T.fbComposeLabel);
+    pop.targets = targets;
+    pop.origin = existing;
+    pop.draftKey = key;
+    // The strip to grab and move it by
+    var grip = el('div', 'fb-pop-grip');
+    grip.setAttribute('title', T.fbDragHint);
+    var gripLabel = el('span', 'fb-pop-grip-label');
+    gripLabel.textContent = T.fbComposeLabel;
+    grip.appendChild(gripLabel);
+    var resetPos = button(T.fbResetPos, function () {
+      storageSet(POP_POS_KEY, null);
+      resetPos.hidden = true;
+      fbPlacePop(pop, null, node, null);
+    }, 'btn-sm btn-quiet fb-pop-reset');
+    resetPos.hidden = !fbSavedPos();
+    grip.appendChild(resetPos);
+    fbDraggable(pop, grip, function () { resetPos.hidden = false; });
+    pop.appendChild(grip);
+    var head = el('div', 'fb-pop-targets');
+    if (targets.length > 1) {
+      var countLine = el('p', 'fb-pop-count');
+      countLine.textContent = T.fbTargetsCount(targets.length);
+      head.appendChild(countLine);
+    }
+    targets.forEach(function (target, i) {
+      var row = el('div', 'fb-pop-row');
+      var names = el('div', 'fb-pop-names');
+      var name = el('p', 'fb-pop-target');
+      if (targets.length > 1) {
+        var order = el('span', 'fb-pop-no');
+        order.textContent = String(i + 1);
+        name.appendChild(order);
+      }
+      name.appendChild(text(target.label));
+      var keyLine = el('p', 'fb-pop-key');
+      keyLine.textContent = target.key;
+      names.appendChild(name);
+      names.appendChild(keyLine);
+      if (target.quote) {
+        var quote = el('p', 'fb-pop-quote');
+        quote.textContent = T.fbQuoted(target.quote);
+        names.appendChild(quote);
+      }
+      row.appendChild(names);
+      if (targets.length > 1) {
+        var remove = button('×', function () {
+          fbRetarget(targets.filter(function (other) { return other !== target; }));
+        }, 'btn-sm btn-quiet fb-pop-remove');
+        remove.setAttribute('aria-label', T.fbRemoveTarget(target.label));
+        remove.setAttribute('title', T.fbRemoveTarget(target.label));
+        row.appendChild(remove);
+      }
+      head.appendChild(row);
+    });
+    var area = el('textarea');
+    area.id = 'fb-comment';
+    area.setAttribute('aria-label', T.fbComposeLabel);
+    area.setAttribute('placeholder', T.fbPlaceholder);
+    area.value = carry ? carry.text : restored ? draft.text : original;
+    pop.area = area;
+    // Unsaved when the text changed, or when the targets of a saved item changed
+    pop.isDirty = function () {
+      return area.value.replace(/^\s+|\s+$/g, '') !== original.replace(/^\s+|\s+$/g, '') || (existing !== null && existing.key !== key);
+    };
+    area.addEventListener('input', function () { fbKeepDraft(pop); });
+    var actions = el('div', 'fb-pop-actions');
+    function save() {
+      var comment = area.value.replace(/^\s+|\s+$/g, '');
+      // Replace the item being edited (also under its name before the targets changed) and any with the same targets, keeping its position
+      var at = -1;
+      fb.items.forEach(function (item, i) {
+        if (at < 0 && (item.key === key || (existing && item.key === existing.key))) at = i;
+      });
+      fb.items = fb.items.filter(function (item) { return item.key !== key && !(existing && item.key === existing.key); });
+      if (comment) {
+        var entry = { key: key, label: fbTitle(labels), comment: comment, at: new Date().toISOString() };
+        if (keys.length > 1) { entry.keys = keys; entry.labels = labels; }
+        // What each place says at save time, and the quotes (selected text)
+        entry.texts = targets.map(function (target) { return target.node ? fbNodeText(target.node) : ''; });
+        if (targets.some(function (target) { return target.quote; })) entry.quotes = targets.map(function (target) { return target.quote || ''; });
+        if (at >= 0) fb.items.splice(Math.min(fb.items.length, at), 0, entry);
+        else fb.items.push(entry);
+      }
+      var kept = fbStore();
+      fbClosePop(false);
+      fbPaint();
+      // Don't replace the "couldn't keep it" warning with a success message
+      if (kept) fbStatus(comment ? T.fbSaved : T.fbDeleted);
+    }
+    if (existing) {
+      actions.appendChild(button(T.fbDelete, function () { area.value = ''; save(); }, 'btn-sm btn-quiet fb-delete'));
+    }
+    actions.appendChild(button(T.fbCancel, function () { fbClosePop(false); }, 'btn-sm btn-quiet'));
+    actions.appendChild(button(T.fbSave, save, 'btn-sm btn-primary'));
+    area.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) { event.preventDefault(); save(); }
+      if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); fbClosePop(true); }
+    });
+    pop.appendChild(head);
+    if (keys[0] !== 'page') {
+      var hint = el('p', 'fb-pop-hint');
+      hint.textContent = T.fbPopHint;
+      pop.appendChild(hint);
+    }
+    if (restored) {
+      var note = el('p', 'fb-pop-note');
+      note.textContent = T.fbDraftRestored;
+      pop.appendChild(note);
+    }
+    pop.appendChild(area);
+    pop.appendChild(actions);
+    document.body.appendChild(pop);
+    fb.ui.pop = pop;
+    fbPlacePop(pop, point, node, carry);
+    // Don't let focus scroll the page down past the target
+    area.focus({ preventScroll: true });
+    if (restored || carry) area.setSelectionRange(area.value.length, area.value.length);
+    if (carry) fbKeepDraft(pop);
+    // Hide the draft just opened from the list
+    if (fb.ui.list && Object.keys(fb.drafts).length) fbPaint();
+    schedulePins();
+  }
+  // Keep the box inside the viewport (below the banner at the top; 16px at the sides, 8px at the bottom). Used both for showing it and for the remembered position
+  function fbClampPop(pop, top, left) {
+    var banner = fb.ui.banner;
+    var minTop = (banner && !banner.hidden ? banner.getBoundingClientRect().bottom : 0) + 8;
+    var maxTop = window.innerHeight - pop.offsetHeight - 8;
+    var maxLeft = document.documentElement.clientWidth - pop.offsetWidth - 16;
+    return { top: Math.max(minTop, Math.min(top, maxTop)), left: Math.max(16, Math.min(left, maxLeft)) };
+  }
+  // Keep it inside the viewport: at the remembered position if it was dragged before; otherwise below the click point (or above if it doesn't fit), or else below the visible part of the target (or above)
+  function fbPlacePop(pop, point, node, carry) {
+    var height = pop.offsetHeight;
+    var viewH = window.innerHeight;
+    var banner = fb.ui.banner;
+    var minTop = (banner && !banner.hidden ? banner.getBoundingClientRect().bottom : 0) + 8;
+    var maxTop = viewH - height - 8;
+    var top;
+    var left;
+    var saved = carry ? null : fbSavedPos();
+    if (carry) {
+      top = carry.top - window.pageYOffset;
+      left = carry.left - window.pageXOffset;
+    } else if (saved) {
+      top = saved.y;
+      left = saved.x;
+    } else if (point) {
+      top = point.y + 12 <= maxTop ? point.y + 12 : point.y - height - 12;
+      left = point.x - 24;
+    } else if (node) {
+      var rect = visibleAnchor(node).getBoundingClientRect();
+      var shownTop = Math.max(rect.top, minTop);
+      var shownBottom = Math.min(rect.bottom, viewH);
+      if (shownBottom < shownTop) shownBottom = shownTop;
+      top = shownBottom + 8 <= maxTop ? shownBottom + 8 : shownTop - height - 8;
+      left = rect.left;
+    } else {
+      top = minTop + 16;
+      left = 16;
+    }
+    var fitted = fbClampPop(pop, top, left);
+    pop.style.top = Math.round(fitted.top + window.pageYOffset) + 'px';
+    pop.style.left = Math.round(fitted.left + window.pageXOffset) + 'px';
+  }
+  // Drag by the strip. Remember where it was dropped (viewport coordinates)
+  function fbDraggable(pop, grip, onMoved) {
+    var start = null;
+    grip.addEventListener('pointerdown', function (event) {
+      if (event.button !== 0 || event.target.closest('button')) return;
+      event.preventDefault();
+      var rect = pop.getBoundingClientRect();
+      start = { x: event.clientX, y: event.clientY, top: rect.top, left: rect.left };
+      pop.classList.add('is-dragging');
+      if (grip.setPointerCapture) grip.setPointerCapture(event.pointerId);
+    });
+    grip.addEventListener('pointermove', function (event) {
+      if (!start) return;
+      var fitted = fbClampPop(pop, start.top + event.clientY - start.y, start.left + event.clientX - start.x);
+      pop.style.top = Math.round(fitted.top + window.pageYOffset) + 'px';
+      pop.style.left = Math.round(fitted.left + window.pageXOffset) + 'px';
+    });
+    function end() {
+      if (!start) return;
+      start = null;
+      pop.classList.remove('is-dragging');
+      var rect = pop.getBoundingClientRect();
+      storageSet(POP_POS_KEY, JSON.stringify({ x: Math.round(rect.left), y: Math.round(rect.top) }));
+      onMoved();
+    }
+    grip.addEventListener('pointerup', end);
+    grip.addEventListener('pointercancel', end);
+  }
+  // Swap the targets while the box stays open. The text and position stay
+  function fbRetarget(targets) {
+    var pop = fb.ui.pop;
+    fbDropDraft(pop.draftKey);
+    fbCompose(targets, null, {
+      text: pop.area.value,
+      origin: pop.origin,
+      top: parseFloat(pop.style.top) || 0,
+      left: parseFloat(pop.style.left) || 0
+    });
+  }
+  // Shift-click: add to the targets, or remove if already there
+  // With a quote (Shift-click on selected text), an existing target keeps its place and gets the new quote instead of being removed
+  function fbToggleTarget(node, quote) {
+    var pop = fb.ui.pop;
+    var key = node.getAttribute('data-fb');
+    var current = pop.targets.filter(function (target) { return target.key !== 'page'; });
+    var next = current.filter(function (target) { return target.key !== key; });
+    if (next.length < current.length && quote) {
+      next = current.map(function (target) {
+        return target.key === key ? { node: target.node, key: key, label: target.label, quote: quote } : target;
+      });
+    } else if (next.length === current.length) {
+      if (current.length >= FB_MAX_TARGETS) { toast(T.fbMaxTargets(FB_MAX_TARGETS), true); return; }
+      next = current.concat([{ node: node, key: key, label: fbLabel(node), quote: quote || '' }]);
+    }
+    if (!next.length) {
+      if (pop.isDirty()) fbNudgePop(); else fbClosePop(false);
+      return;
+    }
+    fbRetarget(next);
+  }
+  // If text on the page is selected, that text (squeezed and cut) and the innermost target containing it
+  function fbSelectionTarget() {
+    var selection = window.getSelection ? window.getSelection() : null;
+    if (!selection || selection.isCollapsed || !selection.rangeCount) return null;
+    var quote = fbShorten(String(selection), FB_QUOTE_MAX);
+    if (!quote) return null;
+    var container = selection.getRangeAt(0).commonAncestorContainer;
+    var host = container.nodeType === 1 ? container : container.parentElement;
+    if (!host || (host.closest && host.closest('.fb-ui'))) return null;
+    var node = host.closest && host.closest('[data-fb]');
+    if (!node) return null;
+    return { node: node, quote: quote };
+  }
+  // When the user clicks outside with unsaved text, don't close; point it out instead
+  function fbNudgePop() {
+    var pop = fb.ui.pop;
+    pop.classList.remove('is-nudged');
+    void pop.offsetWidth;
+    pop.classList.add('is-nudged');
+    pop.area.focus({ preventScroll: true });
+    toast(T.fbUnsaved, true);
+  }
+  function fbPaint() {
+    paintSend();
+    var n = fb.items.length;
+    fb.ui.fabCount.textContent = n ? String(n) : '';
+    fb.ui.listButton.textContent = T.fbList(n);
+    var listBox = fb.ui.list;
+    listBox.textContent = '';
+    if (!n) {
+      var empty = el('li', 'fb-empty');
+      empty.textContent = T.fbEmpty;
+      listBox.appendChild(empty);
+    }
+    // Unsaved drafts (except the one in the open box) are listed at the end too. They are not copied
+    var openKey = fb.ui.pop ? fb.ui.pop.draftKey : null;
+    var draftRows = [];
+    var savedKeys = {};
+    fb.items.forEach(function (item) { savedKeys[item.key] = true; });
+    Object.keys(fb.drafts).forEach(function (key) {
+      if (key === openKey) return;
+      var draft = fb.drafts[key];
+      var li = el('li', 'fb-draft');
+      var head = el('div', 'fb-item-head');
+      var mark = el('span', 'badge badge-caution');
+      mark.textContent = T.fbDraftMark;
+      var name = el('span', 'fb-item-target');
+      name.textContent = fbTitle(draft.targets.map(function (target) { return target.label; }));
+      head.appendChild(mark);
+      head.appendChild(name);
+      var keyLine = el('p', 'fb-item-key');
+      keyLine.textContent = draft.targets.map(function (target) { return target.key; }).join('\n');
+      var body = el('p', 'fb-item-text');
+      body.textContent = draft.text;
+      var actions = el('div', 'fb-item-actions');
+      actions.appendChild(button(T.fbDraftResume, function () {
+        var targets = fbDraftTargets(draft);
+        targets.forEach(function (target) { if (target.node) openAncestors(target.node); });
+        var first = targets.filter(function (target) { return target.node; })[0];
+        if (first) first.node.scrollIntoView({ block: 'center' });
+        if (!fb.on) fbToggle(true);
+        fbCompose(targets);
+      }, 'btn-sm btn-quiet'));
+      actions.appendChild(button(T.fbDraftDiscard, function () {
+        var kept = draft;
+        fbDropDraft(key);
+        fbPaint();
+        toast(T.fbDraftDiscarded, false, { label: T.undo, run: function () {
+          fb.drafts[key] = kept;
+          fbSaveDrafts();
+          fbPaint();
+        } });
+      }, 'btn-sm btn-quiet'));
+      li.appendChild(head);
+      li.appendChild(keyLine);
+      li.appendChild(body);
+      li.appendChild(actions);
+      if (savedKeys[key] || (draft.originKey && savedKeys[draft.originKey])) li.classList.add('is-edit');
+      draftRows.push(li);
+    });
+    var copiedCount = fb.items.filter(function (item) { return item.copiedAt; }).length;
+    fb.ui.clearCopied.hidden = copiedCount === 0;
+    fb.ui.clearCopied.textContent = T.fbClearCopied(copiedCount);
+    fb.items.forEach(function (item, i) {
+      var li = el('li');
+      var head = el('div', 'fb-item-head');
+      var num = el('span', 'badge badge-note');
+      num.textContent = String(i + 1);
+      var name = el('span', 'fb-item-target');
+      name.textContent = item.label;
+      head.appendChild(num);
+      head.appendChild(name);
+      var targets = fbTargetsOf(item);
+      var found = targets.filter(function (target) { return target.node; });
+      var node = found.length ? found[0].node : null;
+      if (item.copiedAt) {
+        var copied = el('span', 'badge badge-quiet');
+        copied.textContent = T.fbCopiedMark;
+        head.appendChild(copied);
+        li.classList.add('is-copied');
+      }
+      // Targets that are gone from the JSON (fixed, or renamed)
+      if (item.key !== 'page' && found.length < targets.length) {
+        var missing = el('span', 'badge badge-caution');
+        missing.textContent = T.fbMissing;
+        missing.setAttribute('title', T.fbMissingHint);
+        head.appendChild(missing);
+      }
+      var key = el('p', 'fb-item-key');
+      key.textContent = fbKeys(item).join('\n');
+      var quotes = targets.filter(function (target) { return target.quote; });
+      var body = el('p', 'fb-item-text');
+      body.textContent = item.comment;
+      var actions = el('div', 'fb-item-actions');
+      if (node) {
+        actions.appendChild(button(T.fbShow, function () {
+          openAncestors(node);
+          node.scrollIntoView({ block: 'center' });
+          if (!fb.on) fbToggle(true);
+          setTimeout(function () { fbHighlight(node); }, 50);
+        }, 'btn-sm btn-quiet'));
+      }
+      actions.appendChild(button(T.fbEdit, function () {
+        found.forEach(function (target) { openAncestors(target.node); });
+        if (node) node.scrollIntoView({ block: 'center' });
+        fbCompose(targets);
+      }, 'btn-sm btn-quiet'));
+      actions.appendChild(button(T.fbDelete, function () {
+        fbRemove(function (other) { return other.key !== item.key; }, T.fbDeleted);
+      }, 'btn-sm btn-quiet'));
+      li.appendChild(head);
+      li.appendChild(key);
+      quotes.forEach(function (target) {
+        var quote = el('p', 'fb-pop-quote');
+        quote.textContent = T.fbQuoted(target.quote);
+        li.appendChild(quote);
+      });
+      li.appendChild(body);
+      li.appendChild(actions);
+      listBox.appendChild(li);
+    });
+    draftRows.forEach(function (row) { listBox.appendChild(row); });
+    if (draftRows.length && !n) listBox.removeChild(listBox.firstChild);
+    schedulePins();
+  }
+  function openAncestors(node) {
+    for (var cur = node.parentElement; cur; cur = cur.parentElement) {
+      if (cur.tagName === 'DETAILS') cur.open = true;
+    }
+  }
+  function fbToggle(on) {
+    fb.on = on;
+    document.body.classList.toggle('fb-mode', on);
+    fb.ui.fab.setAttribute('aria-pressed', on ? 'true' : 'false');
+    fb.ui.banner.hidden = !on;
+    if (!on) { fbHighlight(null); fbClosePop(true); }
+    syncBannerHeight();
+    schedulePins();
+  }
+  // The banner wraps on narrow screens, so put its real height in a CSS variable for things that stick to the top
+  function syncBannerHeight() {
+    var banner = fb.ui.banner;
+    var height = banner && !banner.hidden ? banner.offsetHeight : 0;
+    document.documentElement.style.setProperty('--fb-banner-h', height + 'px');
+  }
+  // Offer "Undo" in a toast after deleting
+  function fbRemove(keep, message) {
+    var before = fb.items.slice();
+    fb.items = fb.items.filter(keep);
+    var kept = fbStore();
+    fbPaint();
+    if (!kept) return;
+    fbStatus(message);
+    toast(message, false, { label: T.undo, run: function () {
+      fb.items = before;
+      var restoredKept = fbStore();
+      fbPaint();
+      if (restoredKept) fbStatus(T.restored);
+    } });
+  }
+  function fbTogglePanel(open) {
+    var panel = fb.ui.panel;
+    panel.hidden = open === undefined ? !panel.hidden : !open;
+  }
+  function installFeedback() {
+    fb.items = fbLoad();
+    fb.drafts = fbLoadDrafts();
+    var layer = el('div', 'fb-layer');
+    var highlight = el('div', 'fb-hl');
+    highlight.hidden = true;
+    highlight.appendChild(el('span'));
+    var fab = el('button', 'fb-fab btn-icon fb-ui');
+    fab.type = 'button';
+    fab.setAttribute('aria-pressed', 'false');
+    fab.appendChild(text(T.fbFab));
+    var fabCount = el('span', 'badge');
+    fab.appendChild(fabCount);
+    fab.addEventListener('click', function () { fbToggle(!fb.on); });
+
+    var banner = el('div', 'fb-banner fb-ui');
+    banner.hidden = true;
+    var bannerText = el('p');
+    bannerText.textContent = T.fbBanner;
+    var listButton = button(T.fbList(0), function () { fbTogglePanel(); }, 'btn-sm');
+    banner.appendChild(bannerText);
+    banner.appendChild(button(T.fbWholePageButton, function () { fbCompose([{ node: null, key: 'page', label: T.fbWholePage }]); }, 'btn-sm'));
+    banner.appendChild(listButton);
+    banner.appendChild(button(T.fbExit, function () { fbToggle(false); }, 'btn-sm'));
+
+    var panel = el('section', 'fb-panel fb-ui');
+    panel.hidden = true;
+    panel.setAttribute('aria-label', T.fbPanelLabel);
+    var panelHead = el('div', 'fb-panel-head');
+    var panelTitle = el('p');
+    panelTitle.textContent = T.fbPanelLabel;
+    panelHead.appendChild(panelTitle);
+    panelHead.appendChild(button(T.fbClose, function () { fbTogglePanel(false); }, 'btn-sm btn-quiet'));
+    var listBox = el('ol', 'fb-list');
+    var foot = el('div', 'fb-panel-foot');
+    var clearCopied = button(T.fbClearCopied(0), function () {
+      fbRemove(function (item) { return !item.copiedAt; }, T.fbCopiedCleared);
+    }, 'btn-sm btn-quiet');
+    foot.appendChild(clearCopied);
+    foot.appendChild(button(T.fbClearAll, function () {
+      if (!fb.items.length) return;
+      fbRemove(function () { return false; }, T.fbCleared);
+    }, 'btn-sm btn-quiet'));
+    var status = el('p', 'fb-status');
+    status.setAttribute('role', 'status');
+    foot.appendChild(status);
+    panel.appendChild(panelHead);
+    panel.appendChild(listBox);
+    panel.appendChild(foot);
+
+    [layer, highlight, banner, panel, fab].forEach(function (node) { document.body.appendChild(node); });
+    fb.ui = { layer: layer, highlight: highlight, fab: fab, fabCount: fabCount, banner: banner, listButton: listButton, panel: panel, list: listBox, status: status, clearCopied: clearCopied, pop: null };
+
+    function inUi(node) { return node.closest && node.closest('.fb-ui'); }
+    document.addEventListener('mousemove', function (event) {
+      // While the box is open, only show the item that would be added while Shift is held
+      if (!fb.on) return;
+      if (fb.ui.pop && !event.shiftKey) { if (fb.hover) fbHighlight(null); return; }
+      var node = inUi(event.target) ? null : event.target.closest && event.target.closest('[data-fb]');
+      if (node !== fb.hover) fbHighlight(node);
+    }, true);
+    // Keep Shift-click from extending a text selection or taking focus from the box
+    document.addEventListener('mousedown', function (event) {
+      if (fb.on && event.shiftKey && !inUi(event.target)) event.preventDefault();
+    }, true);
+    document.addEventListener('keyup', function (event) {
+      if (event.key === 'Shift' && fb.ui.pop && fb.hover) fbHighlight(null);
+    });
+    document.addEventListener('click', function (event) {
+      if (!fb.on || inUi(event.target)) return;
+      // Only the disclosure arrow still opens and closes in the mode
+      if (!fb.ui.pop && event.target.closest && event.target.closest('summary > .tw')) return;
+      // In the mode, a click picks a feedback target instead of opening, closing or typing
+      event.preventDefault();
+      event.stopPropagation();
+      var node = event.target.closest && event.target.closest('[data-fb]');
+      // If text was selected by dragging, quote it and write to the innermost target containing it
+      // If the click is somewhere unrelated to the selection (an old selection just lingering), ignore it
+      var picked = fbSelectionTarget();
+      if (picked && !(picked.node.contains(event.target) || event.target.contains(picked.node))) picked = null;
+      var quote = '';
+      if (picked) { node = picked.node; quote = picked.quote; }
+      if (fb.ui.pop) {
+        if (event.shiftKey && node) fbToggleTarget(node, quote);
+        else if (fb.ui.pop.isDirty()) fbNudgePop();
+        else if (picked) fbCompose([{ node: node, key: node.getAttribute('data-fb'), label: fbLabel(node), quote: quote }], { x: event.clientX, y: event.clientY });
+        else fbClosePop(false);
+        return;
+      }
+      if (!node) return;
+      fbCompose([{ node: node, key: node.getAttribute('data-fb'), label: fbLabel(node), quote: quote }], { x: event.clientX, y: event.clientY });
+    }, true);
+    document.addEventListener('keydown', function (event) {
+      if (event.key !== 'Escape' || !fb.on) return;
+      if (fb.ui.pop) fbClosePop(true); else fbToggle(false);
+    });
+    if (window.ResizeObserver) {
+      new ResizeObserver(schedulePins).observe(document.body);
+      new ResizeObserver(syncBannerHeight).observe(banner);
+    }
+    fbPaint();
+  }
+
+  // ---- Open folded things while printing ----
+  function openWhilePrinting() {
+    var saved = null;
+    addEventListener('beforeprint', function () {
+      var boxes = Array.prototype.slice.call(document.querySelectorAll('details'));
+      saved = boxes.map(function (box) { return [box, box.open]; });
+      boxes.forEach(function (box) { box.open = true; });
+    });
+    addEventListener('afterprint', function () {
+      if (!saved) return;
+      saved.forEach(function (pair) { pair[0].open = pair[1]; });
+      saved = null;
+    });
+  }
+
+  function renderError(message) {
+    var box = el('div', 'aside aside-danger');
+    var title = el('p', 'aside-title');
+    title.textContent = CURRENT.dataError;
+    var detail = el('p');
+    detail.textContent = message;
+    box.appendChild(title);
+    box.appendChild(detail);
+    mount('error', [box]);
+  }
+  // Shared by the report and the checklist up to here
+
+  // ---- Steps ----
+  function itemRow(item, index, stepKey) {
+    var id = 'item-' + (blank(item.id) ? 'x' + index : String(item.id));
+    var li = target(el('li'), stepKey + '.items[' + (blank(item.id) ? index : 'id=' + item.id) + ']', blank(item.id) ? String(index + 1) : String(item.id));
+    var label = el('label');
+    label.setAttribute('for', id);
+    var box = el('input');
+    box.type = 'checkbox';
+    box.id = id;
+    box.setAttribute('data-item', blank(item.id) ? '' : String(item.id));
+    box.checked = item.done === true;
+    var body = el('span', 'item');
+    if (!blank(item.id)) {
+      var tag = el('span', 'item-id');
+      tag.textContent = String(item.id);
+      body.appendChild(tag);
+    }
+    body.appendChild(value(item.label, 'steps[].items[].label'));
+    label.appendChild(box);
+    label.appendChild(body);
+    li.appendChild(label);
+    boxes.push(box);
+    return li;
+  }
+  function stepBlock(step, index) {
+    var id = blank(step.id) ? String(index) : String(step.id);
+    var key = 'steps[' + (blank(step.id) ? index : 'id=' + step.id) + ']';
+    var box = target(el('details', 'step'), key, blank(step.title) ? id : id + '. ' + step.title);
+    box.setAttribute('data-step', id);
+    if (step.optional === true) box.classList.add('is-optional');
+
+    var summary = el('summary');
+    var num = el('span', 'step-num');
+    num.setAttribute('aria-hidden', 'true');
+    num.textContent = id;
+    var title = el('span', 'step-title');
+    title.appendChild(value(step.title, 'steps[].title'));
+    var state = el('span', 'badge step-state');
+    // What step 1 fills in is the codebase report further down this page
+    // Put it on the heading row so it shows while the step is collapsed. A link inside summary does not toggle it
+    if (id === '1') {
+      var jump = el('a', 'btn btn-sm step-link');
+      jump.setAttribute('href', '#codebase-report');
+      jump.textContent = T.reportLinkStep;
+      title.appendChild(jump);
+    }
+    summary.appendChild(num);
+    summary.appendChild(title);
+    summary.appendChild(state);
+
+    var body = el('div', 'step-body');
+    if (!blank(step.warning)) {
+      var warning = target(el('div', 'aside aside-caution step-warning'), key + '.warning', T.warningLabel);
+      var warningText = el('p', 'aside-title');
+      warningText.textContent = String(step.warning);
+      warning.appendChild(warningText);
+      body.appendChild(warning);
+    }
+    var items = el('ul', 'checklist');
+    list(step.items).forEach(function (item, i) { items.appendChild(itemRow(item, i, key)); });
+    body.appendChild(items);
+
+    box.appendChild(summary);
+    box.appendChild(body);
+    stepNodes.push(box);
+    return box;
+  }
+  function renderSteps(steps) {
+    stepNodes = [];
+    boxes = [];
+    var items = list(steps);
+    if (!items.length) {
+      mount('steps', [paragraph(unfilled('steps'))]);
+      return;
+    }
+    mount('steps', items.map(stepBlock));
+  }
+
+  // ---- Progress and the three states ----
+  function checkedIn(nodes) {
+    return nodes.filter(function (box) { return box.checked; }).length;
+  }
+  function boxesIn(step) {
+    return Array.prototype.slice.call(step.querySelectorAll('input[type="checkbox"]'));
+  }
+  function warned(step) { return step.querySelector('.step-warning') !== null; }
+  function optional(step) { return step.classList.contains('is-optional'); }
+  function paint() {
+    var warnings = 0;
+    var optDone = 0;
+    var optTotal = 0;
+    stepNodes.forEach(function (step) {
+      var nodes = boxesIn(step);
+      var done = checkedIn(nodes);
+      var complete = nodes.length > 0 && done === nodes.length;
+      var hasWarning = warned(step);
+      if (hasWarning) warnings += 1;
+      if (optional(step)) { optDone += done; optTotal += nodes.length; }
+      step.classList.toggle('is-done', complete);
+      step.classList.toggle('has-warning', hasWarning);
+      var chip = step.querySelector('.step-state');
+      if (!chip) return;
+      chip.className = 'badge step-state';
+      if (complete && hasWarning) { chip.textContent = T.stepDoneWarning; chip.classList.add('badge-caution'); }
+      else if (complete) { chip.textContent = T.stepDone; chip.classList.add('badge-success'); }
+      else if (optional(step) && done === 0) { chip.textContent = T.stepOptional; chip.classList.add('badge-quiet'); }
+      else chip.textContent = done + ' / ' + nodes.length;
+    });
+
+    var total = boxes.length - optTotal;
+    var done = checkedIn(boxes) - optDone;
+    var pct = total === 0 ? 0 : Math.round((done / total) * 100);
+    var line = document.getElementById('progress-text');
+    line.textContent = T.progress(done, total, pct);
+    if (optTotal > 0) {
+      var opt = el('span');
+      opt.textContent = T.progressOptional(optDone, optTotal);
+      line.appendChild(opt);
+    }
+    if (warnings > 0) {
+      var note = el('span', 'progress-warn');
+      note.textContent = T.progressWarnings(warnings);
+      line.appendChild(note);
+    }
+    document.getElementById('progress-fill').style.width = pct + '%';
+  }
+  // Only decided at load time. Collapse only steps that are done with no warning
+  function foldFinishedSteps() {
+    stepNodes.forEach(function (step) {
+      var nodes = boxesIn(step);
+      var done = checkedIn(nodes);
+      var complete = nodes.length > 0 && done === nodes.length;
+      // Optional steps stay collapsed until you start them
+      if (optional(step) && done === 0) { step.open = false; return; }
+      step.open = !complete || warned(step);
+    });
+  }
+
+  // ---- The three sections after the steps ----
+  function renderMeta(meta) {
+    mount('meta', [facts(T.meta.map(function (spec) {
+      var show = spec[0] === 'ranAt' ? dateValue : value;
+      return [spec[1], show(meta[spec[0]], 'meta.' + spec[0]), 'meta.' + spec[0]];
+    }))]);
+  }
+
+  // Writing preferences: key / question / recommendation (null means "detected", so no comparison)
+  function renderPreferences(preferences) {
+    var known = T.preferences.map(function (spec) { return spec[0]; });
+    var extra = Object.keys(preferences).filter(function (key) { return known.indexOf(key) < 0; });
+    var specs = T.preferences.concat(extra.map(function (key) { return [key, '', null]; }));
+    var differs = [];
+    var rows = specs.map(function (spec, index) {
+      var key = spec[0];
+      var raw = preferences[key];
+      var recorded = !blank(raw);
+      var valueCell = el('span');
+      if (recorded) {
+        valueCell.textContent = String(raw);
+      } else {
+        var muted = el('span', 'empty');
+        muted.textContent = spec[2] === null ? T.prefNotRecordedDetected : T.prefNotRecordedDefault;
+        valueCell.appendChild(muted);
+      }
+      if (recorded && spec[2] !== null && String(raw) !== spec[2]) {
+        differs.push(index);
+        var mark = el('span', 'pref-mark');
+        mark.textContent = T.prefDiffers;
+        valueCell.appendChild(mark);
+      }
+      return {
+        key: 'preferences.' + key,
+        label: spec[1] || key,
+        cells: [text(key), text(spec[1]), valueCell, text(spec[2] === null ? T.prefDetected : spec[2])]
+      };
+    });
+    var table = tableOf(T.prefHeaders, rows, ['22%', '38%', '24%', '16%']);
+    var trs = table.querySelectorAll('tbody tr');
+    differs.forEach(function (index) { trs[index].classList.add('pref-differs'); });
+    mount('preferences', [table]);
+  }
+
+  function renderViolations(violations) {
+    mount('violationCount', [text(countLabel(violations))]);
+    if (!countOf(violations)) { mount('violations', [none(T.allGreen)]); return; }
+    var rows = entries(violations).map(function (item, i) {
+      return {
+        key: 'violations[' + i + ']',
+        label: blank(item.violation) ? String(i + 1) : String(item.violation),
+        cells: [
+          value(item.violation, 'violations[].violation'),
+          value(item.location, 'violations[].location'),
+          value(item.whyNotFixed, 'violations[].whyNotFixed'),
+          value(item.suggestion, 'violations[].suggestion')
+        ],
+        fields: ['violation', 'location', 'whyNotFixed', 'suggestion']
+      };
+    });
+    // The violation text must be readable, so that column wraps
+    mount('violations', [tableOf(T.violationHeaders, rows, ['25%', '25%', '25%', '25%'], false, [0])]);
+  }
+
+  function renderChangedFiles(changed) {
+    mount('changedCount', [text(countLabel(changed))]);
+    if (!countOf(changed)) { mount('changedFiles', [none()]); return; }
+    var rows = entries(changed).map(function (item, i) {
+      return {
+        key: blank(item.path) ? 'changedFiles[' + i + ']' : 'changedFiles[path=' + item.path + ']',
+        label: blank(item.path) ? String(i + 1) : String(item.path),
+        cells: [
+          value(item.path, 'changedFiles[].path'),
+          value(item.change, 'changedFiles[].change'),
+          value(item.summary, 'changedFiles[].summary')
+        ],
+        fields: ['path', 'change', 'summary']
+      };
+    });
+    mount('changedFiles', [tableOf(T.changedHeaders, rows, ['40%', '16%', '44%'])]);
+  }
+
+  // ---- Building the codebase report ----
+  function renderReportMeta(meta) {
+    mount('meta', [facts([
+      [T.reportMeta.projectName, value(meta.projectName, 'meta.projectName'), 'meta.projectName'],
+      [T.reportMeta.analyzedAt, dateValue(meta.analyzedAt, 'meta.analyzedAt'), 'meta.analyzedAt'],
+      [T.reportMeta.fileCount, value(meta.fileCount, 'meta.fileCount'), 'meta.fileCount'],
+      [T.reportMeta.gradleRoot, value(meta.gradleRoot, 'meta.gradleRoot'), 'meta.gradleRoot'],
+      [T.reportMeta.gitRoot, value(meta.gitRoot, 'meta.gitRoot'), 'meta.gitRoot']
+    ])]);
+  }
+
+  function renderOverview(overview) {
+    mount('overview', [facts([
+      [T.overview.language, value(overview.language, 'overview.language'), 'overview.language', listWhenOpen(sentenceParts(overview.language), null)],
+      [T.overview.frameworks, inlineOrNone(overview.frameworks), 'overview.frameworks', listWhenOpen(overview.frameworks, 'overview.frameworks')],
+      [T.overview.appPackage, value(overview.appPackage, 'overview.appPackage'), 'overview.appPackage'],
+      [T.overview.targets, inlineOrNone(overview.targets), 'overview.targets', listWhenOpen(overview.targets, 'overview.targets')]
+    ])]);
+  }
+
+  // The bullet list shown when open, only for 2 or more items. With a key, each bullet becomes a feedback target
+  function listWhenOpen(values, key) {
+    if (blank(values) || values.length < 2) return null;
+    var list = bullets(values, '');
+    return key ? targetBullets(list, key) : list;
+  }
+
+  function folded(label, bodyNode, key) {
+    var box = el('details', 'ask tree');
+    if (key) target(box, key, label);
+    var head = el('summary');
+    head.appendChild(el('span', 'tw'));
+    head.appendChild(text(label));
+    var body = el('div', 'ask-body');
+    body.appendChild(bodyNode);
+    box.appendChild(head);
+    box.appendChild(body);
+    return box;
+  }
+  // Make each bullet a feedback target
+  function targetBullets(listNode, key) {
+    if (!listNode || listNode.tagName !== 'UL') return listNode;
+    Array.prototype.forEach.call(listNode.children, function (li, i) { target(li, key + '[' + i + ']', String(i + 1)); });
+    return listNode;
+  }
+
+  function renderArchitecture(architecture) {
+    var name = target(el('p', 'arch-name'), 'architecture.name', null);
+    name.appendChild(value(architecture.name, 'architecture.name'));
+    mount('architecture', [
+      name,
+      folded(T.rationale, targetBullets(bullets(architecture.rationale, 'architecture.rationale'), 'architecture.rationale'), 'architecture.rationale'),
+      folded(T.characteristics, targetBullets(bulletsOrNone(architecture.characteristics), 'architecture.characteristics'), 'architecture.characteristics')
+    ]);
+  }
+
+  // Split modules[].path on "/" into a tree. No parent field; it comes from the path
+  function buildModuleTree(modules) {
+    var root = { name: '', module: null, order: [] };
+    list(modules).forEach(function (module) {
+      var segments = blank(module.path) ? ['?'] : String(module.path).split('/').filter(Boolean);
+      var node = root;
+      segments.forEach(function (segment) {
+        var next = node.order.filter(function (child) { return child.name === segment; })[0];
+        if (!next) {
+          next = { name: segment, module: null, order: [] };
+          node.order.push(next);
+        }
+        node = next;
+      });
+      // If the same path appears twice the later one wins. Missing paths collect under "?"
+      node.module = module;
+    });
+    return root.order;
+  }
+  function hasDeviation(node) {
+    if (node.module && !blank(node.module.deviation)) return true;
+    return node.order.some(hasDeviation);
+  }
+  function moduleNode(node, depth) {
+    var module = node.module;
+    var hasBody = module || node.order.length;
+    var box = el(hasBody ? 'details' : 'div', 'module-node');
+    if (module) target(box, 'modules[path=' + (blank(module.path) ? '?' : module.path) + ']', node.name);
+    var row = el(hasBody ? 'summary' : 'div', 'tree-row module-row');
+    row.appendChild(el('span', 'tw'));
+    row.appendChild(el('span', 'ti ' + (module ? 'ti-module' : 'ti-folder')));
+    var line = el('span', 'module-line');
+    row.appendChild(line);
+    var name = el('span', 't-name');
+    name.textContent = node.name;
+    line.appendChild(name);
+    if (module) {
+      var kind = el('span', 'badge');
+      kind.appendChild(value(module.kind, 'modules[].kind'));
+      line.appendChild(kind);
+      if (!blank(module.deviation)) {
+        var flag = target(el('span', 'deviation'), 'modules[path=' + (blank(module.path) ? '?' : module.path) + '].deviation', T.deviationLabel);
+        flag.textContent = String(module.deviation);
+        line.appendChild(flag);
+      }
+    }
+    box.appendChild(row);
+    if (!hasBody) return box;
+
+    var body = el('div', 'tree-children');
+    if (module) {
+      var fields = el('dl', 'fields module-body');
+      var moduleKey = 'modules[path=' + (blank(module.path) ? '?' : module.path) + ']';
+      [[T.responsibility, value(module.responsibility, 'modules[].responsibility'), 'responsibility'],
+       [T.buildFile, value(module.buildFile, 'modules[].buildFile'), 'buildFile']].forEach(function (pair) {
+        var dt = el('dt');
+        dt.textContent = pair[0];
+        var dd = target(el('dd'), moduleKey + '.' + pair[2], pair[0]);
+        dd.appendChild(pair[1]);
+        fields.appendChild(dt);
+        fields.appendChild(dd);
+      });
+      body.appendChild(fields);
+    }
+    node.order.forEach(function (child) { body.appendChild(moduleNode(child, depth + 1)); });
+    box.appendChild(body);
+    // Start open down to 2 levels. Branches with a deviation open at any depth
+    box.open = depth < 1 || hasDeviation(node);
+    return box;
+  }
+
+  // Turn the directory-structure string into a tree. The depth of the indent (spaces, tabs, │├└─) decides parent and child
+  function parseDirectoryTree(raw) {
+    var root = { name: '', note: '', indent: -1, children: [] };
+    var stack = [root];
+    String(raw).split(/\r?\n/).forEach(function (line) {
+      if (!line.replace(/[\s│├└┬┼─|`+\-]/g, '')) return;
+      var match = /^(?:[ \t│├└┬┼─]|[|`+](?=[\s─-])|-(?=[\s─-]))*/.exec(line);
+      var prefix = match ? match[0] : '';
+      var indent = prefix.replace(/\t/g, '    ').length;
+      var rest = line.slice(prefix.length).replace(/\s+$/, '');
+      var noteAt = rest.search(/\s{2,}#\s|\s+#\s|\s{2,}(?:←|<-)\s?/);
+      var name = noteAt >= 0 ? rest.slice(0, noteAt) : rest;
+      var note = noteAt >= 0 ? rest.slice(noteAt).replace(/^\s*(?:#|←|<-)\s*/, '') : '';
+      var node = { name: name, note: note, indent: indent, children: [] };
+      while (stack.length > 1 && stack[stack.length - 1].indent >= indent) stack.pop();
+      stack[stack.length - 1].children.push(node);
+      stack.push(node);
+    });
+    return root.children;
+  }
+  function dirNode(node, path, depth) {
+    var isDir = node.children.length > 0 || /\/$/.test(node.name);
+    var full = path + node.name + (isDir && !/\/$/.test(node.name) ? '/' : '');
+    var box = el(node.children.length ? 'details' : 'div', isDir ? 'is-dir' : 'is-file');
+    target(box, 'directoryTree: ' + full, node.name);
+    var row = el(node.children.length ? 'summary' : 'div', 'tree-row');
+    row.appendChild(el('span', 'tw'));
+    row.appendChild(el('span', 'ti ' + (isDir ? 'ti-folder' : 'ti-file')));
+    var name = el('span', 't-name');
+    name.textContent = node.name;
+    row.appendChild(name);
+    if (node.note) {
+      var note = el('span', 't-note');
+      note.textContent = node.note;
+      row.appendChild(note);
+    }
+    box.appendChild(row);
+    if (node.children.length) {
+      var kids = el('div', 'tree-children');
+      node.children.forEach(function (child) { kids.appendChild(dirNode(child, full, depth + 1)); });
+      box.appendChild(kids);
+      box.open = depth < 2;
+    }
+    return box;
+  }
+  function setAllOpen(container, open) {
+    Array.prototype.forEach.call(container.querySelectorAll('details'), function (box) { box.open = open; });
+  }
+  function treeTools(container) {
+    var tools = el('div', 'toolbar toolbar-end');
+    tools.appendChild(button(T.expandAll, function () { setAllOpen(container, true); }, 'btn-sm btn-quiet'));
+    tools.appendChild(button(T.collapseAll, function () { setAllOpen(container, false); }, 'btn-sm btn-quiet'));
+    return tools;
+  }
+
+  // Lists that tend to run long open and close from their heading. Closed at first (openWhilePrinting opens them for printing)
+  function fold(title, count, children) {
+    var box = el('details', 'fold');
+    var head = el('summary');
+    var h = el('h4');
+    h.textContent = title;
+    if (count !== null) {
+      var badge = el('span', 'badge');
+      badge.textContent = String(count);
+      h.appendChild(badge);
+    }
+    head.appendChild(h);
+    box.appendChild(head);
+    children.forEach(function (child) { box.appendChild(child); });
+    return box;
+  }
+  function renderModules(data) {
+    var tree = buildModuleTree(data.modules);
+    var nodes = [];
+    var mods = [];
+    if (!tree.length) {
+      mods.push(paragraph(unfilled('modules')));
+    } else {
+      var lede = el('p', 'lede');
+      lede.textContent = T.deviationLede;
+      mods.push(lede);
+      var moduleTree = el('div', 'tree');
+      tree.forEach(function (node) { moduleTree.appendChild(moduleNode(node, 0)); });
+      mods.push(moduleTree);
+    }
+    nodes.push(fold(T.moduleList, list(data.modules).length || null, mods));
+
+    var dirs = [];
+    if (blank(data.directoryTree)) {
+      dirs.push(paragraph(unfilled('directoryTree')));
+    } else {
+      var lede2 = el('p', 'lede');
+      lede2.textContent = T.directoryLede;
+      dirs.push(lede2);
+      var fileTree = target(el('div', 'tree file-tree'), 'directoryTree', null);
+      parseDirectoryTree(data.directoryTree).forEach(function (node) { fileTree.appendChild(dirNode(node, '', 0)); });
+      dirs.push(treeTools(fileTree));
+      dirs.push(fileTree);
+      var raw = el('details', 'raw-tree');
+      var rawHead = el('summary');
+      rawHead.textContent = T.rawTree;
+      var pre = el('pre');
+      var code = el('code');
+      code.textContent = String(data.directoryTree);
+      pre.appendChild(code);
+      raw.appendChild(rawHead);
+      raw.appendChild(pre);
+      dirs.push(raw);
+    }
+    nodes.push(fold(T.directoryTree, null, dirs));
+    mount('modules', nodes);
+  }
+
+  // importance is an integer from 1 to 5. Anything else counts as 0 and goes last
+  function rankOf(role) {
+    var level = role.importance;
+    var ok = typeof level === 'number' && isFinite(level) &&
+      level >= 1 && level <= 5 && Math.floor(level) === level;
+    return ok ? level : 0;
+  }
+  function rankDots(level) {
+    var label = T.rank(level);
+    var box = el('span', 'rank');
+    box.setAttribute('title', label);
+    box.setAttribute('aria-label', label);
+    box.setAttribute('role', 'img');
+    for (var i = 1; i <= 5; i += 1) {
+      box.appendChild(el('span', i <= level ? 'rank-dot is-on' : 'rank-dot'));
+    }
+    return box;
+  }
+  // Example files. With meta.gradleRoot they become file:// links (same rules as file_uri in sh)
+  function fileUri(root, rel) {
+    var path = String(root).replace(/\/+$/, '') + '/' + String(rel).replace(/^\.?\//, '');
+    return 'file://' + path.replace(/%/g, '%25').replace(/ /g, '%20').replace(/#/g, '%23').replace(/\?/g, '%3F');
+  }
+  function fileLinks(paths, root) {
+    if (blank(paths)) return none();
+    var ul = el('ul');
+    paths.forEach(function (item) {
+      var li = el('li');
+      if (blank(root)) {
+        li.textContent = String(item);
+      } else {
+        var a = el('a');
+        a.setAttribute('href', fileUri(root, item));
+        a.textContent = String(item);
+        li.appendChild(a);
+      }
+      ul.appendChild(li);
+    });
+    return ul;
+  }
+  // pair is [label, content, place in the JSON]. With a place, the dd becomes a feedback target
+  function fieldList(pairs) {
+    var dl = el('dl', 'fields');
+    pairs.forEach(function (pair) {
+      if (!pair[1]) return;
+      var dt = el('dt');
+      dt.textContent = pair[0];
+      var dd = el('dd');
+      if (pair[2]) target(dd, pair[2], pair[0]);
+      dd.appendChild(pair[1]);
+      dl.appendChild(dt);
+      dl.appendChild(dd);
+    });
+    return dl;
+  }
+
+  function roleNode(role, root, index) {
+    var constraint = role.constraintOnly === true;
+    var box = el('details', 'role-node' + (constraint ? ' constraint-only' : '') + (blank(role.name) ? ' is-empty' : ''));
+    var roleKey = blank(role.name) ? 'roles[' + index + ']' : 'roles[name=' + role.name + ']';
+    target(box, roleKey, blank(role.name) ? '?' : role.name);
+    var row = el('summary', 'tree-row role-row');
+    row.appendChild(el('span', 'tw'));
+    row.appendChild(el('span', 'ti ti-role'));
+    var name = el('span', 't-name');
+    name.appendChild(value(role.name, 'roles[].name'));
+    row.appendChild(name);
+    var level = rankOf(role);
+    row.appendChild(level ? rankDots(level) : unfilled('roles[].importance'));
+    if (constraint) {
+      var tag = el('span', 'badge badge-quiet');
+      tag.textContent = T.constraintTag;
+      tag.setAttribute('title', T.constraintOnly);
+      row.appendChild(tag);
+    }
+    var layout = el('span', 't-layout clip');
+    layout.appendChild(blank(role.layout) ? unfilled('roles[].layout') : text(role.layout));
+    row.appendChild(layout);
+    var count = el('span', 't-count');
+    count.textContent = typeof role.count === 'number' ? T.files(role.count) : '';
+    row.appendChild(count);
+    box.appendChild(row);
+
+    var detail = el('div', 'role-detail');
+    if (constraint) {
+      var note = el('p', 'role-tag');
+      note.textContent = T.constraintOnly;
+      detail.appendChild(note);
+    }
+    detail.appendChild(fieldList([
+      [T.layout, blank(role.layout) ? unfilled('roles[].layout') : richText(role.layout, 'roles[].layout'), roleKey + '.layout'],
+      [T.naming, value(role.naming, 'roles[].naming'), roleKey + '.naming']
+    ]));
+    var rules = el('div', 'rules');
+    [[T.allowed, 'rules-col', role.allowed, 'allowed'],
+     [T.forbidden, 'rules-col rules-deny', role.forbidden, 'forbidden']
+    ].forEach(function (spec) {
+      var col = target(el('div', spec[1]), roleKey + '.' + spec[3], spec[0]);
+      var label = el('p', 'rules-head');
+      label.textContent = spec[0];
+      col.appendChild(label);
+      col.appendChild(targetBullets(bulletsOrNone(spec[2]), roleKey + '.' + spec[3]));
+      rules.appendChild(col);
+    });
+    detail.appendChild(rules);
+    detail.appendChild(fieldList([
+      [T.examples, targetBullets(fileLinks(role.examples, root), roleKey + '.examples'), roleKey + '.examples'],
+      [T.countLabel, value(role.count, 'roles[].count'), roleKey + '.count'],
+      [T.note, blank(role.note) ? null : text(role.note), roleKey + '.note']
+    ]));
+    box.appendChild(detail);
+    return box;
+  }
+
+  // Split group on "." into a tree. Roles without a group go in a last bundle
+  function buildGroupTree(roles) {
+    var root = { name: '', path: '', roles: [], order: [] };
+    roles.forEach(function (role, index) {
+      var segments = blank(role.group) ? [] : String(role.group).split('.').filter(Boolean);
+      var node = root;
+      segments.forEach(function (segment) {
+        var next = node.order.filter(function (child) { return child.name === segment; })[0];
+        if (!next) {
+          next = { name: segment, path: node.path ? node.path + '.' + segment : segment, roles: [], order: [] };
+          node.order.push(next);
+        }
+        node = next;
+      });
+      node.roles.push({ role: role, index: index });
+    });
+    return root;
+  }
+  function countRoles(node) {
+    return node.roles.length + node.order.reduce(function (sum, child) { return sum + countRoles(child); }, 0);
+  }
+  function sortedRoles(items) {
+    // Importance, descending. Equal importance keeps the JSON order (sort is stable)
+    return items.slice().sort(function (a, b) { return rankOf(b.role) - rankOf(a.role); });
+  }
+  function groupNode(node, root, depth) {
+    var box = target(el('details', 'group-node'), 'roles[group=' + node.path + ']', node.name);
+    var row = el('summary', 'tree-row group-row');
+    row.appendChild(el('span', 'tw'));
+    row.appendChild(el('span', 'ti ti-group'));
+    var name = el('span', 't-name');
+    name.textContent = node.name;
+    row.appendChild(name);
+    if (depth > 0) {
+      var full = el('span', 't-path');
+      full.textContent = node.path;
+      row.appendChild(full);
+    }
+    var badge = el('span', 'badge badge-quiet');
+    badge.textContent = T.roleUnit(countRoles(node));
+    row.appendChild(badge);
+    box.appendChild(row);
+    var kids = el('div', 'tree-children');
+    node.order.forEach(function (child) { kids.appendChild(groupNode(child, root, depth + 1)); });
+    sortedRoles(node.roles).forEach(function (item) { kids.appendChild(roleNode(item.role, root, item.index)); });
+    box.appendChild(kids);
+    box.open = true;
+    return box;
+  }
+  function legend() {
+    var box = el('div', 'legend');
+    [['ti ti-group', T.legendGroup], ['ti ti-role', T.legendRole]].forEach(function (spec) {
+      var item = el('span');
+      item.appendChild(el('span', spec[0]));
+      item.appendChild(text(spec[1]));
+      box.appendChild(item);
+    });
+    var rank = el('span');
+    rank.appendChild(rankDots(3));
+    rank.appendChild(text(T.legendRank));
+    box.appendChild(rank);
+    return box;
+  }
+  function renderRoles(roles, meta) {
+    var root = blank(meta.gradleRoot) ? null : String(meta.gradleRoot);
+    mount('roleCount', [text(countLabel(roles))]);
+    var tree = buildGroupTree(entries(roles));
+    var container = el('div', 'tree role-tree');
+    tree.order.forEach(function (child) { container.appendChild(groupNode(child, root, 0)); });
+    if (tree.roles.length) {
+      // Roles without a group. Step 5-2 counts them as unfilled
+      var box = el('details', 'group-node');
+      box.open = true;
+      var row = el('summary', 'tree-row group-row');
+      row.appendChild(el('span', 'tw'));
+      row.appendChild(el('span', 'ti ti-group'));
+      row.appendChild(unfilled('roles[].group'));
+      var badge = el('span', 'badge badge-quiet');
+      badge.textContent = T.roleUnit(tree.roles.length);
+      row.appendChild(badge);
+      box.appendChild(row);
+      var kids = el('div', 'tree-children');
+      sortedRoles(tree.roles).forEach(function (item) { kids.appendChild(roleNode(item.role, root, item.index)); });
+      box.appendChild(kids);
+      container.appendChild(box);
+    }
+    mount('roles', [legend(), treeTools(container), container]);
+  }
+
+  function renderExcluded(excluded) {
+    if (!countOf(excluded)) { mount('excluded', [none()]); return; }
+    var rows = entries(excluded).map(function (entry, i) {
+      return {
+        key: blank(entry.path) ? 'excluded[' + i + ']' : 'excluded[path=' + entry.path + ']',
+        label: blank(entry.path) ? String(i + 1) : String(entry.path),
+        cells: [value(entry.path, 'excluded[].path'), value(entry.reason, 'excluded[].reason')],
+        fields: ['path', 'reason']
+      };
+    });
+    mount('excluded', [tableOf(T.excluded, rows, ['40%', '60%'])]);
+  }
+
+  function renderTemplates(templates) {
+    if (!countOf(templates)) { mount('templates', [none()]); return; }
+    var rows = entries(templates).map(function (entry, i) {
+      return {
+        key: blank(entry.role) ? 'templates[' + i + ']' : 'templates[role=' + entry.role + ']',
+        label: blank(entry.role) ? String(i + 1) : String(entry.role),
+        cells: [
+          value(entry.role, 'templates[].role'),
+          inlineOrNone(entry.files),
+          inlineOrNone(entry.params),
+          blank(entry.basedOn) ? noneInline() : richText(entry.basedOn, 'templates[].basedOn'),
+          blank(entry.reason) ? text('') : text(entry.reason)
+        ],
+        fields: ['role', 'files', 'params', 'basedOn', 'reason']
+      };
+    });
+    // The reason must be readable, so that column wraps
+    mount('templates', [tableOf(T.templates, rows, ['16%', '20%', '12%', '26%', '26%'], undefined, [4])]);
+  }
+
+  // The current section is the last one whose top is above the top of the viewport.
+  // Relying on intersection order lets the next section override a short one, and doesn't update when scrolling up
+  function highlightToc() {
+    var links = Array.prototype.slice.call(document.querySelectorAll('#toc a'));
+    if (!links.length) return;
+    var sections = links.map(function (a) {
+      var href = a.getAttribute('href') || '';
+      return href.charAt(0) === '#' ? document.getElementById(href.slice(1)) : null;
+    });
+    var queued = false;
+
+    function pick() {
+      queued = false;
+      var view = window.innerHeight;
+      var rest = Math.max(0, document.documentElement.scrollHeight - view - window.pageYOffset);
+      // In the last screen no section can reach the top any more, so lower the line there
+      var top = (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--progress-h')) || 0) + 24;
+      var line = top;
+      if (rest < view && document.documentElement.scrollHeight - view >= view) {
+        line = top + (view - top) * (1 - rest / view);
+      }
+      var index = 0;
+      for (var i = 0; i < sections.length; i += 1) {
+        if (sections[i] && sections[i].getBoundingClientRect().top <= line) index = i;
+      }
+      if (rest <= 2) index = links.length - 1;
+      links.forEach(function (a, i) { a.classList.toggle('active', i === index); });
+    }
+
+    function schedule() {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(pick);
+    }
+
+    addEventListener('scroll', schedule, { passive: true });
+    addEventListener('resize', schedule);
+    pick();
+  }
+
+  function bootChecklist() {
+    var data = {};
+    try {
+      data = record(JSON.parse(document.getElementById('checklist').textContent));
+    } catch (error) {
+      dataOk = false;
+      renderError(error && error.message ? error.message : String(error));
+    }
+    renderMeta(record(data.meta));
+    renderSteps(data.steps);
+    renderPreferences(record(data.preferences));
+    renderViolations(data.violations);
+    renderQuestions(data.questions, record(data.answers));
+    renderChangedFiles(data.changedFiles);
+    foldFinishedSteps();
+    paint();
+
+    boxes.forEach(function (box) { box.addEventListener('change', paint); });
+    document.getElementById('toggle-all').addEventListener('click', function () {
+      var opening = stepNodes.some(function (step) { return !step.open; });
+      stepNodes.forEach(function (step) { step.open = opening; });
+      this.textContent = opening ? T.collapseAll : T.expandAll;
+    });
+  }
+  function bootReport() {
+    var data = {};
+    try {
+      data = record(JSON.parse(document.getElementById('report').textContent));
+    } catch (error) {
+      dataOk = false;
+      renderError(error && error.message ? error.message : String(error));
+    }
+    renderReportMeta(record(data.meta));
+    renderOverview(record(data.overview));
+    renderArchitecture(record(data.architecture));
+    renderModules(data);
+    renderRoles(data.roles, record(data.meta));
+    renderExcluded(data.excluded);
+    renderQuestions(data.questions, record(data.answers));
+    renderTemplates(data.templates);
+  }
+
+  // Put the height of the sticky progress bar in a CSS variable, so the report's table of contents sits below it
+  function syncProgressHeight() {
+    var bar = document.querySelector('.progress');
+    var update = function () {
+      var sticky = bar && getComputedStyle(bar).position === 'sticky';
+      document.documentElement.style.setProperty('--progress-h', (sticky ? bar.offsetHeight : 0) + 'px');
+    };
+    update();
+    if (bar && window.ResizeObserver) new ResizeObserver(update).observe(bar);
+  }
+
+  // "View the report" in the progress bar becomes "Back to the checklist" once the report is reached
+  function trackReportLink() {
+    var link = document.getElementById('report-link');
+    var report = document.getElementById('codebase-report');
+    if (!link || !report) return;
+    var inReport = null;
+    var queued = false;
+    function update() {
+      queued = false;
+      var line = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--progress-h')) || 0;
+      var now = report.getBoundingClientRect().top <= line + 24;
+      if (now === inReport) return;
+      inReport = now;
+      link.textContent = now ? T.backToChecklist : T.reportLink;
+      link.setAttribute('href', now ? '#main-content' : '#codebase-report');
+    }
+    function schedule() {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(update);
+    }
+    addEventListener('scroll', schedule, { passive: true });
+    addEventListener('resize', schedule);
+    update();
+  }
+
+  function boot() {
+    inDoc(DOCS.checklist, bootChecklist);
+    inDoc(DOCS.report, bootReport);
+    installClamps();
+    installFeedback();
+    refreshClamps();
+    syncProgressHeight();
+    trackReportLink();
+    highlightToc();
+    openWhilePrinting();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+</body>
+</html>
