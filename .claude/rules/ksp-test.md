@@ -20,18 +20,16 @@ paths:
 ## レイアウト（issue #127: feature 単位に分割）
 
 機能 (feature) ごとにディレクトリを分け、各 feature は同じ **5 種類** のテストを持つ。
-**現状 (#127)**: テスト基盤 (`testing/`、generator / poet 含む) / Konsist / `MultipleDiagnosticsTest` /
+**現状 (#127)**: テスト基盤 (`testing/`、generator / poet 含む) / `MultipleDiagnosticsTest` /
 全 8 feature の `<Feat>SnapshotTest`（`scenario/` 付き）は実装済み。`<Feat>BasicUsageTest` /
 `<Feat>InvalidUsageTest` / `<Feat>EdgeUsageTest` / `<Feat>PropertyTest` は一部を除きまだ `xtest` の
 空スタブ（`// TODO(#127): reimplement ...`）で、順次実装し直す。
 
 ```
 cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/
-├── AllKotlinFilesTest.kt       # 全ファイル横断 Konsist（root 直下許可ファイル / 1 ファイル行数上限）
 ├── MultipleDiagnosticsTest.kt  # フィーチャー横断（複数アノテ併用 / 複数エラー同時）
 ├── OptionsDiagnosticTest.kt / DefaultVisibilityOptionTest.kt / options/  # option 系
 ├── feature/
-│   ├── ArchTest.kt             # feature 層レイヤリング Konsist
 │   └── <copyTo|copyFrom|copyToChildren|sealedCopy|combineTo|combineFrom|copyMapping|combineMapping>/
 │       ├── <Feat>BasicUsageTest.kt    # 正常系 (example-based) ※多くは stub
 │       ├── <Feat>InvalidUsageTest.kt  # 不正利用 → エラー (diagnostic) ※多くは stub
@@ -40,7 +38,6 @@ cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/
 │       ├── <Feat>SnapshotTest.kt      # generator 駆動スナップショット（"UseCase" + "All patterns"）
 │       └── scenario/                  # curated case（family ごとの *Scenarios() + UseCases.kt）
 ├── core/
-│   ├── ArchTest.kt             # core / util 層レイヤリング Konsist
 │   └── common/                 # KSP 型に依存しない純ロジック（CopyFunctionNameTest 等）
 └── testing/                    # テスト基盤（feature 非依存）
     ├── compile/                # compileWithCream（KotlinCompilation + useKsp2）/ runCompileSnapshotTest / 結果ラッパー
@@ -48,8 +45,7 @@ cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/
     ├── poet/                   # 入力ビルダー（Prop / clazz / sealedInterface / SnapshotScenario …）
     ├── generator/              # generated case 基盤（Generator / union / cartesian / validCreamOptions）
     ├── kotlincodelikestring/   # CreamOptions → ksp config 文字列などの表示ヘルパ
-    ├── smoke/                  # 基盤が動くことの最小確認
-    └── konsist/KonsistSupport.kt      # Konsist scope / レイヤ判定ヘルパ（3 つの ArchTest が共有）
+    └── smoke/                  # 基盤が動くことの最小確認
 ```
 
 - **feature 5 種**: 各 feature は上記 5 ファイルを持つ（正常系 / 不正系 / エッジ / PBT / snapshot）。
@@ -68,14 +64,9 @@ cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/
 - **diagnostic 系**: 不正 annotation / 不正 option は exit code を
   `result.exitCode shouldNotBe KotlinCompilation.ExitCode.OK` で確認し、`normalizedCompilerOutput()`
   を `*.output.md` golden と突き合わせる（`<Feat>InvalidUsageTest` / `MultipleDiagnosticsTest`）。
-- **Konsist (architecture, issue #130)**: kctfork ではなく [Konsist](https://github.com/LemonAppDev/konsist)
-  (`testImplementation(libs.konsist)`) で `cream-ksp/src/main` の feature / core / util レイヤリングを
-  import ベースで強制。3 ファイルに分割: `AllKotlinFilesTest`（モジュール横断）/ `feature/ArchTest` /
-  `core/ArchTest`。共有 scope・ヘルパは `testing/konsist/KonsistSupport.kt`。scope は
-  `Konsist.scopeFromProduction(moduleName = "cream-ksp", sourceSetName = "main")` で main のみ
-  (test source set を除外)。正本は
-  `.claude/rules/ksp-architecture.md` の依存方向テーブル。Konsist 0.17.x は Kotlin 2.2 の
-  `context(...)` パラメータ付き宣言も問題なくパースできることを確認済み。
+- **architecture (issue #130)**: `cream-ksp/src/main` の feature / core / util レイヤリングと 1 ファイルの行数上限は、
+  cream-ksp のテストではなく katachi の定義（`architecture-test` モジュール）で強制している（もとは Konsist の ArchTest）。
+  正本は `.claude/rules/ksp-architecture.md` の依存方向テーブル。
 
 ### Snapshot file format
 
@@ -176,9 +167,9 @@ stack frame は Gradle / JUnit / KSP / cream 自身の line 変更や `... NN mo
 - feature 横断のシナリオ（複数アノテ併用 / 複数エラー）は `MultipleDiagnosticsTest.kt` に置く。
 - KSP 型に依存しない core の純ロジックは `core/<sub>/` 配下のテストに置く（コンパイル不要）。
 - 共有ヘルパーが必要になったら `testing/`（基盤）/ `testing/generator/`（case 生成）/
-  `testing/konsist/`（Konsist 共有）に追加し、本ドキュメントの「レイアウト」を更新する。
+  に追加し、本ドキュメントの「レイアウト」を更新する。
 
-> #127 進捗: 基盤 (`testing/`)・generator・smoke・Konsist (3 つの ArchTest)・全 8 feature の
+> #127 進捗: 基盤 (`testing/`)・generator・smoke・全 8 feature の
 > `<Feat>SnapshotTest`・`MultipleDiagnosticsTest`・`core/common` は実装済みで green。残る
 > `<Feat>BasicUsageTest` / `InvalidUsageTest` / `EdgeUsageTest` / `PropertyTest` は一部を除き
 > `xtest` スタブなので、ここから順次実装し直す。
