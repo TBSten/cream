@@ -1,6 +1,8 @@
 package me.tbsten.cream.test.architecture.library.ksp.core
 
 import me.tbsten.cream.test.architecture.KSP_MAIN
+import me.tbsten.cream.test.architecture.support.`1 ファイル 300 行以内`
+import me.tbsten.cream.test.architecture.support.`core 層は feature と composition root に依存しない`
 import me.tbsten.katachi.dsl.DeclarationContainerScope
 import me.tbsten.katachi.dsl.kotlin.ktFile
 
@@ -18,6 +20,9 @@ fun DeclarationContainerScope.coreGeneratorRole() =
         example("combineFun/CombineToClass.kt", "N 個の元から 1 つのクラスへの combine 関数の生成")
         example("sealedCopy/SealedCopy.kt", "@SealedCopy の生成")
         example("parentOptional/ParentOptionalAccessor.kt", "sealed な親への nullable アクセサの生成")
+
+        `1 ファイル 300 行以内`()
+        `core 層は feature と composition root に依存しない`()
 
         layout {
             KSP_MAIN / "core" / "*[A-Z]*" / "*".ktFile()

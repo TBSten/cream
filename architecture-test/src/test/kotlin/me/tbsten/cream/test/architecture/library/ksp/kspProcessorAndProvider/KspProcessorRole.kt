@@ -3,6 +3,7 @@
 package me.tbsten.cream.test.architecture.library.ksp.kspProcessorAndProvider
 
 import me.tbsten.cream.test.architecture.KSP_MAIN
+import me.tbsten.cream.test.architecture.support.`1 ファイル 300 行以内`
 import me.tbsten.katachi.ExperimentalKatachiApi
 import me.tbsten.katachi.dsl.DeclarationContainerScope
 import me.tbsten.katachi.dsl.RoleScope
@@ -16,6 +17,8 @@ fun DeclarationContainerScope.kspProcessorRole() =
         example("CreamSymbolProcessor.kt", "process() で各 feature を呼ぶ")
 
         `SymbolProcessor の実装だけを置く`()
+
+        `1 ファイル 300 行以内`()
 
         layout {
             KSP_MAIN / "CreamSymbolProcessor".ktFile()

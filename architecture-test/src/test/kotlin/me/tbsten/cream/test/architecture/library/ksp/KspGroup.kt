@@ -14,5 +14,6 @@ fun DeclarationContainerScope.kspGroup() =
         featureSupportRole()
         kspOptionRole()
         utilRole()
+        kspUtilRole()
         coreGroup()
     }

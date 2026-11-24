@@ -3,6 +3,7 @@
 package me.tbsten.cream.test.architecture.library.ksp.kspProcessorAndProvider
 
 import me.tbsten.cream.test.architecture.KSP_MAIN
+import me.tbsten.cream.test.architecture.support.`1 ファイル 300 行以内`
 import me.tbsten.katachi.ExperimentalKatachiApi
 import me.tbsten.katachi.dsl.DeclarationContainerScope
 import me.tbsten.katachi.dsl.RoleScope
@@ -16,6 +17,8 @@ fun DeclarationContainerScope.kspProcessContextRole() =
         example("ProcessContext.kt", "context parameter で feature に渡す")
 
         `feature と core に依存しない 4 つの依存の束`()
+
+        `1 ファイル 300 行以内`()
 
         layout {
             KSP_MAIN / "ProcessContext".ktFile()
