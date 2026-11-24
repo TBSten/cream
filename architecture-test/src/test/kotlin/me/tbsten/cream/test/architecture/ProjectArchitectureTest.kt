@@ -7,8 +7,9 @@ import me.tbsten.katachi.ExperimentalKatachiApi
 import me.tbsten.katachi.check.FileConstraintCheck
 import me.tbsten.katachi.check.assert
 
-class ProjectArchitectureTest : FreeSpec({
-    "プロジェクトの構成が定義どおりになっている" {
-        projectArchitecture.assert(FileConstraintCheck())
-    }
-})
+class ProjectArchitectureTest :
+    FreeSpec({
+        "プロジェクトの構成が定義どおりになっている" {
+            projectArchitecture.assert(FileConstraintCheck())
+        }
+    })
