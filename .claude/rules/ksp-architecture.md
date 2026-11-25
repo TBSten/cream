@@ -42,12 +42,15 @@ feature ─▶ ProcessContext   （唯一の上向き依存。ProcessContext は
 - **root パッケージ (`me.tbsten.cream.ksp` 直下) には `CreamSymbolProcessor` / `CreamSymbolProcessorProvider` / `ProcessContext` の 3 ファイルのみ**。生成ロジック・ヘルパ・例外等を直下に置かない（`CreamException` 階層は `core/error/`）。
 - `options/` は `core/error` の例外を送出し、`core`/`feature`/root は `options` を参照する。この 1 箇所だけ
   パッケージ間で相互参照になるが、`core/error` は util 以外に依存しない葉なので循環はしない。
-- 境界は [Konsist](https://github.com/LemonAppDev/konsist) の architecture test (issue #130) で自動強制している。
-  #127 で feature 単位に分割し、3 ファイル + 共有ヘルパに再配置した:
-  `cream-ksp/src/test/.../AllKotlinFilesTest.kt`（root=3 ファイル / 1 ファイル原則 ≤ 300 行・`FILE_LINE_LIMIT_OVERRIDES` のみ上限 500）、
-  `feature/ArchTest.kt`（`feature`=`feature.<name>` のみ・feature 間依存禁止・entry-point 署名）、
-  `core/ArchTest.kt`（`core`=`common`/`copyFun`/`combineFun`/`sealedCopy`/`parentOptional`/`error` のみ・`feature`/root infra 非依存、`util` 直下は KSP 非依存・cream 固有型非参照）。
-  共有 scope・ヘルパは `testing/konsist/KonsistSupport.kt`。
+- 境界は [katachi](https://tbsten.github.io/katachi) の定義（`architecture-test` モジュール、`./gradlew :architecture-test:test`）で自動強制している
+  （もとは Konsist の ArchTest だったものを移植した）:
+  - 配置（layout）: root 直下は 3 ファイルのみ、`core` は `common` / `error` / generator ディレクトリ（`copyFun` などの複合語）のみ、
+    `feature` は `feature/<name>/`（`Features.kt` の一覧）のみ。
+  - import（ktFileContent）: `core` は `feature` / root infra 非依存、`util` 直下は Kotlin のみ（KSP 非依存・cream 固有型非参照）、
+    `util/ksp` は KSP と Kotlin のみ、`feature` は他の feature と `CreamSymbolProcessor(Provider)` 非依存（`ProcessContext` のみ可）。
+  - entry point（`Process<Name>.kt`）: `context(processContext: ProcessContext) internal fun process<Name>(): List<KSAnnotated>` のみ公開。
+  - 1 ファイル原則 ≤ 300 行（`FindMatchedProperty.kt` のみ上限 500）。
+  層ごとの import 規則と行数上限は `architecture-test/src/test/kotlin/me/tbsten/cream/test/architecture/library/ksp/KspConstraint.kt` にまとめてある。
   強制内容は上記の依存方向テーブルどおり。この表や上記ルールを変えたら同テストを更新すること。
 
 ## ProcessContext & context parameters

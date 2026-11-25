@@ -4,11 +4,10 @@ import me.tbsten.katachi.dsl.DeclarationContainerScope
 
 fun DeclarationContainerScope.kspTestGroup() =
     "KspTest".group {
-        summary = "cream-ksp の JVM テスト（kctfork / snapshot / Konsist）"
+        summary = "cream-ksp の JVM テスト（kctfork / snapshot）"
 
         featureTestRole()
         kspUnitTestRole()
-        konsistTestRole()
         testingSupportRole()
         snapshotGoldenRole()
     }

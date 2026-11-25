@@ -213,10 +213,20 @@ Unit tests for processor logic (naming strategies, property matching, etc.):
 JVM-only end-to-end tests built on kctfork live under
 `cream-ksp/src/test/kotlin/me/tbsten/cream/ksp/`. See
 [.claude/rules/ksp-test.md](.claude/rules/ksp-test.md) for the layout
-(`testing/` / `diagnostic/` / `options/` / `snapshot/` / `architecture/`), the snapshot
-regeneration command, and how to add new tests. The `architecture/` tests use
-[Konsist](https://github.com/LemonAppDev/konsist) (not kctfork) to enforce the
-feature/core/util layering documented in `.claude/rules/ksp-architecture.md`.
+(`testing/` / `diagnostic/` / `options/` / `snapshot/`), the snapshot
+regeneration command, and how to add new tests.
+
+### Architecture Tests (`architecture-test/` with katachi)
+
+The repository layout and the cream-ksp feature/core/util layering documented in
+`.claude/rules/ksp-architecture.md` (imports per layer, entry-point shape, 300-line file budget)
+are enforced by the [katachi](https://tbsten.github.io/katachi) definition in `architecture-test/`:
+
+```bash
+./gradlew :architecture-test:test -Dkatachi.maxViolations=all
+```
+
+Every tracked file must belong to a Role; add or update a Role when you add a new kind of file.
 
 ## Multiplatform Considerations
 

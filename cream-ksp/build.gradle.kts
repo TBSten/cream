@@ -27,7 +27,6 @@ dependencies {
     testImplementation(libs.mockk)
     testImplementation(libs.kctforkCore)
     testImplementation(libs.kctforkKsp)
-    testImplementation(libs.konsist)
     testImplementation(libs.kotlinPoet)
 }
 
