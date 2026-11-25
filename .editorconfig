@@ -39,3 +39,8 @@ ktlint = disabled
 
 [test/src/**/*]
 ktlint_standard_filename = disabled
+
+# katachi の定義では、fileConstraint / ktFileContent を切り出した関数に
+# 制約の内容そのものを日本語の backtick 名で付ける（例: `対になるファイルがある`）
+[architecture-test/src/**/*.kt]
+ktlint_standard_function-naming = disabled
