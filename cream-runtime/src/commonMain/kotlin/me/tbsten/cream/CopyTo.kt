@@ -54,6 +54,31 @@ public annotation class CopyTo(
     val visibility: CopyVisibility = CopyVisibility.INHERIT,
     val funName: String = DefaultCopyFunctionName,
 ) {
+    /**
+     * Maps an annotated source property to a differently-named target constructor parameter.
+     *
+     * Annotate a **source-class constructor parameter** and pass the target parameter name(s) in
+     * [propertyNames]; the generated copy function then defaults that target parameter to
+     * `this.<annotated property>`.
+     *
+     * On a type parameter it works the other way round: put it on a **type parameter of the target
+     * class** and pass the name of the source class's type parameter it corresponds to.
+     *
+     * ```kt
+     * @CopyTo(DataModel::class)
+     * data class DomainModel(
+     *     @CopyTo.Map("dataId")
+     *     val domainId: String,
+     * )
+     *
+     * // Generated:
+     * fun DomainModel.copyToDataModel(dataId: String = this.domainId): DataModel = ...
+     * ```
+     *
+     * @property propertyNames Names of the target parameters this property is copied to.
+     * @see CopyTo.Exclude
+     * @see CopyTo
+     */
     @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE_PARAMETER)
     public annotation class Map(
         vararg val propertyNames: String,

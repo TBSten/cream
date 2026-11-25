@@ -17,6 +17,7 @@ fun DeclarationContainerScope.integrationTestDataRole() =
         description =
             """
             <feature>/<Name>.kt に置き、commonTest の同じパスに <Name>Test.kt を置く。
+            <feature>/ のサブディレクトリ（copyMapping/lib/ など）には、直下のデータが使う補助のモデルを置く。補助のモデルには対のテストは要らない。
             """.trimIndent()
         example("copyTo/Basic.kt", "@CopyTo の基本ケース")
 
@@ -32,5 +33,7 @@ private fun FileConstraintScope.`対になるテストファイルがある`() =
         name = "対になる *Test.kt がある",
         howToFix = "commonTest に同じパスの <Name>Test.kt を置くか、名前を揃える",
     ) { file ->
-        "$INTEGRATION_TEST/" + file.removePrefix("$INTEGRATION_TEST_DATA/").removeSuffix(".kt") + "Test.kt"
+        val relative = file.removePrefix("$INTEGRATION_TEST_DATA/")
+        // <feature>/ のサブディレクトリにある補助のモデルは対のテストを持たない
+        if (relative.count { it == '/' } == 1) "$INTEGRATION_TEST/" + relative.removeSuffix(".kt") + "Test.kt" else null
     }

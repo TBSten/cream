@@ -3,7 +3,7 @@ package me.tbsten.cream.test.generic
 import io.kotest.core.spec.style.FreeSpec
 import io.kotest.matchers.shouldBe
 
-class GenericClassTest :
+class GenericClassesTest :
     FreeSpec({
         "twoArgToThreeArg" {
             val source =
